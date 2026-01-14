@@ -21,8 +21,11 @@ onet_occupations <- function(start = 1, end = 1000) {
   resp <- onet_request("online/occupations", start = start, end = end) |>
     onet_perform()
 
+  # Define expected schema
+  schema <- empty_tibble(code = character(), title = character())
+
   if (is.null(resp$occupation) || length(resp$occupation) == 0) {
-    return(tibble(code = character(), title = character()))
+    return(schema)
   }
 
   map(resp$occupation, \(x) {
@@ -137,7 +140,12 @@ onet_abilities <- function(code) {
 #'
 #' @param code An O*NET-SOC occupation code (e.g., "15-1252.00").
 #'
-#' @return A tibble with technology skills data.
+#' @return A tibble with technology skills data:
+#'   \describe{
+#'     \item{category}{Technology category}
+#'     \item{title}{Technology name}
+#'     \item{hot_technology}{Logical indicating if it's a hot technology}
+#'   }
 #'
 #' @export
 #' @examples
@@ -149,12 +157,15 @@ onet_technology <- function(code) {
   resp <- onet_request("online/occupations", code, "hot_technology") |>
     onet_perform()
 
+  # Define expected schema
+  schema <- empty_tibble(
+    category = character(),
+    title = character(),
+    hot_technology = logical()
+  )
+
   if (is.null(resp$category) || length(resp$category) == 0) {
-    return(tibble(
-      category = character(),
-      title = character(),
-      hot_technology = logical()
-    ))
+    return(schema)
   }
 
   # Flatten the nested category -> example structure
@@ -171,7 +182,11 @@ onet_technology <- function(code) {
     }) |> list_rbind()
   }) |> list_rbind()
 
-  results %||% tibble(category = character(), title = character(), hot_technology = logical())
+  if (is.null(results) || nrow(results) == 0) {
+    return(schema)
+  }
+  
+  results
 }
 
 # Internal helper to fetch occupation elements (skills, knowledge, abilities)
@@ -182,15 +197,18 @@ onet_occupation_element <- function(code, element) {
   resp <- onet_request("online/occupations", code, "summary") |>
     onet_perform()
 
+  # Define expected schema
+  schema <- empty_tibble(
+    id = character(),
+    name = character(),
+    description = character(),
+    value = numeric(),
+    scale = character()
+  )
+
   data <- resp[[element]]
   if (is.null(data) || length(data$element) == 0) {
-    return(tibble(
-      id = character(),
-      name = character(),
-      description = character(),
-      value = numeric(),
-      scale = character()
-    ))
+    return(schema)
   }
 
   map(data$element, \(x) {

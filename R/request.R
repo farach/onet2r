@@ -17,14 +17,18 @@ onet_request <- function(.path, ...) {
     req_headers(`X-API-Key` = onet_api_key()) |>
     req_retry(
       max_tries = 3,
-      is_transient = \(resp) resp_status(resp) == 429,
+      is_transient = \(resp) {
+        status <- resp_status(resp)
+        # Retry on rate limits and transient server errors
+        status %in% c(429, 500, 502, 503, 504)
+      },
       backoff = \(i) 0.2 * (2 ^ i)
     )
 }
 
 #' Perform an O*NET API Request
 #'
-#' Executes a request and returns the parsed JSON body.
+#' Executes a request and returns the parsed JSON body with error handling.
 #'
 #' @param req An httr2 request object from [onet_request()].
 #'
@@ -32,7 +36,18 @@ onet_request <- function(.path, ...) {
 #' @keywords internal
 onet_perform <- function(req) {
   resp <- req_perform(req)
-  resp_body_json(resp)
+  body <- resp_body_json(resp)
+  
+  # Check for OpenAPI-style errors in response body
+  if (!is.null(body$error)) {
+    cli_abort(c(
+      "O*NET API returned an error:",
+      "x" = body$error,
+      "i" = if (!is.null(body$message)) body$message
+    ))
+  }
+  
+  body
 }
 
 #' Convert API Response to Tibble
@@ -79,4 +94,104 @@ extract_paged_data <- function(resp, key) {
     return(tibble())
   }
   map(data, as_onet_tibble) |> list_rbind()
+}
+
+#' Extract List Data from API Response
+#'
+#' Standardized extraction of list-based data from API responses,
+#' handling empty results and converting to tibbles.
+#'
+#' @param resp A list containing the API response.
+#' @param key The key containing the list data.
+#' @param schema Optional tibble defining the expected schema for empty results.
+#'
+#' @return A tibble with the extracted data or empty tibble with correct schema.
+#' @keywords internal
+extract_list_data <- function(resp, key, schema = NULL) {
+  data <- resp[[key]]
+  
+  # Handle missing or empty data
+  if (is.null(data) || length(data) == 0) {
+    if (!is.null(schema)) {
+      return(schema)
+    }
+    return(tibble())
+  }
+  
+  # Convert list to tibble
+  result <- map(data, as_onet_tibble) |> list_rbind()
+  
+  # If we have a schema and result is empty, return schema
+  if (nrow(result) == 0 && !is.null(schema)) {
+    return(schema)
+  }
+  
+  result
+}
+
+#' Create Empty Tibble with Schema
+#'
+#' Helper to create an empty tibble with specific column types.
+#'
+#' @param ... Named arguments where names are column names and values are type constructors
+#'   (e.g., character(), numeric(), logical()).
+#'
+#' @return An empty tibble with the specified schema.
+#' @keywords internal
+empty_tibble <- function(...) {
+  cols <- list(...)
+  if (length(cols) == 0) {
+    return(tibble())
+  }
+  do.call(tibble, cols)
+}
+
+#' Paginate Through API Results
+#'
+#' Helper to paginate through API results with optional progress reporting.
+#'
+#' @param fetch_page Function that fetches a single page. Should accept
+#'   `start` and `end` arguments and return a list with `data`, `start`,
+#'   `end`, and `total` elements.
+#' @param page_size Number of records per page.
+#' @param show_progress Logical indicating whether to show progress messages.
+#'
+#' @return A tibble containing all paginated results.
+#' @keywords internal
+paginate_api <- function(fetch_page, page_size = 2000, show_progress = TRUE) {
+  all_rows <- list()
+  start <- 1
+  total <- NULL
+  
+  repeat {
+    page <- fetch_page(start = start, end = start + page_size - 1)
+    
+    # Store total from first page
+    if (is.null(total)) {
+      total <- page$total %||% 0
+    }
+    
+    # Collect data if present
+    if (length(page$data) > 0 && nrow(page$data) > 0) {
+      all_rows <- c(all_rows, list(page$data))
+    }
+    
+    # Check if we're done
+    if (page$end >= page$total || page$total == 0) {
+      break
+    }
+    
+    # Show progress
+    start <- page$end + 1
+    if (show_progress && total > 0) {
+      cli_inform("Fetching rows {start} to {min(start + page_size - 1, total)} of {total}...")
+    }
+  }
+  
+  # Combine all pages
+  if (length(all_rows) == 0) {
+    return(tibble())
+  }
+  
+  list_rbind(all_rows)
 }
