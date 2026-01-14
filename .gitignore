@@ -1,0 +1,18 @@
+# R package build artifacts
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+*.tar.gz
+*.Rcheck/
+
+# IDE
+.Rproj.user/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code plans (local only)
+.claude/
