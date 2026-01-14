@@ -18,10 +18,11 @@ onet_tables <- function() {
   resp <- onet_request("database") |>
     onet_perform()
 
-  schema <- list(id = character(), title = character())
+  # Define expected schema
+  schema <- empty_tibble(id = character(), title = character())
 
   if (is.null(resp$table) || length(resp$table) == 0) {
-    return(create_empty_result(schema))
+    return(schema)
   }
 
   map(resp$table, \(x) {
@@ -59,10 +60,15 @@ onet_table_info <- function(table_id) {
   resp <- onet_request("database/info", table_id) |>
     onet_perform()
 
-  schema <- list(name = character(), type = character(), description = character())
+  # Define expected schema
+  schema <- empty_tibble(
+    name = character(),
+    type = character(),
+    description = character()
+  )
 
   if (is.null(resp$column) || length(resp$column) == 0) {
-    return(create_empty_result(schema))
+    return(schema)
   }
 
   map(resp$column, \(x) {
@@ -84,14 +90,15 @@ onet_table_info <- function(table_id) {
 #' @param page_size Integer specifying how many rows to fetch per request
 #'   (default 2000, which is the API maximum).
 #' @param show_progress Logical indicating whether to show progress messages
-#'   for large tables (default TRUE).
+#'   for pagination (default TRUE).
 #'
 #' @return A tibble containing all rows from the table.
 #'
 #' @details
 #' This function automatically handles pagination to retrieve all rows
 #' from large tables. For very large tables, this may take some time
-#' and make multiple API requests.
+#' and make multiple API requests. Progress messages can be disabled
+#' by setting `show_progress = FALSE`.
 #'
 #' @export
 #' @examples
@@ -110,12 +117,14 @@ onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {
     cli_abort("{.arg page_size} must be between 1 and 2000.")
   }
   
-  # Use the reusable pagination helper
-  fetch_page <- function(start, end) {
-    onet_table_page(table_id, start = start, end = end)
-  }
-  
-  paginate_results(fetch_page, page_size = page_size, show_progress = show_progress)
+  # Use the centralized pagination helper
+  paginate_api(
+    fetch_page = function(start, end) {
+      onet_table_page(table_id, start = start, end = end)
+    },
+    page_size = page_size,
+    show_progress = show_progress
+  )
 }
 
 #' Get a Single Page of O*NET Table Data

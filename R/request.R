@@ -17,7 +17,11 @@ onet_request <- function(.path, ...) {
     req_headers(`X-API-Key` = onet_api_key()) |>
     req_retry(
       max_tries = 3,
-      is_transient = is_transient_error,
+      is_transient = \(resp) {
+        status <- resp_status(resp)
+        # Retry on rate limits and transient server errors
+        status %in% c(429, 500, 502, 503, 504)
+      },
       backoff = \(i) 0.2 * (2 ^ i)
     )
 }
@@ -45,45 +49,19 @@ is_transient_error <- function(resp) {
 #' @return A list containing the parsed JSON response.
 #' @keywords internal
 onet_perform <- function(req) {
-  resp <- tryCatch(
-    req_perform(req),
-    error = function(e) {
-      # Enhance error message with context
-      cli_abort(c(
-        "O*NET API request failed",
-        "x" = conditionMessage(e),
-        "i" = "Check your API key and internet connection"
-      ))
-    }
-  )
-  
+  resp <- req_perform(req)
   body <- resp_body_json(resp)
   
-  # Check for API-level errors in response body
+  # Check for OpenAPI-style errors in response body
   if (!is.null(body$error)) {
-    handle_api_error(body$error)
+    cli_abort(c(
+      "O*NET API returned an error:",
+      "x" = body$error,
+      "i" = if (!is.null(body$message)) body$message
+    ))
   }
   
   body
-}
-
-#' Handle API Error Responses
-#'
-#' Processes error information from the O*NET API response body.
-#'
-#' @param error The error object from the API response.
-#'
-#' @return Never returns; always throws an error.
-#' @keywords internal
-handle_api_error <- function(error) {
-  error_msg <- error$message %||% "Unknown API error"
-  error_code <- error$code %||% "UNKNOWN"
-  
-  cli_abort(c(
-    "O*NET API returned an error",
-    "x" = paste0("[", error_code, "] ", error_msg),
-    "i" = "See {.url https://services.onetcenter.org/reference/} for API documentation"
-  ))
 }
 
 #' Convert API Response to Tibble
@@ -132,101 +110,69 @@ extract_paged_data <- function(resp, key) {
   map(data, as_onet_tibble) |> list_rbind()
 }
 
-#' Extract List Payload from API Response
+#' Extract List Data from API Response
 #'
-#' Standardizes extraction of list-based data from O*NET API responses.
-#' Handles both simple lists and nested structures.
+#' Standardized extraction of list-based data from API responses,
+#' handling empty results and converting to tibbles.
 #'
-#' @param resp API response list.
-#' @param key Primary key containing the data array.
-#' @param schema Optional named list specifying expected column types.
-#'   Each element should be a function (e.g., character(), numeric()).
+#' @param resp A list containing the API response.
+#' @param key The key containing the list data.
+#' @param schema Optional tibble defining the expected schema for empty results.
 #'
-#' @return A tibble with standardized column names and types.
+#' @return A tibble with the extracted data or empty tibble with correct schema.
 #' @keywords internal
-extract_list_payload <- function(resp, key, schema = NULL) {
+extract_list_data <- function(resp, key, schema = NULL) {
   data <- resp[[key]]
   
-  # Handle empty results
+  # Handle missing or empty data
   if (is.null(data) || length(data) == 0) {
-    return(create_empty_result(schema))
+    if (!is.null(schema)) {
+      return(schema)
+    }
+    return(tibble())
   }
   
-  # Convert list items to tibbles and bind
+  # Convert list to tibble
   result <- map(data, as_onet_tibble) |> list_rbind()
   
-  # Apply schema if provided
-  if (!is.null(schema)) {
-    result <- enforce_schema(result, schema)
+  # If we have a schema and result is empty, return schema
+  if (nrow(result) == 0 && !is.null(schema)) {
+    return(schema)
   }
   
   result
 }
 
-#' Create Empty Result with Schema
+#' Create Empty Tibble with Schema
 #'
-#' Creates an empty tibble with the specified column types.
+#' Helper to create an empty tibble with specific column types.
 #'
-#' @param schema Named list of column types (e.g., list(code = character(), value = numeric())).
+#' @param ... Named arguments where names are column names and values are type constructors
+#'   (e.g., character(), numeric(), logical()).
 #'
-#' @return An empty tibble with typed columns.
+#' @return An empty tibble with the specified schema.
 #' @keywords internal
-create_empty_result <- function(schema = NULL) {
-  if (is.null(schema)) {
+empty_tibble <- function(...) {
+  cols <- list(...)
+  if (length(cols) == 0) {
     return(tibble())
   }
-  
-  # Create empty vectors with correct types
-  cols <- map(schema, \(type_fn) type_fn())
   do.call(tibble, cols)
-}
-
-#' Enforce Schema on Tibble
-#'
-#' Ensures a tibble has the expected column types, coercing if necessary.
-#'
-#' @param data A tibble.
-#' @param schema Named list of column types.
-#'
-#' @return Tibble with enforced types.
-#' @keywords internal
-enforce_schema <- function(data, schema) {
-  for (col_name in names(schema)) {
-    if (col_name %in% names(data)) {
-      expected_type <- class(schema[[col_name]]())[1]
-      actual_type <- class(data[[col_name]])[1]
-      
-      if (expected_type != actual_type) {
-        # Attempt type coercion
-        data[[col_name]] <- tryCatch(
-          as(data[[col_name]], expected_type),
-          error = function(e) {
-            cli_warn(c(
-              "Could not coerce column {.field {col_name}} to {.cls {expected_type}}",
-              "i" = "Keeping as {.cls {actual_type}}"
-            ))
-            data[[col_name]]
-          }
-        )
-      }
-    }
-  }
-  data
 }
 
 #' Paginate Through API Results
 #'
-#' Generic pagination helper that fetches all pages of results.
+#' Helper to paginate through API results with optional progress reporting.
 #'
 #' @param fetch_page Function that fetches a single page. Should accept
 #'   `start` and `end` arguments and return a list with `data`, `start`,
 #'   `end`, and `total` elements.
-#' @param page_size Number of items to fetch per page.
+#' @param page_size Number of records per page.
 #' @param show_progress Logical indicating whether to show progress messages.
 #'
 #' @return A tibble containing all paginated results.
 #' @keywords internal
-paginate_results <- function(fetch_page, page_size = 2000, show_progress = TRUE) {
+paginate_api <- function(fetch_page, page_size = 2000, show_progress = TRUE) {
   all_rows <- list()
   start <- 1
   total <- NULL
@@ -234,19 +180,14 @@ paginate_results <- function(fetch_page, page_size = 2000, show_progress = TRUE)
   repeat {
     page <- fetch_page(start = start, end = start + page_size - 1)
     
-    if (length(page$data) > 0) {
-      all_rows <- c(all_rows, list(page$data))
-    }
-    
     # Store total from first page
     if (is.null(total)) {
-      total <- page$total
+      total <- page$total %||% 0
     }
     
-    # Show progress if requested
-    if (show_progress && total > page_size) {
-      next_start <- page$end + 1
-      cli_inform("Fetching rows {next_start} to {min(next_start + page_size - 1, total)} of {total}...")
+    # Collect data if present
+    if (length(page$data) > 0 && nrow(page$data) > 0) {
+      all_rows <- c(all_rows, list(page$data))
     }
     
     # Check if we're done
@@ -254,9 +195,14 @@ paginate_results <- function(fetch_page, page_size = 2000, show_progress = TRUE)
       break
     }
     
+    # Show progress
     start <- page$end + 1
+    if (show_progress && total > 0) {
+      cli_inform("Fetching rows {start} to {min(start + page_size - 1, total)} of {total}...")
+    }
   }
   
+  # Combine all pages
   if (length(all_rows) == 0) {
     return(tibble())
   }

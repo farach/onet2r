@@ -1,83 +1,114 @@
-test_that("create_empty_result creates correctly typed empty tibbles", {
-  # Test with schema
-  schema <- list(
+test_that("empty_tibble creates correct schema", {
+  # Test with no arguments
+  empty <- onet2r:::empty_tibble()
+  expect_s3_class(empty, "tbl_df")
+  expect_equal(nrow(empty), 0)
+  expect_equal(ncol(empty), 0)
+  
+  # Test with character columns
+  schema <- onet2r:::empty_tibble(
     code = character(),
-    value = numeric(),
-    active = logical()
+    title = character()
   )
+  expect_s3_class(schema, "tbl_df")
+  expect_equal(nrow(schema), 0)
+  expect_equal(ncol(schema), 2)
+  expect_equal(names(schema), c("code", "title"))
+  expect_type(schema$code, "character")
+  expect_type(schema$title, "character")
   
-  result <- create_empty_result(schema)
-  
-  expect_s3_class(result, "tbl_df")
-  expect_equal(nrow(result), 0)
-  expect_equal(ncol(result), 3)
-  expect_true("code" %in% names(result))
-  expect_true("value" %in% names(result))
-  expect_true("active" %in% names(result))
-  expect_type(result$code, "character")
-  expect_type(result$value, "double")
-  expect_type(result$active, "logical")
+  # Test with mixed types
+  schema <- onet2r:::empty_tibble(
+    id = character(),
+    value = numeric(),
+    flag = logical()
+  )
+  expect_equal(ncol(schema), 3)
+  expect_type(schema$id, "character")
+  expect_type(schema$value, "double")
+  expect_type(schema$flag, "logical")
 })
 
-test_that("create_empty_result handles NULL schema", {
-  result <- create_empty_result(NULL)
+test_that("to_snake_case converts correctly", {
+  expect_equal(onet2r:::to_snake_case("CamelCase"), "camel_case")
+  expect_equal(onet2r:::to_snake_case("HTTPResponse"), "http_response")
+  expect_equal(onet2r:::to_snake_case("alreadyLowercase"), "already_lowercase")
+  expect_equal(onet2r:::to_snake_case("API"), "api")
+  expect_equal(onet2r:::to_snake_case("snake_case"), "snake_case")
   
-  expect_s3_class(result, "tbl_df")
-  expect_equal(nrow(result), 0)
-  expect_equal(ncol(result), 0)
-})
-
-test_that("is_transient_error identifies transient errors correctly", {
-  # Mock response objects
-  mock_resp_429 <- list()
-  class(mock_resp_429) <- "httr2_response"
-  attr(mock_resp_429, "status") <- 429
-  
-  mock_resp_500 <- list()
-  class(mock_resp_500) <- "httr2_response"
-  attr(mock_resp_500, "status") <- 500
-  
-  mock_resp_503 <- list()
-  class(mock_resp_503) <- "httr2_response"
-  attr(mock_resp_503, "status") <- 503
-  
-  mock_resp_404 <- list()
-  class(mock_resp_404) <- "httr2_response"
-  attr(mock_resp_404, "status") <- 404
-  
-  # Note: These tests would require httr2 to be loaded and proper mock responses
-  # Since we can't easily test without httr2, we'll skip actual execution
-  skip_if_not_installed("httr2")
-  
-  # The function should return TRUE for 429 and 500-599
-  # and FALSE for other status codes
-})
-
-test_that("to_snake_case converts camelCase to snake_case", {
-  expect_equal(to_snake_case("camelCase"), "camel_case")
-  expect_equal(to_snake_case("PascalCase"), "pascal_case")
-  expect_equal(to_snake_case("already_snake"), "already_snake")
-  expect_equal(to_snake_case("HTTPResponse"), "http_response")
-  expect_equal(to_snake_case(c("firstVar", "secondVar")), c("first_var", "second_var"))
+  # Test vector conversion
+  input <- c("FirstName", "LastName", "EmailAddress")
+  expected <- c("first_name", "last_name", "email_address")
+  expect_equal(onet2r:::to_snake_case(input), expected)
 })
 
 test_that("as_onet_tibble handles empty input", {
-  result <- as_onet_tibble(list())
-  
+  result <- onet2r:::as_onet_tibble(list())
   expect_s3_class(result, "tbl_df")
   expect_equal(nrow(result), 0)
 })
 
-test_that("as_onet_tibble converts to snake_case column names", {
+test_that("as_onet_tibble converts column names", {
   input <- list(
-    list(FirstName = "John", LastName = "Doe", AgeYears = 30),
-    list(FirstName = "Jane", LastName = "Smith", AgeYears = 25)
+    list(FirstName = "John", LastName = "Doe"),
+    list(FirstName = "Jane", LastName = "Smith")
   )
   
-  # Process each list item
-  result <- as_onet_tibble(input[[1]])
+  # Convert single item
+  result <- onet2r:::as_onet_tibble(input[[1]])
+  expect_equal(names(result), c("first_name", "last_name"))
+  expect_equal(result$first_name, "John")
+})
+
+test_that("extract_list_data handles empty results", {
+  # Test with NULL data
+  resp_null <- list(occupation = NULL)
+  schema <- onet2r:::empty_tibble(code = character(), title = character())
+  result <- onet2r:::extract_list_data(resp_null, "occupation", schema = schema)
   
-  expect_true("first_name" %in% names(result))
-  expect_true("last_name" %in% names(result))
-  expect_true("age_years" %in% names(result))
+  expect_s3_class(result, "tbl_df")
+  expect_equal(nrow(result), 0)
+  expect_equal(names(result), c("code", "title"))
+  
+  # Test with empty list
+  resp_empty <- list(occupation = list())
+  result <- onet2r:::extract_list_data(resp_empty, "occupation", schema = schema)
+  expect_equal(nrow(result), 0)
+  expect_equal(names(result), c("code", "title"))
+  
+  # Test without schema
+  result <- onet2r:::extract_list_data(resp_null, "occupation")
+  expect_s3_class(result, "tbl_df")
+  expect_equal(nrow(result), 0)
+})
+
+test_that("validate_onet_code validates format correctly", {
+  # Valid codes
+  expect_invisible(onet2r:::validate_onet_code("15-1252.00"))
+  expect_invisible(onet2r:::validate_onet_code("15-1252"))
+  expect_invisible(onet2r:::validate_onet_code("29-1141.00"))
+  
+  # Invalid codes
+  expect_error(
+    onet2r:::validate_onet_code("invalid"),
+    "Invalid O\\*NET-SOC code format"
+  )
+  expect_error(
+    onet2r:::validate_onet_code("15-12"),
+    "Invalid O\\*NET-SOC code format"
+  )
+  expect_error(
+    onet2r:::validate_onet_code("15-1252.0"),
+    "Invalid O\\*NET-SOC code format"
+  )
+  
+  # Non-string input
+  expect_error(
+    onet2r:::validate_onet_code(123),
+    "must be a single character string"
+  )
+  expect_error(
+    onet2r:::validate_onet_code(c("15-1252.00", "15-1251.00")),
+    "must be a single character string"
+  )
 })
