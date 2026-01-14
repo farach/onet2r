@@ -3,7 +3,9 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-onet2r is an R client for the [O*NET Web Services API](https://services.onetcenter.org/), providing easy access to occupational data from the O*NET database. The package offers functions to search occupations, retrieve occupation details (skills, knowledge, abilities), access database tables, and perform taxonomy crosswalks.
+onet2r is an R client for the [O*NET Web Services API](https://services.onetcenter.org/), providing easy access to occupational data from the O*NET database. 
+
+The package offers functions to search occupations, retrieve occupation details (skills, knowledge, abilities), access database tables, and perform taxonomy crosswalks.
 
 ## Installation
 
