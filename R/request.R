@@ -1,5 +1,5 @@
 # O*NET API base URL
-onet_base_url <- "https://services.onetcenter.org/ws"
+onet_base_url <- "https://api-v2.onetcenter.org"
 
 #' Build an O*NET API Request
 #'

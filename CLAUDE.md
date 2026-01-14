@@ -5,7 +5,7 @@
 This is an R package wrapping the O*NET Web Services API 2.0.
 
 API Details:
-- Base URL: https://services.onetcenter.org/ws
+- Base URL: https://api-v2.onetcenter.org
 - Auth: X-API-Key header
 - Format: JSON responses
 - Docs: https://services.onetcenter.org/reference/
