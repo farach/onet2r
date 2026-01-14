@@ -30,9 +30,11 @@ onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
                        keyword = keyword, start = start, end = end) |>
     onet_perform()
 
+  schema <- list(code = character(), title = character())
+
   if (is.null(resp$occupation) || length(resp$occupation) == 0) {
     cli_inform("No civilian occupations found for: {.val {keyword}}")
-    return(tibble(code = character(), title = character()))
+    return(create_empty_result(schema))
   }
 
   map(resp$occupation, \(x) {
@@ -89,9 +91,11 @@ onet_taxonomy_map <- function(code, from = c("active", "2010"), to = c("2010", "
   resp <- onet_request(endpoint) |>
     onet_perform()
 
+  schema <- list(code = character(), title = character())
+
   if (is.null(resp$occupation) || length(resp$occupation) == 0) {
     cli_inform("No mapping found for code: {.val {code}}")
-    return(tibble(code = character(), title = character()))
+    return(create_empty_result(schema))
   }
 
   map(resp$occupation, \(x) {

@@ -30,13 +30,16 @@ onet_search <- function(keyword, start = 1, end = 20) {
   resp <- onet_request("online/search", keyword = keyword, start = start, end = end) |>
     onet_perform()
 
+  # Use the new helper with schema
+  schema <- list(
+    code = character(),
+    title = character(),
+    relevance_score = numeric()
+  )
+  
   if (is.null(resp$occupation) || length(resp$occupation) == 0) {
     cli_inform("No occupations found for keyword: {.val {keyword}}")
-    return(tibble(
-      code = character(),
-      title = character(),
-      relevance_score = numeric()
-    ))
+    return(create_empty_result(schema))
   }
 
   results <- map(resp$occupation, \(x) {
