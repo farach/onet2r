@@ -21,8 +21,10 @@ onet_occupations <- function(start = 1, end = 1000) {
   resp <- onet_request("online/occupations", start = start, end = end) |>
     onet_perform()
 
+  schema <- list(code = character(), title = character())
+  
   if (is.null(resp$occupation) || length(resp$occupation) == 0) {
-    return(tibble(code = character(), title = character()))
+    return(create_empty_result(schema))
   }
 
   map(resp$occupation, \(x) {
@@ -149,12 +151,14 @@ onet_technology <- function(code) {
   resp <- onet_request("online/occupations", code, "hot_technology") |>
     onet_perform()
 
+  schema <- list(
+    category = character(),
+    title = character(),
+    hot_technology = logical()
+  )
+
   if (is.null(resp$category) || length(resp$category) == 0) {
-    return(tibble(
-      category = character(),
-      title = character(),
-      hot_technology = logical()
-    ))
+    return(create_empty_result(schema))
   }
 
   # Flatten the nested category -> example structure
@@ -171,7 +175,7 @@ onet_technology <- function(code) {
     }) |> list_rbind()
   }) |> list_rbind()
 
-  results %||% tibble(category = character(), title = character(), hot_technology = logical())
+  results %||% create_empty_result(schema)
 }
 
 # Internal helper to fetch occupation elements (skills, knowledge, abilities)
@@ -182,15 +186,17 @@ onet_occupation_element <- function(code, element) {
   resp <- onet_request("online/occupations", code, "summary") |>
     onet_perform()
 
+  schema <- list(
+    id = character(),
+    name = character(),
+    description = character(),
+    value = numeric(),
+    scale = character()
+  )
+
   data <- resp[[element]]
   if (is.null(data) || length(data$element) == 0) {
-    return(tibble(
-      id = character(),
-      name = character(),
-      description = character(),
-      value = numeric(),
-      scale = character()
-    ))
+    return(create_empty_result(schema))
   }
 
   map(data$element, \(x) {
