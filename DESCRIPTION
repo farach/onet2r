@@ -25,3 +25,4 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/alexfarach/onet2r
 BugReports: https://github.com/alexfarach/onet2r/issues
+VignetteBuilder: knitr

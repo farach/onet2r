@@ -26,6 +26,20 @@ onet_request <- function(.path, ...) {
     )
 }
 
+#' Check if HTTP Response is a Transient Error
+#'
+#' Determines if an HTTP response represents a transient error that should be retried.
+#'
+#' @param resp An httr2 response object.
+#'
+#' @return Logical indicating if the error is transient.
+#' @keywords internal
+is_transient_error <- function(resp) {
+  status <- resp_status(resp)
+  # Retry on rate limiting (429) and server errors (500-599)
+  status == 429 || (status >= 500 && status < 600)
+}
+
 #' Perform an O*NET API Request
 #'
 #' Executes a request and returns the parsed JSON body with error handling.
