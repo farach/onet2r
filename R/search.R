@@ -10,7 +10,6 @@
 #'   \describe{
 #'     \item{code}{O*NET-SOC occupation code}
 #'     \item{title}{Occupation title}
-#'     \item{relevance_score}{Search relevance score (if keyword search)}
 #'   }
 #'
 #' @export
@@ -33,8 +32,7 @@ onet_search <- function(keyword, start = 1, end = 20) {
   # Define expected schema for empty results
   schema <- empty_tibble(
     code = character(),
-    title = character(),
-    relevance_score = numeric()
+    title = character()
   )
 
   # Extract data with schema
@@ -44,17 +42,9 @@ onet_search <- function(keyword, start = 1, end = 20) {
   }
 
   results <- map(resp$occupation, \(x) {
-    # Try multiple field names for relevance score
-    relevance <- x$relevance_score %||% 
-                 x$relevanceScore %||% 
-                 x$relevance %||% 
-                 x$score %||% 
-                 NA_real_
-    
     tibble(
       code = x$code %||% NA_character_,
-      title = x$title %||% NA_character_,
-      relevance_score = relevance
+      title = x$title %||% NA_character_
     )
   }) |> list_rbind()
 

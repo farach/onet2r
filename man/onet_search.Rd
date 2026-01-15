@@ -18,7 +18,6 @@ A tibble with columns:
 \describe{
 \item{code}{O*NET-SOC occupation code}
 \item{title}{Occupation title}
-\item{relevance_score}{Search relevance score (if keyword search)}
 }
 }
 \description{

@@ -72,12 +72,12 @@ library(onet2r)
 # Search for software-related occupations
 results <- onet_search("software developer")
 results
-#> # A tibble: 20 × 3
-#>    code       title                                  relevance_score
-#>    <chr>      <chr>                                            <dbl>
-#>  1 15-1252.00 Software Developers                               100 
-#>  2 15-1251.00 Computer Programmers                               95
-#>  3 15-1256.00 Software Quality Assurance Analysts…               92
+#> # A tibble: 20 × 2
+#>    code       title                                 
+#>    <chr>      <chr>                                 
+#>  1 15-1252.00 Software Developers                   
+#>  2 15-1251.00 Computer Programmers                  
+#>  3 15-1256.00 Software Quality Assurance Analysts…  
 #> # ℹ 17 more rows
 
 # Search by O*NET-SOC code
@@ -185,8 +185,8 @@ onet_skills("invalid-code")
 results <- onet_search("xyzabc123nonexistent")
 #> No occupations found for keyword: "xyzabc123nonexistent"
 results
-#> # A tibble: 0 × 3
-#> # ℹ 3 variables: code <chr>, title <chr>, relevance_score <dbl>
+#> # A tibble: 0 × 2
+#> # ℹ 2 variables: code <chr>, title <chr>
 ```
 
 API errors are automatically handled with:
@@ -217,8 +217,7 @@ library(dplyr)
 
 # Find occupations related to "data"
 results <- onet_search("data analyst") |>
-  filter(relevance_score > 80) |>
-  arrange(desc(relevance_score))
+  arrange(title)
 
 # Get skills for multiple occupations
 codes <- c("15-1252.00", "15-1251.00")
