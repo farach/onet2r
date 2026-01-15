@@ -13,6 +13,6 @@ onet_perform(req)
 A list containing the parsed JSON response.
 }
 \description{
-Executes a request and returns the parsed JSON body.
+Executes a request and returns the parsed JSON body with error handling.
 }
 \keyword{internal}

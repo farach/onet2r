@@ -6,6 +6,12 @@
 \usage{
 onet_job_zone(code)
 }
+\arguments{
+\item{code}{An O*NET-SOC occupation code.}
+}
+\value{
+A list (faithful to API response).
+}
 \description{
 Note: this endpoint returns a non-paged object with keys like:
 code, title, education, related_experience, job_training, job_zone_examples, svp_range

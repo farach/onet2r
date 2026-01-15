@@ -6,6 +6,16 @@
 \usage{
 onet_in_demand_skills(code, start = 1, end = 20)
 }
+\arguments{
+\item{code}{An O*NET-SOC occupation code.}
+
+\item{start}{Integer specifying the first result to return.}
+
+\item{end}{Integer specifying the last result to return.}
+}
+\value{
+A tibble of in-demand skills records.
+}
 \description{
 Get O*NET In-Demand Skills (details)
 }

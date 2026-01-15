@@ -112,8 +112,13 @@ as_onet_tibble <- function(x) {
 #' @return Character vector in snake_case.
 #' @keywords internal
 to_snake_case <- function(x) {
-  x <- gsub("([A-Z])", "_\\1", x)
-  x <- gsub("^_", "", x)
+  # Convert CamelCase / PascalCase / ALLCAPS blocks to snake_case
+  # Examples:
+  #   "HTTPResponse" -> "http_response"
+  #   "API"          -> "api"
+  #   "MyAPIClient"  -> "my_api_client"
+  x <- gsub("([A-Z]+)([A-Z][a-z])", "\\1_\\2", x)  # split "HTTPResponse" -> "HTTP_Response"
+  x <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", x)     # split "myAPI" -> "my_API"
   x <- gsub("__+", "_", x)
   tolower(x)
 }

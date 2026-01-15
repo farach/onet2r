@@ -2,17 +2,18 @@
 % Please edit documentation in R/request.R
 \name{as_onet_tibble}
 \alias{as_onet_tibble}
-\title{Convert API Response to Tibble}
+\title{Convert API Response Record to Tibble}
 \usage{
 as_onet_tibble(x)
 }
 \arguments{
-\item{x}{A list or data frame to convert.}
+\item{x}{A list or data frame-like object to convert.}
 }
 \value{
-A tibble.
+A tibble (possibly 0-row).
 }
 \description{
-Converts a list from the API to a tibble with snake_case column names.
+Converts a single record (named list or data frame row-like object) to a tibble
+and normalizes names to snake_case.
 }
 \keyword{internal}

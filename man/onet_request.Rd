@@ -4,12 +4,15 @@
 \alias{onet_request}
 \title{Build an O*NET API Request}
 \usage{
-onet_request(.path, ...)
+onet_request(.path, .path_segments = NULL, .query = list())
 }
 \arguments{
 \item{.path}{Character string specifying the API endpoint path.}
 
-\item{...}{Additional path segments and query parameters passed to the API.}
+\item{.path_segments}{Character vector of additional path segments to append
+to the URL path (optional).}
+
+\item{.query}{Named list of query parameters (optional).}
 }
 \value{
 An httr2 request object.

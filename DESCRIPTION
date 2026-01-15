@@ -13,6 +13,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
     cli,
+    dplyr,
     httr2 (>= 1.0.0),
     purrr,
     rlang,
@@ -25,4 +26,3 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/alexfarach/onet2r
 BugReports: https://github.com/alexfarach/onet2r/issues
-VignetteBuilder: knitr

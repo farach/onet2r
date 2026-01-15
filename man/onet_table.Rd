@@ -4,7 +4,7 @@
 \alias{onet_table}
 \title{Get O*NET Table Data}
 \usage{
-onet_table(table_id, page_size = 2000)
+onet_table(table_id, page_size = 2000, show_progress = TRUE)
 }
 \arguments{
 \item{table_id}{Character string specifying the table identifier
@@ -12,6 +12,9 @@ onet_table(table_id, page_size = 2000)
 
 \item{page_size}{Integer specifying how many rows to fetch per request
 (default 2000, which is the API maximum).}
+
+\item{show_progress}{Logical indicating whether to show progress messages
+for pagination (default TRUE).}
 }
 \value{
 A tibble containing all rows from the table.
@@ -23,14 +26,15 @@ through results.
 \details{
 This function automatically handles pagination to retrieve all rows
 from large tables. For very large tables, this may take some time
-and make multiple API requests.
+and make multiple API requests. Progress messages can be disabled
+by setting \code{show_progress = FALSE}.
 }
 \examples{
 \dontrun{
 # Get all skills data
 skills_data <- onet_table("skills")
 
-# Get occupation data
-occ_data <- onet_table("occupation_data")
+# Get occupation data without progress messages
+occ_data <- onet_table("occupation_data", show_progress = FALSE)
 }
 }
