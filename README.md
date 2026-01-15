@@ -26,7 +26,7 @@ pak::pak("farach/onet2r")
 
 ## 🔐 Authentication
 
-O\*NET API requests require an API key. [Register for a free key here](https://services.onetcenter.%20org/developer/).
+O\*NET API requests require an API key. [Register for a free key here](https://services.onetcenter.org/developer/).
 
 **Recommended:** Store your key in `.Renviron` for persistence across sessions:
 
@@ -225,7 +225,7 @@ When adding a new endpoint:
 -   Add roxygen documentation for all arguments
 -   Write minimal tests (smoke test + schema validation)
 
-Please note that onet2r is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.%20html). By contributing, you agree to abide by its terms.
+Please note that onet2r is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing, you agree to abide by its terms.
 
 ## 📄 License
 
