@@ -1,249 +1,232 @@
-# onet2r
+# onet2r <a href="https://github.com/farach/onet2r"><img src="man/figures/logo. png" alt="onet2r logo" align="right" height="138"/></a>
 
-<!-- badges: start -->
-<!-- badges: end -->
+**onet2r** is a modern, tidyverse-first R client for the [O\*NET Web Services API v2](https://services.onetcenter.org/). It provides a clean, consistent, analysis-ready interface to U. S. occupational data.
 
-**onet2r** is an R client for the [O\*NET Web Services API 2.0](https://services.onetcenter.org/). This package provides a modern, tidyverse-friendly interface to search occupations, retrieve occupation details (skills, knowledge, abilities, technology), access database tables, and perform taxonomy crosswalks.
+🔗 **API Base URL:** <https://api-v2.onetcenter.org>
 
-## Features
+## ✨ Features
 
-- 🔍 **Search occupations** by keyword or O\*NET-SOC code
-- 📊 **Retrieve occupation details** including skills, knowledge, abilities, and hot technologies
-- 🗄️ **Access database tables** with automatic pagination
-- 🔄 **Perform crosswalks** between military codes and civilian occupations
-- 📈 **Map taxonomies** between O\*NET-SOC versions
-- ✅ **Consistent tibble outputs** for easy integration with tidyverse workflows
-- 🔁 **Automatic retry logic** for transient API errors
-- 📝 **Type-safe schemas** with validated empty result handling
+-   🔍 **Search occupations** by keyword or O\*NET-SOC code
+-   📊 **Retrieve occupation details** — skills, knowledge, abilities, tasks, and hot technologies
+-   🗄️ **Access database tables** with automatic pagination
+-   🔄 **Perform crosswalks** between military codes and civilian occupations
+-   📈 **Map taxonomies** between O\*NET-SOC versions
+-   ✅ **Consistent tibble outputs** with snake_case columns and stable empty schemas
+-   🔁 **Automatic retry logic** for rate limits (HTTP 429) and transient server errors
+-   📝 **Type-safe schemas** with validated empty result handling
 
-## Installation
+## 📦 Installation
 
-You can install the development version of onet2r from [GitHub](https://github.com/farach/onet2r) with:
+Install the development version from GitHub:
 
 ``` r
 # install.packages("pak")
 pak::pak("farach/onet2r")
 ```
 
-Or using devtools:
+## 🔐 Authentication
+
+O\*NET API requests require an API key. [Register for a free key here](https://services.onetcenter.%20org/developer/).
+
+**Recommended:** Store your key in `.Renviron` for persistence across sessions:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("farach/onet2r")
-```
-
-## Getting Started
-
-### API Key Setup
-
-To use onet2r, you need an O\*NET Web Services API key:
-
-1. **Register for a free API key** at <https://services.onetcenter.org/developer/>
-2. **Set your API key** in your R environment:
-
-```r
-# For current session only
-Sys.setenv(ONET_API_KEY = "your-api-key-here")
-
-# Or add to your .Renviron file for persistence
 usethis::edit_r_environ()
-# Add this line:
-# ONET_API_KEY=your-api-key-here
 ```
 
-3. **Restart R** to load the environment variable from `.Renviron`
+Add this line:
 
-You can verify your API key is set with:
+``` text
+ONET_API_KEY=your-api-key-here
+```
 
-```r
+Restart R to load the environment variable.
+
+**Alternative:** Set for the current session only:
+
+``` r
+Sys.setenv(ONET_API_KEY = "your-api-key-here")
+```
+
+Verify your key is configured:
+
+``` r
 library(onet2r)
 onet_api_key()
 ```
 
-## Basic Usage
+## 🚀 Quick Start
 
-### Search for Occupations
-
-Search for occupations by keyword:
-
-```r
+``` r
 library(onet2r)
 
-# Search for software-related occupations
-results <- onet_search("software developer")
-results
-#> # A tibble: 20 × 2
-#>    code       title                                 
-#>    <chr>      <chr>                                 
-#>  1 15-1252.00 Software Developers                   
-#>  2 15-1251.00 Computer Programmers                  
-#>  3 15-1256.00 Software Quality Assurance Analysts…  
-#> # ℹ 17 more rows
+# Search for occupations
+onet_search("software developer")
 
-# Search by O*NET-SOC code
-onet_search("15-1252")
-```
+# List occupations (paged)
+occ <- onet_occupations(start = 1, end = 25)
 
-### Get Occupation Details
-
-Retrieve detailed information about a specific occupation:
-
-```r
 # Get occupation summary
-summary <- onet_occupation("15-1252.00")
+onet_occupation("15-1252.00")
 
-# Get full occupation report
-details <- onet_occupation_details("15-1252.00")
+# Retrieve structured details (returns tibbles)
+onet_skills("15-1252.00", end = 5)
+onet_knowledge("15-1252.00", end = 5)
+onet_abilities("15-1252.00", end = 5)
+onet_tasks("15-1252.00", end = 5)
 
-# Get specific occupation attributes
-skills <- onet_skills("15-1252.00")
-knowledge <- onet_knowledge("15-1252.00")
-abilities <- onet_abilities("15-1252.00")
-tech <- onet_technology("15-1252.00")
-
-head(skills)
-#> # A tibble: 6 × 5
-#>   id             name                    description          value scale
-#>   <chr>          <chr>                   <chr>                <dbl> <chr>
-#> 1 2.A.2.a        Reading Comprehension   Understanding writ…   4.50 Impo…
-#> 2 2.A.2.b        Active Listening        Giving full atten…   4.12 Impo…
-#> 3 2.A.2.c        Writing                 Communicating eff…   4.12 Impo…
+# Technology endpoints
+onet_hot_technology("15-1252.00", end = 5)
+onet_technology_skills("15-1252.00", end = 2)
 ```
 
-### List All Occupations
+## 📋 API Coverage
 
-Get a complete list of occupations in the O\*NET database:
+### Occupations
 
-```r
-# Get all occupations (up to 1000 results)
-occupations <- onet_occupations()
-nrow(occupations)
-#> [1] 1016
+| Function                    | Description                          |
+|-----------------------------|--------------------------------------|
+| `onet_occupations()`        | List all occupations with pagination |
+| `onet_occupation()`         | Get occupation summary               |
+| `onet_occupation_details()` | Get full occupation report           |
+| `onet_search()`             | Search occupations by keyword        |
 
-# Get first 50 occupations
-onet_occupations(start = 1, end = 50)
+### Occupation Details (tibble outputs)
+
+| Function                           | Description               |
+|------------------------------------|---------------------------|
+| `onet_skills()`                    | Skills data               |
+| `onet_knowledge()`                 | Knowledge areas           |
+| `onet_abilities()`                 | Abilities                 |
+| `onet_work_styles()`               | Work styles               |
+| `onet_interests()`                 | Occupational interests    |
+| `onet_work_context()`              | Work context              |
+| `onet_work_activities()`           | Work activities           |
+| `onet_tasks()`                     | Tasks                     |
+| `onet_detailed_work_activities()`  | Detailed work activities  |
+| `onet_related_occupations()`       | Related occupations       |
+| `onet_professional_associations()` | Professional associations |
+| `onet_apprenticeship()`            | Apprenticeship info       |
+| `onet_education()`                 | Education requirements    |
+| `onet_job_zone()`                  | Job zone (returns list)   |
+
+### Technology
+
+| Function                   | Description           |
+|----------------------------|-----------------------|
+| `onet_hot_technology()`    | Hot technology skills |
+| `onet_technology_skills()` | Technology skills     |
+| `onet_in_demand_skills()`  | In-demand skills      |
+
+### Database Tables
+
+| Function            | Description                          |
+|---------------------|--------------------------------------|
+| `onet_tables()`     | List available tables                |
+| `onet_table_info()` | Get table column info                |
+| `onet_table()`      | Retrieve full table (auto-paginated) |
+| `onet_table_page()` | Retrieve single page                 |
+
+### Crosswalks & Taxonomy
+
+| Function                    | Description                          |
+|-----------------------------|--------------------------------------|
+| `onet_crosswalk_military()` | Map military to civilian occupations |
+| `onet_taxonomy_map()`       | Map between O\*NET-SOC versions      |
+
+## 🔧 Example Workflow
+
+A typical workflow: search → select → pull details.
+
+``` r
+library(dplyr)
+library(onet2r)
+
+# Find target occupation
+target_code <- onet_search("data scientist") |>
+  filter(title == "Data Scientists") |>
+  pull(code)
+
+# Pull structured details
+skills <- onet_skills(target_code, end = 25)
+tasks  <- onet_tasks(target_code, end = 25)
+tech   <- onet_hot_technology(target_code, end = 25)
+
+# Combine skills from multiple occupations
+codes <- c("15-2051.00", "15-1252.00")
+
+all_skills <- codes |>
+  purrr::map(\(code) onet_skills(code) |> mutate(code = code)) |>
+  purrr:: list_rbind()
 ```
 
-### Access Database Tables
+## 📊 What You Get
 
-Retrieve data from O\*NET database tables with automatic pagination:
+### Consistent, Analysis-Ready Outputs
 
-```r
-# List available tables
-tables <- onet_tables()
-tables
-#> # A tibble: 84 × 2
-#>    id                      title                                    
-#>    <chr>                   <chr>                                    
-#>  1 abilities               Abilities                                
-#>  2 content_model_reference Content Model Reference                  
-#>  3 education_training_exp… Education, Training, and Experience Cate…
-#> # ℹ 81 more rows
+Most endpoints return tibbles with:
 
-# Get column information for a table
-info <- onet_table_info("skills")
-info
+-   **snake_case column names** (e. g., `percentage_of_respondents`)
+-   **Stable empty schemas** (empty tibble with correct columns and types)
+-   **Predictable pagination** via `start`/`end` arguments
 
-# Retrieve all rows from a table
-# Automatically paginates through large tables
-skills_data <- onet_table("skills")
-
-# Disable progress messages
-skills_data <- onet_table("skills", show_progress = FALSE)
+``` r
+onet_education("15-1252.00")
+#> # A tibble: 6 × 3
+#>   code  title                          percentage_of_respondents
+#>   <chr> <chr>                                              <dbl>
+#> 1 6     Bachelor's degree                                   64.7
+#> 2 7     Master's degree                                     20.5
+#> ... 
 ```
 
-### Crosswalks and Taxonomy Mapping
+### Informative Error Messages
 
-Map between military and civilian occupations, or between taxonomy versions:
-
-```r
-# Find civilian occupations matching military roles
-civilian_jobs <- onet_crosswalk_military("infantry")
-civilian_jobs
-
-# Map between O*NET-SOC taxonomy versions
-mapped <- onet_taxonomy_map("15-1252.00", from = "active", to = "2010")
-mapped
-```
-
-## Error Handling
-
-The package provides informative error messages for common issues:
-
-```r
-# Invalid API key
+``` r
+# Missing API key
 #> Error: O*NET API key not found.
 #> ℹ Set your API key with `Sys.setenv(ONET_API_KEY = "your-key")`
 #> ℹ Get a key at <https://services.onetcenter.org/developer/>
 
-# Invalid occupation code format
+# Invalid occupation code
 onet_skills("invalid-code")
 #> Error: Invalid O*NET-SOC code format: "invalid-code"
-#> ℹ Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)
+#> ℹ Expected format: XX-XXXX or XX-XXXX. XX (e.g., 15-1252 or 15-1252.00)
 
-# No results found (returns empty tibble with correct schema)
-results <- onet_search("xyzabc123nonexistent")
-#> No occupations found for keyword: "xyzabc123nonexistent"
-results
+# No results (returns empty tibble with correct schema)
+onet_search("xyzabc123nonexistent")
 #> # A tibble: 0 × 2
 #> # ℹ 2 variables: code <chr>, title <chr>
 ```
 
-API errors are automatically handled with:
-- **Automatic retries** for transient errors (rate limits, server errors)
-- **Clear error messages** from the O\*NET API
-- **Consistent empty results** with proper tibble schemas
+## 💡 Best Practices
 
-## Advanced Usage
+| Practice                               | Why                              |
+|-----------------------------------------------|-------------------------|
+| Store API key in `.Renviron`           | Keeps credentials out of scripts |
+| Use `start`/`end` for pagination       | Smaller, faster requests         |
+| Prefer detail endpoints over summaries | Structured data for analysis     |
 
-### Custom Pagination
+## 📚 Getting Help
 
-Control pagination behavior for large table retrievals:
+-   **Package documentation:** `?onet2r` or `?onet_search`
+-   **Vignettes:** `browseVignettes("onet2r")`
+-   **O\*NET API docs:** <https://services.onetcenter.org/reference/>
+-   **Report issues:** <https://github.com/farach/onet2r/issues>
 
-```r
-# Fetch in smaller chunks (default is 2000 rows per request)
-data <- onet_table("occupation_data", page_size = 500)
+## 🤝 Contributing
 
-# Show/hide progress messages
-data <- onet_table("occupation_data", show_progress = TRUE)
-```
+Issues and PRs are welcome!
 
-### Working with Results
+When adding a new endpoint:
 
-All functions return tibbles that work seamlessly with dplyr and other tidyverse packages:
+-   Return a tibble for record-list endpoints
+-   Include stable empty schemas
+-   Add roxygen documentation for all arguments
+-   Write minimal tests (smoke test + schema validation)
 
-```r
-library(dplyr)
+Please note that onet2r is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.%20html). By contributing, you agree to abide by its terms.
 
-# Find occupations related to "data"
-results <- onet_search("data analyst") |>
-  arrange(title)
-
-# Get skills for multiple occupations
-codes <- c("15-1252.00", "15-1251.00")
-skills_list <- codes |>
-  purrr::map(onet_skills) |>
-  purrr::list_rbind(.id = "occupation")
-```
-
-## API Rate Limits
-
-The O\*NET Web Services API has rate limits. The package automatically:
-- Retries requests on rate limit errors (HTTP 429)
-- Uses exponential backoff to respect rate limits
-- Retries on transient server errors (500, 502, 503, 504)
-
-## Getting Help
-
-- **Package documentation**: `?onet2r` or browse function help with `?onet_search`
-- **Vignettes**: Run `browseVignettes("onet2r")` to see available guides
-- **O\*NET API documentation**: <https://services.onetcenter.org/reference/>
-- **Report bugs**: <https://github.com/farach/onet2r/issues>
-
-## Code of Conduct
-
-Please note that the onet2r project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
-
-## License
+## 📄 License
 
 MIT © 2026 Alex Farach
