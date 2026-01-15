@@ -21,13 +21,14 @@ onet_tables <- function() {
   # Define expected schema
   schema <- empty_tibble(id = character(), title = character())
 
-  if (is.null(resp$table) || length(resp$table) == 0) {
+  # The API returns tables as a top-level list, not nested under 'table'
+  if (!is.list(resp) || length(resp) == 0) {
     return(schema)
   }
 
-  map(resp$table, \(x) {
+  map(resp, \(x) {
     tibble(
-      id = x$id %||% NA_character_,
+      id = x$table_id %||% NA_character_,
       title = x$title %||% NA_character_
     )
   }) |> list_rbind()
@@ -57,7 +58,7 @@ onet_table_info <- function(table_id) {
     cli_abort("{.arg table_id} must be a single character string.")
   }
 
-  resp <- onet_request("database/info", table_id) |>
+  resp <- onet_request("database/info", .path_segments = table_id) |>
     onet_perform()
 
   # Define expected schema
@@ -136,7 +137,7 @@ onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {
 #' @return A list with `data` (tibble), `start`, `end`, and `total`.
 #' @keywords internal
 onet_table_page <- function(table_id, start = 1, end = 2000) {
-  resp <- onet_request("database/rows", table_id, start = start, end = end) |>
+  resp <- onet_request("database/rows", .path_segments = table_id, .query = list(start = start, end = end)) |>
     onet_perform()
 
   data <- if (is.null(resp$row) || length(resp$row) == 0) {
