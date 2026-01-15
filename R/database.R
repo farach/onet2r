@@ -21,13 +21,14 @@ onet_tables <- function() {
   # Define expected schema
   schema <- empty_tibble(id = character(), title = character())
 
-  if (is.null(resp$table) || length(resp$table) == 0) {
+  # The API returns tables as a top-level list, not nested under 'table'
+  if (!is.list(resp) || length(resp) == 0) {
     return(schema)
   }
 
-  map(resp$table, \(x) {
+  map(resp, \(x) {
     tibble(
-      id = x$id %||% NA_character_,
+      id = x$table_id %||% NA_character_,
       title = x$title %||% NA_character_
     )
   }) |> list_rbind()
