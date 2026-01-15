@@ -1,4 +1,4 @@
-# onet2r <a href="https://github.com/farach/onet2r"><img src="man/figures/logo. png" alt="onet2r logo" align="right" height="138"/></a>
+# onet2r <a href="https://github.com/farach/onet2r"></a>
 
 **onet2r** is a modern, tidyverse-first R client for the [O\*NET Web Services API v2](https://services.onetcenter.org/). It provides a clean, consistent, analysis-ready interface to U. S. occupational data.
 
