@@ -1,5 +1,5 @@
 # O*NET API base URL
-onet_base_url <- "https://services.onetcenter.org/ws"
+onet_base_url <- "https://api-v2.onetcenter.org"
 
 #' Build an O*NET API Request
 #'
@@ -11,15 +11,43 @@ onet_base_url <- "https://services.onetcenter.org/ws"
 #' @return An httr2 request object.
 #' @keywords internal
 onet_request <- function(.path, ...) {
-  request(onet_base_url) |>
-    req_url_path_append(.path) |>
-    req_url_query(...) |>
-    req_headers(`X-API-Key` = onet_api_key()) |>
-    req_retry(
+  dots <- rlang::list2(...)
+  nms <- names(dots)
+
+  # Identify unnamed vs named components
+  if (is.null(nms)) {
+    is_unnamed <- rep(TRUE, length(dots))
+  } else {
+    is_unnamed <- is.na(nms) | nms == ""
+  }
+
+  path_parts <- dots[is_unnamed]
+  query_parts <- dots[!is_unnamed]
+
+  req <- httr2::request(onet_base_url) |>
+    httr2::req_url_path_append(.path)
+
+  # Unnamed args -> additional path segments
+  if (length(path_parts) > 0) {
+    for (p in path_parts) {
+      req <- httr2::req_url_path_append(req, as.character(p))
+    }
+  }
+
+  # Named args -> query parameters
+  if (length(query_parts) > 0) {
+    req <- do.call(httr2::req_url_query, c(list(req), query_parts))
+  }
+
+  req <- req |>
+    httr2::req_headers(`X-API-Key` = onet_api_key(), Accept = "application/json") |>
+    httr2::req_retry(
       max_tries = 3,
-      is_transient = \(resp) resp_status(resp) == 429,
-      backoff = \(i) 0.2 * (2 ^ i)
+      is_transient = \(resp) httr2::resp_status(resp) == 429,
+      backoff = \(i) 0.2 * (2^i)
     )
+
+  req
 }
 
 #' Perform an O*NET API Request
@@ -31,8 +59,8 @@ onet_request <- function(.path, ...) {
 #' @return A list containing the parsed JSON response.
 #' @keywords internal
 onet_perform <- function(req) {
-  resp <- req_perform(req)
-  resp_body_json(resp)
+  resp <- httr2::req_perform(req)
+  httr2::resp_body_json(resp)
 }
 
 #' Convert API Response to Tibble
@@ -44,7 +72,7 @@ onet_perform <- function(req) {
 #' @return A tibble.
 #' @keywords internal
 as_onet_tibble <- function(x) {
- if (length(x) == 0) {
+  if (length(x) == 0) {
     return(tibble())
   }
   tbl <- as_tibble(x)

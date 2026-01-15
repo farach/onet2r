@@ -2,21 +2,10 @@
 % Please edit documentation in R/occupations.R
 \name{onet_knowledge}
 \alias{onet_knowledge}
-\title{Get O*NET Occupation Knowledge}
+\title{Get O*NET Occupation Knowledge (details)}
 \usage{
-onet_knowledge(code)
-}
-\arguments{
-\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
-}
-\value{
-A tibble with knowledge data.
+onet_knowledge(code, start = 1, end = 20)
 }
 \description{
-Retrieves knowledge areas for a specific occupation.
-}
-\examples{
-\dontrun{
-knowledge <- onet_knowledge("15-1252.00")
-}
+Get O*NET Occupation Knowledge (details)
 }

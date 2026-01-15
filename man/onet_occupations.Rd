@@ -19,11 +19,5 @@ A tibble with columns:
 }
 }
 \description{
-Retrieves a list of all occupations in the O*NET database.
-}
-\examples{
-\dontrun{
-occupations <- onet_occupations()
-head(occupations)
-}
+Retrieves a list of occupations in the O*NET database.
 }

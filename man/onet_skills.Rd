@@ -2,28 +2,10 @@
 % Please edit documentation in R/occupations.R
 \name{onet_skills}
 \alias{onet_skills}
-\title{Get O*NET Occupation Skills}
+\title{Get O*NET Occupation Skills (details)}
 \usage{
-onet_skills(code)
-}
-\arguments{
-\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
-}
-\value{
-A tibble with skill data including:
-\describe{
-\item{id}{Skill element ID}
-\item{name}{Skill name}
-\item{description}{Skill description}
-\item{value}{Importance or level value}
-\item{scale}{Scale type (importance/level)}
-}
+onet_skills(code, start = 1, end = 20)
 }
 \description{
-Retrieves skills data for a specific occupation.
-}
-\examples{
-\dontrun{
-skills <- onet_skills("15-1252.00")
-}
+Get O*NET Occupation Skills (details)
 }

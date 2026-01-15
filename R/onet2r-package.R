@@ -8,5 +8,6 @@
 #' @importFrom purrr list_rbind map
 #' @importFrom rlang .data .env
 #' @importFrom tibble tibble as_tibble
+#' @importFrom httr2 req_auth_basic
 ## usethis namespace: end
 NULL

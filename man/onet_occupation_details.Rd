@@ -2,7 +2,7 @@
 % Please edit documentation in R/occupations.R
 \name{onet_occupation_details}
 \alias{onet_occupation_details}
-\title{Get Detailed O*NET Occupation Report}
+\title{Get O*NET Occupation Details Index}
 \usage{
 onet_occupation_details(code)
 }
@@ -10,13 +10,9 @@ onet_occupation_details(code)
 \item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
 }
 \value{
-A list containing the full occupation details.
+A list containing the occupation details index.
 }
 \description{
-Retrieves the full detailed report for a specific occupation.
-}
-\examples{
-\dontrun{
-details <- onet_occupation_details("15-1252.00")
-}
+Retrieves the details index for a specific occupation. The response includes
+links to available detailed sections.
 }

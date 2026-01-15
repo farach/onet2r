@@ -2,21 +2,10 @@
 % Please edit documentation in R/occupations.R
 \name{onet_abilities}
 \alias{onet_abilities}
-\title{Get O*NET Occupation Abilities}
+\title{Get O*NET Occupation Abilities (details)}
 \usage{
-onet_abilities(code)
-}
-\arguments{
-\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
-}
-\value{
-A tibble with abilities data.
+onet_abilities(code, start = 1, end = 20)
 }
 \description{
-Retrieves abilities for a specific occupation.
-}
-\examples{
-\dontrun{
-abilities <- onet_abilities("15-1252.00")
-}
+Get O*NET Occupation Abilities (details)
 }
