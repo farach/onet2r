@@ -60,6 +60,25 @@ test_that("as_onet_tibble converts column names", {
   expect_equal(result$first_name, "John")
 })
 
+test_that("as_onet_tibble handles NULL columns", {
+  # Test with NULL values in list - simulates API returning NULL for a field
+  input <- list(
+    code = "15-1252.00",
+    title = "Software Developer",
+    not_relevant = NULL,
+    scale_id = "IM"
+  )
+  
+  # Should convert NULL to NA without error
+  result <- onet2r:::as_onet_tibble(input)
+  expect_s3_class(result, "tbl_df")
+  expect_equal(nrow(result), 1)
+  expect_equal(result$code, "15-1252.00")
+  expect_equal(result$title, "Software Developer")
+  expect_true(is.na(result$not_relevant))
+  expect_equal(result$scale_id, "IM")
+})
+
 test_that("extract_list_data handles empty results", {
   # Test with NULL data
   resp_null <- list(occupation = NULL)

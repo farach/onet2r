@@ -74,7 +74,7 @@ software_jobs <- onet_search("software developer")
 software_jobs
 ```
 
-This returns a tibble with occupation codes, titles, and relevance scores. The results are ordered by relevance to your search term.
+This returns a tibble with occupation codes and titles.
 
 You can control the number of results:
 
@@ -333,8 +333,8 @@ results <- onet_search("xyznonexistent123")
 
 # Still returns a properly structured tibble
 results
-#> # A tibble: 0 × 3
-#> # ℹ 3 variables: code <chr>, title <chr>, relevance_score <dbl>
+#> # A tibble: 0 × 2
+#> # ℹ 2 variables: code <chr>, title <chr>
 
 # You can safely use it in pipelines
 nrow(results)  #> [1] 0
@@ -365,8 +365,7 @@ library(tidyr)
 library(ggplot2)
 
 # Find healthcare occupations and analyze skills
-healthcare <- onet_search("healthcare", start = 1, end = 20) |>
-  filter(relevance_score > 70)
+healthcare <- onet_search("healthcare", start = 1, end = 20)
 
 # Get skills for top 5 occupations
 skills <- healthcare |>
