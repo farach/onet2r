@@ -1,0 +1,482 @@
+---
+title: "Getting Started with onet2r"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with onet2r}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE  # Set to TRUE when you have a valid API key
+)
+```
+
+## Introduction
+
+The **onet2r** package provides a modern R interface to the O\*NET Web Services API 2.0. This vignette will guide you through the basics of using the package to search occupations, retrieve occupation details, and work with O\*NET database tables.
+
+## Authentication
+
+Before you can use onet2r, you need to obtain and configure an API key from O\*NET.
+
+### Getting an API Key
+
+1. Visit the [O\*NET Web Services registration page](https://services.onetcenter.org/developer/)
+2. Fill out the registration form
+3. You'll receive an API key via email
+
+### Setting Up Your API Key
+
+There are two ways to set your API key:
+
+**Option 1: Set for the current R session**
+
+```{r}
+Sys.setenv(ONET_API_KEY = "your-api-key-here")
+```
+
+**Option 2: Set permanently in your `.Renviron` file** (recommended)
+
+```{r}
+# Open your .Renviron file
+usethis::edit_r_environ()
+
+# Add this line and save:
+# ONET_API_KEY=your-api-key-here
+
+# Restart R for changes to take effect
+```
+
+Verify your API key is set:
+
+```{r}
+library(onet2r)
+
+# This should return your API key
+onet_api_key()
+```
+
+If you see an error, make sure you've set the environment variable correctly and restarted R.
+
+## Basic Searches
+
+### Searching for Occupations
+
+The most common starting point is searching for occupations by keyword:
+
+```{r}
+# Search for software development roles
+software_jobs <- onet_search("software developer")
+software_jobs
+```
+
+This returns a tibble with occupation codes and titles.
+
+You can control the number of results:
+
+```{r}
+# Get more results (up to 100)
+onet_search("engineer", start = 1, end = 100)
+
+# Get a specific range of results
+onet_search("nurse", start = 11, end = 30)
+```
+
+### Searching by O\*NET-SOC Code
+
+You can also search using O\*NET-SOC occupation codes:
+
+```{r}
+# Search by code
+onet_search("15-1252")
+
+# Or with full code including detail level
+onet_search("15-1252.00")
+```
+
+## Retrieving Occupation Details
+
+Once you have an occupation code, you can retrieve detailed information:
+
+### Occupation Summary
+
+Get a comprehensive summary of an occupation:
+
+```{r}
+# Get summary for Software Developers
+summary <- onet_occupation("15-1252.00")
+
+# The summary is a list containing various occupation attributes
+names(summary)
+```
+
+### Full Occupation Report
+
+For the complete occupation report with all details:
+
+```{r}
+details <- onet_occupation_details("15-1252.00")
+
+# This includes extensive information about the occupation
+str(details, max.level = 1)
+```
+
+### Skills, Knowledge, and Abilities
+
+Retrieve specific occupation attributes as tibbles:
+
+```{r}
+# Get skills required for the occupation
+skills <- onet_skills("15-1252.00")
+head(skills)
+
+# Get knowledge areas
+knowledge <- onet_knowledge("15-1252.00")
+head(knowledge)
+
+# Get abilities
+abilities <- onet_abilities("15-1252.00")
+head(abilities)
+```
+
+Each of these returns a tibble with:
+- `id`: Element identifier
+- `name`: Name of the skill/knowledge/ability
+- `description`: Detailed description
+- `value`: Importance or level rating
+- `scale`: The scale type (importance/level)
+
+### Hot Technologies
+
+Find hot technologies associated with an occupation:
+
+```{r}
+tech <- onet_technology("15-1252.00")
+tech
+
+# Technologies are organized by category
+library(dplyr)
+tech |> 
+  count(category, sort = TRUE)
+```
+
+## Working with Occupation Lists
+
+### List All Occupations
+
+Get a complete list of all occupations in the O\*NET database:
+
+```{r}
+# Get all occupations (may return 1000+ results)
+all_occupations <- onet_occupations()
+nrow(all_occupations)
+
+# Get a subset
+first_50 <- onet_occupations(start = 1, end = 50)
+first_50
+```
+
+### Analyzing Skills Across Occupations
+
+Combine search and detail retrieval to analyze patterns:
+
+```{r}
+library(purrr)
+library(dplyr)
+
+# Find data-related occupations
+data_jobs <- onet_search("data", start = 1, end = 10)
+
+# Get skills for each occupation
+skills_by_job <- data_jobs$code |>
+  map(possibly(onet_skills, otherwise = tibble())) |>
+  set_names(data_jobs$title) |>
+  list_rbind(names_to = "occupation")
+
+# Find most common skills across these occupations
+top_skills <- skills_by_job |>
+  count(name, sort = TRUE) |>
+  head(10)
+
+top_skills
+```
+
+## Accessing Database Tables
+
+The O\*NET database contains many detailed tables that you can access directly.
+
+### List Available Tables
+
+```{r}
+tables <- onet_tables()
+tables
+
+# Find tables of interest
+tables |> 
+  filter(grepl("skill", title, ignore.case = TRUE))
+```
+
+### Get Table Metadata
+
+Before retrieving a table, you can check its structure:
+
+```{r}
+# Get column information
+skill_cols <- onet_table_info("skills")
+skill_cols
+```
+
+### Retrieve Table Data
+
+Retrieve all rows from a table with automatic pagination:
+
+```{r}
+# Get the entire skills table
+# This automatically paginates through all results
+skills_table <- onet_table("skills")
+
+# Progress messages are shown by default:
+# Fetching rows 2001 to 4000 of 12345...
+
+# Disable progress messages if desired
+skills_quiet <- onet_table("skills", show_progress = FALSE)
+```
+
+The `onet_table()` function:
+- Automatically handles pagination for large tables
+- Fetches up to 2000 rows per request (API maximum)
+- Shows progress for multi-page retrievals
+- Returns a single combined tibble
+
+### Working with Large Tables
+
+For very large tables, you can adjust the page size:
+
+```{r}
+# Fetch in smaller chunks
+occupation_data <- onet_table("occupation_data", page_size = 500)
+```
+
+## Crosswalks and Taxonomy Mapping
+
+### Military to Civilian Crosswalk
+
+Find civilian occupations that match military job titles or codes:
+
+```{r}
+# Search by military job title
+civilian_roles <- onet_crosswalk_military("infantry")
+civilian_roles
+
+# Search by military occupational specialty (MOS) code
+onet_crosswalk_military("11B")
+```
+
+### Taxonomy Version Mapping
+
+Map occupation codes between O\*NET-SOC taxonomy versions:
+
+```{r}
+# Map from current O*NET-SOC to 2010 SOC
+mapped_2010 <- onet_taxonomy_map(
+  "15-1252.00", 
+  from = "active", 
+  to = "2010"
+)
+mapped_2010
+
+# Map from 2010 SOC to current O*NET-SOC
+mapped_current <- onet_taxonomy_map(
+  "15-1131.00",
+  from = "2010",
+  to = "active"
+)
+mapped_current
+```
+
+## Error Handling
+
+The package handles errors gracefully and provides informative messages:
+
+### Common Errors
+
+**Missing API Key:**
+
+```{r, error = TRUE}
+# If no API key is set
+onet_search("engineer")
+#> Error: O*NET API key not found.
+#> ℹ Set your API key with `Sys.setenv(ONET_API_KEY = "your-key")`
+#> ℹ Get a key at <https://services.onetcenter.org/developer/>
+```
+
+**Invalid Occupation Code:**
+
+```{r, error = TRUE}
+onet_skills("invalid-code")
+#> Error: Invalid O*NET-SOC code format: "invalid-code"
+#> ℹ Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)
+```
+
+### Handling Empty Results
+
+When searches or lookups return no results, you get an empty tibble with the correct schema:
+
+```{r}
+# Search for something that doesn't exist
+results <- onet_search("xyznonexistent123")
+#> No occupations found for keyword: "xyznonexistent123"
+
+# Still returns a properly structured tibble
+results
+#> # A tibble: 0 × 2
+#> # ℹ 2 variables: code <chr>, title <chr>
+
+# You can safely use it in pipelines
+nrow(results)  #> [1] 0
+```
+
+### API Errors and Retries
+
+The package automatically handles transient API errors:
+
+- **Rate limits (HTTP 429)**: Automatically retries with exponential backoff
+- **Server errors (500, 502, 503, 504)**: Retries up to 3 times
+- **API errors**: Surfaces clear error messages from the O\*NET API
+
+```{r}
+# If the API returns an error, you'll see a descriptive message:
+#> Error: O*NET API returned an error:
+#> ✖ Invalid table identifier
+#> ℹ Use onet_tables() to see available tables
+```
+
+## Integrating with Tidyverse
+
+All onet2r functions return tibbles that work seamlessly with tidyverse tools:
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Find healthcare occupations and analyze skills
+healthcare <- onet_search("healthcare", start = 1, end = 20)
+
+# Get skills for top 5 occupations
+skills <- healthcare |>
+  slice_head(n = 5) |>
+  pull(code) |>
+  map(onet_skills) |>
+  list_rbind(.id = "occupation_num")
+
+# Add occupation titles
+skills_with_titles <- skills |>
+  mutate(occupation_num = as.integer(occupation_num)) |>
+  left_join(
+    healthcare |> 
+      slice_head(n = 5) |> 
+      mutate(occupation_num = row_number()),
+    by = "occupation_num"
+  )
+
+# Find top skills across these occupations
+top_skills <- skills_with_titles |>
+  filter(scale == "Importance") |>
+  group_by(name) |>
+  summarise(
+    avg_importance = mean(value, na.rm = TRUE),
+    n_occupations = n()
+  ) |>
+  arrange(desc(avg_importance)) |>
+  head(10)
+
+top_skills
+```
+
+## Best Practices
+
+### Caching Results
+
+Since API calls consume your rate limit, consider caching results:
+
+```{r}
+# Save results for later use
+occupations <- onet_occupations()
+saveRDS(occupations, "data/onet_occupations.rds")
+
+# Load cached results
+cached_occupations <- readRDS("data/onet_occupations.rds")
+```
+
+### Batch Processing
+
+When retrieving details for multiple occupations, handle errors gracefully:
+
+```{r}
+library(purrr)
+
+codes <- c("15-1252.00", "15-1251.00", "invalid-code", "29-1141.00")
+
+# Use possibly() to handle errors
+safe_skills <- possibly(onet_skills, otherwise = NULL)
+
+skills_list <- codes |>
+  map(safe_skills) |>
+  compact()  # Remove NULL entries
+
+# Or keep track of which ones failed
+results <- codes |>
+  map(safely(onet_skills))
+
+# Extract successful results
+successful <- results |>
+  map("result") |>
+  compact()
+
+# Check for errors
+errors <- results |>
+  map("error") |>
+  compact()
+```
+
+### Rate Limit Management
+
+Be mindful of API rate limits, especially when processing many requests:
+
+```{r}
+# Add delays between requests if needed
+occupations <- c("15-1252.00", "15-1251.00", "29-1141.00")
+
+skills_list <- occupations |>
+  map(\(code) {
+    result <- onet_skills(code)
+    Sys.sleep(0.5)  # Wait 0.5 seconds between requests
+    result
+  })
+```
+
+## Next Steps
+
+- Explore the [O\*NET Content Model](https://www.onetcenter.org/content.html) to understand the data structure
+- Review the [O\*NET API documentation](https://services.onetcenter.org/reference/) for advanced features
+- Check out individual function documentation with `?onet_search`, `?onet_table`, etc.
+- Report issues or contribute at <https://github.com/farach/onet2r>
+
+## Summary
+
+This vignette covered:
+
+- Setting up API authentication
+- Searching for occupations
+- Retrieving occupation details (skills, knowledge, abilities, technology)
+- Working with database tables
+- Using crosswalks and taxonomy mapping
+- Error handling and best practices
+- Integrating with tidyverse workflows
+
+The onet2r package provides a comprehensive, user-friendly interface to the O\*NET Web Services API, making it easy to incorporate occupational data into your R analyses.

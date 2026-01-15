@@ -27,12 +27,15 @@ onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
   }
 
   resp <- onet_request("online/crosswalks/military",
-                       keyword = keyword, start = start, end = end) |>
+                       .query = list(keyword = keyword, start = start, end = end)) |>
     onet_perform()
+
+  # Define expected schema
+  schema <- empty_tibble(code = character(), title = character())
 
   if (is.null(resp$occupation) || length(resp$occupation) == 0) {
     cli_inform("No civilian occupations found for: {.val {keyword}}")
-    return(tibble(code = character(), title = character()))
+    return(schema)
   }
 
   map(resp$occupation, \(x) {
@@ -80,18 +83,20 @@ onet_taxonomy_map <- function(code, from = c("active", "2010"), to = c("2010", "
   }
 
   # Build the endpoint path based on direction
-  endpoint <- if (from == "active") {
-    paste0("taxonomy/active/2010/", code)
+  if (from == "active") {
+    resp <- onet_request("taxonomy/active/2010", .path_segments = code) |>
+      onet_perform()
   } else {
-    paste0("taxonomy/2010/active/", code)
+    resp <- onet_request("taxonomy/2010/active", .path_segments = code) |>
+      onet_perform()
   }
 
-  resp <- onet_request(endpoint) |>
-    onet_perform()
+  # Define expected schema
+  schema <- empty_tibble(code = character(), title = character())
 
   if (is.null(resp$occupation) || length(resp$occupation) == 0) {
     cli_inform("No mapping found for code: {.val {code}}")
-    return(tibble(code = character(), title = character()))
+    return(schema)
   }
 
   map(resp$occupation, \(x) {
