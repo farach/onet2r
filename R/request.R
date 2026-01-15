@@ -6,14 +6,28 @@ onet_base_url <- "https://api-v2.onetcenter.org"
 #' Creates an httr2 request object configured for the O*NET API.
 #'
 #' @param .path Character string specifying the API endpoint path.
-#' @param ... Additional path segments and query parameters passed to the API.
+#' @param .path_segments Additional path segments to append to the URL path (optional).
+#' @param .query Named list or arguments for query parameters (optional).
 #'
 #' @return An httr2 request object.
 #' @keywords internal
-onet_request <- function(.path, ...) {
-  request(onet_base_url) |>
-    req_url_path_append(.path) |>
-    req_url_query(...) |>
+onet_request <- function(.path, .path_segments = NULL, .query = list()) {
+  req <- request(onet_base_url) |>
+    req_url_path_append(.path)
+  
+  # Append additional path segments if provided
+  if (!is.null(.path_segments)) {
+    for (segment in .path_segments) {
+      req <- req |> req_url_path_append(segment)
+    }
+  }
+  
+  # Add query parameters if provided
+  if (length(.query) > 0) {
+    req <- req |> req_url_query(!!!.query)
+  }
+  
+  req |>
     req_headers(`X-API-Key` = onet_api_key()) |>
     req_retry(
       max_tries = 3,

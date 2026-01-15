@@ -27,7 +27,7 @@ onet_search <- function(keyword, start = 1, end = 20) {
     cli_abort("{.arg keyword} must be a single character string.")
   }
 
-  resp <- onet_request("online/search", keyword = keyword, start = start, end = end) |>
+  resp <- onet_request("online/search", .query = list(keyword = keyword, start = start, end = end)) |>
     onet_perform()
 
   # Define expected schema for empty results
@@ -44,10 +44,17 @@ onet_search <- function(keyword, start = 1, end = 20) {
   }
 
   results <- map(resp$occupation, \(x) {
+    # Try multiple field names for relevance score
+    relevance <- x$relevance_score %||% 
+                 x$relevanceScore %||% 
+                 x$relevance %||% 
+                 x$score %||% 
+                 NA_real_
+    
     tibble(
       code = x$code %||% NA_character_,
       title = x$title %||% NA_character_,
-      relevance_score = x$relevance_score %||% NA_real_
+      relevance_score = relevance
     )
   }) |> list_rbind()
 

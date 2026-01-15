@@ -18,7 +18,7 @@
 #' head(occupations)
 #' }
 onet_occupations <- function(start = 1, end = 1000) {
-  resp <- onet_request("online/occupations", start = start, end = end) |>
+  resp <- onet_request("online/occupations", .query = list(start = start, end = end)) |>
     onet_perform()
 
   # Define expected schema
@@ -51,7 +51,7 @@ onet_occupations <- function(start = 1, end = 1000) {
 #' }
 onet_occupation <- function(code) {
   validate_onet_code(code)
-  resp <- onet_request("online/occupations", code, "summary") |>
+  resp <- onet_request("online/occupations", .path_segments = c(code, "summary")) |>
     onet_perform()
   resp
 }
@@ -71,7 +71,7 @@ onet_occupation <- function(code) {
 #' }
 onet_occupation_details <- function(code) {
   validate_onet_code(code)
-  resp <- onet_request("online/occupations", code, "details") |>
+  resp <- onet_request("online/occupations", .path_segments = c(code, "details")) |>
     onet_perform()
   resp
 }
@@ -154,7 +154,7 @@ onet_abilities <- function(code) {
 #' }
 onet_technology <- function(code) {
   validate_onet_code(code)
-  resp <- onet_request("online/occupations", code, "hot_technology") |>
+  resp <- onet_request("online/occupations", .path_segments = c(code, "hot_technology")) |>
     onet_perform()
 
   # Define expected schema
@@ -194,7 +194,7 @@ onet_occupation_element <- function(code, element) {
   validate_onet_code(code)
 
   # Get summary which contains all elements
-  resp <- onet_request("online/occupations", code, "summary") |>
+  resp <- onet_request("online/occupations", .path_segments = c(code, "summary")) |>
     onet_perform()
 
   # Define expected schema
