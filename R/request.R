@@ -90,6 +90,16 @@ as_onet_tibble <- function(x) {
  if (length(x) == 0) {
     return(tibble())
   }
+  
+  # Handle NULL columns by converting them to NA vectors
+  # This prevents as_tibble() from erroring on NULL values
+  if (is.list(x) && !is.data.frame(x)) {
+    # For named lists, replace NULL values with NA
+    x <- lapply(x, function(col) {
+      if (is.null(col)) NA else col
+    })
+  }
+  
   tbl <- as_tibble(x)
   names(tbl) <- to_snake_case(names(tbl))
   tbl
