@@ -44,9 +44,7 @@ onet_occupations <- function(start = 1, end = 1000) {
 #'
 #' @export
 onet_occupations_all <- function(page_size = 2000, show_progress = TRUE) {
-  if (!is.numeric(page_size) || page_size < 1 || page_size > 2000) {
-    cli::cli_abort("{.arg page_size} must be between 1 and 2000.")
-  }
+  validate_page_size(page_size)
 
   paginate_api(
     fetch_page = function(start, end) {
@@ -149,6 +147,8 @@ onet_skills <- function(code, start = 1, end = 20) {
 #' @return A tibble of skills.
 #' @export
 onet_skills_all <- function(code, page_size = 2000, show_progress = TRUE) {
+  validate_page_size(page_size)
+
   onet_details_element_all(
     code = code,
     section = "skills",
@@ -221,6 +221,8 @@ onet_work_context <- function(code, start = 1, end = 20) {
 #' @return A tibble of work context elements.
 #' @export
 onet_work_context_all <- function(code, page_size = 2000, show_progress = TRUE) {
+  validate_page_size(page_size)
+
   onet_details_element_all(
     code = code,
     section = "work_context",
@@ -253,6 +255,8 @@ onet_work_activities <- function(code, start = 1, end = 20) {
 #' @return A tibble of work activities.
 #' @export
 onet_work_activities_all <- function(code, page_size = 2000, show_progress = TRUE) {
+  validate_page_size(page_size)
+
   onet_details_element_all(
     code = code,
     section = "work_activities",
@@ -594,10 +598,6 @@ onet_details_element <- function(code, section, start = 1, end = 20) {
 onet_details_element_all <- function(code, section, page_size = 2000, show_progress = TRUE) {
   validate_onet_code(code)
 
-  if (!is.numeric(page_size) || page_size < 1 || page_size > 2000) {
-    cli::cli_abort("{.arg page_size} must be between 1 and 2000.")
-  }
-
   paginate_api(
     fetch_page = function(start, end) {
       onet_details_element_page(
@@ -626,6 +626,15 @@ onet_details_element_page <- function(code, section, start = 1, end = 20) {
     end = resp$end %||% 0,
     total = resp$total %||% 0
   )
+}
+
+validate_page_size <- function(page_size) {
+  if (!is.numeric(page_size) || length(page_size) != 1 || is.na(page_size) ||
+      page_size < 1 || page_size > 2000) {
+    cli::cli_abort("{.arg page_size} must be between 1 and 2000.")
+  }
+
+  invisible(page_size)
 }
 
 # Internal: convert list of objects -> tibble with snake_case names

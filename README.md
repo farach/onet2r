@@ -164,7 +164,7 @@ all_skills <- onet_skills_all(target_code, show_progress = FALSE)
 codes <- c("15-2051.00", "15-1252.00")
 
 all_skills <- codes |>
-  purrr::map(\(code) onet_skills_all(code, show_progress = FALSE) |> mutate(code = code)) |>
+  purrr::map(\(code) onet_skills_all(code, show_progress = FALSE) |> dplyr::mutate(code = code)) |>
   purrr::list_rbind()
 ```
 
