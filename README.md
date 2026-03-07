@@ -86,7 +86,8 @@ onet_technology_skills("15-1252.00", end = 2)
 
 | Function                    | Description                          |
 |-----------------------------|--------------------------------------|
-| `onet_occupations()`        | List all occupations with pagination |
+| `onet_occupations()`        | List one page of occupations         |
+| `onet_occupations_all()`    | List all occupations                 |
 | `onet_occupation()`         | Get occupation summary               |
 | `onet_occupation_details()` | Get full occupation report           |
 | `onet_search()`             | Search occupations by keyword        |
@@ -96,12 +97,15 @@ onet_technology_skills("15-1252.00", end = 2)
 | Function                           | Description               |
 |------------------------------------|---------------------------|
 | `onet_skills()`                    | Skills data               |
+| `onet_skills_all()`                | All skills rows           |
 | `onet_knowledge()`                 | Knowledge areas           |
 | `onet_abilities()`                 | Abilities                 |
 | `onet_work_styles()`               | Work styles               |
 | `onet_interests()`                 | Occupational interests    |
 | `onet_work_context()`              | Work context              |
+| `onet_work_context_all()`          | All work context rows     |
 | `onet_work_activities()`           | Work activities           |
+| `onet_work_activities_all()`       | All work activities rows  |
 | `onet_tasks()`                     | Tasks                     |
 | `onet_detailed_work_activities()`  | Detailed work activities  |
 | `onet_related_occupations()`       | Related occupations       |
@@ -152,12 +156,16 @@ skills <- onet_skills(target_code, end = 25)
 tasks  <- onet_tasks(target_code, end = 25)
 tech   <- onet_hot_technology(target_code, end = 25)
 
+# Pull complete occupation-level sections for downstream analysis
+all_occupations <- onet_occupations_all(show_progress = FALSE)
+all_skills <- onet_skills_all(target_code, show_progress = FALSE)
+
 # Combine skills from multiple occupations
 codes <- c("15-2051.00", "15-1252.00")
 
 all_skills <- codes |>
-  purrr::map(\(code) onet_skills(code) |> mutate(code = code)) |>
-  purrr:: list_rbind()
+  purrr::map(\(code) onet_skills_all(code, show_progress = FALSE) |> dplyr::mutate(code = code)) |>
+  purrr::list_rbind()
 ```
 
 ## 📊 What You Get
