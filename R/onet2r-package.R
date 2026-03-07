@@ -6,7 +6,7 @@
 #' @importFrom httr2 request req_headers req_url_path_append req_url_query
 #' @importFrom httr2 req_retry req_perform resp_body_json resp_status
 #' @importFrom purrr list_rbind map
-#' @importFrom rlang .data .env
+#' @importFrom rlang .data .env %||%
 #' @importFrom tibble tibble as_tibble
 #' @importFrom httr2 req_auth_basic
 ## usethis namespace: end

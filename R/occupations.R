@@ -4,9 +4,9 @@
 
 # ---- Public functions ---------------------------------------------------------
 
-#' List All O*NET Occupations
+#' List a Page of O*NET Occupations
 #'
-#' Retrieves a list of occupations in the O*NET database.
+#' Retrieves a single page of occupations in the O*NET database.
 #'
 #' @param start Integer specifying the first result to return (default 1).
 #' @param end Integer specifying the last result to return (default 1000).
@@ -17,8 +17,47 @@
 #'   \item{title}{Occupation title}
 #' }
 #'
+#' @details
+#' Use [onet_occupations_all()] to automatically paginate through the full
+#' occupation list.
+#'
 #' @export
 onet_occupations <- function(start = 1, end = 1000) {
+  onet_occupations_page(start = start, end = end)$data
+}
+
+#' List All O*NET Occupations with Auto-Pagination
+#'
+#' Retrieves all occupations in the O*NET database by automatically paginating
+#' through the results.
+#'
+#' @param page_size Integer specifying how many rows to fetch per request
+#'   (default 2000, which is the API maximum).
+#' @param show_progress Logical indicating whether to show progress messages
+#'   for pagination (default TRUE).
+#'
+#' @return A tibble with columns:
+#' \describe{
+#'   \item{code}{O*NET-SOC occupation code}
+#'   \item{title}{Occupation title}
+#' }
+#'
+#' @export
+onet_occupations_all <- function(page_size = 2000, show_progress = TRUE) {
+  if (!is.numeric(page_size) || page_size < 1 || page_size > 2000) {
+    cli::cli_abort("{.arg page_size} must be between 1 and 2000.")
+  }
+
+  paginate_api(
+    fetch_page = function(start, end) {
+      onet_occupations_page(start = start, end = end)
+    },
+    page_size = page_size,
+    show_progress = show_progress
+  )
+}
+
+onet_occupations_page <- function(start = 1, end = 1000) {
   resp <- onet_request(
     "online/occupations",
     .query = list(start = start, end = end)
@@ -27,17 +66,24 @@ onet_occupations <- function(start = 1, end = 1000) {
   
   schema <- tibble::tibble(code = character(), title = character())
   
-  if (is.null(resp$occupation) || length(resp$occupation) == 0) {
-    return(schema)
+  data <- if (is.null(resp$occupation) || length(resp$occupation) == 0) {
+    schema
+  } else {
+    purrr::map(resp$occupation, \(x) {
+      tibble::tibble(
+        code = x$code %||% NA_character_,
+        title = x$title %||% NA_character_
+      )
+    }) |>
+      purrr::list_rbind()
   }
-  
-  purrr::map(resp$occupation, \(x) {
-    tibble::tibble(
-      code = x$code %||% NA_character_,
-      title = x$title %||% NA_character_
-    )
-  }) |>
-    purrr::list_rbind()
+
+  list(
+    data = data,
+    start = resp$start %||% start,
+    end = resp$end %||% 0,
+    total = resp$total %||% 0
+  )
 }
 
 #' Get O*NET Occupation Overview
@@ -87,6 +133,28 @@ onet_occupation_details <- function(code) {
 #' @export
 onet_skills <- function(code, start = 1, end = 20) {
   onet_details_element(code, "skills", start = start, end = end)
+}
+
+#' Get All O*NET Occupation Skills (details)
+#'
+#' Retrieves all skill rows for a single occupation by automatically
+#' paginating through the endpoint.
+#'
+#' @param code An O*NET-SOC occupation code.
+#' @param page_size Integer specifying how many rows to fetch per request
+#'   (default 2000, which is the API maximum).
+#' @param show_progress Logical indicating whether to show progress messages
+#'   for pagination (default TRUE).
+#'
+#' @return A tibble of skills.
+#' @export
+onet_skills_all <- function(code, page_size = 2000, show_progress = TRUE) {
+  onet_details_element_all(
+    code = code,
+    section = "skills",
+    page_size = page_size,
+    show_progress = show_progress
+  )
 }
 
 #' Get O*NET Occupation Knowledge (details)
@@ -139,6 +207,28 @@ onet_work_context <- function(code, start = 1, end = 20) {
   onet_details_element(code, "work_context", start = start, end = end)
 }
 
+#' Get All O*NET Occupation Work Context (details)
+#'
+#' Retrieves all work context rows for a single occupation by automatically
+#' paginating through the endpoint.
+#'
+#' @param code An O*NET-SOC occupation code.
+#' @param page_size Integer specifying how many rows to fetch per request
+#'   (default 2000, which is the API maximum).
+#' @param show_progress Logical indicating whether to show progress messages
+#'   for pagination (default TRUE).
+#'
+#' @return A tibble of work context elements.
+#' @export
+onet_work_context_all <- function(code, page_size = 2000, show_progress = TRUE) {
+  onet_details_element_all(
+    code = code,
+    section = "work_context",
+    page_size = page_size,
+    show_progress = show_progress
+  )
+}
+
 #' Get O*NET Occupation Work Activities (details)
 #' @param code An O*NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
@@ -147,6 +237,28 @@ onet_work_context <- function(code, start = 1, end = 20) {
 #' @export
 onet_work_activities <- function(code, start = 1, end = 20) {
   onet_details_element(code, "work_activities", start = start, end = end)
+}
+
+#' Get All O*NET Occupation Work Activities (details)
+#'
+#' Retrieves all work activity rows for a single occupation by automatically
+#' paginating through the endpoint.
+#'
+#' @param code An O*NET-SOC occupation code.
+#' @param page_size Integer specifying how many rows to fetch per request
+#'   (default 2000, which is the API maximum).
+#' @param show_progress Logical indicating whether to show progress messages
+#'   for pagination (default TRUE).
+#'
+#' @return A tibble of work activities.
+#' @export
+onet_work_activities_all <- function(code, page_size = 2000, show_progress = TRUE) {
+  onet_details_element_all(
+    code = code,
+    section = "work_activities",
+    page_size = page_size,
+    show_progress = show_progress
+  )
 }
 
 # ---- Details: tasks (resp$task) ----------------------------------------------
@@ -471,6 +583,36 @@ onet_in_demand_skills <- function(code, start = 1, end = 20) {
 onet_details_element <- function(code, section, start = 1, end = 20) {
   validate_onet_code(code)
   
+  onet_details_element_page(
+    code = code,
+    section = section,
+    start = start,
+    end = end
+  )$data
+}
+
+onet_details_element_all <- function(code, section, page_size = 2000, show_progress = TRUE) {
+  validate_onet_code(code)
+
+  if (!is.numeric(page_size) || page_size < 1 || page_size > 2000) {
+    cli::cli_abort("{.arg page_size} must be between 1 and 2000.")
+  }
+
+  paginate_api(
+    fetch_page = function(start, end) {
+      onet_details_element_page(
+        code = code,
+        section = section,
+        start = start,
+        end = end
+      )
+    },
+    page_size = page_size,
+    show_progress = show_progress
+  )
+}
+
+onet_details_element_page <- function(code, section, start = 1, end = 20) {
   resp <- onet_request(
     "online/occupations",
     .path_segments = c(code, "details", section),
@@ -478,7 +620,12 @@ onet_details_element <- function(code, section, start = 1, end = 20) {
   ) |>
     onet_perform()
   
-  onet_list_to_tbl(resp$element)
+  list(
+    data = onet_list_to_tbl(resp$element),
+    start = resp$start %||% start,
+    end = resp$end %||% 0,
+    total = resp$total %||% 0
+  )
 }
 
 # Internal: convert list of objects -> tibble with snake_case names
