@@ -24,3 +24,8 @@ A tibble with columns:
 \description{
 Get O*NET Education (details)
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_education("15-1252.00")
+\dontshow{\}) # examplesIf}
+}

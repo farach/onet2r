@@ -18,10 +18,15 @@ A tibble with columns:
 \item{title}{Occupation title}
 }
 }
-\details{
-Use \code{\link[=onet_occupations_all]{onet_occupations_all()}} to automatically paginate through the
-full occupation list.
-}
 \description{
 Retrieves a single page of occupations in the O*NET database.
+}
+\details{
+Use \code{\link[=onet_occupations_all]{onet_occupations_all()}} to automatically paginate through the full
+occupation list.
+}
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_occupations(start = 1, end = 5)
+\dontshow{\}) # examplesIf}
 }

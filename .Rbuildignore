@@ -4,3 +4,9 @@
 ^\.claude$
 ^LICENSE\.md$
 ^README\.md$
+^\.git$
+^cran-comments\.md$
+^_pkgdown\.yml$
+^pkgdown$
+^doc$
+^Meta$

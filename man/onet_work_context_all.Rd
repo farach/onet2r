@@ -22,3 +22,8 @@ A tibble of work context elements.
 Retrieves all work context rows for a single occupation by automatically
 paginating through the endpoint.
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_work_context_all("15-1252.00", show_progress = FALSE)
+\dontshow{\}) # examplesIf}
+}

@@ -1,28 +1,34 @@
 Package: onet2r
-Title: Access O*NET Web Services API
+Title: Access 'O*NET' Web Services API
 Version: 0.1.0
 Authors@R:
-    person("Alex", "Farach", email = "alex@example.com", role = c("aut", "cre"))
-Description: An R client for the O*NET Web Services API 2.0. Provides functions
-    to search occupations, retrieve occupation details (skills, knowledge,
-    abilities), access database tables, and perform taxonomy crosswalks.
-    All functions return tibbles for easy integration with tidyverse workflows.
+    person("Alex", "Farach", email = "alexfarach@microsoft.com", role = c("aut", "cre", "cph"))
+Description: Access the 'O*NET' Web Services Application Programming Interface
+    (API) version 2.0. Search occupations, retrieve occupation details such as
+    skills, knowledge, abilities, tasks, and work activities, access database
+    tables, and perform taxonomy crosswalks. Results are returned as tibbles
+    for easy integration with tidyverse workflows.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.1.0)
 Imports:
     cli,
-    dplyr,
+    dplyr (>= 1.1.0),
     httr2 (>= 1.0.0),
     purrr,
     rlang,
     tibble
 Suggests:
-    testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    readxl,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    tidycensus,
+    withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-URL: https://github.com/alexfarach/onet2r
-BugReports: https://github.com/alexfarach/onet2r/issues
+URL: https://github.com/farach/onet2r
+BugReports: https://github.com/farach/onet2r/issues

@@ -19,3 +19,8 @@ A tibble of interest elements.
 \description{
 Get O*NET Occupation Interests (details)
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_interests("15-1252.00", end = 5)
+\dontshow{\}) # examplesIf}
+}

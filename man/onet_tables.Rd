@@ -17,8 +17,8 @@ A tibble with columns:
 Retrieves a list of available database tables in O*NET.
 }
 \examples{
-\dontrun{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 tables <- onet_tables()
 head(tables)
-}
+\dontshow{\}) # examplesIf}
 }

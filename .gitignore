@@ -16,3 +16,5 @@ Thumbs.db
 
 # Claude Code plans (local only)
 .claude/
+/doc/
+/Meta/

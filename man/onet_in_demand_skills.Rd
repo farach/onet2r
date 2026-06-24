@@ -17,5 +17,13 @@ onet_in_demand_skills(code, start = 1, end = 20)
 A tibble of in-demand skills records.
 }
 \description{
-Get O*NET In-Demand Skills (details)
+Retrieves in-demand technology records for an occupation. The O*NET details
+index advertises an \code{in_demand} link for some occupations, but the endpoint
+may return 404; this helper uses the working hot-technology endpoint and
+filters to rows where \code{in_demand} is \code{TRUE}.
+}
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_in_demand_skills("15-1252.00", end = 5)
+\dontshow{\}) # examplesIf}
 }

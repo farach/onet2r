@@ -19,3 +19,8 @@ A tibble of detailed work activities.
 \description{
 Note: this endpoint returns items under \code{activity} with fields like id/title/related.
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_detailed_work_activities("15-1252.00", end = 5)
+\dontshow{\}) # examplesIf}
+}

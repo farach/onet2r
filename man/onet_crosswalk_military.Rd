@@ -24,11 +24,11 @@ A tibble with matching civilian occupations:
 Searches for civilian occupations that match military job titles or codes.
 }
 \examples{
-\dontrun{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 # Search by military job title
 onet_crosswalk_military("infantry")
 
 # Search by military code
 onet_crosswalk_military("11B")
-}
+\dontshow{\}) # examplesIf}
 }

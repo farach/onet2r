@@ -19,3 +19,8 @@ A tibble of knowledge elements.
 \description{
 Get O*NET Occupation Knowledge (details)
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_knowledge("15-1252.00", end = 5)
+\dontshow{\}) # examplesIf}
+}

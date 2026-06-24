@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE  # Set to TRUE when you have a valid API key
+  eval = FALSE # Set to TRUE when you have a valid API key
 )
 ```
 
@@ -114,14 +114,14 @@ summary <- onet_occupation("15-1252.00")
 names(summary)
 ```
 
-### Full Occupation Report
+### Details Index
 
-For the complete occupation report with all details:
+To see which detail sections are available for an occupation:
 
 ```{r}
 details <- onet_occupation_details("15-1252.00")
 
-# This includes extensive information about the occupation
+# This includes links to detail sections such as skills and tasks
 str(details, max.level = 1)
 ```
 
@@ -160,7 +160,7 @@ tech
 
 # Technologies are organized by category
 library(dplyr)
-tech |> 
+tech |>
   count(category, sort = TRUE)
 ```
 
@@ -216,7 +216,7 @@ tables <- onet_tables()
 tables
 
 # Find tables of interest
-tables |> 
+tables |>
   filter(grepl("skill", title, ignore.case = TRUE))
 ```
 
@@ -226,8 +226,8 @@ Before retrieving a table, you can check its structure:
 
 ```{r}
 # Get column information
-skill_cols <- onet_table_info("skills")
-skill_cols
+occupation_cols <- onet_table_info("occupation_data")
+occupation_cols
 ```
 
 ### Retrieve Table Data
@@ -283,8 +283,8 @@ Map occupation codes between O\*NET-SOC taxonomy versions:
 ```{r}
 # Map from current O*NET-SOC to 2010 SOC
 mapped_2010 <- onet_taxonomy_map(
-  "15-1252.00", 
-  from = "active", 
+  "15-1252.00",
+  from = "active",
   to = "2010"
 )
 mapped_2010
@@ -310,8 +310,8 @@ The package handles errors gracefully and provides informative messages:
 # If no API key is set
 onet_search("engineer")
 #> Error: O*NET API key not found.
-#> ℹ Set your API key with `Sys.setenv(ONET_API_KEY = "your-key")`
-#> ℹ Get a key at <https://services.onetcenter.org/developer/>
+#> <U+2139> Set your API key with `Sys.setenv(ONET_API_KEY = "your-key")`
+#> <U+2139> Get a key at <https://services.onetcenter.org/developer/>
 ```
 
 **Invalid Occupation Code:**
@@ -319,7 +319,7 @@ onet_search("engineer")
 ```{r, error = TRUE}
 onet_skills("invalid-code")
 #> Error: Invalid O*NET-SOC code format: "invalid-code"
-#> ℹ Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)
+#> <U+2139> Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)
 ```
 
 ### Handling Empty Results
@@ -333,11 +333,11 @@ results <- onet_search("xyznonexistent123")
 
 # Still returns a properly structured tibble
 results
-#> # A tibble: 0 × 2
-#> # ℹ 2 variables: code <chr>, title <chr>
+#> # A tibble: 0 <U+00D7> 2
+#> # <U+2139> 2 variables: code <chr>, title <chr>
 
 # You can safely use it in pipelines
-nrow(results)  #> [1] 0
+nrow(results) #> [1] 0
 ```
 
 ### API Errors and Retries
@@ -351,8 +351,8 @@ The package automatically handles transient API errors:
 ```{r}
 # If the API returns an error, you'll see a descriptive message:
 #> Error: O*NET API returned an error:
-#> ✖ Invalid table identifier
-#> ℹ Use onet_tables() to see available tables
+#> <U+2716> Invalid table identifier
+#> <U+2139> Use onet_tables() to see available tables
 ```
 
 ## Integrating with Tidyverse
@@ -378,8 +378,8 @@ skills <- healthcare |>
 skills_with_titles <- skills |>
   mutate(occupation_num = as.integer(occupation_num)) |>
   left_join(
-    healthcare |> 
-      slice_head(n = 5) |> 
+    healthcare |>
+      slice_head(n = 5) |>
       mutate(occupation_num = row_number()),
     by = "occupation_num"
   )
@@ -427,7 +427,7 @@ safe_skills <- possibly(onet_skills, otherwise = NULL)
 
 skills_list <- codes |>
   map(safe_skills) |>
-  compact()  # Remove NULL entries
+  compact() # Remove NULL entries
 
 # Or keep track of which ones failed
 results <- codes |>
@@ -455,7 +455,7 @@ occupations <- c("15-1252.00", "15-1251.00", "29-1141.00")
 skills_list <- occupations |>
   map(\(code) {
     result <- onet_skills(code)
-    Sys.sleep(0.5)  # Wait 0.5 seconds between requests
+    Sys.sleep(0.5) # Wait 0.5 seconds between requests
     result
   })
 ```

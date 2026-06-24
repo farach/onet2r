@@ -4,20 +4,20 @@
 \name{onet2r-package}
 \alias{onet2r}
 \alias{onet2r-package}
-\title{onet2r: Access O*NET Web Services API}
+\title{onet2r: Access 'O*NET' Web Services API}
 \description{
-An R client for the O*NET Web Services API 2.0. Provides functions to search occupations, retrieve occupation details (skills, knowledge, abilities), access database tables, and perform taxonomy crosswalks. All functions return tibbles for easy integration with tidyverse workflows.
+Access the 'O*NET' Web Services Application Programming Interface (API) version 2.0. Search occupations, retrieve occupation details such as skills, knowledge, abilities, tasks, and work activities, access database tables, and perform taxonomy crosswalks. Results are returned as tibbles for easy integration with tidyverse workflows.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/alexfarach/onet2r}
-  \item Report bugs at \url{https://github.com/alexfarach/onet2r/issues}
+  \item \url{https://github.com/farach/onet2r}
+  \item Report bugs at \url{https://github.com/farach/onet2r/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Alex Farach \email{alex@example.com}
+\strong{Maintainer}: Alex Farach \email{alexfarach@microsoft.com} [copyright holder]
 
 }
 \keyword{internal}

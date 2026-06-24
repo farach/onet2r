@@ -8,7 +8,7 @@ onet_table(table_id, page_size = 2000, show_progress = TRUE)
 }
 \arguments{
 \item{table_id}{Character string specifying the table identifier
-(e.g., "occupation_data", "skills").}
+(e.g., "occupation_data").}
 
 \item{page_size}{Integer specifying how many rows to fetch per request
 (default 2000, which is the API maximum).}
@@ -30,11 +30,8 @@ and make multiple API requests. Progress messages can be disabled
 by setting \code{show_progress = FALSE}.
 }
 \examples{
-\dontrun{
-# Get all skills data
-skills_data <- onet_table("skills")
-
-# Get occupation data without progress messages
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+# Get occupation data without progress messages.
 occ_data <- onet_table("occupation_data", show_progress = FALSE)
-}
+\dontshow{\}) # examplesIf}
 }

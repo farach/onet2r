@@ -10,9 +10,14 @@ onet_occupation_details(code)
 \item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
 }
 \value{
-A list containing the occupation details index.
+A list containing the available occupation details sections.
 }
 \description{
 Retrieves the details index for a specific occupation. The response includes
-links to available detailed sections.
+links to available detailed sections from the occupation overview.
+}
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_occupation_details("15-1252.00")
+\dontshow{\}) # examplesIf}
 }

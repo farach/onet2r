@@ -21,3 +21,8 @@ A tibble with one row per technology example, including category metadata.
 \description{
 Flattens the \code{category -> example} and optionally \code{example_more} structure.
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_technology_skills("15-1252.00", end = 3)
+\dontshow{\}) # examplesIf}
+}

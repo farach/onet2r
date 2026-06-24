@@ -16,3 +16,8 @@ A list (faithful to API response).
 Note: this endpoint returns a non-paged object with keys like:
 code, title, education, related_experience, job_training, job_zone_examples, svp_range
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_job_zone("15-1252.00")
+\dontshow{\}) # examplesIf}
+}

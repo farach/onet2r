@@ -9,11 +9,9 @@
 #'   }
 #'
 #' @export
-#' @examples
-#' \dontrun{
+#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
 #' tables <- onet_tables()
 #' head(tables)
-#' }
 onet_tables <- function() {
   resp <- onet_request("database") |>
     onet_perform()
@@ -39,24 +37,23 @@ onet_tables <- function() {
 #' Retrieves metadata about columns in a specific database table.
 #'
 #' @param table_id Character string specifying the table identifier
-#'   (e.g., "occupation_data", "skills").
+#'   (e.g., "occupation_data").
 #'
 #' @return A tibble with column metadata including:
 #'   \describe{
-#'     \item{name}{Column name}
+#'     \item{name}{Column identifier}
+#'     \item{title}{Column title}
 #'     \item{type}{Column data type}
+#'     \item{format}{Column format}
+#'     \item{optional}{Whether the column is optional}
 #'     \item{description}{Column description}
 #'   }
 #'
 #' @export
-#' @examples
-#' \dontrun{
-#' info <- onet_table_info("skills")
-#' }
+#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' info <- onet_table_info("occupation_data")
 onet_table_info <- function(table_id) {
-  if (!is.character(table_id) || length(table_id) != 1) {
-    cli_abort("{.arg table_id} must be a single character string.")
-  }
+  validate_single_string(table_id, "table_id")
 
   resp <- onet_request("database/info", .path_segments = table_id) |>
     onet_perform()
@@ -64,7 +61,10 @@ onet_table_info <- function(table_id) {
   # Define expected schema
   schema <- empty_tibble(
     name = character(),
+    title = character(),
     type = character(),
+    format = character(),
+    optional = logical(),
     description = character()
   )
 
@@ -74,8 +74,11 @@ onet_table_info <- function(table_id) {
 
   map(resp$column, \(x) {
     tibble(
-      name = x$name %||% NA_character_,
+      name = x$column_id %||% x$name %||% NA_character_,
+      title = x$title %||% NA_character_,
       type = x$type %||% NA_character_,
+      format = x$format %||% NA_character_,
+      optional = x$optional %||% NA,
       description = x$description %||% NA_character_
     )
   }) |> list_rbind()
@@ -87,7 +90,7 @@ onet_table_info <- function(table_id) {
 #' through results.
 #'
 #' @param table_id Character string specifying the table identifier
-#'   (e.g., "occupation_data", "skills").
+#'   (e.g., "occupation_data").
 #' @param page_size Integer specifying how many rows to fetch per request
 #'   (default 2000, which is the API maximum).
 #' @param show_progress Logical indicating whether to show progress messages
@@ -102,22 +105,13 @@ onet_table_info <- function(table_id) {
 #' by setting `show_progress = FALSE`.
 #'
 #' @export
-#' @examples
-#' \dontrun{
-#' # Get all skills data
-#' skills_data <- onet_table("skills")
-#'
-#' # Get occupation data without progress messages
+#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' # Get occupation data without progress messages.
 #' occ_data <- onet_table("occupation_data", show_progress = FALSE)
-#' }
 onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {
-  if (!is.character(table_id) || length(table_id) != 1) {
-    cli_abort("{.arg table_id} must be a single character string.")
-  }
-  if (!is.numeric(page_size) || page_size < 1 || page_size > 2000) {
-    cli_abort("{.arg page_size} must be between 1 and 2000.")
-  }
-  
+  validate_single_string(table_id, "table_id")
+  validate_page_size(page_size)
+
   # Use the centralized pagination helper
   paginate_api(
     fetch_page = function(start, end) {
@@ -136,6 +130,7 @@ onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {
 #'
 #' @return A list with `data` (tibble), `start`, `end`, and `total`.
 #' @keywords internal
+#' @noRd
 onet_table_page <- function(table_id, start = 1, end = 2000) {
   resp <- onet_request("database/rows", .path_segments = table_id, .query = list(start = start, end = end)) |>
     onet_perform()

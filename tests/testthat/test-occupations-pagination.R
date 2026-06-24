@@ -62,6 +62,38 @@ test_that("onet_occupations_all paginates across pages", {
   )
 })
 
+test_that("onet_occupation_details returns details index from overview", {
+  local_mocked_bindings(
+    onet_occupation = function(code) {
+      expect_equal(code, "15-1252.00")
+      list(
+        details_contents = list(
+          list(title = "Skills", href = "https://example.test/skills")
+        )
+      )
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet_occupation_details("15-1252.00")
+
+  expect_type(result, "list")
+  expect_equal(result[[1]]$title, "Skills")
+})
+
+test_that("onet_occupation_details handles missing details index", {
+  local_mocked_bindings(
+    onet_occupation = function(code) {
+      list()
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet_occupation_details("15-1252.00")
+
+  expect_equal(result, list())
+})
+
 test_that("all-page detail helpers paginate the expected sections", {
   local_mocked_bindings(
     onet_details_element_page = function(code, section, start = 1, end = 20) {
@@ -119,4 +151,23 @@ test_that("all-page helpers validate page size", {
     onet_work_activities_all("15-1252.00", page_size = 2001),
     "must be between 1 and 2000"
   )
+})
+
+test_that("onet_in_demand_skills filters hot technology records", {
+  local_mocked_bindings(
+    onet_hot_technology = function(code, start = 1, end = 20) {
+      expect_equal(code, "15-1252.00")
+      tibble::tibble(
+        title = c("Python", "Legacy tool"),
+        in_demand = c(TRUE, FALSE),
+        hot_technology = c(TRUE, FALSE)
+      )
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet_in_demand_skills("15-1252.00")
+
+  expect_equal(nrow(result), 1)
+  expect_equal(result$title, "Python")
 })
