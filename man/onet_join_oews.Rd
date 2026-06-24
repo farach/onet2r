@@ -2,7 +2,7 @@
 % Please edit documentation in R/oews.R
 \name{onet_join_oews}
 \alias{onet_join_oews}
-\title{Join O\*NET Occupations to National OEWS Estimates}
+\title{Join O*NET Occupations to National OEWS Estimates}
 \usage{
 onet_join_oews(
   occupations,
@@ -15,7 +15,7 @@ onet_join_oews(
 )
 }
 \arguments{
-\item{occupations}{A data frame containing an O\*NET occupation code column.}
+\item{occupations}{A data frame containing an O*NET occupation code column.}
 
 \item{oews}{Optional OEWS tibble. If omitted, \code{onet_oews_national()} is called.}
 
@@ -34,8 +34,8 @@ A tibble containing \code{occupations} plus a \code{soc_code} column and
 matching national OEWS employment and wage estimate columns.
 }
 \description{
-Joins O\*NET occupation data to national OEWS employment and wage estimates by
-converting detailed O\*NET-SOC codes such as \code{"15-1252.00"} to SOC codes such
+Joins O*NET occupation data to national OEWS employment and wage estimates by
+converting detailed O*NET-SOC codes such as \code{"15-1252.00"} to SOC codes such
 as \code{"15-1252"}.
 }
 \examples{

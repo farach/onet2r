@@ -1,18 +1,18 @@
 # =============================================================================
-# Weighted O\*NET summaries
+# Weighted O*NET summaries
 # =============================================================================
 
-#' Summarise O\*NET Values with Employment or Wage Weights
+#' Summarise O&#42;NET Values with Employment or Wage Weights
 #'
-#' Computes employment-weighted summaries for O\*NET task, skill, ability, or
+#' Computes employment-weighted summaries for O&#42;NET task, skill, ability, or
 #' work-activity rows after joining occupation-level employment and wage
-#' estimates. This is useful for moving from occupation-level O\*NET outputs to
+#' estimates. This is useful for moving from occupation-level O&#42;NET outputs to
 #' labor-market-weighted measures.
 #'
 #' @param data A data frame containing one row per occupation-value pair.
 #' @param group Character vector of columns to group by, such as task or skill
 #'   identifiers.
-#' @param value Name of the numeric O\*NET value column to average.
+#' @param value Name of the numeric O&#42;NET value column to average.
 #' @param occupation_code Name of the occupation code column in `data`.
 #' @param oews Optional OEWS tibble. If supplied and `weight` is not already in
 #'   `data`, it is joined with [onet_join_oews()].

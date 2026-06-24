@@ -14,14 +14,14 @@ template:
       google: JetBrains Mono
 
 home:
-  title: Access O&#42;NET Web Services API data from R
+  title: Access O*NET Web Services API data from R
   description: >
-    A tidyverse-first toolkit for O&#42;NET Web Services, archived O&#42;NET releases,
+    A tidyverse-first toolkit for O*NET Web Services, archived O*NET releases,
     taxonomy crosswalks, and BLS OEWS wage and employment context.
   links:
-    - text: O&#42;NET Web Services API
+    - text: O*NET Web Services API
       href: https://services.onetcenter.org/
-    - text: O&#42;NET Database Releases
+    - text: O*NET Database Releases
       href: https://www.onetcenter.org/db_releases.html
     - text: BLS OEWS Data
       href: https://www.bls.gov/oes/tables.htm
@@ -43,12 +43,16 @@ navbar:
       menu:
         - text: Getting Started
           href: articles/getting-started.html
-        - text: Why Longitudinal O&#42;NET Is Hard
+        - text: Why Longitudinal O*NET Is Hard
           href: articles/longitudinal-onet-background.html
         - text: Longitudinal Archives
           href: articles/longitudinal-archives.html
         - text: OEWS Wage Context
           href: articles/oews-wage-context.html
+        - text: Reproducible Measures
+          href: articles/measure-reproducibility.html
+        - text: Change Decomposition
+          href: articles/within-between-decomposition.html
         - text: Output Validation
           href: articles/output-validation.html
     news:
@@ -108,7 +112,7 @@ reference:
       - onet_crosswalk_military
       - onet_crosswalk_bridge
       - onet_taxonomy_map
-  - title: Longitudinal O&#42;NET archives
+  - title: Longitudinal O*NET archives
     contents:
       - onet_releases
       - onet_archive_download
@@ -126,6 +130,17 @@ reference:
       - onet_join_oews
       - onet_weighted_summary
       - onet_pums_employment_weights
+      - onet_reference_soc_resolve
+      - onet_weight_panel_oews
+      - onet_weight_panel_pums
+  - title: Reproducible user measures
+    contents:
+      - onet_measure
+      - onet_measure_coverage
+      - onet_task_to_occupation
+      - onet_measure_aggregate
+      - onet_robustness_diagnostic
+      - onet_decompose_change
 
 articles:
   - title: Articles
@@ -135,4 +150,6 @@ articles:
       - longitudinal-onet-background
       - longitudinal-archives
       - oews-wage-context
+      - measure-reproducibility
+      - within-between-decomposition
       - output-validation

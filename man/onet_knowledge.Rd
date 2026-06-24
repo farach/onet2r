@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_knowledge}
 \alias{onet_knowledge}
-\title{Get O\*NET Occupation Knowledge (details)}
+\title{Get O*NET Occupation Knowledge (details)}
 \usage{
 onet_knowledge(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O\*NET-SOC occupation code.}
+\item{code}{An O*NET-SOC occupation code.}
 
 \item{start}{Integer specifying the first result to return.}
 
@@ -17,7 +17,7 @@ onet_knowledge(code, start = 1, end = 20)
 A tibble of knowledge elements.
 }
 \description{
-Get O\*NET Occupation Knowledge (details)
+Get O*NET Occupation Knowledge (details)
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/panel.R
 \name{onet_releases}
 \alias{onet_releases}
-\title{List O\*NET Archive Releases}
+\title{List O*NET Archive Releases}
 \usage{
 onet_releases()
 }
@@ -10,7 +10,7 @@ onet_releases()
 A tibble with release metadata and text archive URLs.
 }
 \description{
-Parses the O\*NET database releases archive and returns downloadable text
+Parses the O*NET database releases archive and returns downloadable text
 archives. The release archive states release months, not days, so
 \code{release_date} uses the first day of each stated month.
 }

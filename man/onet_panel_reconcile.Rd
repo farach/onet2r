@@ -2,7 +2,7 @@
 % Please edit documentation in R/panel.R
 \name{onet_panel_reconcile}
 \alias{onet_panel_reconcile}
-\title{Reconcile O\*NET Panel Changes}
+\title{Reconcile O*NET Panel Changes}
 \usage{
 onet_panel_reconcile(panel, bridge, weight = "equal")
 }
@@ -14,7 +14,8 @@ onet_panel_reconcile(panel, bridge, weight = "equal")
 \item{weight}{Weighting method. Only \code{"equal"} is implemented.}
 }
 \value{
-A tibble of adjacent-release comparisons with change flags.
+A tibble of adjacent-release comparisons with change and coverage
+flags.
 }
 \description{
 Compares adjacent releases in a panel and classifies changes using the value

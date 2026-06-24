@@ -2,7 +2,7 @@
 % Please edit documentation in R/occupations.R
 \name{onet_occupations}
 \alias{onet_occupations}
-\title{List a Page of O\*NET Occupations}
+\title{List a Page of O*NET Occupations}
 \usage{
 onet_occupations(start = 1, end = 1000)
 }
@@ -14,12 +14,12 @@ onet_occupations(start = 1, end = 1000)
 \value{
 A tibble with columns:
 \describe{
-\item{code}{O\*NET-SOC occupation code}
+\item{code}{O*NET-SOC occupation code}
 \item{title}{Occupation title}
 }
 }
 \description{
-Retrieves a single page of occupations in the O\*NET database.
+Retrieves a single page of occupations in the O*NET database.
 }
 \details{
 Use \code{\link[=onet_occupations_all]{onet_occupations_all()}} to automatically paginate through the full

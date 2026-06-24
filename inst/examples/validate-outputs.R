@@ -6,6 +6,8 @@
 # Live O*NET API calls require ONET_API_KEY. Local archive and OEWS examples use
 # bundled sample files so they are deterministic and do not depend on downloads.
 
+options(cli.num_colors = 1, crayon.enabled = FALSE, pillar.bold = FALSE)
+
 inspect_tbl <- function(x, required = character(), min_rows = 1) {
   stopifnot(inherits(x, "tbl_df"))
   missing <- setdiff(required, names(x))
@@ -15,7 +17,7 @@ inspect_tbl <- function(x, required = character(), min_rows = 1) {
   if (nrow(x) < min_rows) {
     stop("Expected at least ", min_rows, " row(s), got ", nrow(x))
   }
-  print(utils::head(x, 3))
+  print(utils::head(x, 3), width = Inf)
   invisible(x)
 }
 
@@ -89,6 +91,81 @@ pums <- tibble::tibble(
 )
 pums_weights <- onet_pums_employment_weights(pums)
 inspect_tbl(pums_weights, c("soc_code", "employment", "records"))
+
+tasks <- onet_archive_read(
+  "30.3",
+  "Task Statements",
+  path = sample_archive,
+  release_date = "2026-05-01"
+)
+task_ratings <- onet_archive_read(
+  "30.3",
+  "Task Ratings",
+  path = sample_archive,
+  release_date = "2026-05-01"
+)
+inspect_tbl(tasks, c("onet_soc_code", "task_id", "task", "task_type"))
+inspect_tbl(task_ratings, c("onet_soc_code", "task_id", "scale_id", "data_value"))
+
+weight_panel <- onet_weight_panel_oews(oews, year = 2024)
+inspect_tbl(weight_panel, c("reference_soc_code", "employment", "weight_share"))
+
+task_scores <- tibble::tibble(
+  task_id = c("1001", "1002", "2001"),
+  score = c(0.8, 0.4, 0.2)
+)
+measure <- onet_measure(
+  task_scores,
+  key = "task_id",
+  score = "score",
+  key_type = "task",
+  universe = tasks$task_id,
+  measure_id = "validation_task_score"
+)
+inspect_tbl(onet_measure_coverage(measure), c("key_type", "coverage_share"))
+
+occupation_scores <- onet_task_to_occupation(
+  measure,
+  task_ratings = task_ratings,
+  task_metadata = tasks
+)
+inspect_tbl(occupation_scores, c("onet_soc_code", "measure_score", "n_tasks"))
+
+aggregate <- onet_measure_aggregate(
+  occupation_scores,
+  weight_panel,
+  measure_id = "validation_task_score"
+)
+inspect_tbl(aggregate, c("measure_id", "aggregate", "covered_employment"))
+
+diagnostic <- onet_robustness_diagnostic(tibble::tibble(
+  scenario = c("baseline", "alternative"),
+  aggregate = c(aggregate$aggregate, aggregate$aggregate + 0.01)
+))
+inspect_tbl(diagnostic, c("scenario", "movement", "movement_percent"))
+
+decomposition <- onet_decompose_change(
+  tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141"),
+    measure_score = c(1, 2),
+    safely_comparable = c(TRUE, FALSE)
+  ),
+  tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141"),
+    measure_score = c(2, 2.5),
+    safely_comparable = c(TRUE, FALSE)
+  ),
+  tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141"),
+    employment = c(100, 100)
+  ),
+  tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141"),
+    employment = c(150, 50)
+  )
+)
+inspect_tbl(decomposition, c("component", "value"))
+stopifnot(isTRUE(all.equal(attr(decomposition, "coverage")$leakage, 0)))
 
 onet_cache_use(enabled = FALSE)
 onet_rate_limit(0)

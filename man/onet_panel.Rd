@@ -2,7 +2,7 @@
 % Please edit documentation in R/panel.R
 \name{onet_panel}
 \alias{onet_panel}
-\title{Assemble an O\*NET Longitudinal Panel}
+\title{Assemble an O*NET Longitudinal Panel}
 \usage{
 onet_panel(
   table_or_element,
@@ -15,7 +15,7 @@ onet_panel(
 \arguments{
 \item{table_or_element}{Archive table name in the first implementation.}
 
-\item{versions}{Character vector of O\*NET database versions.}
+\item{versions}{Character vector of O*NET database versions.}
 
 \item{scale}{Optional scale id filter.}
 

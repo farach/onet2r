@@ -102,7 +102,19 @@ abilities <- onet_archive_read(
   release_date = "2026-05-01"
 )
 
-head(abilities, 8)
+abilities |>
+  select(
+    release_version,
+    onet_soc_code,
+    soc_code,
+    element_id,
+    element_name,
+    data_value,
+    source_date,
+    domain_source
+  ) |>
+  head(8) |>
+  print(width = Inf)
 ```
 
 ## Add Labor-Market Context
@@ -136,7 +148,8 @@ onet_weighted_summary(
   value = "data_value",
   occupation_code = "onet_soc_code",
   oews = oews
-)
+) |>
+  print(width = Inf)
 ```
 
 ## Compare Two Archive Releases
@@ -169,7 +182,8 @@ changes |>
     safely_comparable
   ) |>
   arrange(desc(abs(value_change))) |>
-  head(8)
+  head(8) |>
+  print(width = Inf)
 ```
 
 ## Next Steps

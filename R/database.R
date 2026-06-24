@@ -1,6 +1,6 @@
-#' List O\*NET Database Tables
+#' List O&#42;NET Database Tables
 #'
-#' Retrieves a list of available database tables in O\*NET.
+#' Retrieves a list of available database tables in O&#42;NET.
 #'
 #' @return A tibble with columns:
 #'   \describe{
@@ -32,7 +32,7 @@ onet_tables <- function() {
   }) |> list_rbind()
 }
 
-#' Get O\*NET Table Column Information
+#' Get O&#42;NET Table Column Information
 #'
 #' Retrieves metadata about columns in a specific database table.
 #'
@@ -84,7 +84,7 @@ onet_table_info <- function(table_id) {
   }) |> list_rbind()
 }
 
-#' Get O\*NET Table Data
+#' Get O&#42;NET Table Data
 #'
 #' Retrieves all rows from a database table, automatically paginating
 #' through results.
@@ -122,7 +122,7 @@ onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {
   )
 }
 
-#' Get a Single Page of O\*NET Table Data
+#' Get a Single Page of O&#42;NET Table Data
 #'
 #' @param table_id Table identifier.
 #' @param start First row to return.

@@ -1,0 +1,4 @@
+O*NET-SOC Code	Title	Task ID	Task	Task Type	Incumbents Responding	Date	Domain Source
+15-1252.00	Software Developers	1001	Analyze user needs and software requirements.	Core	27	07/2025	Incumbent
+15-1252.00	Software Developers	1002	Prepare reports on software testing status.	Supplemental	27	07/2025	Incumbent
+29-1141.00	Registered Nurses	2001	Monitor patient health and record signs.	Core	30	08/2025	Incumbent

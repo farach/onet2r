@@ -101,8 +101,10 @@ tibble::tibble(
   )
 )
 
-head(joined, 5)
-head(weighted, 5)
+head(joined, 5) |>
+  print(width = Inf)
+head(weighted, 5) |>
+  print(width = Inf)
 ```
 
 ## Example: Live Validation Status

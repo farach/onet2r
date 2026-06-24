@@ -1,0 +1,120 @@
+---
+title: "Within-versus-between decomposition"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Within-versus-between decomposition}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(tibble.print_min = 4, tibble.print_max = 8)
+options(
+  cli.num_colors = 1,
+  crayon.enabled = FALSE,
+  pillar.bold = FALSE,
+  pillar.subtle = FALSE
+)
+```
+
+```{r setup}
+library(onet2r)
+library(dplyr)
+```
+
+Aggregate changes can come from two places. Occupations can change internally,
+or employment can shift toward occupations that already had different scores.
+With O&#42;NET, the within term needs an extra gate: only rows that survive the
+comparability checks should be counted as safely comparable within-occupation
+change.
+
+## A two-occupation example
+
+```{r inputs}
+from_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(1.0, 2.0),
+  safely_comparable = c(TRUE, FALSE)
+)
+to_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(2.0, 2.5),
+  safely_comparable = c(TRUE, FALSE)
+)
+from_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(100, 100)
+)
+to_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(150, 50)
+)
+
+from_scores
+to_scores
+```
+
+The first occupation is safe for within-change attribution. The second is not,
+so its within movement goes to the unclassifiable bucket.
+
+```{r decomposition}
+decomp <- onet_decompose_change(
+  from_scores,
+  to_scores,
+  from_weights,
+  to_weights
+)
+
+decomp
+attr(decomp, "coverage")
+```
+
+The component rows other than `total_change` sum to the total change.
+
+```{r sum-check}
+decomp |>
+  summarise(
+    component_sum = sum(value[component != "total_change"]),
+    total_change = value[component == "total_change"],
+    difference = component_sum - total_change
+  )
+```
+
+## A demographic split
+
+The same decomposition can be run after users prepare weight panels for
+demographic cells. The package does not download raw PUMS data in examples, but
+the fixture below follows the same reference-SOC, year, cell, employment shape.
+
+```{r demographic-weights}
+from_weights_by_sex <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141", "15-1252", "29-1141"),
+  sex = c("F", "F", "M", "M"),
+  employment = c(40, 70, 60, 30)
+)
+to_weights_by_sex <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141", "15-1252", "29-1141"),
+  sex = c("F", "F", "M", "M"),
+  employment = c(70, 50, 80, 0)
+)
+
+split_results <- lapply(unique(from_weights_by_sex$sex), function(cell) {
+  result <- onet_decompose_change(
+    from_scores,
+    to_scores,
+    from_weights_by_sex |> filter(sex == cell),
+    to_weights_by_sex |> filter(sex == cell)
+  )
+  result$sex <- cell
+  result
+}) |>
+  purrr::list_rbind()
+
+split_results |>
+  print(n = Inf, width = Inf)
+```
+
+Each cell has its own weight shift and its own unclassifiable bucket. That is
+the part reviewers need to see when an aggregate result depends on vintage
+bridges, source dates, or task-handling choices.

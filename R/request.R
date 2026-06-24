@@ -1,13 +1,13 @@
 # =============================================================================
-# O\*NET API Requests (API v2)
+# O*NET API Requests (API v2)
 # =============================================================================
 
-# O\*NET API base URL
+# O*NET API base URL
 onet_base_url <- "https://api-v2.onetcenter.org"
 
-#' Build an O\*NET API Request
+#' Build an O&#42;NET API Request
 #'
-#' Creates an httr2 request object configured for the O\*NET API.
+#' Creates an httr2 request object configured for the O&#42;NET API.
 #'
 #' @param .path Character string specifying the API endpoint path.
 #' @param .path_segments Character vector of additional path segments to append
@@ -60,7 +60,7 @@ is_transient_error <- function(resp) {
   status %in% c(429, 500, 502, 503, 504)
 }
 
-#' Perform an O\*NET API Request
+#' Perform an O&#42;NET API Request
 #'
 #' Executes a request and returns the parsed JSON body with error handling.
 #'
@@ -97,9 +97,9 @@ onet_perform <- function(req) {
   body
 }
 
-#' Configure O\*NET API Response Caching
+#' Configure O&#42;NET API Response Caching
 #'
-#' Enables or disables local caching for O\*NET API responses. Caching is off by
+#' Enables or disables local caching for O&#42;NET API responses. Caching is off by
 #' default because API results may change over time, but it is useful when
 #' developing analyses that repeatedly request the same endpoints.
 #'
@@ -127,9 +127,9 @@ onet_cache_use <- function(
   invisible(list(enabled = enabled, cache_dir = cache_dir))
 }
 
-#' Clear Cached O\*NET API Responses
+#' Clear Cached O&#42;NET API Responses
 #'
-#' Deletes cached O\*NET API responses created by `onet_cache_use()`.
+#' Deletes cached O&#42;NET API responses created by `onet_cache_use()`.
 #'
 #' @param cache_dir Directory containing cached API responses.
 #'
@@ -147,9 +147,9 @@ onet_cache_clear <- function(
   invisible(cache_dir)
 }
 
-#' Configure Delay Between O\*NET API Requests
+#' Configure Delay Between O&#42;NET API Requests
 #'
-#' Sets a minimum delay before each O\*NET API request. This can be useful for
+#' Sets a minimum delay before each O&#42;NET API request. This can be useful for
 #' polite bulk pulls or when working near rate limits.
 #'
 #' @param seconds Non-negative number of seconds to wait before each API request.

@@ -1,0 +1,4 @@
+GWA Element ID	GWA Element Name	IWA Element ID	IWA Element Name	DWA Element ID	DWA Element Name
+4.A.2	Information Input	4.A.2.a.1.a	Getting Information	4.A.2.a.1.a.1	Analyze data to inform operational decisions.
+4.A.4	Communicating and Interacting	4.A.4.a.4.a	Communicating with Supervisors, Peers, or Subordinates	4.A.4.a.4.a.1	Prepare technical reports.
+4.A.2	Information Input	4.A.2.a.3.a	Monitoring Processes, Materials, or Surroundings	4.A.2.a.3.a.1	Monitor health or safety conditions.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/weighted.R
 \name{onet_weighted_summary}
 \alias{onet_weighted_summary}
-\title{Summarise O\*NET Values with Employment or Wage Weights}
+\title{Summarise O*NET Values with Employment or Wage Weights}
 \usage{
 onet_weighted_summary(
   data,
@@ -20,7 +20,7 @@ onet_weighted_summary(
 \item{group}{Character vector of columns to group by, such as task or skill
 identifiers.}
 
-\item{value}{Name of the numeric O\*NET value column to average.}
+\item{value}{Name of the numeric O*NET value column to average.}
 
 \item{occupation_code}{Name of the occupation code column in \code{data}.}
 
@@ -37,9 +37,9 @@ A tibble with \code{group} columns plus \code{n_records}, \code{n_occupations},
 \code{total_weight}, \code{weighted_mean}, and \code{wage_weighted_mean}.
 }
 \description{
-Computes employment-weighted summaries for O\*NET task, skill, ability, or
+Computes employment-weighted summaries for O*NET task, skill, ability, or
 work-activity rows after joining occupation-level employment and wage
-estimates. This is useful for moving from occupation-level O\*NET outputs to
+estimates. This is useful for moving from occupation-level O*NET outputs to
 labor-market-weighted measures.
 }
 \examples{

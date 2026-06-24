@@ -2,12 +2,12 @@
 % Please edit documentation in R/panel.R
 \name{onet_archive_download}
 \alias{onet_archive_download}
-\title{Download an O\*NET Archive}
+\title{Download an O*NET Archive}
 \usage{
 onet_archive_download(version, dir = onet_cache_dir())
 }
 \arguments{
-\item{version}{O\*NET database version, for example \code{"30.3"}.}
+\item{version}{O*NET database version, for example \code{"30.3"}.}
 
 \item{dir}{Cache directory.}
 }
@@ -15,7 +15,7 @@ onet_archive_download(version, dir = onet_cache_dir())
 The path to the cached ZIP file.
 }
 \description{
-Downloads and caches one O\*NET text archive. Existing non-empty cached files
+Downloads and caches one O*NET text archive. Existing non-empty cached files
 are reused.
 }
 \examples{

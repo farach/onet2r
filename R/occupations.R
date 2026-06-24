@@ -1,19 +1,19 @@
 # =============================================================================
-# O\*NET Occupations (API v2)
+# O*NET Occupations (API v2)
 # =============================================================================
 
 # ---- Public functions ---------------------------------------------------------
 
-#' List a Page of O\*NET Occupations
+#' List a Page of O&#42;NET Occupations
 #'
-#' Retrieves a single page of occupations in the O\*NET database.
+#' Retrieves a single page of occupations in the O&#42;NET database.
 #'
 #' @param start Integer specifying the first result to return (default 1).
 #' @param end Integer specifying the last result to return (default 1000).
 #'
 #' @return A tibble with columns:
 #' \describe{
-#'   \item{code}{O\*NET-SOC occupation code}
+#'   \item{code}{O&#42;NET-SOC occupation code}
 #'   \item{title}{Occupation title}
 #' }
 #'
@@ -29,9 +29,9 @@ onet_occupations <- function(start = 1, end = 1000) {
   onet_occupations_page(start = start, end = end)$data
 }
 
-#' List All O\*NET Occupations with Auto-Pagination
+#' List All O&#42;NET Occupations with Auto-Pagination
 #'
-#' Retrieves all occupations in the O\*NET database by automatically paginating
+#' Retrieves all occupations in the O&#42;NET database by automatically paginating
 #' through the results.
 #'
 #' @param page_size Integer specifying how many rows to fetch per request
@@ -41,7 +41,7 @@ onet_occupations <- function(start = 1, end = 1000) {
 #'
 #' @return A tibble with columns:
 #' \describe{
-#'   \item{code}{O\*NET-SOC occupation code}
+#'   \item{code}{O&#42;NET-SOC occupation code}
 #'   \item{title}{Occupation title}
 #' }
 #'
@@ -76,11 +76,11 @@ onet_occupations_page <- function(start = 1, end = 1000) {
   )
 }
 
-#' Get O\*NET Occupation Overview
+#' Get O&#42;NET Occupation Overview
 #'
 #' Retrieves overview information for a specific occupation.
 #'
-#' @param code An O\*NET-SOC occupation code (e.g., "15-1252.00").
+#' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @return A list containing the occupation overview data.
 #'
 #' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
@@ -97,12 +97,12 @@ onet_occupation <- function(code) {
     onet_perform()
 }
 
-#' Get O\*NET Occupation Details Index
+#' Get O&#42;NET Occupation Details Index
 #'
 #' Retrieves the details index for a specific occupation. The response includes
 #' links to available detailed sections from the occupation overview.
 #'
-#' @param code An O\*NET-SOC occupation code (e.g., "15-1252.00").
+#' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @return A list containing the available occupation details sections.
 #'
 #' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
@@ -122,8 +122,8 @@ onet_occupation_details <- function(code) {
 
 # ---- Details: element-based sections (resp$element) ---------------------------
 
-#' Get O\*NET Occupation Skills (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Skills (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of skills.
@@ -134,12 +134,12 @@ onet_skills <- function(code, start = 1, end = 20) {
   onet_details_element(code, "skills", start = start, end = end)
 }
 
-#' Get All O\*NET Occupation Skills (details)
+#' Get All O&#42;NET Occupation Skills (details)
 #'
 #' Retrieves all skill rows for a single occupation by automatically
 #' paginating through the endpoint.
 #'
-#' @param code An O\*NET-SOC occupation code.
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param page_size Integer specifying how many rows to fetch per request
 #'   (default 2000, which is the API maximum).
 #' @param show_progress Logical indicating whether to show progress messages
@@ -160,8 +160,8 @@ onet_skills_all <- function(code, page_size = 2000, show_progress = TRUE) {
   )
 }
 
-#' Get O\*NET Occupation Knowledge (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Knowledge (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of knowledge elements.
@@ -172,8 +172,8 @@ onet_knowledge <- function(code, start = 1, end = 20) {
   onet_details_element(code, "knowledge", start = start, end = end)
 }
 
-#' Get O\*NET Occupation Abilities (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Abilities (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of ability elements.
@@ -184,8 +184,8 @@ onet_abilities <- function(code, start = 1, end = 20) {
   onet_details_element(code, "abilities", start = start, end = end)
 }
 
-#' Get O\*NET Occupation Work Styles (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Work Styles (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of work style elements.
@@ -196,8 +196,8 @@ onet_work_styles <- function(code, start = 1, end = 20) {
   onet_details_element(code, "work_styles", start = start, end = end)
 }
 
-#' Get O\*NET Occupation Interests (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Interests (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of interest elements.
@@ -208,8 +208,8 @@ onet_interests <- function(code, start = 1, end = 20) {
   onet_details_element(code, "interests", start = start, end = end)
 }
 
-#' Get O\*NET Occupation Work Context (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Work Context (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of work context elements.
@@ -220,12 +220,12 @@ onet_work_context <- function(code, start = 1, end = 20) {
   onet_details_element(code, "work_context", start = start, end = end)
 }
 
-#' Get All O\*NET Occupation Work Context (details)
+#' Get All O&#42;NET Occupation Work Context (details)
 #'
 #' Retrieves all work context rows for a single occupation by automatically
 #' paginating through the endpoint.
 #'
-#' @param code An O\*NET-SOC occupation code.
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param page_size Integer specifying how many rows to fetch per request
 #'   (default 2000, which is the API maximum).
 #' @param show_progress Logical indicating whether to show progress messages
@@ -246,8 +246,8 @@ onet_work_context_all <- function(code, page_size = 2000, show_progress = TRUE) 
   )
 }
 
-#' Get O\*NET Occupation Work Activities (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Work Activities (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of work activities.
@@ -258,12 +258,12 @@ onet_work_activities <- function(code, start = 1, end = 20) {
   onet_details_element(code, "work_activities", start = start, end = end)
 }
 
-#' Get All O\*NET Occupation Work Activities (details)
+#' Get All O&#42;NET Occupation Work Activities (details)
 #'
 #' Retrieves all work activity rows for a single occupation by automatically
 #' paginating through the endpoint.
 #'
-#' @param code An O\*NET-SOC occupation code.
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param page_size Integer specifying how many rows to fetch per request
 #'   (default 2000, which is the API maximum).
 #' @param show_progress Logical indicating whether to show progress messages
@@ -286,8 +286,8 @@ onet_work_activities_all <- function(code, page_size = 2000, show_progress = TRU
 
 # ---- Details: tasks (resp$task) ----------------------------------------------
 
-#' Get O\*NET Occupation Tasks (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Occupation Tasks (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of tasks.
@@ -309,11 +309,11 @@ onet_tasks <- function(code, start = 1, end = 20) {
 
 # ---- Details: detailed work activities (resp$activity) ------------------------
 
-#' Get O\*NET Detailed Work Activities (details)
+#' Get O&#42;NET Detailed Work Activities (details)
 #'
 #' Note: this endpoint returns items under `activity` with fields like id/title/related.
 #'
-#' @param code An O\*NET-SOC occupation code.
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of detailed work activities.
@@ -335,8 +335,8 @@ onet_detailed_work_activities <- function(code, start = 1, end = 20) {
 
 # ---- Details: related occupations (resp$occupation) ---------------------------
 
-#' Get O\*NET Related Occupations (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Related Occupations (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of related occupations.
@@ -358,8 +358,8 @@ onet_related_occupations <- function(code, start = 1, end = 20) {
 
 # ---- Details: professional associations (resp$source) -------------------------
 
-#' Get O\*NET Professional Associations (details)
-#' @param code An O\*NET-SOC occupation code.
+#' Get O&#42;NET Professional Associations (details)
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of professional associations.
@@ -381,9 +381,9 @@ onet_professional_associations <- function(code, start = 1, end = 20) {
 
 # ---- Details: apprenticeship (resp$example_title) -----------------------------
 
-#' Get O\*NET Apprenticeship Opportunities (details)
+#' Get O&#42;NET Apprenticeship Opportunities (details)
 #'
-#' @param code An O\*NET-SOC occupation code (e.g., "15-1252.00").
+#' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @param start Integer specifying the first result to return (default 1).
 #' @param end Integer specifying the last result to return (default 20).
 #'
@@ -413,12 +413,12 @@ onet_apprenticeship <- function(code, start = 1, end = 20) {
 
 # ---- Details: job zone (object response) --------------------------------------
 
-#' Get O\*NET Job Zone (details)
+#' Get O&#42;NET Job Zone (details)
 #'
 #' Note: this endpoint returns a non-paged object with keys like:
 #' code, title, education, related_experience, job_training, job_zone_examples, svp_range
 #'
-#' @param code An O\*NET-SOC occupation code.
+#' @param code An O&#42;NET-SOC occupation code.
 #' @return A list (faithful to API response).
 #' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_job_zone("15-1252.00")
@@ -435,9 +435,9 @@ onet_job_zone <- function(code) {
 
 # ---- Details: education (resp$response) ---------------------------------------
 
-#' Get O\*NET Education (details)
+#' Get O&#42;NET Education (details)
 #'
-#' @param code An O\*NET-SOC occupation code (e.g., "15-1252.00").
+#' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @param start Integer specifying the first result to return (default 1).
 #' @param end Integer specifying the last result to return (default 20).
 #'
@@ -477,11 +477,11 @@ onet_education <- function(code, start = 1, end = 20) {
 
 # ---- Hot technology endpoint (/hot_technology) --------------------------------
 
-#' Get O\*NET Hot Technologies
+#' Get O&#42;NET Hot Technologies
 #'
 #' Retrieves hot technologies for a specific occupation from the hot technology endpoint.
 #'
-#' @param code An O\*NET-SOC occupation code (e.g., "15-1252.00").
+#' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @param start Integer specifying the first result to return (default 1).
 #' @param end Integer specifying the last result to return (default 20).
 #'
@@ -531,7 +531,7 @@ onet_hot_technology <- function(code, start = 1, end = 20) {
     dplyr::select(title, href, hot_technology, in_demand, percentage)
 }
 
-#' Get O\*NET Technology (alias of hot technologies)
+#' Get O&#42;NET Technology (alias of hot technologies)
 #'
 #' @rdname onet_hot_technology
 #' @export
@@ -541,11 +541,11 @@ onet_technology <- function(code, start = 1, end = 20) {
 
 # ---- Technology Skills (details/technology_skills) ----------------------------
 
-#' Get O\*NET Technology Skills (details)
+#' Get O&#42;NET Technology Skills (details)
 #'
 #' Flattens the `category -> example` and optionally `example_more` structure.
 #'
-#' @param code An O\*NET-SOC occupation code (e.g., "15-1252.00").
+#' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @param start Integer specifying the first category to return (default 1).
 #' @param end Integer specifying the last category to return (default 20).
 #' @param include_more Logical; include `example_more` items (default FALSE).
@@ -603,14 +603,14 @@ onet_technology_skills <- function(code, start = 1, end = 20, include_more = FAL
 
 # ---- In-demand skills (details/in_demand_skills) -----------------------------
 
-#' Get O\*NET In-Demand Skills (details)
+#' Get O&#42;NET In-Demand Skills (details)
 #'
-#' Retrieves in-demand technology records for an occupation. The O\*NET details
+#' Retrieves in-demand technology records for an occupation. The O&#42;NET details
 #' index advertises an `in_demand` link for some occupations, but the endpoint
 #' may return 404; this helper uses the working hot-technology endpoint and
 #' filters to rows where `in_demand` is `TRUE`.
 #'
-#' @param code An O\*NET-SOC occupation code.
+#' @param code An O&#42;NET-SOC occupation code.
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of in-demand skills records.

@@ -3,14 +3,14 @@
 \name{onet_hot_technology}
 \alias{onet_hot_technology}
 \alias{onet_technology}
-\title{Get O\*NET Hot Technologies}
+\title{Get O*NET Hot Technologies}
 \usage{
 onet_hot_technology(code, start = 1, end = 20)
 
 onet_technology(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O\*NET-SOC occupation code (e.g., "15-1252.00").}
+\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
 
 \item{start}{Integer specifying the first result to return (default 1).}
 

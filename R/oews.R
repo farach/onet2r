@@ -158,13 +158,13 @@ onet_oews_industry <- function(
   )
 }
 
-#' Join O\*NET Occupations to National OEWS Estimates
+#' Join O&#42;NET Occupations to National OEWS Estimates
 #'
-#' Joins O\*NET occupation data to national OEWS employment and wage estimates by
-#' converting detailed O\*NET-SOC codes such as `"15-1252.00"` to SOC codes such
+#' Joins O&#42;NET occupation data to national OEWS employment and wage estimates by
+#' converting detailed O&#42;NET-SOC codes such as `"15-1252.00"` to SOC codes such
 #' as `"15-1252"`.
 #'
-#' @param occupations A data frame containing an O\*NET occupation code column.
+#' @param occupations A data frame containing an O&#42;NET occupation code column.
 #' @param oews Optional OEWS tibble. If omitted, `onet_oews_national()` is called.
 #' @param year Integer OEWS estimate year, used when `oews` is omitted.
 #' @param by Name of the occupation code column in `occupations`.
@@ -436,6 +436,31 @@ standardize_soc_code <- function(code) {
     substr(digits[six_digit], 1, 2),
     "-",
     substr(digits[six_digit], 3, 6)
+  )
+
+  code
+}
+
+standardize_onet_soc_code <- function(code) {
+  code <- as.character(code)
+  code <- trimws(code)
+
+  clean <- gsub("[^0-9A-Za-z]", "", code)
+  eight_digit <- !is.na(clean) & grepl("^\\d{8}$", clean)
+  six_digit <- !is.na(clean) & grepl("^\\d{6}$", clean)
+
+  code[eight_digit] <- paste0(
+    substr(clean[eight_digit], 1, 2),
+    "-",
+    substr(clean[eight_digit], 3, 6),
+    ".",
+    substr(clean[eight_digit], 7, 8)
+  )
+  code[six_digit] <- paste0(
+    substr(clean[six_digit], 1, 2),
+    "-",
+    substr(clean[six_digit], 3, 6),
+    ".00"
   )
 
   code

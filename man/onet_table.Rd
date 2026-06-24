@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{onet_table}
 \alias{onet_table}
-\title{Get O\*NET Table Data}
+\title{Get O*NET Table Data}
 \usage{
 onet_table(table_id, page_size = 2000, show_progress = TRUE)
 }

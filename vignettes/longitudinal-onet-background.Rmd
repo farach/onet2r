@@ -84,7 +84,12 @@ falls back to same-code comparisons. For cross-vintage studies, inspect
 about occupational change.
 
 ```{r bridge-schema}
-onet_crosswalk_bridge("2019", "2019")
+bridge <- onet_crosswalk_bridge("2019", "2019")
+tibble::tibble(
+  column = names(bridge),
+  type = vapply(bridge, \(x) class(x)[[1]], character(1))
+) |>
+  print(width = Inf)
 ```
 
 ### 3. A Release-to-Release "Change" May Not Be a True Content Change
@@ -103,7 +108,8 @@ changes <- onet_panel_reconcile(
 
 changes |>
   distinct(value_changed, date_changed, change_type, safely_comparable) |>
-  arrange(change_type)
+  arrange(change_type) |>
+  print(width = Inf)
 ```
 
 Those rows are not a hand-built truth table. They are the observed

@@ -125,7 +125,8 @@ weighted_abilities <- onet_weighted_summary(
   oews = oews
 )
 
-weighted_abilities
+weighted_abilities |>
+  print(width = Inf)
 ```
 
 In this example, `n_occupations` is the number of O&#42;NET occupations with a
@@ -153,7 +154,8 @@ ability_context <- abilities |>
   ) |>
   arrange(desc(weighted_value))
 
-head(ability_context, 10)
+head(ability_context, 10) |>
+  print(width = Inf)
 ```
 
 This table is not a causal estimate. It is a screening tool. It helps answer

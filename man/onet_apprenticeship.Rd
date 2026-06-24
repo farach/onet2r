@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_apprenticeship}
 \alias{onet_apprenticeship}
-\title{Get O\*NET Apprenticeship Opportunities (details)}
+\title{Get O*NET Apprenticeship Opportunities (details)}
 \usage{
 onet_apprenticeship(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O\*NET-SOC occupation code (e.g., "15-1252.00").}
+\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
 
 \item{start}{Integer specifying the first result to return (default 1).}
 
@@ -17,7 +17,7 @@ onet_apprenticeship(code, start = 1, end = 20)
 A tibble with one row per apprenticeship example title.
 }
 \description{
-Get O\*NET Apprenticeship Opportunities (details)
+Get O*NET Apprenticeship Opportunities (details)
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}

@@ -1,0 +1,195 @@
+---
+title: "Reproducible user measures"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reproducible user measures}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(tibble.print_min = 4, tibble.print_max = 8)
+options(
+  cli.num_colors = 1,
+  crayon.enabled = FALSE,
+  pillar.bold = FALSE,
+  pillar.subtle = FALSE
+)
+```
+
+```{r setup}
+library(onet2r)
+library(dplyr)
+```
+
+O&#42;NET users often arrive with their own score: an AI exposure measure, a task
+classification, a skill index, or a hand-coded construct. `onet2r` does not try
+to decide which score is correct. It helps with the parts around the score:
+checking keys, using versioned O&#42;NET files, aggregating tasks to occupations,
+adding employment weights, and recording enough provenance for someone else to
+reproduce the number.
+
+This article uses the small archive fixtures shipped with the package. The
+numbers are stylized, but every table below is produced by package functions.
+
+## Read task files from a pinned release
+
+```{r read-task-fixtures}
+archive_dir <- system.file(
+  "extdata",
+  "onet-mini",
+  "db_30_3_text",
+  package = "onet2r"
+)
+
+tasks <- onet_archive_read(
+  "30.3",
+  "Task Statements",
+  path = archive_dir,
+  release_date = "2026-05-01"
+)
+task_ratings <- onet_archive_read(
+  "30.3",
+  "Task Ratings",
+  path = archive_dir,
+  release_date = "2026-05-01"
+)
+
+tasks |>
+  select(onet_soc_code, task_id, task_type, task) |>
+  head() |>
+  print(width = Inf)
+```
+
+`Task Statements` carries task ids and Core or Supplemental labels. `Task
+Ratings` carries the relevance, importance, and frequency ratings used to
+aggregate task-level scores.
+
+```{r task-ratings-preview}
+task_ratings |>
+  select(onet_soc_code, task_id, scale_id, data_value, recommend_suppress) |>
+  head() |>
+  print(width = Inf)
+```
+
+## Validate a user-supplied measure
+
+Here the user brings a three-task score. It could come from a model, a survey,
+or manual coding. The constructor checks that the task ids match the selected
+O&#42;NET release universe.
+
+```{r construct-measure}
+task_scores <- tibble::tibble(
+  task_id = c("1001", "1002", "2001"),
+  score = c(0.80, 0.40, 0.20)
+)
+
+measure <- onet_measure(
+  task_scores,
+  key = "task_id",
+  score = "score",
+  key_type = "task",
+  universe = tasks$task_id,
+  measure_id = "stylized_task_score",
+  measure_name = "Stylized task score",
+  release_version = "30.3"
+)
+
+onet_measure_coverage(measure)
+```
+
+The object also stores unmatched keys explicitly.
+
+```{r unmatched}
+if (nrow(measure$unmatched) == 0) {
+  tibble::tibble(status = "No unmatched task ids")
+} else {
+  measure$unmatched
+}
+```
+
+## Roll tasks to occupations
+
+The next step is mechanical. We use O&#42;NET task relevance ratings as weights
+and restrict the calculation to Core tasks.
+
+```{r task-rollup}
+occupation_scores <- onet_task_to_occupation(
+  measure,
+  task_ratings = task_ratings,
+  task_metadata = tasks,
+  weight_scale = "RT",
+  include_supplemental = FALSE
+)
+
+occupation_scores
+```
+
+Changing the Core-only rule is a plumbing choice, not a change to the user's
+score. It belongs in provenance and robustness checks.
+
+```{r task-rollup-all}
+occupation_scores_all <- onet_task_to_occupation(
+  measure,
+  task_ratings = task_ratings,
+  task_metadata = tasks,
+  weight_scale = "RT",
+  include_supplemental = TRUE
+)
+
+occupation_scores_all
+```
+
+## Add employment weights
+
+OEWS files are SOC-level. The weight helper makes the source vintage explicit
+and returns a single shape used downstream.
+
+```{r weights}
+oews_sample <- onet_oews_national(
+  path = system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+)
+
+weights <- onet_weight_panel_oews(oews_sample, year = 2024)
+
+weights |>
+  print(width = Inf)
+```
+
+## Aggregate and inspect provenance
+
+```{r aggregate}
+national <- onet_measure_aggregate(
+  occupation_scores,
+  weights,
+  measure_id = "stylized_task_score"
+)
+
+national |>
+  print(width = Inf)
+attr(national, "provenance")
+```
+
+## Check sensitivity to plumbing choices
+
+```{r robustness}
+national_all_tasks <- onet_measure_aggregate(
+  occupation_scores_all,
+  weights,
+  measure_id = "stylized_task_score"
+)
+
+diagnostic <- onet_robustness_diagnostic(
+  tibble::tibble(
+    scenario = c("core_tasks", "core_plus_supplemental"),
+    aggregate = c(national$aggregate, national_all_tasks$aggregate)
+  )
+)
+
+diagnostic |>
+  print(width = Inf)
+```
+
+The diagnostic does not say which task score is right. It shows how much the
+headline number moves when the non-substantive plumbing changes.

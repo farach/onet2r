@@ -1,0 +1,6 @@
+O*NET-SOC Code	Title	Task ID	Task	Scale ID	Scale Name	Category	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Date	Domain Source
+15-1252.00	Software Developers	1001	Analyze user needs and software requirements.	RT	Relevance of Task		95	27	2.0000	91	99	N	07/2025	Incumbent
+15-1252.00	Software Developers	1001	Analyze user needs and software requirements.	IM	Importance		4.5	27	0.2000	4.1	4.9	N	07/2025	Incumbent
+15-1252.00	Software Developers	1002	Prepare reports on software testing status.	RT	Relevance of Task		45	27	4.0000	37	53	N	07/2025	Incumbent
+29-1141.00	Registered Nurses	2001	Monitor patient health and record signs.	RT	Relevance of Task		98	30	1.5000	95	100	N	08/2025	Incumbent
+29-1141.00	Registered Nurses	2001	Monitor patient health and record signs.	IM	Importance		4.8	30	0.1000	4.6	5.0	N	08/2025	Incumbent

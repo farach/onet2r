@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_tasks}
 \alias{onet_tasks}
-\title{Get O\*NET Occupation Tasks (details)}
+\title{Get O*NET Occupation Tasks (details)}
 \usage{
 onet_tasks(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O\*NET-SOC occupation code.}
+\item{code}{An O*NET-SOC occupation code.}
 
 \item{start}{Integer specifying the first result to return.}
 
@@ -17,7 +17,7 @@ onet_tasks(code, start = 1, end = 20)
 A tibble of tasks.
 }
 \description{
-Get O\*NET Occupation Tasks (details)
+Get O*NET Occupation Tasks (details)
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}

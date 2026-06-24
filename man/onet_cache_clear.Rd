@@ -2,7 +2,7 @@
 % Please edit documentation in R/request.R
 \name{onet_cache_clear}
 \alias{onet_cache_clear}
-\title{Clear Cached O\*NET API Responses}
+\title{Clear Cached O*NET API Responses}
 \usage{
 onet_cache_clear(
   cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache"))
@@ -15,7 +15,7 @@ onet_cache_clear(
 Invisibly returns the cache directory path.
 }
 \description{
-Deletes cached O\*NET API responses created by \code{onet_cache_use()}.
+Deletes cached O*NET API responses created by \code{onet_cache_use()}.
 }
 \examples{
 tmp <- tempfile()

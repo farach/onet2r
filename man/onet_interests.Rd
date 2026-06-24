@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_interests}
 \alias{onet_interests}
-\title{Get O\*NET Occupation Interests (details)}
+\title{Get O*NET Occupation Interests (details)}
 \usage{
 onet_interests(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O\*NET-SOC occupation code.}
+\item{code}{An O*NET-SOC occupation code.}
 
 \item{start}{Integer specifying the first result to return.}
 
@@ -17,7 +17,7 @@ onet_interests(code, start = 1, end = 20)
 A tibble of interest elements.
 }
 \description{
-Get O\*NET Occupation Interests (details)
+Get O*NET Occupation Interests (details)
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}

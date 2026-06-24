@@ -1,0 +1,4 @@
+O*NET-SOC Code	Title	Task ID	Task	DWA Element ID	DWA Element Name	Date	Domain Source
+15-1252.00	Software Developers	1001	Analyze user needs and software requirements.	4.A.2.a.1.a.1	Analyze data to inform operational decisions.	07/2025	Analyst
+15-1252.00	Software Developers	1002	Prepare reports on software testing status.	4.A.4.a.4.a.1	Prepare technical reports.	07/2025	Analyst
+29-1141.00	Registered Nurses	2001	Monitor patient health and record signs.	4.A.2.a.3.a.1	Monitor health or safety conditions.	08/2025	Analyst

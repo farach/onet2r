@@ -2,7 +2,7 @@
 % Please edit documentation in R/request.R
 \name{onet_rate_limit}
 \alias{onet_rate_limit}
-\title{Configure Delay Between O\*NET API Requests}
+\title{Configure Delay Between O*NET API Requests}
 \usage{
 onet_rate_limit(seconds = 0)
 }
@@ -13,7 +13,7 @@ onet_rate_limit(seconds = 0)
 Invisibly returns \code{seconds}.
 }
 \description{
-Sets a minimum delay before each O\*NET API request. This can be useful for
+Sets a minimum delay before each O*NET API request. This can be useful for
 polite bulk pulls or when working near rate limits.
 }
 \examples{

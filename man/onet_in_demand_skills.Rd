@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_in_demand_skills}
 \alias{onet_in_demand_skills}
-\title{Get O\*NET In-Demand Skills (details)}
+\title{Get O*NET In-Demand Skills (details)}
 \usage{
 onet_in_demand_skills(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O\*NET-SOC occupation code.}
+\item{code}{An O*NET-SOC occupation code.}
 
 \item{start}{Integer specifying the first result to return.}
 
@@ -17,7 +17,7 @@ onet_in_demand_skills(code, start = 1, end = 20)
 A tibble of in-demand skills records.
 }
 \description{
-Retrieves in-demand technology records for an occupation. The O\*NET details
+Retrieves in-demand technology records for an occupation. The O*NET details
 index advertises an \code{in_demand} link for some occupations, but the endpoint
 may return 404; this helper uses the working hot-technology endpoint and
 filters to rows where \code{in_demand} is \code{TRUE}.

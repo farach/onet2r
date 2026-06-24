@@ -1,14 +1,14 @@
 # =============================================================================
-# O\*NET longitudinal archive panel
+# O*NET longitudinal archive panel
 # =============================================================================
 
 onet_release_archive_url <- "https://www.onetcenter.org/db_releases.html"
 onet_resource_url <- "https://www.onetcenter.org"
 onet_vintage_levels <- c("2000", "2006", "2009", "2010", "2019")
 
-#' List O\*NET Archive Releases
+#' List O&#42;NET Archive Releases
 #'
-#' Parses the O\*NET database releases archive and returns downloadable text
+#' Parses the O&#42;NET database releases archive and returns downloadable text
 #' archives. The release archive states release months, not days, so
 #' `release_date` uses the first day of each stated month.
 #'
@@ -54,12 +54,12 @@ onet_releases <- function() {
     dplyr::arrange(dplyr::desc(.data$release_date), dplyr::desc(.data$version))
 }
 
-#' Download an O\*NET Archive
+#' Download an O&#42;NET Archive
 #'
-#' Downloads and caches one O\*NET text archive. Existing non-empty cached files
+#' Downloads and caches one O&#42;NET text archive. Existing non-empty cached files
 #' are reused.
 #'
-#' @param version O\*NET database version, for example `"30.3"`.
+#' @param version O&#42;NET database version, for example `"30.3"`.
 #' @param dir Cache directory.
 #'
 #' @return The path to the cached ZIP file.
@@ -117,12 +117,12 @@ onet_archive_download <- function(version, dir = onet_cache_dir()) {
   dest
 }
 
-#' Read an O\*NET Archive Table
+#' Read an O&#42;NET Archive Table
 #'
-#' Reads a descriptor-like table from a cached O\*NET text archive and normalizes
+#' Reads a descriptor-like table from a cached O&#42;NET text archive and normalizes
 #' it to the longitudinal panel schema.
 #'
-#' @param version O\*NET database version, for example `"30.3"`.
+#' @param version O&#42;NET database version, for example `"30.3"`.
 #' @param table Archive table name, for example `"Abilities"` or
 #'   `"Work Activities"`.
 #' @param path Optional path to a local text archive ZIP file or extracted
@@ -164,13 +164,13 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
   onet_standardize_archive_table(data, version, table, release_date)
 }
 
-#' Assemble an O\*NET Longitudinal Panel
+#' Assemble an O&#42;NET Longitudinal Panel
 #'
 #' Reads the same archive table across releases and row-binds the normalized
 #' descriptor rows.
 #'
 #' @param table_or_element Archive table name in the first implementation.
-#' @param versions Character vector of O\*NET database versions.
+#' @param versions Character vector of O&#42;NET database versions.
 #' @param scale Optional scale id filter.
 #' @param archives Optional local archive ZIP files or extracted archive
 #'   directories. Use a named character vector keyed by version, or an unnamed
@@ -225,17 +225,19 @@ onet_panel <- function(
   panel
 }
 
-#' Build an O\*NET-SOC Crosswalk Bridge
+#' Build an O&#42;NET-SOC Crosswalk Bridge
 #'
-#' Builds an adjacent or chained O\*NET-SOC bridge between taxonomy vintages.
-#' Equal weights are used for transparent split apportionment.
+#' Builds an adjacent or chained O&#42;NET-SOC bridge between taxonomy vintages.
+#' Bridges keep the native 8-digit O&#42;NET-SOC code and include a derived
+#' 6-digit SOC code for employment joins. Equal weights are used for transparent
+#' split apportionment.
 #'
 #' @param from_vintage Source taxonomy vintage.
 #' @param to_vintage Target taxonomy vintage.
 #' @param weight Weighting method. Only `"equal"` is implemented.
 #'
-#' @return A tibble with source and target codes, vintages, map type, and
-#'   equal split weights.
+#' @return A tibble with source and target O&#42;NET-SOC codes, derived SOC codes,
+#'   vintages, map type, and equal split weights.
 #' @export
 #'
 #' @examples
@@ -289,6 +291,8 @@ onet_crosswalk_bridge <- function(
     dplyr::select(
       "from_vintage",
       "to_vintage",
+      "from_onet_soc_code",
+      "to_onet_soc_code",
       "from_soc_code",
       "to_soc_code",
       "from_title",
@@ -299,7 +303,7 @@ onet_crosswalk_bridge <- function(
     )
 }
 
-#' Reconcile O\*NET Panel Changes
+#' Reconcile O&#42;NET Panel Changes
 #'
 #' Compares adjacent releases in a panel and classifies changes using the value
 #' change by collection-date change truth table.
@@ -308,7 +312,8 @@ onet_crosswalk_bridge <- function(
 #' @param bridge A bridge from [onet_crosswalk_bridge()].
 #' @param weight Weighting method. Only `"equal"` is implemented.
 #'
-#' @return A tibble of adjacent-release comparisons with change flags.
+#' @return A tibble of adjacent-release comparisons with change and coverage
+#'   flags.
 #' @export
 #'
 #' @examples
@@ -344,7 +349,9 @@ onet_panel_reconcile <- function(panel, bridge, weight = "equal") {
     cli::cli_abort("{.val employment} reconciliation weights are not implemented yet.")
   }
   validate_panel(panel)
+  panel <- normalize_reconcile_panel(panel)
   validate_bridge(bridge)
+  bridge <- normalize_bridge(bridge)
 
   releases <- panel |>
     dplyr::distinct(.data$release_version, .data$release_date) |>
@@ -366,7 +373,7 @@ onet_panel_reconcile <- function(panel, bridge, weight = "equal") {
   purrr::list_rbind(comparisons)
 }
 
-#' Summarise O\*NET Panel Change Types
+#' Summarise O&#42;NET Panel Change Types
 #'
 #' Counts reconciliation change types overall and by two-digit job family.
 #'
@@ -553,9 +560,12 @@ onet_archive_member <- function(archive, table) {
   } else {
     utils::unzip(archive, list = TRUE)$Name
   }
-  target <- normalize_archive_table_name(table)
-  candidates <- normalize_archive_table_name(tools::file_path_sans_ext(basename(files)))
-  match <- files[candidates == target]
+  target <- archive_table_keys(table)
+  candidates <- purrr::map(
+    tools::file_path_sans_ext(basename(files)),
+    archive_table_keys
+  )
+  match <- files[purrr::map_lgl(candidates, \(x) any(x %in% target))]
   if (length(match) == 0) {
     cli::cli_abort("Archive table {.val {table}} was not found.")
   }
@@ -609,9 +619,43 @@ normalize_archive_table_name <- function(x) {
   to_snake_case(gsub("[^A-Za-z0-9]+", "_", x))
 }
 
+archive_table_keys <- function(x) {
+  relaxed <- tolower(gsub("[^A-Za-z0-9]+", "_", x))
+  relaxed <- gsub("^_+|_+$", "", relaxed)
+  unique(c(normalize_archive_table_name(x), relaxed))
+}
+
 onet_standardize_archive_table <- function(data, version, table, release_date) {
   n_rows <- nrow(data)
   onet_soc_code <- as.character(col_or_na(data, "O*NET-SOC Code", n_rows))
+  task_id <- as.character(col_or_na(data, "Task ID", n_rows))
+  task <- as.character(col_or_na(data, "Task", n_rows))
+  dwa_element_id <- as.character(col_or_na(
+    data,
+    "DWA Element ID",
+    n_rows,
+    col_or_na(data, "DWA ID", n_rows)
+  ))
+  dwa_element_name <- as.character(col_or_na(
+    data,
+    "DWA Element Name",
+    n_rows,
+    col_or_na(data, "DWA Title", n_rows)
+  ))
+  iwa_element_id <- as.character(col_or_na(
+    data,
+    "IWA Element ID",
+    n_rows,
+    col_or_na(data, "IWA ID", n_rows)
+  ))
+  iwa_element_name <- as.character(col_or_na(
+    data,
+    "IWA Element Name",
+    n_rows,
+    col_or_na(data, "IWA Title", n_rows)
+  ))
+  gwa_element_id <- as.character(col_or_na(data, "GWA Element ID", n_rows))
+  gwa_element_name <- as.character(col_or_na(data, "GWA Element Name", n_rows))
   tibble::tibble(
     release_version = as.character(version),
     release_date = as.Date(rep(release_date, n_rows), origin = "1970-01-01"),
@@ -620,14 +664,41 @@ onet_standardize_archive_table <- function(data, version, table, release_date) {
     onet_soc_code = onet_soc_code,
     soc_code = standardize_soc_code(onet_soc_code),
     title = as.character(col_or_na(data, "Title", n_rows)),
-    element_id = as.character(col_or_na(data, "Element ID", n_rows, col_or_na(data, "Task ID", n_rows))),
-    element_name = as.character(col_or_na(data, "Element Name", n_rows)),
+    task_id = task_id,
+    task = task,
+    task_type = as.character(col_or_na(data, "Task Type", n_rows)),
+    incumbents_responding = parse_onet_integer(col_or_na(
+      data,
+      "Incumbents Responding",
+      n_rows,
+      NA_integer_
+    )),
+    dwa_element_id = dwa_element_id,
+    dwa_element_name = dwa_element_name,
+    iwa_element_id = iwa_element_id,
+    iwa_element_name = iwa_element_name,
+    gwa_element_id = gwa_element_id,
+    gwa_element_name = gwa_element_name,
+    element_id = as.character(col_or_na(
+      data,
+      "Element ID",
+      n_rows,
+      col_or_na(data, "Task ID", n_rows, dwa_element_id)
+    )),
+    element_name = as.character(col_or_na(
+      data,
+      "Element Name",
+      n_rows,
+      col_or_na(data, "Task", n_rows, dwa_element_name)
+    )),
     scale_id = factor(as.character(col_or_na(
       data,
       "Scale ID",
       n_rows,
       col_or_na(data, "Scale", n_rows)
     ))),
+    scale_name = as.character(col_or_na(data, "Scale Name", n_rows)),
+    category = parse_onet_integer(col_or_na(data, "Category", n_rows, NA_integer_)),
     data_value = parse_onet_number(col_or_na(data, "Data Value", n_rows, NA_real_)),
     n = parse_onet_integer(col_or_na(data, "N", n_rows, NA_integer_)),
     standard_error = parse_onet_number(col_or_na(data, "Standard Error", n_rows, NA_real_)),
@@ -735,8 +806,10 @@ read_adjacent_crosswalk <- function(from_vintage, to_vintage) {
   }
 
   out <- tibble::tibble(
+    from_onet_soc_code = standardize_onet_soc_code(data[[from_col]]),
     from_soc_code = standardize_soc_code(data[[from_col]]),
     from_vintage = low,
+    to_onet_soc_code = standardize_onet_soc_code(data[[to_col]]),
     to_soc_code = standardize_soc_code(data[[to_col]]),
     to_vintage = high,
     from_title = crosswalk_title_column(data, from_title_col),
@@ -744,8 +817,10 @@ read_adjacent_crosswalk <- function(from_vintage, to_vintage) {
   )
   if (reverse) {
     out <- tibble::tibble(
+      from_onet_soc_code = out$to_onet_soc_code,
       from_soc_code = out$to_soc_code,
       from_vintage = high,
+      to_onet_soc_code = out$from_onet_soc_code,
       to_soc_code = out$from_soc_code,
       to_vintage = low,
       from_title = out$to_title,
@@ -776,8 +851,9 @@ adjacent_crosswalk_url <- function(from_vintage, to_vintage) {
 }
 
 classify_crosswalk <- function(data) {
-  from_counts <- counts_by_key(data$from_soc_code)
-  to_counts <- counts_by_key(data$to_soc_code)
+  data <- normalize_bridge(data)
+  from_counts <- counts_by_key(data$from_onet_soc_code)
+  to_counts <- counts_by_key(data$to_onet_soc_code)
   data$map_type <- dplyr::case_when(
     from_counts > 1 ~ "split",
     to_counts > 1 ~ "merge",
@@ -793,12 +869,17 @@ counts_by_key <- function(x) {
 }
 
 chain_crosswalks <- function(left, right) {
-  right <- tibble::as_tibble(right)
+  left <- normalize_bridge(left)
+  right <- normalize_bridge(right)
+  right$mid_onet_soc_code <- right$from_onet_soc_code
   right$mid_soc_code <- right$from_soc_code
+  right$final_onet_soc_code <- right$to_onet_soc_code
   right$final_soc_code <- right$to_soc_code
   right$mid_vintage <- right$from_vintage
   right$final_vintage <- right$to_vintage
   right$final_title <- right$to_title
+  right$from_onet_soc_code <- NULL
+  right$to_onet_soc_code <- NULL
   right$from_soc_code <- NULL
   right$to_soc_code <- NULL
   right$from_vintage <- NULL
@@ -810,7 +891,7 @@ chain_crosswalks <- function(left, right) {
     left,
     right,
     by = dplyr::join_by(
-      to_soc_code == mid_soc_code,
+      to_onet_soc_code == mid_onet_soc_code,
       to_vintage == mid_vintage
     ),
     relationship = "many-to-many"
@@ -819,6 +900,8 @@ chain_crosswalks <- function(left, right) {
   tibble::tibble(
     from_vintage = as.character(joined$from_vintage),
     to_vintage = as.character(joined$final_vintage),
+    from_onet_soc_code = joined$from_onet_soc_code,
+    to_onet_soc_code = joined$final_onet_soc_code,
     from_soc_code = joined$from_soc_code,
     to_soc_code = joined$final_soc_code,
     from_title = joined$from_title,
@@ -834,19 +917,99 @@ chain_crosswalks <- function(left, right) {
 
 validate_panel <- function(panel) {
   required <- c(
-    "onet_soc_code", "soc_code", "soc_vintage", "release_version",
+    "onet_soc_code", "soc_code", "soc_vintage", "release_version", "domain",
     "release_date", "element_id", "scale_id", "data_value", "source_date",
     "domain_source"
   )
   validate_columns_present(panel, required, "panel")
 }
 
+normalize_reconcile_panel <- function(panel) {
+  panel <- tibble::as_tibble(panel)
+  if (!"recommend_suppress" %in% names(panel)) {
+    panel$recommend_suppress <- NA_character_
+  }
+  if (!"element_name" %in% names(panel)) {
+    panel$element_name <- NA_character_
+  }
+  panel
+}
+
 validate_bridge <- function(bridge) {
   required <- c(
-    "from_soc_code", "from_vintage", "to_soc_code", "to_vintage",
-    "map_type", "crosswalk_weight"
+    "from_vintage", "to_vintage", "map_type", "crosswalk_weight"
   )
   validate_columns_present(bridge, required, "bridge")
+  has_native <- all(c("from_onet_soc_code", "to_onet_soc_code") %in% names(bridge))
+  has_legacy <- all(c("from_soc_code", "to_soc_code") %in% names(bridge))
+  if (!has_native && !has_legacy) {
+    cli::cli_abort(
+      "{.arg bridge} must include native O*NET-SOC code columns or legacy SOC code columns."
+    )
+  }
+}
+
+normalize_bridge <- function(bridge) {
+  bridge <- tibble::as_tibble(bridge)
+  if (!"from_onet_soc_code" %in% names(bridge)) {
+    bridge$from_onet_soc_code <- bridge$from_soc_code
+  }
+  if (!"to_onet_soc_code" %in% names(bridge)) {
+    bridge$to_onet_soc_code <- bridge$to_soc_code
+  }
+  if (!"from_soc_code" %in% names(bridge)) {
+    bridge$from_soc_code <- standardize_soc_code(bridge$from_onet_soc_code)
+  }
+  if (!"to_soc_code" %in% names(bridge)) {
+    bridge$to_soc_code <- standardize_soc_code(bridge$to_onet_soc_code)
+  }
+  if (!"from_title" %in% names(bridge)) {
+    bridge$from_title <- NA_character_
+  }
+  if (!"to_title" %in% names(bridge)) {
+    bridge$to_title <- NA_character_
+  }
+  if (!"step_count" %in% names(bridge)) {
+    bridge$step_count <- NA_integer_
+  }
+  if (!"map_type" %in% names(bridge)) {
+    bridge$map_type <- "one_to_one"
+  }
+  if (!"crosswalk_weight" %in% names(bridge)) {
+    bridge$crosswalk_weight <- 1
+  }
+
+  bridge$from_onet_soc_code <- standardize_onet_soc_code(bridge$from_onet_soc_code)
+  bridge$to_onet_soc_code <- standardize_onet_soc_code(bridge$to_onet_soc_code)
+  bridge$from_soc_code <- standardize_soc_code(bridge$from_onet_soc_code)
+  bridge$to_soc_code <- standardize_soc_code(bridge$to_onet_soc_code)
+  bridge$from_vintage <- factor(as.character(bridge$from_vintage), levels = onet_vintage_levels)
+  bridge$to_vintage <- factor(as.character(bridge$to_vintage), levels = onet_vintage_levels)
+  bridge$map_type <- factor(as.character(bridge$map_type), levels = map_type_levels())
+  bridge$crosswalk_weight <- parse_onet_number(bridge$crosswalk_weight)
+
+  bridge
+}
+
+map_type_levels <- function() {
+  c("one_to_one", "split", "merge", "new", "dropped")
+}
+
+change_type_levels <- function() {
+  c(
+    "stale_carryforward",
+    "real_update",
+    "resampled_stable",
+    "recode_or_recalc_flag",
+    "transition_data",
+    "suppressed_change",
+    "new",
+    "dropped"
+  )
+}
+
+coverage_status_levels <- function() {
+  c("matched", "new", "dropped")
 }
 
 validate_columns_present <- function(data, columns, arg) {
@@ -860,12 +1023,188 @@ validate_columns_present <- function(data, columns, arg) {
   invisible(data)
 }
 
+reconcile_coverage_rows <- function(
+    from_panel,
+    to_panel,
+    pair_bridge,
+    from_release,
+    to_release) {
+  mapped_from <- from_panel |>
+    dplyr::inner_join(
+      pair_bridge,
+      by = dplyr::join_by(
+        onet_soc_code == from_onet_soc_code,
+        soc_vintage == from_vintage
+      ),
+      relationship = "many-to-many"
+    )
+
+  mapped_targets <- mapped_from |>
+    dplyr::distinct(
+      .data$to_onet_soc_code,
+      .data$to_vintage,
+      .data$domain,
+      .data$element_id,
+      .data$scale_id
+    )
+
+  dropped <- mapped_from |>
+    dplyr::anti_join(
+      to_panel,
+      by = dplyr::join_by(
+        to_onet_soc_code == onet_soc_code,
+        to_vintage == soc_vintage,
+        domain == domain,
+        element_id == element_id,
+        scale_id == scale_id
+      )
+    )
+
+  new <- to_panel |>
+    dplyr::anti_join(
+      mapped_targets,
+      by = dplyr::join_by(
+        onet_soc_code == to_onet_soc_code,
+        soc_vintage == to_vintage,
+        domain == domain,
+        element_id == element_id,
+        scale_id == scale_id
+      )
+    )
+
+  dplyr::bind_rows(
+    dropped_coverage_rows(dropped, from_release, to_release, to_panel),
+    new_coverage_rows(new, from_release, to_release, from_panel)
+  )
+}
+
+dropped_coverage_rows <- function(dropped, from_release, to_release, to_panel) {
+  if (nrow(dropped) == 0) {
+    return(empty_reconciled_panel())
+  }
+
+  original_map_type <- as.character(dropped$map_type)
+  tibble::tibble(
+    from_release = from_release,
+    to_release = to_release,
+    from_release_date = dropped$release_date,
+    to_release_date = single_date(to_panel$release_date),
+    from_onet_soc_code = dropped$onet_soc_code,
+    to_onet_soc_code = dropped$to_onet_soc_code,
+    from_soc_code = standardize_soc_code(dropped$onet_soc_code),
+    to_soc_code = standardize_soc_code(dropped$to_onet_soc_code),
+    soc_vintage_from = dropped$soc_vintage,
+    soc_vintage_to = dropped$to_vintage,
+    domain = dropped$domain,
+    element_id = dropped$element_id,
+    element_name = dropped$element_name,
+    scale_id = dropped$scale_id,
+    from_value = dropped$data_value,
+    to_value = NA_real_,
+    value_change = NA_real_,
+    value_percent_change = NA_real_,
+    from_source_date = dropped$source_date,
+    to_source_date = as.Date(NA),
+    from_domain_source = as.character(dropped$domain_source),
+    to_domain_source = NA_character_,
+    from_recommend_suppress = as.character(dropped$recommend_suppress),
+    to_recommend_suppress = NA_character_,
+    date_changed = NA,
+    value_changed = NA,
+    transition_data = is_transition_source(dropped$domain_source),
+    suppressed_change = is_suppressed_estimate(dropped$recommend_suppress),
+    change_type = factor("dropped", levels = change_type_levels()),
+    coverage_status = factor("dropped", levels = coverage_status_levels()),
+    method_break = FALSE,
+    crosswalk_uncertain = original_map_type %in% c("split", "merge"),
+    safely_comparable = FALSE,
+    map_type = factor("dropped", levels = map_type_levels()),
+    crosswalk_weight = dropped$crosswalk_weight
+  )
+}
+
+new_coverage_rows <- function(new, from_release, to_release, from_panel) {
+  if (nrow(new) == 0) {
+    return(empty_reconciled_panel())
+  }
+
+  tibble::tibble(
+    from_release = from_release,
+    to_release = to_release,
+    from_release_date = single_date(from_panel$release_date),
+    to_release_date = new$release_date,
+    from_onet_soc_code = NA_character_,
+    to_onet_soc_code = new$onet_soc_code,
+    from_soc_code = NA_character_,
+    to_soc_code = standardize_soc_code(new$onet_soc_code),
+    soc_vintage_from = single_vintage(from_panel$soc_vintage),
+    soc_vintage_to = new$soc_vintage,
+    domain = new$domain,
+    element_id = new$element_id,
+    element_name = new$element_name,
+    scale_id = new$scale_id,
+    from_value = NA_real_,
+    to_value = new$data_value,
+    value_change = NA_real_,
+    value_percent_change = NA_real_,
+    from_source_date = as.Date(NA),
+    to_source_date = new$source_date,
+    from_domain_source = NA_character_,
+    to_domain_source = as.character(new$domain_source),
+    from_recommend_suppress = NA_character_,
+    to_recommend_suppress = as.character(new$recommend_suppress),
+    date_changed = NA,
+    value_changed = NA,
+    transition_data = is_transition_source(new$domain_source),
+    suppressed_change = is_suppressed_estimate(new$recommend_suppress),
+    change_type = factor("new", levels = change_type_levels()),
+    coverage_status = factor("new", levels = coverage_status_levels()),
+    method_break = FALSE,
+    crosswalk_uncertain = FALSE,
+    safely_comparable = FALSE,
+    map_type = factor("new", levels = map_type_levels()),
+    crosswalk_weight = 1
+  )
+}
+
+is_transition_source <- function(x) {
+  out <- grepl("transition", as.character(x), ignore.case = TRUE)
+  out[is.na(out)] <- FALSE
+  out
+}
+
+is_suppressed_estimate <- function(x) {
+  out <- toupper(trimws(as.character(x))) == "Y"
+  out[is.na(out)] <- FALSE
+  out
+}
+
+single_date <- function(x) {
+  out <- unique(as.Date(x))
+  out <- out[!is.na(out)]
+  if (length(out) == 0) {
+    return(as.Date(NA))
+  }
+  out[[1]]
+}
+
+single_vintage <- function(x) {
+  out <- unique(as.character(x))
+  out <- out[!is.na(out)]
+  if (length(out) == 0) {
+    return(factor(NA_character_, levels = onet_vintage_levels))
+  }
+  factor(out[[1]], levels = onet_vintage_levels)
+}
+
 empty_reconciled_panel <- function() {
   tibble::tibble(
     from_release = character(),
     to_release = character(),
     from_release_date = as.Date(character()),
     to_release_date = as.Date(character()),
+    from_onet_soc_code = character(),
+    to_onet_soc_code = character(),
     from_soc_code = character(),
     to_soc_code = character(),
     soc_vintage_from = factor(character(), levels = onet_vintage_levels),
@@ -880,15 +1219,19 @@ empty_reconciled_panel <- function() {
     value_percent_change = double(),
     from_source_date = as.Date(character()),
     to_source_date = as.Date(character()),
+    from_domain_source = character(),
+    to_domain_source = character(),
+    from_recommend_suppress = character(),
+    to_recommend_suppress = character(),
     date_changed = logical(),
     value_changed = logical(),
+    transition_data = logical(),
+    suppressed_change = logical(),
     change_type = factor(
       character(),
-      levels = c(
-        "stale_carryforward", "real_update", "resampled_stable",
-        "recode_or_recalc_flag"
-      )
+      levels = change_type_levels()
     ),
+    coverage_status = factor(character(), levels = coverage_status_levels()),
     method_break = logical(),
     crosswalk_uncertain = logical(),
     safely_comparable = logical(),
@@ -913,11 +1256,13 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
     )
 
   if (nrow(pair_bridge) == 0 && identical(unique(from_panel$soc_vintage), unique(to_panel$soc_vintage))) {
-    codes <- intersect(from_panel$soc_code, to_panel$soc_code)
+    codes <- intersect(from_panel$onet_soc_code, to_panel$onet_soc_code)
     pair_bridge <- tibble::tibble(
-      from_soc_code = codes,
+      from_onet_soc_code = codes,
+      to_onet_soc_code = codes,
+      from_soc_code = standardize_soc_code(codes),
+      to_soc_code = standardize_soc_code(codes),
       from_vintage = unique(from_panel$soc_vintage)[[1]],
-      to_soc_code = codes,
       to_vintage = unique(to_panel$soc_vintage)[[1]],
       from_title = NA_character_,
       to_title = NA_character_,
@@ -930,18 +1275,23 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
   if (nrow(pair_bridge) == 0) {
     return(empty_reconciled_panel())
   }
+  pair_bridge <- normalize_bridge(pair_bridge)
 
   joined <- from_panel |>
     dplyr::inner_join(
       pair_bridge,
-      by = dplyr::join_by(soc_code == from_soc_code, soc_vintage == from_vintage),
+      by = dplyr::join_by(
+        onet_soc_code == from_onet_soc_code,
+        soc_vintage == from_vintage
+      ),
       relationship = "many-to-many"
     ) |>
     dplyr::inner_join(
       to_panel,
       by = dplyr::join_by(
-        to_soc_code == soc_code,
+        to_onet_soc_code == onet_soc_code,
         to_vintage == soc_vintage,
+        domain == domain,
         element_id == element_id,
         scale_id == scale_id
       ),
@@ -949,15 +1299,29 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
       relationship = "many-to-many"
     )
 
+  coverage_rows <- reconcile_coverage_rows(
+    from_panel = from_panel,
+    to_panel = to_panel,
+    pair_bridge = pair_bridge,
+    from_release = from_release,
+    to_release = to_release
+  )
+
   if (nrow(joined) == 0) {
-    return(empty_reconciled_panel())
+    return(dplyr::bind_rows(empty_reconciled_panel(), coverage_rows))
   }
 
   value_changed <- !same_number(joined$data_value_from, joined$data_value_to)
   date_changed <- joined$source_date_from != joined$source_date_to
   date_changed[is.na(date_changed)] <- FALSE
+  transition_data <- is_transition_source(joined$domain_source_from) |
+    is_transition_source(joined$domain_source_to)
+  suppressed_change <- is_suppressed_estimate(joined$recommend_suppress_from) |
+    is_suppressed_estimate(joined$recommend_suppress_to)
 
   change_type <- dplyr::case_when(
+    transition_data ~ "transition_data",
+    suppressed_change ~ "suppressed_change",
     !value_changed & !date_changed ~ "stale_carryforward",
     value_changed & date_changed ~ "real_update",
     !value_changed & date_changed ~ "resampled_stable",
@@ -975,11 +1339,13 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
     to_release = to_release,
     from_release_date = joined$release_date_from,
     to_release_date = joined$release_date_to,
-    from_soc_code = joined$soc_code,
-    to_soc_code = joined$to_soc_code,
+    from_onet_soc_code = joined$onet_soc_code,
+    to_onet_soc_code = joined$to_onet_soc_code,
+    from_soc_code = standardize_soc_code(joined$onet_soc_code),
+    to_soc_code = standardize_soc_code(joined$to_onet_soc_code),
     soc_vintage_from = joined$soc_vintage,
     soc_vintage_to = joined$to_vintage,
-    domain = joined[["domain_from"]] %||% NA_character_,
+    domain = joined[["domain"]] %||% NA_character_,
     element_id = joined$element_id,
     element_name = joined[["element_name_from"]] %||% NA_character_,
     scale_id = joined$scale_id,
@@ -993,21 +1359,27 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
     ),
     from_source_date = joined$source_date_from,
     to_source_date = joined$source_date_to,
+    from_domain_source = as.character(joined$domain_source_from),
+    to_domain_source = as.character(joined$domain_source_to),
+    from_recommend_suppress = as.character(joined$recommend_suppress_from),
+    to_recommend_suppress = as.character(joined$recommend_suppress_to),
     date_changed = date_changed,
     value_changed = value_changed,
+    transition_data = transition_data,
+    suppressed_change = suppressed_change,
     change_type = factor(
       change_type,
-      levels = c(
-        "stale_carryforward", "real_update", "resampled_stable",
-        "recode_or_recalc_flag"
-      )
+      levels = change_type_levels()
     ),
+    coverage_status = factor("matched", levels = coverage_status_levels()),
     method_break = method_break,
     crosswalk_uncertain = crosswalk_uncertain,
-    safely_comparable = comparable & !method_break & !crosswalk_uncertain,
+    safely_comparable = comparable & !method_break & !crosswalk_uncertain &
+      !transition_data & !suppressed_change,
     map_type = joined$map_type,
     crosswalk_weight = joined$crosswalk_weight
-  )
+  ) |>
+    dplyr::bind_rows(coverage_rows)
 }
 
 same_number <- function(x, y, tolerance = sqrt(.Machine$double.eps)) {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{onet_tables}
 \alias{onet_tables}
-\title{List O\*NET Database Tables}
+\title{List O*NET Database Tables}
 \usage{
 onet_tables()
 }
@@ -14,7 +14,7 @@ A tibble with columns:
 }
 }
 \description{
-Retrieves a list of available database tables in O\*NET.
+Retrieves a list of available database tables in O*NET.
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}

@@ -97,8 +97,11 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
     result,
     c(
       "release_version", "release_date", "soc_vintage", "domain",
-      "onet_soc_code", "soc_code", "title", "element_id", "element_name",
-      "scale_id", "data_value", "n", "standard_error", "lower_ci_bound",
+      "onet_soc_code", "soc_code", "title", "task_id", "task", "task_type",
+      "incumbents_responding", "dwa_element_id", "dwa_element_name",
+      "iwa_element_id", "iwa_element_name", "gwa_element_id",
+      "gwa_element_name", "element_id", "element_name", "scale_id",
+      "scale_name", "category", "data_value", "n", "standard_error", "lower_ci_bound",
       "upper_ci_bound", "recommend_suppress", "source_date", "domain_source"
     )
   )
@@ -108,6 +111,40 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
   expect_equal(result$domain, c("Abilities", "Abilities"))
   expect_equal(result$source_date, as.Date(c("2025-07-01", "2025-08-01")))
   expect_equal(result$data_value, c(4.12, 4.71))
+})
+
+test_that("onet_archive_read preserves task and DWA native fields", {
+  archive_dir <- system.file(
+    "extdata",
+    "onet-mini",
+    "db_30_3_text",
+    package = "onet2r"
+  )
+
+  tasks <- onet_archive_read(
+    "30.3",
+    "Task Statements",
+    path = archive_dir,
+    release_date = "2026-05-01"
+  )
+  ratings <- onet_archive_read(
+    "30.3",
+    "Task Ratings",
+    path = archive_dir,
+    release_date = "2026-05-01"
+  )
+  dwa <- onet_archive_read(
+    "30.3",
+    "Tasks to DWAs",
+    path = archive_dir,
+    release_date = "2026-05-01"
+  )
+
+  expect_equal(tasks$task_id, c("1001", "1002", "2001"))
+  expect_equal(tasks$task_type, c("Core", "Supplemental", "Core"))
+  expect_equal(ratings$scale_id, factor(c("RT", "IM", "RT", "RT", "IM")))
+  expect_equal(dwa$dwa_element_id[[1]], "4.A.2.a.1.a.1")
+  expect_equal(dwa$element_name[[1]], "Analyze user needs and software requirements.")
 })
 
 test_that("onet_archive_read accepts a local extracted archive directory", {
@@ -178,15 +215,58 @@ test_that("onet_crosswalk_bridge classifies split and merge mappings", {
   expect_named(
     result,
     c(
-      "from_vintage", "to_vintage", "from_soc_code", "to_soc_code",
-      "from_title", "to_title", "step_count", "map_type", "crosswalk_weight"
+      "from_vintage", "to_vintage", "from_onet_soc_code",
+      "to_onet_soc_code", "from_soc_code", "to_soc_code", "from_title",
+      "to_title", "step_count", "map_type", "crosswalk_weight"
     )
   )
+  expect_equal(
+    result$from_onet_soc_code,
+    c("11-1011.00", "15-1252.00", "15-1252.00", "29-1141.00")
+  )
+  expect_equal(
+    result$to_onet_soc_code,
+    c("11-1011.00", "15-1252.00", "15-1253.00", "29-1141.00")
+  )
+  expect_equal(result$from_soc_code, c("11-1011", "15-1252", "15-1252", "29-1141"))
   expect_equal(
     as.character(result$map_type),
     c("one_to_one", "split", "split", "one_to_one")
   )
   expect_equal(result$crosswalk_weight, c(1, 0.5, 0.5, 1))
+})
+
+test_that("onet_crosswalk_bridge chains native O*NET-SOC detail codes", {
+  local_mocked_bindings(
+    read_adjacent_crosswalk = function(from, to) {
+      if (from == "2009" && to == "2010") {
+        return(onet2r:::classify_crosswalk(tibble::tibble(
+          from_vintage = "2009",
+          to_vintage = "2010",
+          from_onet_soc_code = c("15-1252.00", "15-1252.00"),
+          to_onet_soc_code = c("15-1252.00", "15-1252.01"),
+          from_title = "Software Developers",
+          to_title = c("Software Developers", "Software Testers")
+        )))
+      }
+      onet2r:::classify_crosswalk(tibble::tibble(
+        from_vintage = "2010",
+        to_vintage = "2019",
+        from_onet_soc_code = c("15-1252.00", "15-1252.01"),
+        to_onet_soc_code = c("15-1252.00", "15-1252.01"),
+        from_title = c("Software Developers", "Software Testers"),
+        to_title = c("Software Developers", "Software Testers")
+      ))
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet_crosswalk_bridge("2009", "2019")
+
+  expect_equal(result$step_count, c(2L, 2L))
+  expect_equal(result$from_onet_soc_code, c("15-1252.00", "15-1252.00"))
+  expect_equal(result$to_onet_soc_code, c("15-1252.00", "15-1252.01"))
+  expect_equal(result$crosswalk_weight, c(0.5, 0.5))
 })
 
 test_that("onet_panel_reconcile implements the change truth table", {
@@ -242,6 +322,124 @@ test_that("onet_panel_reconcile implements the change truth table", {
   expect_equal(result$value_changed, c(FALSE, TRUE, FALSE, TRUE))
   expect_equal(result$date_changed, c(FALSE, TRUE, TRUE, FALSE))
   expect_equal(result$safely_comparable, c(TRUE, TRUE, TRUE, FALSE))
+})
+
+test_that("onet_panel_reconcile handles transition and suppressed rows explicitly", {
+  panel <- tibble::tibble(
+    release_version = rep(c("1.0", "2.0"), each = 2),
+    release_date = rep(as.Date(c("2020-01-01", "2021-01-01")), each = 2),
+    soc_vintage = "2019",
+    domain = "Abilities",
+    onet_soc_code = rep(c("15-1252.00", "29-1141.00"), 2),
+    soc_code = rep(c("15-1252", "29-1141"), 2),
+    title = "Occupation",
+    element_id = "1.A.1.a.1",
+    element_name = "Oral Comprehension",
+    scale_id = "IM",
+    data_value = c(4, 4, 5, 5),
+    n = NA_integer_,
+    standard_error = NA_real_,
+    lower_ci_bound = NA_real_,
+    upper_ci_bound = NA_real_,
+    recommend_suppress = c("N", "N", "N", "Y"),
+    source_date = as.Date(c("2020-01-01", "2020-01-01", "2021-01-01", "2021-01-01")),
+    domain_source = c(
+      "Analyst - Transition", "Incumbent",
+      "Analyst", "Incumbent"
+    )
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2019",
+    to_vintage = "2019",
+    from_onet_soc_code = c("15-1252.00", "29-1141.00"),
+    to_onet_soc_code = c("15-1252.00", "29-1141.00"),
+    map_type = "one_to_one",
+    crosswalk_weight = 1
+  )
+
+  result <- onet_panel_reconcile(panel, bridge)
+
+  expect_equal(as.character(result$change_type), c("transition_data", "suppressed_change"))
+  expect_equal(result$transition_data, c(TRUE, FALSE))
+  expect_equal(result$suppressed_change, c(FALSE, TRUE))
+  expect_equal(result$safely_comparable, c(FALSE, FALSE))
+})
+
+test_that("onet_panel_reconcile reports new and dropped content rows", {
+  panel <- tibble::tibble(
+    release_version = c("1.0", "2.0"),
+    release_date = as.Date(c("2020-01-01", "2021-01-01")),
+    soc_vintage = "2019",
+    domain = "Abilities",
+    onet_soc_code = c("15-1252.00", "29-1141.00"),
+    soc_code = c("15-1252", "29-1141"),
+    title = c("Software Developers", "Registered Nurses"),
+    element_id = "1.A.1.a.1",
+    element_name = "Oral Comprehension",
+    scale_id = "IM",
+    data_value = c(4, 5),
+    n = NA_integer_,
+    standard_error = NA_real_,
+    lower_ci_bound = NA_real_,
+    upper_ci_bound = NA_real_,
+    recommend_suppress = "N",
+    source_date = as.Date(c("2020-01-01", "2021-01-01")),
+    domain_source = "Analyst"
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2019",
+    to_vintage = "2019",
+    from_onet_soc_code = c("15-1252.00", "29-1141.00"),
+    to_onet_soc_code = c("15-1252.00", "29-1141.00"),
+    map_type = "one_to_one",
+    crosswalk_weight = 1
+  )
+
+  result <- onet_panel_reconcile(panel, bridge)
+
+  expect_equal(as.character(result$change_type), c("dropped", "new"))
+  expect_equal(as.character(result$coverage_status), c("dropped", "new"))
+  expect_equal(result$from_onet_soc_code, c("15-1252.00", NA_character_))
+  expect_equal(result$to_onet_soc_code, c("15-1252.00", "29-1141.00"))
+  expect_equal(result$safely_comparable, c(FALSE, FALSE))
+})
+
+test_that("onet_panel_reconcile uses native O*NET-SOC codes across vintages", {
+  panel <- tibble::tibble(
+    release_version = c("1.0", "2.0", "2.0"),
+    release_date = as.Date(c("2020-01-01", "2021-01-01", "2021-01-01")),
+    soc_vintage = c("2010", "2019", "2019"),
+    domain = "Abilities",
+    onet_soc_code = c("15-1252.00", "15-1252.00", "15-1252.01"),
+    soc_code = "15-1252",
+    title = c("Software Developers", "Software Developers", "Software Testers"),
+    element_id = "1.A.1.a.1",
+    element_name = "Oral Comprehension",
+    scale_id = "IM",
+    data_value = c(4, 99, 5),
+    n = NA_integer_,
+    standard_error = NA_real_,
+    lower_ci_bound = NA_real_,
+    upper_ci_bound = NA_real_,
+    recommend_suppress = "N",
+    source_date = as.Date(c("2020-01-01", "2021-01-01", "2021-01-01")),
+    domain_source = "Analyst"
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2010",
+    to_vintage = "2019",
+    from_onet_soc_code = "15-1252.00",
+    to_onet_soc_code = "15-1252.01",
+    map_type = "one_to_one",
+    crosswalk_weight = 1
+  )
+
+  result <- onet_panel_reconcile(panel, bridge)
+
+  matched <- result[result$coverage_status == "matched", ]
+  expect_equal(nrow(matched), 1L)
+  expect_equal(matched$to_onet_soc_code, "15-1252.01")
+  expect_equal(matched$to_value, 5)
 })
 
 test_that("onet_panel_reconcile flags method breaks and uncertain crosswalks", {
@@ -324,12 +522,15 @@ test_that("onet_panel_reconcile returns a stable empty schema", {
     result,
     c(
       "from_release", "to_release", "from_release_date", "to_release_date",
-      "from_soc_code", "to_soc_code", "soc_vintage_from", "soc_vintage_to",
+      "from_onet_soc_code", "to_onet_soc_code", "from_soc_code",
+      "to_soc_code", "soc_vintage_from", "soc_vintage_to",
       "domain", "element_id", "element_name", "scale_id", "from_value",
       "to_value", "value_change", "value_percent_change", "from_source_date",
-      "to_source_date", "date_changed", "value_changed", "change_type",
-      "method_break", "crosswalk_uncertain", "safely_comparable",
-      "map_type", "crosswalk_weight"
+      "to_source_date", "from_domain_source", "to_domain_source",
+      "from_recommend_suppress", "to_recommend_suppress", "date_changed",
+      "value_changed", "transition_data", "suppressed_change", "change_type",
+      "coverage_status", "method_break", "crosswalk_uncertain",
+      "safely_comparable", "map_type", "crosswalk_weight"
     )
   )
 })

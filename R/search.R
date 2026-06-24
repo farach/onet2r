@@ -1,14 +1,14 @@
-#' Search O\*NET Occupations
+#' Search O&#42;NET Occupations
 #'
-#' Searches O\*NET occupations by keyword or O\*NET-SOC code.
+#' Searches O&#42;NET occupations by keyword or O&#42;NET-SOC code.
 #'
-#' @param keyword A character string containing the search term or O\*NET-SOC code.
+#' @param keyword A character string containing the search term or O&#42;NET-SOC code.
 #' @param start Integer specifying the first result to return (default 1).
 #' @param end Integer specifying the last result to return (default 20).
 #'
 #' @return A tibble with columns:
 #'   \describe{
-#'     \item{code}{O\*NET-SOC occupation code}
+#'     \item{code}{O&#42;NET-SOC occupation code}
 #'     \item{title}{Occupation title}
 #'   }
 #'

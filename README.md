@@ -1,299 +1,298 @@
-# onet2r
 
-**onet2r** is a modern, tidyverse-first R client for the [O\*NET Web Services API v2](https://services.onetcenter.org/). It provides a clean, consistent, analysis-ready interface to U.S. occupational data, archived O\*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
+# onet2r <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
-🔗 **API Base URL:** <https://api-v2.onetcenter.org>
+`onet2r` is an R package for working with O\*NET Web Services, archived
+O\*NET database releases, O\*NET-SOC taxonomy bridges, and BLS OEWS wage
+and employment context.
 
-📘 **Package site:** <https://farach.github.io/onet2r/>
+The package is built for two related jobs. First, it gives analysts tidy
+access to current O\*NET occupation data. Second, it provides
+reproducible plumbing for researchers who bring their own occupation or
+task measure and need to validate keys, weight occupations, compare
+O\*NET releases, and record provenance.
 
-## ✨ Features
-
--   🔍 **Search occupations** by keyword or O\*NET-SOC code
--   📊 **Retrieve occupation details** — skills, knowledge, abilities, tasks, and hot technologies
--   🗄️ **Access database tables** with automatic pagination
--   🔄 **Perform crosswalks** between military codes and civilian occupations
--   📈 **Map taxonomies** between O\*NET-SOC versions
--   💵 **Join BLS OEWS wages and employment** to O\*NET occupations
--   🕰️ **Build longitudinal archive panels** across O\*NET database releases
--   🧭 **Classify release-to-release changes** as true updates, resampling, carryforwards, or recodes
--   ✅ **Consistent tibble outputs** with snake_case columns and stable empty schemas
--   🔁 **Automatic retry logic** for rate limits (HTTP 429) and transient server errors
--   📝 **Type-safe schemas** with validated empty result handling
-
-## 📦 Installation
-
-Install the released version from CRAN:
+## Installation
 
 ``` r
 install.packages("onet2r")
 ```
 
-Install the development version from GitHub:
+You can install the development version from GitHub:
 
 ``` r
 # install.packages("pak")
 pak::pak("farach/onet2r")
 ```
 
-## 🔐 Authentication
+## Authentication
 
-O\*NET API requests require an API key. [Register for a free key here](https://services.onetcenter.org/developer/).
-
-**Recommended:** Store your key in `.Renviron` for persistence across sessions:
+Live O\*NET API calls require a free API key from
+<https://services.onetcenter.org/developer/>. Store it in `.Renviron`:
 
 ``` r
-usethis::edit_r_environ()
-```
-
-Add this line:
-
-``` text
 ONET_API_KEY=your-api-key-here
 ```
 
-Restart R to load the environment variable.
+The archive, OEWS fixture, and measure examples below run without a key.
 
-**Alternative:** Set for the current session only:
-
-``` r
-Sys.setenv(ONET_API_KEY = "your-api-key-here")
-```
-
-Verify your key is configured:
+## Read archived O\*NET releases
 
 ``` r
-library(onet2r)
-onet_api_key()
+suppressPackageStartupMessages({
+  library(onet2r)
+  library(dplyr)
+})
 ```
-
-## 🚀 Quick Start
 
 ``` r
-library(onet2r)
+archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+archives <- c(
+  `30.2` = file.path(archive_base, "db_30_2_text"),
+  `30.3` = file.path(archive_base, "db_30_3_text")
+)
+release_dates <- c(`30.2` = "2026-02-01", `30.3` = "2026-05-01")
 
-# Search for occupations
-onet_search("software developer")
+abilities <- onet_panel(
+  "Abilities",
+  versions = c("30.2", "30.3"),
+  scale = "IM",
+  archives = archives,
+  release_dates = release_dates
+)
 
-# List occupations (paged)
-occ <- onet_occupations(start = 1, end = 25)
-
-# Get occupation summary
-onet_occupation("15-1252.00")
-
-# Retrieve structured details (returns tibbles)
-onet_skills("15-1252.00", end = 5)
-onet_knowledge("15-1252.00", end = 5)
-onet_abilities("15-1252.00", end = 5)
-onet_tasks("15-1252.00", end = 5)
-
-# Technology endpoints
-onet_hot_technology("15-1252.00", end = 5)
-onet_technology_skills("15-1252.00", end = 2)
+abilities |>
+  select(release_version, onet_soc_code, soc_code, element_name, data_value) |>
+  head(6)
+#> # A tibble: 6 × 5
+#>   release_version onet_soc_code soc_code element_name        data_value
+#>   <chr>           <chr>         <chr>    <chr>                    <dbl>
+#> 1 30.2            15-1252.00    15-1252  Oral Comprehension        4.12
+#> 2 30.2            15-1252.00    15-1252  Problem Sensitivity       4.5
+#> 3 30.2            29-1141.00    29-1141  Oral Comprehension        4.71
+#> 4 30.2            29-1141.00    29-1141  Problem Sensitivity       4.6
+#> 5 30.2            11-1011.00    11-1011  Oral Comprehension        4.38
+#> 6 30.2            11-1011.00    11-1011  Problem Sensitivity       4.22
 ```
 
-## 📋 API Coverage
+O\*NET-SOC remains at the 8-digit detail level in `onet_soc_code`. The
+six-digit `soc_code` is kept for employment joins.
 
-### Occupations
-
-| Function                    | Description                          |
-|-----------------------------|--------------------------------------|
-| `onet_occupations()`        | List one page of occupations         |
-| `onet_occupations_all()`    | List all occupations                 |
-| `onet_occupation()`         | Get occupation summary               |
-| `onet_occupation_details()` | Get full occupation report           |
-| `onet_search()`             | Search occupations by keyword        |
-
-### Occupation Details (tibble outputs)
-
-| Function                           | Description               |
-|------------------------------------|---------------------------|
-| `onet_skills()`                    | Skills data               |
-| `onet_skills_all()`                | All skills rows           |
-| `onet_knowledge()`                 | Knowledge areas           |
-| `onet_abilities()`                 | Abilities                 |
-| `onet_work_styles()`               | Work styles               |
-| `onet_interests()`                 | Occupational interests    |
-| `onet_work_context()`              | Work context              |
-| `onet_work_context_all()`          | All work context rows     |
-| `onet_work_activities()`           | Work activities           |
-| `onet_work_activities_all()`       | All work activities rows  |
-| `onet_tasks()`                     | Tasks                     |
-| `onet_detailed_work_activities()`  | Detailed work activities  |
-| `onet_related_occupations()`       | Related occupations       |
-| `onet_professional_associations()` | Professional associations |
-| `onet_apprenticeship()`            | Apprenticeship info       |
-| `onet_education()`                 | Education requirements    |
-| `onet_job_zone()`                  | Job zone (returns list)   |
-
-### Technology
-
-| Function                   | Description           |
-|----------------------------|-----------------------|
-| `onet_hot_technology()`    | Hot technology skills |
-| `onet_technology_skills()` | Technology skills     |
-| `onet_in_demand_skills()`  | In-demand skills      |
-
-### Database Tables
-
-| Function            | Description                          |
-|---------------------|--------------------------------------|
-| `onet_tables()`     | List available tables                |
-| `onet_table_info()` | Get table column info                |
-| `onet_table()`      | Retrieve full table (auto-paginated) |
-
-### Labor Market Data
-
-| Function               | Description                                    |
-|------------------------|------------------------------------------------|
-| `onet_oews()`          | Download national/state/metro/industry OEWS estimates |
-| `onet_oews_national()` | Download national BLS OEWS wage/employment estimates |
-| `onet_oews_state()`    | Download state BLS OEWS estimates             |
-| `onet_oews_metro()`    | Download metro-area BLS OEWS estimates        |
-| `onet_oews_industry()` | Download industry BLS OEWS estimates          |
-| `onet_join_oews()`     | Join O\*NET occupation data to OEWS estimates  |
-| `onet_weighted_summary()` | Employment/wage-weighted O\*NET summaries  |
-| `onet_pums_employment_weights()` | Convert PUMS records to SOC employment weights |
-
-### Crosswalks & Taxonomy
-
-| Function                    | Description                          |
-|-----------------------------|--------------------------------------|
-| `onet_crosswalk_military()` | Map military to civilian occupations |
-| `onet_crosswalk_bridge()`   | Bridge O\*NET-SOC taxonomy vintages  |
-| `onet_taxonomy_map()`       | Map between O\*NET-SOC versions      |
-
-### Longitudinal Archives
-
-| Function                  | Description                                |
-|---------------------------|--------------------------------------------|
-| `onet_releases()`         | List downloadable O\*NET database releases |
-| `onet_archive_download()` | Download and cache text archive ZIP files  |
-| `onet_archive_read()`     | Read archive tables into a panel schema    |
-| `onet_panel()`            | Assemble release panels by archive table   |
-| `onet_panel_reconcile()`  | Classify adjacent-release changes          |
-| `onet_change_summary()`   | Summarize change types by job family       |
-
-## 🔧 Example Workflow
-
-A typical workflow: search → select → pull details.
+## Reconcile changes across releases
 
 ``` r
-library(dplyr)
-library(onet2r)
+bridge <- tibble::tibble(
+  from_vintage = "2019",
+  to_vintage = "2019",
+  from_onet_soc_code = unique(abilities$onet_soc_code),
+  to_onet_soc_code = unique(abilities$onet_soc_code),
+  from_soc_code = unique(abilities$soc_code),
+  to_soc_code = unique(abilities$soc_code),
+  map_type = "one_to_one",
+  crosswalk_weight = 1
+)
 
-# Find target occupation
-target_code <- onet_search("data scientist") |>
-  filter(title == "Data Scientists") |>
-  pull(code)
+changes <- onet_panel_reconcile(abilities, bridge)
 
-# Pull structured details
-skills <- onet_skills(target_code, end = 25)
-tasks  <- onet_tasks(target_code, end = 25)
-tech   <- onet_hot_technology(target_code, end = 25)
-
-# Pull complete occupation-level sections for downstream analysis
-all_occupations <- onet_occupations_all(show_progress = FALSE)
-all_skills <- onet_skills_all(target_code, show_progress = FALSE)
-
-# Combine skills from multiple occupations
-codes <- c("15-2051.00", "15-1252.00")
-
-all_skills <- codes |>
-  purrr::map(\(code) onet_skills_all(code, show_progress = FALSE) |> dplyr::mutate(code = code)) |>
-  purrr::list_rbind()
-
-# Join BLS OEWS national employment and wage estimates
-oews <- onet_oews_national(2024)
-wage_context <- all_occupations |>
-  onet_join_oews(oews = oews)
-
-# If BLS rate-limits automated downloads, download the ZIP manually from
-# the BLS OEWS public data pages and pass the local file path:
-oews <- onet_oews_national(2024, path = "oesm24nat.zip")
-
-# Compute employment-weighted skill summaries
-weighted_skills <- all_skills |>
-  onet_weighted_summary(
-    group = c("element_id", "element_name"),
-    value = "data_value",
-    oews = oews
-  )
-
-# Convert ACS/CPS PUMS records to occupation employment weights
-pums_weights <- onet_pums_employment_weights(pums, socp = "SOCP", weight = "PWGTP")
+changes |>
+  select(
+    from_onet_soc_code,
+    to_onet_soc_code,
+    element_name,
+    from_value,
+    to_value,
+    change_type,
+    safely_comparable
+  ) |>
+  head(6) |>
+  print(width = Inf)
+#> # A tibble: 6 × 7
+#>   from_onet_soc_code to_onet_soc_code element_name        from_value to_value
+#>   <chr>              <chr>            <chr>                    <dbl>    <dbl>
+#> 1 15-1252.00         15-1252.00       Oral Comprehension        4.12     4.35
+#> 2 15-1252.00         15-1252.00       Problem Sensitivity       4.5      4.5
+#> 3 29-1141.00         29-1141.00       Oral Comprehension        4.71     4.71
+#> 4 29-1141.00         29-1141.00       Problem Sensitivity       4.6      4.9
+#> 5 11-1011.00         11-1011.00       Oral Comprehension        4.38     4.5
+#> 6 11-1011.00         11-1011.00       Problem Sensitivity       4.22     4.22
+#>   change_type           safely_comparable
+#>   <fct>                 <lgl>
+#> 1 real_update           TRUE
+#> 2 stale_carryforward    TRUE
+#> 3 resampled_stable      TRUE
+#> 4 recode_or_recalc_flag FALSE
+#> 5 real_update           FALSE
+#> 6 stale_carryforward    TRUE
 ```
 
-## 📊 What You Get
+Rows marked as transition data, suppressed estimates, new content, or
+dropped content are visible in `change_type`. They are not counted as
+safely comparable updates.
 
-### Consistent, Analysis-Ready Outputs
+## Bring your own task measure
 
-Most endpoints return tibbles with:
-
--   **snake_case column names** (e.g., `percentage_of_respondents`)
--   **Stable empty schemas** (empty tibble with correct columns and types)
--   **Predictable pagination** via `start`/`end` arguments
+The package does not ship an AI exposure score or any other substantive
+measure. You supply a score, and `onet2r` validates and carries the
+plumbing.
 
 ``` r
-onet_education("15-1252.00")
-#> # A tibble: 6 × 3
-#>   code  title                          percentage_of_respondents
-#>   <chr> <chr>                                              <dbl>
-#> 1 6     Bachelor's degree                                   64.7
-#> 2 7     Master's degree                                     20.5
-#> …
-```
+tasks <- onet_archive_read(
+  "30.3",
+  "Task Statements",
+  path = archives[["30.3"]],
+  release_date = "2026-05-01"
+)
+task_ratings <- onet_archive_read(
+  "30.3",
+  "Task Ratings",
+  path = archives[["30.3"]],
+  release_date = "2026-05-01"
+)
 
-### Informative Error Messages
+task_scores <- tibble::tibble(
+  task_id = c("1001", "1002", "2001"),
+  score = c(0.80, 0.40, 0.20)
+)
+
+measure <- onet_measure(
+  task_scores,
+  key = "task_id",
+  score = "score",
+  key_type = "task",
+  universe = tasks$task_id,
+  measure_id = "stylized_task_score"
+)
+
+onet_measure_coverage(measure)
+#> # A tibble: 1 × 6
+#>   key_type n_input n_universe n_matched coverage_share employment_coverage_share
+#>   <chr>      <int>      <int>     <int>          <dbl>                     <dbl>
+#> 1 task           3          3         3              1                        NA
+```
 
 ``` r
-# Missing API key
-#> Error: O*NET API key not found.
-#> ℹ Set your API key with `Sys.setenv(ONET_API_KEY = "your-key")`
-#> ℹ Get a key at <https://services.onetcenter.org/developer/>
+occupation_scores <- onet_task_to_occupation(
+  measure,
+  task_ratings = task_ratings,
+  task_metadata = tasks,
+  include_supplemental = FALSE
+)
 
-# Invalid occupation code
-onet_skills("invalid-code")
-#> Error: Invalid O*NET-SOC code format: "invalid-code"
-#> ℹ Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)
-
-# No results (returns empty tibble with correct schema)
-onet_search("xyzabc123nonexistent")
-#> # A tibble: 0 × 2
-#> # ℹ 2 variables: code <chr>, title <chr>
+occupation_scores
+#> # A tibble: 2 × 5
+#>   onet_soc_code n_tasks total_task_weight measure_score soc_code
+#>   <chr>           <int>             <dbl>         <dbl> <chr>
+#> 1 15-1252.00          1                95           0.8 15-1252
+#> 2 29-1141.00          1                98           0.2 29-1141
 ```
 
-## 💡 Best Practices
+## Add employment weights
 
-| Practice                               | Why                              |
-|-----------------------------------------------|-------------------------|
-| Store API key in `.Renviron`           | Keeps credentials out of scripts |
-| Use `start`/`end` for pagination       | Smaller, faster requests         |
-| Prefer detail endpoints over summaries | Structured data for analysis     |
-| Use `onet_join_oews()` for wage context | Adds employment and wage weights |
-| Use `onet_panel_reconcile()` for archive comparisons | Separates real changes from carryforwards and recodes |
-| Use `onet_cache_use()` for repeated pulls | Avoids repeated identical API calls |
-| Use `onet_rate_limit()` for bulk pulls | Adds polite request spacing |
+``` r
+oews_sample <- onet_oews_national(
+  path = system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+)
 
-## 📚 Getting Help
+weights <- onet_weight_panel_oews(oews_sample, year = 2024)
 
--   **Package documentation:** `?onet2r` or `?onet_search`
--   **Vignettes:** `browseVignettes("onet2r")`
--   **O\*NET API docs:** <https://services.onetcenter.org/reference/>
--   **Report issues:** <https://github.com/farach/onet2r/issues>
+weights |>
+  print(width = Inf)
+#> # A tibble: 3 × 7
+#>   reference_soc_code  year employment weight_share source source_taxonomy
+#>   <chr>              <int>      <dbl>        <dbl> <chr>  <chr>
+#> 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC
+#> 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC
+#> 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC
+#>   reference_taxonomy
+#>   <chr>
+#> 1 2018 SOC
+#> 2 2018 SOC
+#> 3 2018 SOC
+```
 
-## 🤝 Contributing
+``` r
+aggregate <- onet_measure_aggregate(
+  occupation_scores,
+  weights,
+  measure_id = "stylized_task_score"
+)
 
-Issues and PRs are welcome!
+aggregate |>
+  print(width = Inf)
+#> # A tibble: 1 × 7
+#>   measure_id          aggregate total_employment covered_employment
+#>   <chr>                   <dbl>            <dbl>              <dbl>
+#> 1 stylized_task_score     0.421          5234530            5023300
+#>   employment_coverage_share n_occupations n_reference_soc
+#>                       <dbl>         <int>           <int>
+#> 1                     0.960             2               2
+attr(aggregate, "provenance")
+#> $measure_id
+#> [1] "stylized_task_score"
+#>
+#> $weight_source
+#> [1] "OEWS"
+#>
+#> $weight_year
+#> [1] 2024
+#>
+#> $source_taxonomy
+#> [1] "2018 SOC"
+#>
+#> $reference_taxonomy
+#> [1] "2018 SOC"
+#>
+#> $bridge_used
+#> [1] FALSE
+```
 
-When adding a new endpoint:
+## Decompose aggregate change
 
--   Return a tibble for record-list endpoints
--   Include stable empty schemas
--   Add roxygen documentation for all arguments
--   Write minimal tests (smoke test + schema validation)
+``` r
+from_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(1.0, 2.0),
+  safely_comparable = c(TRUE, FALSE)
+)
+to_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(2.0, 2.5),
+  safely_comparable = c(TRUE, FALSE)
+)
+from_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(100, 100)
+)
+to_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(150, 50)
+)
 
-Please note that onet2r is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing, you agree to abide by its terms.
+decomp <- onet_decompose_change(from_scores, to_scores, from_weights, to_weights)
+decomp
+#> # A tibble: 5 × 2
+#>   component       value
+#>   <chr>           <dbl>
+#> 1 within          0.5
+#> 2 between        -0.25
+#> 3 interaction     0.125
+#> 4 unclassifiable  0.25
+#> 5 total_change    0.625
+attr(decomp, "coverage")
+#> # A tibble: 1 × 3
+#>   n_common n_safely_comparable leakage
+#>      <int>               <int>   <dbl>
+#> 1        2                   1       0
+```
 
-## 📄 License
+## Main function groups
 
-MIT © 2026 Alex Farach
+- Current O\*NET API data: `onet_search()`, `onet_occupation()`,
+  `onet_skills()`, `onet_tasks()`, `onet_table()`.
+- Archived O\*NET data: `onet_releases()`, `onet_archive_download()`,
+  `onet_archive_read()`, `onet_panel()`, `onet_panel_reconcile()`.
+- Wage and employment context: `onet_oews_national()`,
+  `onet_join_oews()`, `onet_weighted_summary()`,
+  `onet_weight_panel_oews()`, `onet_weight_panel_pums()`.
+- User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
+  `onet_measure_aggregate()`, `onet_robustness_diagnostic()`,
+  `onet_decompose_change()`.

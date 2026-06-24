@@ -2,7 +2,7 @@
 % Please edit documentation in R/panel.R
 \name{onet_change_summary}
 \alias{onet_change_summary}
-\title{Summarise O\*NET Panel Change Types}
+\title{Summarise O*NET Panel Change Types}
 \usage{
 onet_change_summary(reconciled, by = c("overall", "job_family"))
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_skills_all}
 \alias{onet_skills_all}
-\title{Get All O\*NET Occupation Skills (details)}
+\title{Get All O*NET Occupation Skills (details)}
 \usage{
 onet_skills_all(code, page_size = 2000, show_progress = TRUE)
 }
 \arguments{
-\item{code}{An O\*NET-SOC occupation code.}
+\item{code}{An O*NET-SOC occupation code.}
 
 \item{page_size}{Integer specifying how many rows to fetch per request
 (default 2000, which is the API maximum).}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/request.R
 \name{onet_cache_use}
 \alias{onet_cache_use}
-\title{Configure O\*NET API Response Caching}
+\title{Configure O*NET API Response Caching}
 \usage{
 onet_cache_use(
   enabled = TRUE,
@@ -18,7 +18,7 @@ onet_cache_use(
 Invisibly returns a list with the active cache settings.
 }
 \description{
-Enables or disables local caching for O\*NET API responses. Caching is off by
+Enables or disables local caching for O*NET API responses. Caching is off by
 default because API results may change over time, but it is useful when
 developing analyses that repeatedly request the same endpoints.
 }

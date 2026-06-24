@@ -2,7 +2,7 @@
 % Please edit documentation in R/auth.R
 \name{onet_api_key}
 \alias{onet_api_key}
-\title{Get O\*NET API Key}
+\title{Get O*NET API Key}
 \usage{
 onet_api_key()
 }
@@ -10,7 +10,7 @@ onet_api_key()
 A character string containing the API key.
 }
 \description{
-Retrieves the O\*NET API key from the \code{ONET_API_KEY} environment variable.
+Retrieves the O*NET API key from the \code{ONET_API_KEY} environment variable.
 }
 \details{
 To obtain an API key, register at \url{https://services.onetcenter.org/developer/}.

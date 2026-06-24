@@ -16,7 +16,7 @@ onet_crosswalk_military(keyword, start = 1, end = 20)
 \value{
 A tibble with matching civilian occupations:
 \describe{
-\item{code}{O\*NET-SOC occupation code}
+\item{code}{O*NET-SOC occupation code}
 \item{title}{Civilian occupation title}
 }
 }

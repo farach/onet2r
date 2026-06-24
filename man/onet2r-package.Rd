@@ -6,7 +6,9 @@
 \alias{onet2r-package}
 \title{onet2r: Access 'O*NET' Web Services API}
 \description{
-Access the 'O*NET' Web Services Application Programming Interface (API) version 2.0. Search occupations, retrieve occupation details such as skills, knowledge, abilities, tasks, and work activities, access database tables, perform taxonomy crosswalks, join wage and employment context, and assemble longitudinal archive panels. Results are returned as tibbles for easy integration with tidyverse workflows.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+Access the 'O*NET' Web Services Application Programming Interface (API) version 2.0. Search occupations, retrieve occupation details such as skills, knowledge, abilities, tasks, and work activities, access database tables, perform taxonomy crosswalks, join wage and employment context, assemble longitudinal archive panels, and validate user-supplied occupational measures. Results are returned as tibbles for easy integration with tidyverse workflows.
 }
 \seealso{
 Useful links:

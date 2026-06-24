@@ -1,0 +1,232 @@
+---
+output: github_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-"
+)
+options(tibble.print_min = 4, tibble.print_max = 8)
+options(
+  cli.num_colors = 1,
+  crayon.enabled = FALSE,
+  pillar.bold = FALSE,
+  pillar.subtle = FALSE
+)
+```
+
+# onet2r <img src="man/figures/logo.png" align="right" height="138" alt="" />
+
+`onet2r` is an R package for working with O&#42;NET Web Services, archived
+O&#42;NET database releases, O&#42;NET-SOC taxonomy bridges, and BLS OEWS wage and
+employment context.
+
+The package is built for two related jobs. First, it gives analysts tidy access
+to current O&#42;NET occupation data. Second, it provides reproducible plumbing for
+researchers who bring their own occupation or task measure and need to validate
+keys, weight occupations, compare O&#42;NET releases, and record provenance.
+
+## Installation
+
+```r
+install.packages("onet2r")
+```
+
+You can install the development version from GitHub:
+
+```r
+# install.packages("pak")
+pak::pak("farach/onet2r")
+```
+
+## Authentication
+
+Live O&#42;NET API calls require a free API key from
+<https://services.onetcenter.org/developer/>. Store it in `.Renviron`:
+
+```r
+ONET_API_KEY=your-api-key-here
+```
+
+The archive, OEWS fixture, and measure examples below run without a key.
+
+## Read archived O&#42;NET releases
+
+```{r setup, message = FALSE}
+suppressPackageStartupMessages({
+  library(onet2r)
+  library(dplyr)
+})
+```
+
+```{r archive-panel}
+archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+archives <- c(
+  `30.2` = file.path(archive_base, "db_30_2_text"),
+  `30.3` = file.path(archive_base, "db_30_3_text")
+)
+release_dates <- c(`30.2` = "2026-02-01", `30.3` = "2026-05-01")
+
+abilities <- onet_panel(
+  "Abilities",
+  versions = c("30.2", "30.3"),
+  scale = "IM",
+  archives = archives,
+  release_dates = release_dates
+)
+
+abilities |>
+  select(release_version, onet_soc_code, soc_code, element_name, data_value) |>
+  head(6)
+```
+
+O&#42;NET-SOC remains at the 8-digit detail level in `onet_soc_code`. The
+six-digit `soc_code` is kept for employment joins.
+
+## Reconcile changes across releases
+
+```{r reconcile}
+bridge <- tibble::tibble(
+  from_vintage = "2019",
+  to_vintage = "2019",
+  from_onet_soc_code = unique(abilities$onet_soc_code),
+  to_onet_soc_code = unique(abilities$onet_soc_code),
+  from_soc_code = unique(abilities$soc_code),
+  to_soc_code = unique(abilities$soc_code),
+  map_type = "one_to_one",
+  crosswalk_weight = 1
+)
+
+changes <- onet_panel_reconcile(abilities, bridge)
+
+changes |>
+  select(
+    from_onet_soc_code,
+    to_onet_soc_code,
+    element_name,
+    from_value,
+    to_value,
+    change_type,
+    safely_comparable
+  ) |>
+  head(6) |>
+  print(width = Inf)
+```
+
+Rows marked as transition data, suppressed estimates, new content, or dropped
+content are visible in `change_type`. They are not counted as safely comparable
+updates.
+
+## Bring your own task measure
+
+The package does not ship an AI exposure score or any other substantive
+measure. You supply a score, and `onet2r` validates and carries the plumbing.
+
+```{r task-measure}
+tasks <- onet_archive_read(
+  "30.3",
+  "Task Statements",
+  path = archives[["30.3"]],
+  release_date = "2026-05-01"
+)
+task_ratings <- onet_archive_read(
+  "30.3",
+  "Task Ratings",
+  path = archives[["30.3"]],
+  release_date = "2026-05-01"
+)
+
+task_scores <- tibble::tibble(
+  task_id = c("1001", "1002", "2001"),
+  score = c(0.80, 0.40, 0.20)
+)
+
+measure <- onet_measure(
+  task_scores,
+  key = "task_id",
+  score = "score",
+  key_type = "task",
+  universe = tasks$task_id,
+  measure_id = "stylized_task_score"
+)
+
+onet_measure_coverage(measure)
+```
+
+```{r task-rollup}
+occupation_scores <- onet_task_to_occupation(
+  measure,
+  task_ratings = task_ratings,
+  task_metadata = tasks,
+  include_supplemental = FALSE
+)
+
+occupation_scores
+```
+
+## Add employment weights
+
+```{r weights}
+oews_sample <- onet_oews_national(
+  path = system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+)
+
+weights <- onet_weight_panel_oews(oews_sample, year = 2024)
+
+weights |>
+  print(width = Inf)
+```
+
+```{r aggregate}
+aggregate <- onet_measure_aggregate(
+  occupation_scores,
+  weights,
+  measure_id = "stylized_task_score"
+)
+
+aggregate |>
+  print(width = Inf)
+attr(aggregate, "provenance")
+```
+
+## Decompose aggregate change
+
+```{r decomposition}
+from_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(1.0, 2.0),
+  safely_comparable = c(TRUE, FALSE)
+)
+to_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(2.0, 2.5),
+  safely_comparable = c(TRUE, FALSE)
+)
+from_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(100, 100)
+)
+to_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(150, 50)
+)
+
+decomp <- onet_decompose_change(from_scores, to_scores, from_weights, to_weights)
+decomp
+attr(decomp, "coverage")
+```
+
+## Main function groups
+
+- Current O&#42;NET API data: `onet_search()`, `onet_occupation()`,
+  `onet_skills()`, `onet_tasks()`, `onet_table()`.
+- Archived O&#42;NET data: `onet_releases()`, `onet_archive_download()`,
+  `onet_archive_read()`, `onet_panel()`, `onet_panel_reconcile()`.
+- Wage and employment context: `onet_oews_national()`, `onet_join_oews()`,
+  `onet_weighted_summary()`, `onet_weight_panel_oews()`,
+  `onet_weight_panel_pums()`.
+- User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
+  `onet_measure_aggregate()`, `onet_robustness_diagnostic()`,
+  `onet_decompose_change()`.
