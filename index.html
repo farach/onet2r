@@ -8,23 +8,25 @@
 <title>Access O*NET Web Services API data from R • onet2r</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/Inter-0.4.10/font.css" rel="stylesheet">
+<link href="deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
+<link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Access O*NET Web Services API data from R">
-<meta name="description" content="Search occupations, retrieve O*NET skills/tasks/work activities, and join occupation data to BLS OEWS employment and wage estimates.
+<meta name="description" content="A tidyverse-first toolkit for O*NET Web Services, archived O*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
 ">
-<meta property="og:description" content="Search occupations, retrieve O*NET skills/tasks/work activities, and join occupation data to BLS OEWS employment and wage estimates.
+<meta property="og:description" content="A tidyverse-first toolkit for O*NET Web Services, archived O*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
 ">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,19 +35,21 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/getting-started.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/getting-started.html">Getting Started with onet2r</a></li>
-    <li><a class="dropdown-item" href="articles/oews-wage-context.html">Adding OEWS wage and employment context</a></li>
-    <li><a class="dropdown-item" href="articles/output-validation.html">Validating onet2r outputs</a></li>
+<li><a class="dropdown-item" href="articles/getting-started.html">Getting Started</a></li>
+    <li><a class="dropdown-item" href="articles/longitudinal-archives.html">Longitudinal Archives</a></li>
+    <li><a class="dropdown-item" href="articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
-<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="nav-link" href="https://github.com/farach/onet2r/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/farach/onet2r" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
       </ul>
 </div>
 
@@ -54,11 +58,11 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="onet2r-">onet2r <a href="https://github.com/farach/onet2r"></a>
-<a class="anchor" aria-label="anchor" href="#onet2r-"></a>
+<div class="page-header"><h1 id="onet2r">onet2r<a class="anchor" aria-label="anchor" href="#onet2r"></a>
 </h1></div>
-<p><strong>onet2r</strong> is a modern, tidyverse-first R client for the <a href="https://services.onetcenter.org/" class="external-link">O*NET Web Services API v2</a>. It provides a clean, consistent, analysis-ready interface to U. S. occupational data.</p>
+<p><strong>onet2r</strong> is a modern, tidyverse-first R client for the <a href="https://services.onetcenter.org/" class="external-link">O*NET Web Services API v2</a>. It provides a clean, consistent, analysis-ready interface to U.S. occupational data, archived O*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.</p>
 <p>🔗 <strong>API Base URL:</strong> <a href="https://api-v2.onetcenter.org" class="external-link uri">https://api-v2.onetcenter.org</a></p>
+<p>📘 <strong>Package site:</strong> <a href="https://farach.github.io/onet2r/" class="uri">https://farach.github.io/onet2r/</a></p>
 <div class="section level2">
 <h2 id="id_-features">✨ Features<a class="anchor" aria-label="anchor" href="#id_-features"></a>
 </h2>
@@ -69,6 +73,8 @@
 <li>🔄 <strong>Perform crosswalks</strong> between military codes and civilian occupations</li>
 <li>📈 <strong>Map taxonomies</strong> between O*NET-SOC versions</li>
 <li>💵 <strong>Join BLS OEWS wages and employment</strong> to O*NET occupations</li>
+<li>🕰️ <strong>Build longitudinal archive panels</strong> across O*NET database releases</li>
+<li>🧭 <strong>Classify release-to-release changes</strong> as true updates, resampling, carryforwards, or recodes</li>
 <li>✅ <strong>Consistent tibble outputs</strong> with snake_case columns and stable empty schemas</li>
 <li>🔁 <strong>Automatic retry logic</strong> for rate limits (HTTP 429) and transient server errors</li>
 <li>📝 <strong>Type-safe schemas</strong> with validated empty result handling</li>
@@ -100,14 +106,14 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>ONET_API_KEY <span class="op">=</span> <span class="st">"your-api-key-here"</span><span class="op">)</span></span></code></pre></div>
 <p>Verify your key is configured:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/farach/onet2r">onet2r</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/onet_api_key.html">onet_api_key</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="id_-quick-start">🚀 Quick Start<a class="anchor" aria-label="anchor" href="#id_-quick-start"></a>
 </h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/farach/onet2r">onet2r</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Search for occupations</span></span>
 <span><span class="fu"><a href="reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"software developer"</span><span class="op">)</span></span>
@@ -353,8 +359,52 @@
 <td>Map military to civilian occupations</td>
 </tr>
 <tr class="even">
+<td><code><a href="reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge()</a></code></td>
+<td>Bridge O*NET-SOC taxonomy vintages</td>
+</tr>
+<tr class="odd">
 <td><code><a href="reference/onet_taxonomy_map.html">onet_taxonomy_map()</a></code></td>
 <td>Map between O*NET-SOC versions</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="longitudinal-archives">Longitudinal Archives<a class="anchor" aria-label="anchor" href="#longitudinal-archives"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="38%">
+<col width="61%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="reference/onet_releases.html">onet_releases()</a></code></td>
+<td>List downloadable O*NET database releases</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/onet_archive_download.html">onet_archive_download()</a></code></td>
+<td>Download and cache text archive ZIP files</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/onet_archive_read.html">onet_archive_read()</a></code></td>
+<td>Read archive tables into a panel schema</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/onet_panel.html">onet_panel()</a></code></td>
+<td>Assemble release panels by archive table</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code></td>
+<td>Classify adjacent-release changes</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/onet_change_summary.html">onet_change_summary()</a></code></td>
+<td>Summarize change types by job family</td>
 </tr>
 </tbody>
 </table>
@@ -366,7 +416,7 @@
 <p>A typical workflow: search → select → pull details.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/farach/onet2r">onet2r</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Find target occupation</span></span>
 <span><span class="va">target_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"data scientist"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -418,7 +468,7 @@
 <p>Most endpoints return tibbles with:</p>
 <ul>
 <li>
-<strong>snake_case column names</strong> (e. g., <code>percentage_of_respondents</code>)</li>
+<strong>snake_case column names</strong> (e.g., <code>percentage_of_respondents</code>)</li>
 <li>
 <strong>Stable empty schemas</strong> (empty tibble with correct columns and types)</li>
 <li>
@@ -431,7 +481,7 @@
 <span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;                                              &lt;dbl&gt;</span></span>
 <span><span class="co">#&gt; 1 6     Bachelor's degree                                   64.7</span></span>
 <span><span class="co">#&gt; 2 7     Master's degree                                     20.5</span></span>
-<span><span class="co">#&gt; ... </span></span></code></pre></div>
+<span><span class="co">#&gt; …</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="informative-error-messages">Informative Error Messages<a class="anchor" aria-label="anchor" href="#informative-error-messages"></a>
@@ -445,7 +495,7 @@
 <span><span class="co"># Invalid occupation code</span></span>
 <span><span class="fu"><a href="reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="st">"invalid-code"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error: Invalid O*NET-SOC code format: "invalid-code"</span></span>
-<span><span class="co">#&gt; ℹ Expected format: XX-XXXX or XX-XXXX. XX (e.g., 15-1252 or 15-1252.00)</span></span>
+<span><span class="co">#&gt; ℹ Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)</span></span>
 <span></span>
 <span><span class="co"># No results (returns empty tibble with correct schema)</span></span>
 <span><span class="fu"><a href="reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"xyzabc123nonexistent"</span><span class="op">)</span></span>
@@ -484,10 +534,14 @@
 <td>Adds employment and wage weights</td>
 </tr>
 <tr class="odd">
+<td>Use <code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code> for archive comparisons</td>
+<td>Separates real changes from carryforwards and recodes</td>
+</tr>
+<tr class="even">
 <td>Use <code><a href="reference/onet_cache_use.html">onet_cache_use()</a></code> for repeated pulls</td>
 <td>Avoids repeated identical API calls</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Use <code><a href="reference/onet_rate_limit.html">onet_rate_limit()</a></code> for bulk pulls</td>
 <td>Adds polite request spacing</td>
 </tr>
@@ -508,7 +562,7 @@
 <strong>O*NET API docs:</strong> <a href="https://services.onetcenter.org/reference/" class="external-link uri">https://services.onetcenter.org/reference/</a>
 </li>
 <li>
-<strong>Report issues:</strong> <a href="https://github.com/farach/onet2r/issues" class="uri">https://github.com/farach/onet2r/issues</a>
+<strong>Report issues:</strong> <a href="https://github.com/farach/onet2r/issues" class="external-link uri">https://github.com/farach/onet2r/issues</a>
 </li>
 </ul>
 </div>
@@ -534,8 +588,11 @@
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/farach/onet2r/">Browse source code</a></li>
-<li><a href="https://github.com/farach/onet2r/issues">Report a bug</a></li>
+<li><a href="https://github.com/farach/onet2r/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/farach/onet2r/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://services.onetcenter.org/" class="external-link">O*NET Web Services API</a></li>
+<li><a href="https://www.onetcenter.org/db_releases.html" class="external-link">O*NET Database Releases</a></li>
+<li><a href="https://www.bls.gov/oes/tables.htm" class="external-link">BLS OEWS Data</a></li>
 </ul>
 </div>
 
