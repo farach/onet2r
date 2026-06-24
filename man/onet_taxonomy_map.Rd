@@ -2,14 +2,14 @@
 % Please edit documentation in R/crosswalks.R
 \name{onet_taxonomy_map}
 \alias{onet_taxonomy_map}
-\title{Map O*NET-SOC Codes Between Taxonomy Versions}
+\title{Map O\*NET-SOC Codes Between Taxonomy Versions}
 \usage{
 onet_taxonomy_map(code, from = c("active", "2010"), to = c("2010", "active"))
 }
 \arguments{
 \item{code}{An occupation code to convert.}
 
-\item{from}{Source taxonomy: "active" (current O*NET-SOC) or "2010" (2010 SOC).}
+\item{from}{Source taxonomy: "active" (current O\*NET-SOC) or "2010" (2010 SOC).}
 
 \item{to}{Target taxonomy: "active" or "2010".}
 }
@@ -21,15 +21,15 @@ A tibble with mapped occupation codes:
 }
 }
 \description{
-Converts occupation codes between the active O*NET-SOC taxonomy
+Converts occupation codes between the active O\*NET-SOC taxonomy
 and the 2010 SOC taxonomy.
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
-# Map from active O*NET-SOC to 2010 SOC
+# Map from active O\*NET-SOC to 2010 SOC
 onet_taxonomy_map("15-1252.00", from = "active", to = "2010")
 
-# Map from 2010 SOC to active O*NET-SOC
+# Map from 2010 SOC to active O\*NET-SOC
 onet_taxonomy_map("15-1131.00", from = "2010", to = "active")
 \dontshow{\}) # examplesIf}
 }

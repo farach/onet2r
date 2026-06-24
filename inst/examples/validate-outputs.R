@@ -3,8 +3,8 @@
 # Run from an installed package or from the source tree with:
 # Rscript inst/examples/validate-outputs.R
 #
-# Live O*NET API calls require ONET_API_KEY. OEWS examples use bundled sample
-# data so they are deterministic and do not depend on BLS downloads.
+# Live O*NET API calls require ONET_API_KEY. Local archive and OEWS examples use
+# bundled sample files so they are deterministic and do not depend on downloads.
 
 inspect_tbl <- function(x, required = character(), min_rows = 1) {
   stopifnot(inherits(x, "tbl_df"))
@@ -46,6 +46,10 @@ sample_oews <- system.file("extdata", "oews-national-sample.csv", package = "one
 if (sample_oews == "") {
   sample_oews <- file.path("inst", "extdata", "oews-national-sample.csv")
 }
+sample_archive <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
+if (sample_archive == "") {
+  sample_archive <- file.path("inst", "extdata", "onet-mini", "db_30_3_text")
+}
 
 oews <- onet_oews_national(year = 2024, path = sample_oews)
 inspect_tbl(oews, c("year", "oews_type", "occ_code", "tot_emp", "a_median"))
@@ -54,28 +58,24 @@ inspect_tbl(onet_oews_state(year = 2024, path = sample_oews), c("oews_type", "oc
 inspect_tbl(onet_oews_metro(year = 2024, path = sample_oews), c("oews_type", "occ_code"))
 inspect_tbl(onet_oews_industry(year = 2024, path = sample_oews), c("oews_type", "occ_code"))
 
-occupations <- tibble::tibble(
-  code = c("15-1252.00", "29-1141.00"),
-  title = c("Software Developers", "Registered Nurses")
+abilities <- onet_archive_read(
+  "30.3",
+  "Abilities",
+  path = sample_archive,
+  release_date = "2026-05-01"
 )
+inspect_tbl(abilities, c("onet_soc_code", "element_id", "data_value", "source_date"))
+
+occupations <- abilities |>
+  dplyr::distinct(code = onet_soc_code, title)
 wage_context <- onet_join_oews(occupations, oews = oews)
 inspect_tbl(wage_context, c("code", "soc_code", "tot_emp", "a_median"))
 
-skill_rows <- tibble::tibble(
-  code = c("15-1252.00", "15-1252.00", "29-1141.00", "29-1141.00"),
-  element_id = c("2.A.1.a", "2.A.1.b", "2.A.1.a", "2.A.1.b"),
-  element_name = c(
-    "Reading Comprehension",
-    "Active Listening",
-    "Reading Comprehension",
-    "Active Listening"
-  ),
-  data_value = c(4.12, 4.00, 3.88, 4.25)
-)
 weighted <- onet_weighted_summary(
-  skill_rows,
+  abilities,
   group = c("element_id", "element_name"),
   value = "data_value",
+  occupation_code = "onet_soc_code",
   oews = oews
 )
 inspect_tbl(

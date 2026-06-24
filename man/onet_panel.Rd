@@ -4,7 +4,13 @@
 \alias{onet_panel}
 \title{Assemble an O\*NET Longitudinal Panel}
 \usage{
-onet_panel(table_or_element, versions, scale = NULL)
+onet_panel(
+  table_or_element,
+  versions,
+  scale = NULL,
+  archives = NULL,
+  release_dates = NULL
+)
 }
 \arguments{
 \item{table_or_element}{Archive table name in the first implementation.}
@@ -12,6 +18,14 @@ onet_panel(table_or_element, versions, scale = NULL)
 \item{versions}{Character vector of O\*NET database versions.}
 
 \item{scale}{Optional scale id filter.}
+
+\item{archives}{Optional local archive ZIP files or extracted archive
+directories. Use a named character vector keyed by version, or an unnamed
+vector the same length and order as \code{versions}.}
+
+\item{release_dates}{Optional release dates for local archives. Use a named
+vector keyed by version, or an unnamed vector the same length and order as
+\code{versions}.}
 }
 \value{
 A tibble in the longitudinal panel schema.

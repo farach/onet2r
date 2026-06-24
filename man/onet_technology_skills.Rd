@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_technology_skills}
 \alias{onet_technology_skills}
-\title{Get O*NET Technology Skills (details)}
+\title{Get O\*NET Technology Skills (details)}
 \usage{
 onet_technology_skills(code, start = 1, end = 20, include_more = FALSE)
 }
 \arguments{
-\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
+\item{code}{An O\*NET-SOC occupation code (e.g., "15-1252.00").}
 
 \item{start}{Integer specifying the first category to return (default 1).}
 

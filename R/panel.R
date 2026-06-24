@@ -1,5 +1,5 @@
 # =============================================================================
-# O*NET longitudinal archive panel
+# O\*NET longitudinal archive panel
 # =============================================================================
 
 onet_release_archive_url <- "https://www.onetcenter.org/db_releases.html"
@@ -125,6 +125,10 @@ onet_archive_download <- function(version, dir = onet_cache_dir()) {
 #' @param version O\*NET database version, for example `"30.3"`.
 #' @param table Archive table name, for example `"Abilities"` or
 #'   `"Work Activities"`.
+#' @param path Optional path to a local text archive ZIP file or extracted
+#'   archive directory. If supplied, no download is attempted.
+#' @param release_date Optional release date for a local archive. Downloaded
+#'   archives use the release date from [onet_releases()].
 #'
 #' @return A tibble in the longitudinal panel schema.
 #' @export
@@ -134,23 +138,28 @@ onet_archive_download <- function(version, dir = onet_cache_dir()) {
 #'   abilities <- onet_archive_read("30.3", "Abilities")
 #'   head(abilities)
 #' }
-onet_archive_read <- function(version, table) {
+onet_archive_read <- function(version, table, path = NULL, release_date = NULL) {
   validate_single_string(version, "version")
   validate_single_string(table, "table")
+  if (!is.null(path)) {
+    validate_single_string(path, "path")
+    validate_existing_path(path)
+  }
 
-  archive <- onet_archive_download(version)
+  archive <- path %||% onet_archive_download(version)
   member <- onet_archive_member(archive, table)
-  tmpdir <- tempfile("onet-archive-")
-  dir.create(tmpdir)
-  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+  member_path <- if (dir.exists(archive)) {
+    member
+  } else {
+    tmpdir <- tempfile("onet-archive-")
+    dir.create(tmpdir)
+    on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
+    utils::unzip(archive, files = member, exdir = tmpdir)
+    file.path(tmpdir, member)
+  }
+  data <- utils::read.delim(member_path, check.names = FALSE, stringsAsFactors = FALSE)
 
-  utils::unzip(archive, files = member, exdir = tmpdir)
-  path <- file.path(tmpdir, member)
-  data <- utils::read.delim(path, check.names = FALSE, stringsAsFactors = FALSE)
-
-  release <- onet_releases()
-  release <- release[release$version == version, , drop = FALSE]
-  release_date <- if (nrow(release) > 0) release$release_date[[1]] else NA
+  release_date <- resolve_archive_release_date(version, path, release_date)
 
   onet_standardize_archive_table(data, version, table, release_date)
 }
@@ -163,6 +172,12 @@ onet_archive_read <- function(version, table) {
 #' @param table_or_element Archive table name in the first implementation.
 #' @param versions Character vector of O\*NET database versions.
 #' @param scale Optional scale id filter.
+#' @param archives Optional local archive ZIP files or extracted archive
+#'   directories. Use a named character vector keyed by version, or an unnamed
+#'   vector the same length and order as `versions`.
+#' @param release_dates Optional release dates for local archives. Use a named
+#'   vector keyed by version, or an unnamed vector the same length and order as
+#'   `versions`.
 #'
 #' @return A tibble in the longitudinal panel schema.
 #' @export
@@ -172,7 +187,12 @@ onet_archive_read <- function(version, table) {
 #'   panel <- onet_panel("Abilities", versions = c("30.2", "30.3"), scale = "IM")
 #'   head(panel)
 #' }
-onet_panel <- function(table_or_element, versions, scale = NULL) {
+onet_panel <- function(
+    table_or_element,
+    versions,
+    scale = NULL,
+    archives = NULL,
+    release_dates = NULL) {
   validate_single_string(table_or_element, "table_or_element")
   if (!is.character(versions) || length(versions) == 0 || anyNA(versions)) {
     cli::cli_abort("{.arg versions} must be a non-empty character vector.")
@@ -180,7 +200,17 @@ onet_panel <- function(table_or_element, versions, scale = NULL) {
 
   panel <- purrr::map(
     versions,
-    \(version) onet_archive_read(version, table_or_element)
+    \(version) onet_archive_read(
+      version,
+      table_or_element,
+      path = archive_value_for_version(archives, versions, version, "archives"),
+      release_date = archive_value_for_version(
+        release_dates,
+        versions,
+        version,
+        "release_dates"
+      )
+    )
   ) |>
     purrr::list_rbind()
 
@@ -518,7 +548,11 @@ onet_dictionary_url <- function(version, links) {
 }
 
 onet_archive_member <- function(archive, table) {
-  files <- utils::unzip(archive, list = TRUE)$Name
+  files <- if (dir.exists(archive)) {
+    list.files(archive, recursive = TRUE, full.names = TRUE)
+  } else {
+    utils::unzip(archive, list = TRUE)$Name
+  }
   target <- normalize_archive_table_name(table)
   candidates <- normalize_archive_table_name(tools::file_path_sans_ext(basename(files)))
   match <- files[candidates == target]
@@ -526,6 +560,49 @@ onet_archive_member <- function(archive, table) {
     cli::cli_abort("Archive table {.val {table}} was not found.")
   }
   match[[1]]
+}
+
+resolve_archive_release_date <- function(version, path, release_date) {
+  if (!is.null(release_date)) {
+    release_date <- as.Date(release_date)
+    if (length(release_date) != 1 || is.na(release_date)) {
+      cli::cli_abort("{.arg release_date} must be a single valid date.")
+    }
+    return(release_date)
+  }
+  if (!is.null(path)) {
+    return(as.Date(NA))
+  }
+
+  release <- onet_releases()
+  release <- release[release$version == version, , drop = FALSE]
+  if (nrow(release) > 0) release$release_date[[1]] else as.Date(NA)
+}
+
+archive_value_for_version <- function(values, versions, version, arg) {
+  if (is.null(values)) {
+    return(NULL)
+  }
+  if (!is.atomic(values) || length(values) == 0 || anyNA(values)) {
+    cli::cli_abort("{.arg {arg}} must be a non-empty vector without missing values.")
+  }
+
+  value_names <- names(values)
+  if (!is.null(value_names) && any(nzchar(value_names))) {
+    match_index <- match(version, value_names)
+    if (is.na(match_index)) {
+      cli::cli_abort("{.arg {arg}} must include a value named {.val {version}}.")
+    }
+    return(values[[match_index]])
+  }
+
+  if (length(values) != length(versions)) {
+    cli::cli_abort(
+      "{.arg {arg}} must be named by version or have the same length as {.arg versions}."
+    )
+  }
+
+  values[[match(version, versions)]]
 }
 
 normalize_archive_table_name <- function(x) {

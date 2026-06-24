@@ -4,13 +4,19 @@
 \alias{onet_archive_read}
 \title{Read an O\*NET Archive Table}
 \usage{
-onet_archive_read(version, table)
+onet_archive_read(version, table, path = NULL, release_date = NULL)
 }
 \arguments{
 \item{version}{O\*NET database version, for example \code{"30.3"}.}
 
 \item{table}{Archive table name, for example \code{"Abilities"} or
 \code{"Work Activities"}.}
+
+\item{path}{Optional path to a local text archive ZIP file or extracted
+archive directory. If supplied, no download is attempted.}
+
+\item{release_date}{Optional release date for a local archive. Downloaded
+archives use the release date from \code{\link[=onet_releases]{onet_releases()}}.}
 }
 \value{
 A tibble in the longitudinal panel schema.

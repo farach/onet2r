@@ -1,5 +1,5 @@
 # =============================================================================
-# Weighted O*NET summaries
+# Weighted O\*NET summaries
 # =============================================================================
 
 #' Summarise O\*NET Values with Employment or Wage Weights

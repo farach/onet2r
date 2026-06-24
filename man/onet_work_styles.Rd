@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_work_styles}
 \alias{onet_work_styles}
-\title{Get O*NET Occupation Work Styles (details)}
+\title{Get O\*NET Occupation Work Styles (details)}
 \usage{
 onet_work_styles(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O*NET-SOC occupation code.}
+\item{code}{An O\*NET-SOC occupation code.}
 
 \item{start}{Integer specifying the first result to return.}
 
@@ -17,7 +17,7 @@ onet_work_styles(code, start = 1, end = 20)
 A tibble of work style elements.
 }
 \description{
-Get O*NET Occupation Work Styles (details)
+Get O\*NET Occupation Work Styles (details)
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}

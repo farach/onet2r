@@ -17,204 +17,159 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(onet2r)
 library(dplyr)
-library(tibble)
 
 has_onet_key <- nzchar(Sys.getenv("ONET_API_KEY"))
 run_live <- has_onet_key && identical(Sys.getenv("ONET2R_RUN_LIVE_VIGNETTES"), "true")
-```
 
-`onet2r` helps you move from occupation search to analysis-ready O*NET
-tables. The Web Services API requires a free API key from the
-[O*NET developer portal](https://services.onetcenter.org/developer/). Store it
-in `.Renviron` as `ONET_API_KEY=your-api-key-here` so you do not put secrets in
-scripts.
-
-This article uses small representative tibbles so the pkgdown site always shows
-output. To run the same chunks against the live API while building locally, set
-both `ONET_API_KEY` and `ONET2R_RUN_LIVE_VIGNETTES=true`.
-
-```{r auth-status}
-tibble(
-  setting = c("ONET_API_KEY configured", "live vignette calls enabled"),
-  value = c(has_onet_key, run_live)
-)
-```
-
-## Search for Occupations
-
-Search is usually the first step. Results include an O*NET-SOC code and an
-occupation title.
-
-```{r search}
-software_jobs <- if (run_live) {
-  onet_search("software developer", start = 1, end = 5)
-} else {
-  tibble(
-    code = c("15-1252.00", "15-1251.00", "15-2051.00"),
-    title = c(
-      "Software Developers",
-      "Computer Programmers",
-      "Data Scientists"
-    )
-  )
-}
-
-head(software_jobs, 5)
-```
-
-## Retrieve Occupation Details
-
-Most detail endpoints return tibbles. That makes them easy to inspect, join, and
-summarize.
-
-```{r details}
-skills <- if (run_live) {
-  onet_skills("15-1252.00", start = 1, end = 5)
-} else {
-  tibble(
-    id = c("2.A.1.a", "2.A.1.b", "2.B.3.m"),
-    name = c(
-      "Reading Comprehension",
-      "Active Listening",
-      "Programming"
-    ),
-    description = c(
-      "Understanding written sentences and paragraphs in work-related documents.",
-      "Giving full attention to what other people are saying.",
-      "Writing computer programs for various purposes."
-    ),
-    value = c(4.12, 4.00, 4.38),
-    scale = c("Importance", "Importance", "Importance")
-  )
-}
-
-head(skills, 5)
-```
-
-The same pattern works for knowledge, abilities, tasks, work activities, work
-styles, work context, interests, technology, education, and job zones.
-
-## Work with O*NET Tables
-
-The O*NET database tables expose lower-level source data. Use
-`onet_tables()` to find available tables and `onet_table_info()` to inspect
-columns before downloading a full table.
-
-```{r tables}
-tables <- if (run_live) {
-  onet_tables()
-} else {
-  tibble(
-    id = c("Occupation Data", "Abilities", "Skills", "Task Ratings"),
-    title = c("Occupation Data", "Abilities", "Skills", "Task Ratings")
-  )
-}
-
-head(tables, 6)
-```
-
-```{r table-info}
-table_info <- if (run_live) {
-  onet_table_info("Abilities")
-} else {
-  tibble(
-    name = c("onetsoc_code", "element_id", "scale_id", "data_value"),
-    title = c("O*NET-SOC Code", "Element ID", "Scale ID", "Data Value"),
-    type = c("character", "character", "character", "decimal"),
-    format = c(NA, NA, NA, "n.n")
-  )
-}
-
-head(table_info, 8)
-```
-
-## Join Labor-Market Context
-
-O*NET describes what occupations do. BLS OEWS adds employment and wage scale.
-This example uses the package's bundled OEWS sample so it always runs.
-
-```{r oews}
 sample_oews <- system.file(
   "extdata",
   "oews-national-sample.csv",
   package = "onet2r"
 )
 
+archive_302 <- system.file(
+  "extdata",
+  "onet-mini",
+  "db_30_2_text",
+  package = "onet2r"
+)
+
+archive_303 <- system.file(
+  "extdata",
+  "onet-mini",
+  "db_30_3_text",
+  package = "onet2r"
+)
+```
+
+`onet2r` helps you move from occupation search to analysis-ready O\*NET tables,
+archived O\*NET releases, and BLS OEWS wage and employment context. Current
+O\*NET Web Services calls require a free API key from the
+[O\*NET developer portal](https://services.onetcenter.org/developer/). Store it
+in `.Renviron` as `ONET_API_KEY=your-api-key-here` so you do not put secrets in
+scripts.
+
+The live Web Services examples are opt-in for package builds, because CRAN and
+most CI environments should not depend on an external API. The rest of this
+article uses local files through actual `onet2r` functions, so every displayed
+table is computed when the vignette is knitted.
+
+```{r auth-status}
+tibble::tibble(
+  setting = c("ONET_API_KEY configured", "live vignette API calls enabled"),
+  value = c(has_onet_key, run_live)
+)
+```
+
+## Search the Current O\*NET API
+
+When live calls are enabled, the first step is usually `onet_search()`, followed
+by a detail endpoint such as `onet_skills()` or `onet_abilities()`.
+
+```{r live-api-search}
+if (run_live) {
+  onet_search("software developer", start = 1, end = 5)
+} else {
+  tibble::tibble(
+    live_api_example = "skipped",
+    reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search()."
+  )
+}
+```
+
+```{r live-api-details}
+if (run_live) {
+  onet_skills("15-1252.00", start = 1, end = 5)
+} else {
+  tibble::tibble(
+    live_api_example = "skipped",
+    reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills()."
+  )
+}
+```
+
+## Read an Archived O\*NET Table
+
+The Web Services API serves the current release. Historical work uses the
+downloadable archive tables. `onet_archive_read()` normalizes those archive files
+into tibbles with stable columns.
+
+```{r archive-read}
+abilities <- onet_archive_read(
+  "30.3",
+  "Abilities",
+  path = archive_303,
+  release_date = "2026-05-01"
+)
+
+head(abilities, 8)
+```
+
+## Add Labor-Market Context
+
+BLS OEWS estimates add employment and wage scale to O\*NET occupation rows.
+`onet_oews_national()` reads the OEWS file, and `onet_join_oews()` joins by a
+normalized SOC code.
+
+```{r oews-join}
 oews <- onet_oews_national(2024, path = sample_oews)
 
-occupations <- tibble(
-  code = c("15-1252.00", "29-1141.00", "11-1011.00"),
-  title = c("Software Developers", "Registered Nurses", "Chief Executives")
-)
+occupations <- abilities |>
+  distinct(code = onet_soc_code, title)
 
 occupation_wages <- onet_join_oews(occupations, oews = oews)
-head(occupation_wages, 5)
+
+occupation_wages |>
+  select(code, title, soc_code, tot_emp, a_median)
 ```
 
-## Summarize Weighted O*NET Records
+## Summarize O\*NET Rows with Employment Weights
 
-Employment-weighted summaries are useful when the same descriptor appears
-across occupations with very different labor-market sizes.
+`onet_weighted_summary()` lets you summarize descriptor rows by employment or
+wage context. Here it computes employment-weighted ability means from actual
+archive rows and the bundled OEWS sample.
 
 ```{r weighted-summary}
-skill_rows <- tibble(
-  code = c("15-1252.00", "15-1252.00", "29-1141.00", "29-1141.00"),
-  element_id = c("2.A.1.a", "2.A.1.b", "2.A.1.a", "2.A.1.b"),
-  element_name = c(
-    "Reading Comprehension",
-    "Active Listening",
-    "Reading Comprehension",
-    "Active Listening"
-  ),
-  data_value = c(4.12, 4.00, 3.88, 4.25)
-)
-
-weighted_skills <- onet_weighted_summary(
-  skill_rows,
+onet_weighted_summary(
+  abilities,
   group = c("element_id", "element_name"),
   value = "data_value",
+  occupation_code = "onet_soc_code",
   oews = oews
 )
-
-head(weighted_skills, 5)
 ```
 
-## Build Longitudinal Archive Comparisons
+## Compare Two Archive Releases
 
-The API serves the current release. To compare releases over time, use the
-archive helpers. See the longitudinal articles for the methodological cautions.
+For historical analysis, build a panel, reconcile adjacent releases, and inspect
+comparability flags before interpreting changes.
 
 ```{r longitudinal-preview}
-panel <- tibble(
-  release_version = rep(c("1.0", "2.0"), each = 2),
-  release_date = rep(as.Date(c("2020-01-01", "2021-01-01")), each = 2),
-  soc_vintage = "2019",
-  domain = "Abilities",
-  onet_soc_code = rep(c("15-1252.00", "29-1141.00"), 2),
-  soc_code = rep(c("15-1252", "29-1141"), 2),
-  title = rep(c("Software Developers", "Registered Nurses"), 2),
-  element_id = "1.A.1.a.1",
-  element_name = "Oral Comprehension",
-  scale_id = "IM",
-  data_value = c(4.0, 4.2, 4.4, 4.2),
-  source_date = as.Date(c("2020-01-01", "2020-01-01", "2021-01-01", "2020-01-01")),
-  domain_source = "Analyst"
+panel <- onet_panel(
+  "Abilities",
+  versions = c("30.2", "30.3"),
+  scale = "IM",
+  archives = c(`30.2` = archive_302, `30.3` = archive_303),
+  release_dates = c(`30.2` = "2026-02-01", `30.3` = "2026-05-01")
 )
 
-bridge <- tibble(
-  from_vintage = "2019",
-  to_vintage = "2019",
-  from_soc_code = c("15-1252", "29-1141"),
-  to_soc_code = c("15-1252", "29-1141"),
-  from_title = c("Software Developers", "Registered Nurses"),
-  to_title = c("Software Developers", "Registered Nurses"),
-  step_count = 0L,
-  map_type = "one_to_one",
-  crosswalk_weight = 1
+changes <- onet_panel_reconcile(
+  panel,
+  bridge = onet_crosswalk_bridge("2019", "2019")
 )
 
-changes <- onet_panel_reconcile(panel, bridge)
-head(changes, 5)
+changes |>
+  select(
+    to_soc_code,
+    element_name,
+    from_value,
+    to_value,
+    value_change,
+    change_type,
+    safely_comparable
+  ) |>
+  arrange(desc(abs(value_change))) |>
+  head(8)
 ```
 
 ## Next Steps

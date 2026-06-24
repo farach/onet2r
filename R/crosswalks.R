@@ -8,7 +8,7 @@
 #'
 #' @return A tibble with matching civilian occupations:
 #'   \describe{
-#'     \item{code}{O*NET-SOC occupation code}
+#'     \item{code}{O\*NET-SOC occupation code}
 #'     \item{title}{Civilian occupation title}
 #'   }
 #'
@@ -35,13 +35,13 @@ onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
   occupation_records_to_tbl(resp$occupation)
 }
 
-#' Map O*NET-SOC Codes Between Taxonomy Versions
+#' Map O\*NET-SOC Codes Between Taxonomy Versions
 #'
-#' Converts occupation codes between the active O*NET-SOC taxonomy
+#' Converts occupation codes between the active O\*NET-SOC taxonomy
 #' and the 2010 SOC taxonomy.
 #'
 #' @param code An occupation code to convert.
-#' @param from Source taxonomy: "active" (current O*NET-SOC) or "2010" (2010 SOC).
+#' @param from Source taxonomy: "active" (current O\*NET-SOC) or "2010" (2010 SOC).
 #' @param to Target taxonomy: "active" or "2010".
 #'
 #' @return A tibble with mapped occupation codes:
@@ -52,10 +52,10 @@ onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
 #'
 #' @export
 #' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
-#' # Map from active O*NET-SOC to 2010 SOC
+#' # Map from active O\*NET-SOC to 2010 SOC
 #' onet_taxonomy_map("15-1252.00", from = "active", to = "2010")
 #'
-#' # Map from 2010 SOC to active O*NET-SOC
+#' # Map from 2010 SOC to active O\*NET-SOC
 #' onet_taxonomy_map("15-1131.00", from = "2010", to = "active")
 onet_taxonomy_map <- function(code, from = c("active", "2010"), to = c("2010", "active")) {
   from <- match.arg(from)

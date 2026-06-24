@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{onet_table_info}
 \alias{onet_table_info}
-\title{Get O*NET Table Column Information}
+\title{Get O\*NET Table Column Information}
 \usage{
 onet_table_info(table_id)
 }

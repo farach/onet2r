@@ -1,13 +1,13 @@
 # =============================================================================
-# O*NET API Requests (API v2)
+# O\*NET API Requests (API v2)
 # =============================================================================
 
-# O*NET API base URL
+# O\*NET API base URL
 onet_base_url <- "https://api-v2.onetcenter.org"
 
-#' Build an O*NET API Request
+#' Build an O\*NET API Request
 #'
-#' Creates an httr2 request object configured for the O*NET API.
+#' Creates an httr2 request object configured for the O\*NET API.
 #'
 #' @param .path Character string specifying the API endpoint path.
 #' @param .path_segments Character vector of additional path segments to append
@@ -60,7 +60,7 @@ is_transient_error <- function(resp) {
   status %in% c(429, 500, 502, 503, 504)
 }
 
-#' Perform an O*NET API Request
+#' Perform an O\*NET API Request
 #'
 #' Executes a request and returns the parsed JSON body with error handling.
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/occupations.R
 \name{onet_occupations_all}
 \alias{onet_occupations_all}
-\title{List All O*NET Occupations with Auto-Pagination}
+\title{List All O\*NET Occupations with Auto-Pagination}
 \usage{
 onet_occupations_all(page_size = 2000, show_progress = TRUE)
 }
@@ -16,12 +16,12 @@ for pagination (default TRUE).}
 \value{
 A tibble with columns:
 \describe{
-\item{code}{O*NET-SOC occupation code}
+\item{code}{O\*NET-SOC occupation code}
 \item{title}{Occupation title}
 }
 }
 \description{
-Retrieves all occupations in the O*NET database by automatically paginating
+Retrieves all occupations in the O\*NET database by automatically paginating
 through the results.
 }
 \examples{

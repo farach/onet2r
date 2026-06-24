@@ -14,14 +14,14 @@ template:
       google: JetBrains Mono
 
 home:
-  title: Access O*NET Web Services API data from R
+  title: Access O&#42;NET Web Services API data from R
   description: >
-    A tidyverse-first toolkit for O*NET Web Services, archived O*NET releases,
+    A tidyverse-first toolkit for O&#42;NET Web Services, archived O&#42;NET releases,
     taxonomy crosswalks, and BLS OEWS wage and employment context.
   links:
-    - text: O*NET Web Services API
+    - text: O&#42;NET Web Services API
       href: https://services.onetcenter.org/
-    - text: O*NET Database Releases
+    - text: O&#42;NET Database Releases
       href: https://www.onetcenter.org/db_releases.html
     - text: BLS OEWS Data
       href: https://www.bls.gov/oes/tables.htm
@@ -43,7 +43,7 @@ navbar:
       menu:
         - text: Getting Started
           href: articles/getting-started.html
-        - text: Why Longitudinal O*NET Is Hard
+        - text: Why Longitudinal O&#42;NET Is Hard
           href: articles/longitudinal-onet-background.html
         - text: Longitudinal Archives
           href: articles/longitudinal-archives.html
@@ -108,7 +108,7 @@ reference:
       - onet_crosswalk_military
       - onet_crosswalk_bridge
       - onet_taxonomy_map
-  - title: Longitudinal O*NET archives
+  - title: Longitudinal O&#42;NET archives
     contents:
       - onet_releases
       - onet_archive_download
