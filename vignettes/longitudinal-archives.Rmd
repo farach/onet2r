@@ -20,7 +20,7 @@ library(dplyr)
 ```
 
 Read `vignette("longitudinal-onet-background", package = "onet2r")` before
-interpreting changes. O\*NET was not designed as a longitudinal panel, so the
+interpreting changes. O&#42;NET was not designed as a longitudinal panel, so the
 practical job is not only to compute differences. It is to separate real
 descriptor updates from carryforwards, re-surveys with stable values, recodes,
 and taxonomy seams.
@@ -28,7 +28,7 @@ and taxonomy seams.
 This walkthrough uses packaged archive-format text files so every displayed
 table comes from `onet2r` functions while the vignette remains CRAN-safe and
 does not require network access. In a real project, replace the local paths with
-downloaded O\*NET archive versions.
+downloaded O&#42;NET archive versions.
 
 ```{r local-archives}
 example_archive <- function(version) {
@@ -53,7 +53,7 @@ archives
 ## A Practical Question
 
 Suppose you want to know whether selected cognitive ability ratings changed
-between two O\*NET releases for occupations that matter in workforce planning:
+between two O&#42;NET releases for occupations that matter in workforce planning:
 software developers, registered nurses, chief executives, and retail
 supervisors. A naive `new - old` difference is not enough, because unchanged
 values may be carryforwards and changed values may reflect a recode rather than
@@ -61,7 +61,7 @@ a fresh survey update.
 
 ## Read One Archive Table
 
-`onet_archive_read()` reads an O\*NET text archive table and normalizes it into
+`onet_archive_read()` reads an O&#42;NET text archive table and normalizes it into
 one panel schema. The local `path` argument is useful when you have downloaded
 archives manually or when you want a reproducible, offline workflow.
 
@@ -109,11 +109,11 @@ It records the exact versions, values, and source dates used in the comparison.
 
 ## Bridge Taxonomy Vintages
 
-The example releases both use the 2019 O\*NET-SOC vintage, so no crosswalk is
+The example releases both use the 2019 O&#42;NET-SOC vintage, so no crosswalk is
 needed. Calling `onet_crosswalk_bridge("2019", "2019")` returns the empty bridge
 schema that `onet_panel_reconcile()` can use for same-vintage comparisons. For
 real cross-vintage work, use `onet_crosswalk_bridge()` to compose official
-adjacent O\*NET-SOC crosswalks.
+adjacent O&#42;NET-SOC crosswalks.
 
 ```{r bridge}
 bridge <- onet_crosswalk_bridge("2019", "2019")
@@ -198,11 +198,11 @@ onet_change_summary(changes, by = "job_family")
 
 ## Recommended Workflow for Real Archive Work
 
-1. Use `onet_releases()` to identify release versions and O\*NET-SOC vintages.
+1. Use `onet_releases()` to identify release versions and O&#42;NET-SOC vintages.
 2. Build a panel with `onet_panel()` for one domain at a time, such as
    `"Abilities"`, `"Skills"`, or `"Work Activities"`.
 3. Build a bridge with `onet_crosswalk_bridge()` when releases use different
-   O\*NET-SOC vintages.
+   O&#42;NET-SOC vintages.
 4. Reconcile with `onet_panel_reconcile()`.
 5. Filter, weight, or model only after checking `change_type`, `method_break`,
    `crosswalk_uncertain`, and `safely_comparable`.
