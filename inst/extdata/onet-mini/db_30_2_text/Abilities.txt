@@ -1,0 +1,8 @@
+O*NET-SOC Code	Title	Element ID	Element Name	Scale ID	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Date	Domain Source
+15-1252.00	Software Developers	1.A.1.a.1	Oral Comprehension	IM	4.12	26	0.15	3.82	4.42	N	07/2024	Analyst
+15-1252.00	Software Developers	1.A.1.b.1	Problem Sensitivity	IM	4.50	26	0.14	4.22	4.78	N	07/2024	Analyst
+29-1141.00	Registered Nurses	1.A.1.a.1	Oral Comprehension	IM	4.71	29	0.11	4.49	4.93	N	08/2024	Incumbent
+29-1141.00	Registered Nurses	1.A.1.b.1	Problem Sensitivity	IM	4.60	29	0.12	4.36	4.84	N	08/2024	Incumbent
+11-1011.00	Chief Executives	1.A.1.a.1	Oral Comprehension	IM	4.38	21	0.18	4.02	4.74	N	07/2024	Analyst
+11-1011.00	Chief Executives	1.A.1.b.1	Problem Sensitivity	IM	4.22	21	0.20	3.82	4.62	N	07/2024	Analyst
+41-1011.00	First-Line Supervisors of Retail Sales Workers	1.A.1.a.1	Oral Comprehension	IM	4.00	24	0.17	3.66	4.34	N	06/2024	Analyst

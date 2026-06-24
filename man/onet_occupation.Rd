@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_occupation}
 \alias{onet_occupation}
-\title{Get O*NET Occupation Overview}
+\title{Get O\*NET Occupation Overview}
 \usage{
 onet_occupation(code)
 }
 \arguments{
-\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
+\item{code}{An O\*NET-SOC occupation code (e.g., "15-1252.00").}
 }
 \value{
 A list containing the occupation overview data.

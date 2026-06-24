@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_job_zone}
 \alias{onet_job_zone}
-\title{Get O*NET Job Zone (details)}
+\title{Get O\*NET Job Zone (details)}
 \usage{
 onet_job_zone(code)
 }
 \arguments{
-\item{code}{An O*NET-SOC occupation code.}
+\item{code}{An O\*NET-SOC occupation code.}
 }
 \value{
 A list (faithful to API response).

@@ -110,6 +110,51 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
   expect_equal(result$data_value, c(4.12, 4.71))
 })
 
+test_that("onet_archive_read accepts a local extracted archive directory", {
+  archive_dir <- system.file(
+    "extdata",
+    "onet-mini",
+    "db_30_3_text",
+    package = "onet2r"
+  )
+
+  result <- onet_archive_read(
+    "30.3",
+    "Abilities",
+    path = archive_dir,
+    release_date = "2026-05-01"
+  )
+
+  expect_equal(nrow(result), 7L)
+  expect_equal(unique(result$release_version), "30.3")
+  expect_equal(unique(result$release_date), as.Date("2026-05-01"))
+  expect_equal(
+    result[result$onet_soc_code == "15-1252.00", "data_value", drop = TRUE][[1]],
+    4.35
+  )
+})
+
+test_that("onet_panel accepts local archives by version", {
+  archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+  archives <- c(
+    `30.2` = file.path(archive_base, "db_30_2_text"),
+    `30.3` = file.path(archive_base, "db_30_3_text")
+  )
+  release_dates <- c(`30.2` = "2026-02-01", `30.3` = "2026-05-01")
+
+  result <- onet_panel(
+    "Abilities",
+    versions = c("30.2", "30.3"),
+    scale = "IM",
+    archives = archives,
+    release_dates = release_dates
+  )
+
+  expect_equal(nrow(result), 14L)
+  expect_equal(unique(result$release_version), c("30.2", "30.3"))
+  expect_equal(unique(result$release_date), as.Date(c("2026-02-01", "2026-05-01")))
+})
+
 test_that("onet_crosswalk_bridge classifies split and merge mappings", {
   local_mocked_bindings(
     read_adjacent_crosswalk = function(from, to) {

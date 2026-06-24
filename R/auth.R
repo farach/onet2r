@@ -1,6 +1,6 @@
-#' Get O*NET API Key
+#' Get O\*NET API Key
 #'
-#' Retrieves the O*NET API key from the `ONET_API_KEY` environment variable.
+#' Retrieves the O\*NET API key from the `ONET_API_KEY` environment variable.
 #'
 #' @return A character string containing the API key.
 #'
@@ -27,7 +27,7 @@ onet_api_key <- function() {
   key
 }
 
-#' Check if O*NET API Key is Set
+#' Check if O\*NET API Key is Set
 #'
 #' @return Logical indicating if the API key is available.
 #' @keywords internal

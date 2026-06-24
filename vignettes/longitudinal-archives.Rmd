@@ -16,100 +16,108 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(onet2r)
-library(tibble)
+library(dplyr)
 ```
 
 Read `vignette("longitudinal-onet-background", package = "onet2r")` before
-interpreting changes. This article focuses on the mechanics: assemble a panel,
-bridge taxonomy vintages, reconcile adjacent releases, and summarize the result.
+interpreting changes. O\*NET was not designed as a longitudinal panel, so the
+practical job is not only to compute differences. It is to separate real
+descriptor updates from carryforwards, re-surveys with stable values, recodes,
+and taxonomy seams.
 
-## Start with the Release Table
+This walkthrough uses packaged archive-format text files so every displayed
+table comes from `onet2r` functions while the vignette remains CRAN-safe and
+does not require network access. In a real project, replace the local paths with
+downloaded O\*NET archive versions.
 
-Live release discovery reads the public O*NET Resource Center archive page. The
-package function returns one row per downloadable text archive. The example
-below uses a small representative table so the article builds without network
-access.
-
-```{r releases}
-releases <- tibble(
-  version = c("30.3", "30.2", "30.1"),
-  release_date = as.Date(c("2026-05-01", "2026-02-01", "2025-11-01")),
-  year = c(2026L, 2026L, 2025L),
-  month = c("May", "February", "November"),
-  soc_vintage = c("2019", "2019", "2019"),
-  text_url = c(
-    "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip",
-    "https://www.onetcenter.org/dl_files/database/db_30_2_text.zip",
-    "https://www.onetcenter.org/dl_files/database/db_30_1_text.zip"
-  ),
-  dictionary_url = c(
-    "https://www.onetcenter.org/dictionary/30.3/excel/",
-    "https://www.onetcenter.org/dictionary/30.2/excel/",
-    "https://www.onetcenter.org/dictionary/30.1/excel/"
+```{r local-archives}
+example_archive <- function(version) {
+  system.file(
+    "extdata",
+    "onet-mini",
+    paste0("db_", gsub(".", "_", version, fixed = TRUE), "_text"),
+    package = "onet2r"
   )
+}
+
+archives <- c(
+  `30.2` = example_archive("30.2"),
+  `30.3` = example_archive("30.3")
 )
 
-head(releases, 3)
+release_dates <- c(`30.2` = "2026-02-01", `30.3` = "2026-05-01")
+
+archives
 ```
 
-In an interactive workflow, call `onet_releases()` and then choose the versions
-you want to compare.
+## A Practical Question
 
-## Assemble a Descriptor Panel
+Suppose you want to know whether selected cognitive ability ratings changed
+between two O\*NET releases for occupations that matter in workforce planning:
+software developers, registered nurses, chief executives, and retail
+supervisors. A naive `new - old` difference is not enough, because unchanged
+values may be carryforwards and changed values may reflect a recode rather than
+a fresh survey update.
 
-`onet_archive_read()` normalizes descriptor-like archive tables into a long
-schema. `onet_panel()` row-binds the same table across releases. This example
-uses a tiny panel with the same columns.
+## Read One Archive Table
 
-```{r panel}
-panel <- tibble(
-  release_version = rep(c("1.0", "2.0"), each = 4),
-  release_date = rep(as.Date(c("2020-01-01", "2021-01-01")), each = 4),
-  soc_vintage = "2019",
-  domain = "Abilities",
-  onet_soc_code = rep(
-    c("11-1011.00", "15-1252.00", "29-1141.00", "41-1011.00"),
-    2
-  ),
-  soc_code = rep(c("11-1011", "15-1252", "29-1141", "41-1011"), 2),
-  title = "Occupation",
-  element_id = "1.A.1.a.1",
-  element_name = "Oral Comprehension",
-  scale_id = "IM",
-  data_value = c(4, 4, 4, 4, 4, 5, 4, 5),
-  source_date = c(
-    as.Date(c("2020-01-01", "2020-01-01", "2020-01-01", "2020-01-01")),
-    as.Date(c("2020-01-01", "2021-01-01", "2021-01-01", "2020-01-01"))
-  ),
-  domain_source = "Analyst"
+`onet_archive_read()` reads an O\*NET text archive table and normalizes it into
+one panel schema. The local `path` argument is useful when you have downloaded
+archives manually or when you want a reproducible, offline workflow.
+
+```{r read-one-archive}
+abilities_303 <- onet_archive_read(
+  "30.3",
+  "Abilities",
+  path = archives[["30.3"]],
+  release_date = release_dates[["30.3"]]
 )
 
-head(panel, 6)
+head(abilities_303, 8)
 ```
 
-For live data, use the same pattern with archive helpers:
-`onet_panel("Abilities", versions = c("30.2", "30.3"), scale = "IM")`.
+The output has one row per occupation, element, scale, and release. The
+important longitudinal fields are:
+
+- `release_version` and `release_date`, which identify the archive release;
+- `soc_vintage`, `onet_soc_code`, and `soc_code`, which identify the taxonomy;
+- `data_value`, the descriptor score;
+- `source_date` and `domain_source`, which help distinguish fresh updates from
+  carryforwards or method changes.
+
+## Assemble a Two-Release Panel
+
+`onet_panel()` applies the same reader across releases and row-binds the
+normalized outputs.
+
+```{r build-panel}
+panel <- onet_panel(
+  "Abilities",
+  versions = c("30.2", "30.3"),
+  scale = "IM",
+  archives = archives,
+  release_dates = release_dates
+)
+
+panel |>
+  arrange(onet_soc_code, element_id, release_version) |>
+  head(10)
+```
+
+This is the table you would save as your audit trail before doing any modeling.
+It records the exact versions, values, and source dates used in the comparison.
 
 ## Bridge Taxonomy Vintages
 
-When both releases use the same SOC vintage, the bridge is one-to-one. Across
-vintages, `onet_crosswalk_bridge()` composes official adjacent crosswalks and
-labels split or merge rows.
+The example releases both use the 2019 O\*NET-SOC vintage, so no crosswalk is
+needed. Calling `onet_crosswalk_bridge("2019", "2019")` returns the empty bridge
+schema that `onet_panel_reconcile()` can use for same-vintage comparisons. For
+real cross-vintage work, use `onet_crosswalk_bridge()` to compose official
+adjacent O\*NET-SOC crosswalks.
 
 ```{r bridge}
-bridge <- tibble(
-  from_vintage = "2019",
-  to_vintage = "2019",
-  from_soc_code = c("11-1011", "15-1252", "29-1141", "41-1011"),
-  to_soc_code = c("11-1011", "15-1252", "29-1141", "41-1011"),
-  from_title = "Occupation",
-  to_title = "Occupation",
-  step_count = 0L,
-  map_type = "one_to_one",
-  crosswalk_weight = 1
-)
-
-head(bridge, 6)
+bridge <- onet_crosswalk_bridge("2019", "2019")
+bridge
 ```
 
 ## Reconcile Adjacent Releases
@@ -120,47 +128,81 @@ occupation-element-scale pair.
 ```{r reconcile}
 changes <- onet_panel_reconcile(panel, bridge)
 
-head(changes[, c(
-  "from_soc_code",
-  "to_soc_code",
-  "from_value",
-  "to_value",
-  "value_change",
-  "date_changed",
-  "change_type",
-  "safely_comparable"
-)], 8)
+changes |>
+  select(
+    from_soc_code,
+    to_soc_code,
+    element_name,
+    from_value,
+    to_value,
+    value_change,
+    from_source_date,
+    to_source_date,
+    change_type,
+    method_break,
+    safely_comparable
+  ) |>
+  arrange(desc(abs(value_change))) |>
+  head(10)
 ```
 
-The change classification is:
+Read the `change_type` column before interpreting `value_change`:
 
-| Value Changed | Source Date Changed | Change Type | Initially Comparable |
+| Value changed? | Source date changed? | Classification | Interpretation |
 | --- | --- | --- | --- |
-| no | no | `stale_carryforward` | yes |
-| yes | yes | `real_update` | yes |
-| no | yes | `resampled_stable` | yes |
-| yes | no | `recode_or_recalc_flag` | no |
+| no | no | `stale_carryforward` | The release likely carried forward the prior value. |
+| yes | yes | `real_update` | The value changed with a new source date. |
+| no | yes | `resampled_stable` | The occupation appears updated, but the score stayed stable. |
+| yes | no | `recode_or_recalc_flag` | Treat cautiously; the value changed without a new source date. |
 
-`method_break` and `crosswalk_uncertain` are overrides. A row is safely
-comparable only when the truth-table result is comparable and neither override
-is present.
+`method_break` and `crosswalk_uncertain` are additional overrides. A row is
+`safely_comparable` only when the truth-table result is comparable and neither
+override is present.
 
-## Summarize Changes
+## Answer the Practical Question
 
-Summaries give a quick audit of how much of the panel is safely comparable and
-how often each change pattern appears.
+For this small example, the most useful review table is not every pair. It is
+the subset where values changed, sorted by whether the change is safe to compare.
+
+```{r changed-rows}
+changes |>
+  filter(value_changed) |>
+  mutate(abs_change = abs(value_change)) |>
+  arrange(safely_comparable, desc(abs_change)) |>
+  select(
+    to_soc_code,
+    element_name,
+    from_value,
+    to_value,
+    value_change,
+    change_type,
+    method_break,
+    safely_comparable
+  )
+```
+
+This is the table a researcher should inspect before making a claim such as
+"software developers require more oral comprehension than in the prior release."
+The comparison is strongest when the value changed, the source date changed, and
+no method or taxonomy warning is present.
+
+## Summarize the Panel
+
+`onet_change_summary()` gives a compact audit of the reconciliation result. The
+job-family view is useful for spotting whether one part of the SOC taxonomy is
+driving the apparent change.
 
 ```{r summary}
-summary <- onet_change_summary(changes, by = "job_family")
-head(summary, 10)
+onet_change_summary(changes, by = "job_family")
 ```
 
-## Recommended Workflow
+## Recommended Workflow for Real Archive Work
 
-1. Pick a domain table such as `Abilities`, `Skills`, or `Work Activities`.
-2. Use `onet_releases()` to identify archive versions and SOC vintages.
-3. Build a panel with `onet_panel()`.
-4. Build a bridge with `onet_crosswalk_bridge()`.
-5. Reconcile with `onet_panel_reconcile()`.
-6. Inspect `method_break`, `crosswalk_uncertain`, and `safely_comparable` before
-   drawing substantive conclusions.
+1. Use `onet_releases()` to identify release versions and O\*NET-SOC vintages.
+2. Build a panel with `onet_panel()` for one domain at a time, such as
+   `"Abilities"`, `"Skills"`, or `"Work Activities"`.
+3. Build a bridge with `onet_crosswalk_bridge()` when releases use different
+   O\*NET-SOC vintages.
+4. Reconcile with `onet_panel_reconcile()`.
+5. Filter, weight, or model only after checking `change_type`, `method_break`,
+   `crosswalk_uncertain`, and `safely_comparable`.

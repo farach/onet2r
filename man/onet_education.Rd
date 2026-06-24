@@ -2,12 +2,12 @@
 % Please edit documentation in R/occupations.R
 \name{onet_education}
 \alias{onet_education}
-\title{Get O*NET Education (details)}
+\title{Get O\*NET Education (details)}
 \usage{
 onet_education(code, start = 1, end = 20)
 }
 \arguments{
-\item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
+\item{code}{An O\*NET-SOC occupation code (e.g., "15-1252.00").}
 
 \item{start}{Integer specifying the first result to return (default 1).}
 
@@ -22,7 +22,7 @@ A tibble with columns:
 }
 }
 \description{
-Get O*NET Education (details)
+Get O\*NET Education (details)
 }
 \examples{
 \dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}

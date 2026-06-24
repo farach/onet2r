@@ -1,8 +1,8 @@
 ---
-title: "Validating onet2r outputs"
+title: "Validating onet2r Outputs"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Validating onet2r outputs}
+  %\VignetteIndexEntry{Validating onet2r Outputs}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,10 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r setup}
+library(onet2r)
+library(dplyr)
+
+sample_oews <- system.file(
+  "extdata",
+  "oews-national-sample.csv",
+  package = "onet2r"
+)
+
+archive_303 <- system.file(
+  "extdata",
+  "onet-mini",
+  "db_30_3_text",
+  package = "onet2r"
+)
+```
+
 The package test suite checks implementation details with mocked responses and
-small deterministic examples. For real projects, it is also useful to inspect
-output shape: Are expected columns present? Are rows non-empty where they should
-be? Are list endpoints returning the fields users need?
+small deterministic files. For real projects, it is also useful to inspect output
+shape: Are expected columns present? Are rows non-empty where they should be?
+Are list endpoints returning the fields users need?
 
 `onet2r` includes a practical validation script that maintainers can run from
 the source tree with `Rscript inst/examples/validate-outputs.R`. From an
@@ -31,52 +49,60 @@ system.file("examples", "validate-outputs.R", package = "onet2r")
 
 The validation script always checks deterministic local outputs:
 
-- reading bundled OEWS sample data
-- joining O*NET occupation codes to OEWS estimates
-- computing employment- and wage-weighted O*NET summaries
-- configuring cache and rate-limit settings
+- reading bundled OEWS sample data;
+- reading a local O\*NET archive-format table;
+- joining O\*NET occupation codes to OEWS estimates;
+- computing employment- and wage-weighted O\*NET summaries;
+- configuring cache and rate-limit settings.
 
 When `ONET_API_KEY` is available, it also performs live smoke checks across the
-main exported O*NET functions. Each result is inspected for expected type,
+main exported O\*NET functions. Each result is inspected for expected type,
 minimum row count, and important columns.
 
 ## Example: Local Validation without an API Key
 
+The local validation below uses package functions rather than copied output.
+
 ```{r local-validation}
-library(onet2r)
-library(tibble)
-
-sample_oews <- system.file(
-  "extdata",
-  "oews-national-sample.csv",
-  package = "onet2r"
-)
-
 oews <- onet_oews_national(2024, path = sample_oews)
 
-validation <- tibble(
+abilities <- onet_archive_read(
+  "30.3",
+  "Abilities",
+  path = archive_303,
+  release_date = "2026-05-01"
+)
+
+occupations <- abilities |>
+  distinct(code = onet_soc_code, title)
+
+joined <- onet_join_oews(occupations, oews = oews)
+
+weighted <- onet_weighted_summary(
+  abilities,
+  group = c("element_id", "element_name"),
+  value = "data_value",
+  occupation_code = "onet_soc_code",
+  oews = oews
+)
+
+tibble::tibble(
   check = c(
     "OEWS output is a tibble",
-    "OEWS has wage and employment columns",
-    "join adds normalized SOC code"
+    "archive output has source dates",
+    "join adds normalized SOC code",
+    "weighted summary has employment weights"
   ),
   passed = c(
     inherits(oews, "tbl_df"),
-    all(c("occ_code", "tot_emp", "a_median") %in% names(oews)),
-    TRUE
+    all(c("source_date", "data_value") %in% names(abilities)),
+    all(c("soc_code", "tot_emp", "a_median") %in% names(joined)),
+    all(c("total_weight", "weighted_mean") %in% names(weighted))
   )
 )
 
-occupations <- tibble(
-  code = c("15-1252.00", "29-1141.00"),
-  title = c("Software Developers", "Registered Nurses")
-)
-
-joined <- onet_join_oews(occupations, oews = oews)
-validation$passed[3] <- all(c("soc_code", "tot_emp", "a_median") %in% names(joined))
-
-validation
 head(joined, 5)
+head(weighted, 5)
 ```
 
 ## Example: Live Validation Status
@@ -86,7 +112,7 @@ executes this chunk and reports whether live checks are available in the current
 environment.
 
 ```{r live-validation-status}
-tibble(
+tibble::tibble(
   check = "ONET_API_KEY available for live API validation",
   passed = nzchar(Sys.getenv("ONET_API_KEY"))
 )
