@@ -117,35 +117,29 @@ pums <- tibble::tibble(
 onet_pums_employment_weights(pums)
 ```
 
-For live ACS pulls, start with `tidycensus` and then pass the resulting data
-frame to `onet_pums_employment_weights()`:
+For live ACS pulls, start with `tidycensus::get_pums()` and then pass the
+resulting data frame to `onet_pums_employment_weights()`. The site reports
+whether `tidycensus` is installed, then keeps the example local and
+reproducible.
 
-```{r tidycensus-pums, eval = FALSE}
-pums <- tidycensus::get_pums(
-  variables = c("SOCP", "PWGTP", "WAGP"),
-  state = "all",
-  survey = "acs1",
-  year = 2023
+```{r tidycensus-status}
+tibble::tibble(
+  optional_package = "tidycensus",
+  installed = requireNamespace("tidycensus", quietly = TRUE)
 )
-
-weights <- onet_pums_employment_weights(pums)
 ```
 
 ## Real OEWS downloads
 
-BLS publishes annual public downloads. These calls download and cache the
-corresponding file:
-
-```{r real-downloads, eval = FALSE}
-national <- onet_oews_national(2024)
-states <- onet_oews_state(2024)
-metros <- onet_oews_metro(2024)
-industries <- onet_oews_industry(2024)
-```
+BLS publishes annual public downloads. In a live workflow, call
+`onet_oews_national()`, `onet_oews_state()`, `onet_oews_metro()`, or
+`onet_oews_industry()` without `path` to download and cache the corresponding
+file. This article uses the bundled sample and shows the same columns you should
+inspect after a live download.
 
 If automated downloads are rate-limited, download the ZIP manually from
 the BLS OEWS public data pages and pass the local path:
 
-```{r manual-download, eval = FALSE}
-national <- onet_oews_national(2024, path = "oesm24nat.zip")
+```{r manual-download-shape}
+head(onet_oews_national(2024, path = sample_oews), 5)
 ```

@@ -19,3 +19,5 @@ Thumbs.db
 /doc/
 /Meta/
 /pkgdown/
+/vignettes/*.R
+/vignettes/*.html

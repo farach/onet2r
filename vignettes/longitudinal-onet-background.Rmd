@@ -1,0 +1,143 @@
+---
+title: "Why Longitudinal O*NET Analysis Is Hard"
+output: rmarkdown::html_vignette
+bibliography: ../inst/REFERENCES.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Why Longitudinal O*NET Analysis Is Hard}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(onet2r)
+library(tibble)
+```
+
+O*NET is one of the most useful public sources for occupation-level skills,
+tasks, abilities, work activities, and work contexts. It is also easy to misuse
+as a time series. The most important fact is simple: O*NET was not built as a
+longitudinal panel. The Web Services API serves the current release, while
+version-over-version analysis has to be reconstructed from the downloadable
+release archives [@onet_archive].
+
+That reconstruction is the reason `onet2r` includes archive, bridge, and
+reconciliation helpers. They do not make the historical data automatically
+causal or comparable. They make the assumptions visible.
+
+## The 3 Problems Users Must Handle
+
+### 1. The API Is Current-Release First
+
+Most API workflows ask "what does this occupation look like now?" Longitudinal
+work asks "what changed between release A and release B?" Those are different
+questions. For panels, use the archive functions.
+
+```{r archive-schema}
+release_example <- tibble(
+  version = c("30.3", "30.2", "30.1"),
+  release_date = as.Date(c("2026-05-01", "2026-02-01", "2025-11-01")),
+  soc_vintage = c("2019", "2019", "2019"),
+  text_url = c(
+    "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip",
+    "https://www.onetcenter.org/dl_files/database/db_30_2_text.zip",
+    "https://www.onetcenter.org/dl_files/database/db_30_1_text.zip"
+  )
+)
+
+head(release_example, 3)
+```
+
+### 2. Occupation Codes Change across Taxonomies
+
+O*NET-SOC vintages do not line up one-to-one forever. Occupations split, merge,
+appear, and disappear. Hosseinioun et al. [-@hosseinioun2025skill] handle this
+by composing adjacent official O*NET-SOC crosswalks, which is the same strategy
+used by `onet_crosswalk_bridge()`.
+
+```{r crosswalk-example}
+bridge_example <- tibble(
+  from_vintage = "2010",
+  to_vintage = "2019",
+  from_soc_code = c("15-1132", "15-1132", "29-1141"),
+  to_soc_code = c("15-1252", "15-1253", "29-1141"),
+  map_type = c("split", "split", "one_to_one"),
+  crosswalk_weight = c(0.5, 0.5, 1)
+)
+
+head(bridge_example, 3)
+```
+
+Rows marked `split` or `merge` are not thrown away. They are flagged as
+crosswalk-uncertain during reconciliation so users can decide whether to keep,
+weight, or exclude them.
+
+### 3. A Release-to-Release "Change" May Not Be a True Content Change
+
+Many O*NET archive tables include a source date and domain source. These fields
+matter because a value can appear unchanged simply because the occupation was
+not re-surveyed, or a value can change without a source-date change because of a
+recode or recalculation. Handel [-@handel2016onet] is a useful entry point for
+the broader measurement and comparability cautions.
+
+```{r truth-table}
+tibble(
+  value_changed = c(FALSE, TRUE, FALSE, TRUE),
+  source_date_changed = c(FALSE, TRUE, TRUE, FALSE),
+  change_type = c(
+    "stale_carryforward",
+    "real_update",
+    "resampled_stable",
+    "recode_or_recalc_flag"
+  ),
+  comparable_before_overrides = c(TRUE, TRUE, TRUE, FALSE)
+)
+```
+
+## How This Differs from the Standard Task Approach
+
+The canonical task-framework literature often avoids O*NET's
+version-over-version variation. Instead, it holds task scores fixed and gets
+time variation from changing occupational employment shares [@autor2003skill;
+@autordorn2013growth; @autor2013task]. That approach is standard because it is
+cleaner for many labor-market questions. `onet2r` enables a complementary route:
+directly comparing archived O*NET content after marking taxonomy and
+survey-timing problems.
+
+Direct within-occupation change work is closer to what the longitudinal module
+does. Consoli et al. [-@consoli2023routinization] combine DOT and O*NET to study
+within-occupation task change over a long period. Chen et al. [-@chen2026ai]
+report a narrower O*NET version comparison as one stylized fact inside a paper
+whose main data source is online vacancies.
+
+## Official Resources to Check
+
+- The O*NET Database Releases Archive is the source for release ZIP files
+  [@onet_archive].
+- The O*NET Data Dictionary documents table structure, date fields, source
+  fields, and historical content changes [@onet_dictionary].
+- The O*NET-SOC taxonomy files provide the official adjacent crosswalks used by
+  the bridge layer [@onet_crosswalks].
+- BLS provides a methodological overview for mapping Employment Projections and
+  O*NET data, including split, merge, and imputation issues that motivate future
+  employment-weighted bridge options [@bls2021mapping].
+
+## Adjacent Tools to Verify before Citing
+
+Several tools map O*NET to other classification systems rather than across
+O*NET's own versions. They may be useful, but they are intentionally not in
+`inst/REFERENCES.bib` until verified to citation standard:
+
+- Institute for Structural Research occupational task crosswalk files.
+- `occupationcross`, reported as an R package for occupational reclassification.
+- The Dais NOC-to-O*NET crosswalk for Canada.
+- European Commission ESCO-O*NET crosswalks.
+
+## References
