@@ -43,6 +43,8 @@ navbar:
       menu:
         - text: Getting Started
           href: articles/getting-started.html
+        - text: Why Longitudinal O*NET Is Hard
+          href: articles/longitudinal-onet-background.html
         - text: Longitudinal Archives
           href: articles/longitudinal-archives.html
         - text: OEWS Wage Context
@@ -130,6 +132,7 @@ articles:
     navbar: ~
     contents:
       - getting-started
+      - longitudinal-onet-background
       - longitudinal-archives
       - oews-wage-context
       - output-validation

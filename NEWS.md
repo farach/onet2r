@@ -1,5 +1,6 @@
 # onet2r 0.2.0
 
+* Added a longitudinal O*NET background article and verified reference file to help users understand archive panels, taxonomy changes, and comparability limits before interpreting release-to-release changes (no issue).
 * `onet_archive_download()` downloads text-format O*NET database archives by release version for reproducible local analysis (no issue).
 * `onet_archive_read()` reads descriptor tables from downloaded archives into a normalized long panel schema (no issue).
 * `onet_change_summary()` summarizes reconciled O*NET changes overall and by SOC job family (no issue).

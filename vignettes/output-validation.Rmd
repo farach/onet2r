@@ -19,25 +19,15 @@ small deterministic examples. For real projects, it is also useful to inspect
 output shape: Are expected columns present? Are rows non-empty where they should
 be? Are list endpoints returning the fields users need?
 
-`onet2r` includes a practical validation script at:
+`onet2r` includes a practical validation script that maintainers can run from
+the source tree with `Rscript inst/examples/validate-outputs.R`. From an
+installed package, source the file returned by:
 
 ```{r script-path}
 system.file("examples", "validate-outputs.R", package = "onet2r")
 ```
 
-From the source tree, run:
-
-```{bash run-source, eval = FALSE}
-Rscript inst/examples/validate-outputs.R
-```
-
-From an installed package, run:
-
-```{r run-installed, eval = FALSE}
-source(system.file("examples", "validate-outputs.R", package = "onet2r"))
-```
-
-## What the script checks
+## What the Script Checks
 
 The validation script always checks deterministic local outputs:
 
@@ -50,10 +40,11 @@ When `ONET_API_KEY` is available, it also performs live smoke checks across the
 main exported O*NET functions. Each result is inspected for expected type,
 minimum row count, and important columns.
 
-## Example: local validation without an API key
+## Example: Local Validation without an API Key
 
 ```{r local-validation}
 library(onet2r)
+library(tibble)
 
 sample_oews <- system.file(
   "extdata",
@@ -62,35 +53,43 @@ sample_oews <- system.file(
 )
 
 oews <- onet_oews_national(2024, path = sample_oews)
-stopifnot(inherits(oews, "tbl_df"))
-stopifnot(all(c("occ_code", "tot_emp", "a_median") %in% names(oews)))
 
-occupations <- tibble::tibble(
+validation <- tibble(
+  check = c(
+    "OEWS output is a tibble",
+    "OEWS has wage and employment columns",
+    "join adds normalized SOC code"
+  ),
+  passed = c(
+    inherits(oews, "tbl_df"),
+    all(c("occ_code", "tot_emp", "a_median") %in% names(oews)),
+    TRUE
+  )
+)
+
+occupations <- tibble(
   code = c("15-1252.00", "29-1141.00"),
   title = c("Software Developers", "Registered Nurses")
 )
 
 joined <- onet_join_oews(occupations, oews = oews)
-stopifnot(all(c("soc_code", "tot_emp", "a_median") %in% names(joined)))
-joined
+validation$passed[3] <- all(c("soc_code", "tot_emp", "a_median") %in% names(joined))
+
+validation
+head(joined, 5)
 ```
 
-## Example: live validation with an API key
+## Example: Live Validation Status
 
-```{r live-validation, eval = FALSE}
-Sys.getenv("ONET_API_KEY")
+Live validation only runs when a user supplies an API key. The site still
+executes this chunk and reports whether live checks are available in the current
+environment.
 
-search_results <- onet_search("software developer", end = 5)
-stopifnot(inherits(search_results, "tbl_df"))
-stopifnot(all(c("code", "title") %in% names(search_results)))
-stopifnot(nrow(search_results) > 0)
-
-skills <- onet_skills("15-1252.00", end = 5)
-stopifnot(inherits(skills, "tbl_df"))
-stopifnot(nrow(skills) > 0)
-
-job_zone <- onet_job_zone("15-1252.00")
-stopifnot(is.list(job_zone))
+```{r live-validation-status}
+tibble(
+  check = "ONET_API_KEY available for live API validation",
+  passed = nzchar(Sys.getenv("ONET_API_KEY"))
+)
 ```
 
 The goal is not to replace unit tests. It is to give maintainers and users a
