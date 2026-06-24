@@ -13,11 +13,8 @@
 #' Or add it to your `.Renviron` file for persistence.
 #'
 #' @export
-#' @examples
-#' \dontrun{
-#' Sys.setenv(ONET_API_KEY = "your-api-key")
+#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_api_key()
-#' }
 onet_api_key <- function() {
   key <- Sys.getenv("ONET_API_KEY", unset = "")
   if (key == "") {
@@ -26,7 +23,6 @@ onet_api_key <- function() {
       "i" = "Set your API key with {.code Sys.setenv(ONET_API_KEY = \"your-key\")}",
       "i" = "Get a key at {.url https://services.onetcenter.org/developer/}"
     ))
-
   }
   key
 }
@@ -35,6 +31,7 @@ onet_api_key <- function() {
 #'
 #' @return Logical indicating if the API key is available.
 #' @keywords internal
+#' @noRd
 has_onet_api_key <- function() {
   Sys.getenv("ONET_API_KEY", unset = "") != ""
 }

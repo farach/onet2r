@@ -16,22 +16,23 @@ onet_base_url <- "https://api-v2.onetcenter.org"
 #'
 #' @return An httr2 request object.
 #' @keywords internal
+#' @noRd
 onet_request <- function(.path, .path_segments = NULL, .query = list()) {
   req <- httr2::request(onet_base_url) |>
     httr2::req_url_path_append(.path)
-  
+
   # Append additional path segments if provided
   if (!is.null(.path_segments)) {
     for (segment in .path_segments) {
       req <- req |> httr2::req_url_path_append(as.character(segment))
     }
   }
-  
+
   # Add query parameters if provided
   if (length(.query) > 0) {
     req <- do.call(httr2::req_url_query, c(list(req), .query))
   }
-  
+
   # Default headers + retry policy
   req |>
     httr2::req_headers(
@@ -41,7 +42,7 @@ onet_request <- function(.path, .path_segments = NULL, .query = list()) {
     httr2::req_retry(
       max_tries = 3,
       is_transient = is_transient_error,
-      backoff = \(i) 0.2 * (2 ^ i)
+      backoff = \(i) 0.2 * (2^i)
     )
 }
 
@@ -53,6 +54,7 @@ onet_request <- function(.path, .path_segments = NULL, .query = list()) {
 #'
 #' @return Logical indicating if the error is transient.
 #' @keywords internal
+#' @noRd
 is_transient_error <- function(resp) {
   status <- httr2::resp_status(resp)
   status %in% c(429, 500, 502, 503, 504)
@@ -62,14 +64,22 @@ is_transient_error <- function(resp) {
 #'
 #' Executes a request and returns the parsed JSON body with error handling.
 #'
-#' @param req An httr2 request object from [onet_request()].
+#' @param req An httr2 request object from `onet_request()`.
 #'
 #' @return A list containing the parsed JSON response.
 #' @keywords internal
+#' @noRd
 onet_perform <- function(req) {
+  onet_rate_limit_pause()
+
+  cache_file <- onet_cache_file(req)
+  if (!is.null(cache_file) && file.exists(cache_file)) {
+    return(readRDS(cache_file))
+  }
+
   resp <- httr2::req_perform(req)
   body <- httr2::resp_body_json(resp)
-  
+
   # If the API returns structured errors inside the JSON body
   if (!is.null(body$error)) {
     cli::cli_abort(c(
@@ -78,8 +88,107 @@ onet_perform <- function(req) {
       "i" = if (!is.null(body$message)) as.character(body$message)
     ))
   }
-  
+
+  if (!is.null(cache_file)) {
+    dir.create(dirname(cache_file), recursive = TRUE, showWarnings = FALSE)
+    saveRDS(body, cache_file)
+  }
+
   body
+}
+
+#' Configure O\*NET API Response Caching
+#'
+#' Enables or disables local caching for O\*NET API responses. Caching is off by
+#' default because API results may change over time, but it is useful when
+#' developing analyses that repeatedly request the same endpoints.
+#'
+#' @param enabled Logical; enable or disable response caching.
+#' @param cache_dir Directory where cached API responses should be stored.
+#'
+#' @return Invisibly returns a list with the active cache settings.
+#' @export
+#'
+#' @examples
+#' onet_cache_use(enabled = FALSE)
+onet_cache_use <- function(
+    enabled = TRUE,
+    cache_dir = tools::R_user_dir("onet2r", "cache")) {
+  if (!is.logical(enabled) || length(enabled) != 1 || is.na(enabled)) {
+    cli::cli_abort("{.arg enabled} must be `TRUE` or `FALSE`.")
+  }
+  validate_single_string(cache_dir, "cache_dir")
+
+  options(
+    onet2r.cache_enabled = enabled,
+    onet2r.cache_dir = cache_dir
+  )
+
+  invisible(list(enabled = enabled, cache_dir = cache_dir))
+}
+
+#' Clear Cached O\*NET API Responses
+#'
+#' Deletes cached O\*NET API responses created by `onet_cache_use()`.
+#'
+#' @param cache_dir Directory containing cached API responses.
+#'
+#' @return Invisibly returns the cache directory path.
+#' @export
+#'
+#' @examples
+#' tmp <- tempfile()
+#' onet_cache_use(cache_dir = tmp)
+#' onet_cache_clear(cache_dir = tmp)
+onet_cache_clear <- function(
+    cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache"))) {
+  validate_single_string(cache_dir, "cache_dir")
+  unlink(file.path(cache_dir, "api"), recursive = TRUE, force = TRUE)
+  invisible(cache_dir)
+}
+
+#' Configure Delay Between O\*NET API Requests
+#'
+#' Sets a minimum delay before each O\*NET API request. This can be useful for
+#' polite bulk pulls or when working near rate limits.
+#'
+#' @param seconds Non-negative number of seconds to wait before each API request.
+#'
+#' @return Invisibly returns `seconds`.
+#' @export
+#'
+#' @examples
+#' onet_rate_limit(0)
+onet_rate_limit <- function(seconds = 0) {
+  if (!is.numeric(seconds) || length(seconds) != 1 || is.na(seconds) || seconds < 0) {
+    cli::cli_abort("{.arg seconds} must be a single non-negative number.")
+  }
+
+  options(onet2r.request_delay = seconds)
+  invisible(seconds)
+}
+
+onet_rate_limit_pause <- function() {
+  seconds <- getOption("onet2r.request_delay", 0)
+  if (is.numeric(seconds) && length(seconds) == 1 && seconds > 0) {
+    Sys.sleep(seconds)
+  }
+
+  invisible(NULL)
+}
+
+onet_cache_file <- function(req) {
+  if (!isTRUE(getOption("onet2r.cache_enabled", FALSE))) {
+    return(NULL)
+  }
+
+  url <- req$url %||% NULL
+  if (is.null(url)) {
+    return(NULL)
+  }
+
+  cache_dir <- getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache"))
+  file.path(cache_dir, "api", paste0(rlang::hash(url), ".rds"))
 }
 
 #' Convert API Response Record to Tibble
@@ -91,16 +200,17 @@ onet_perform <- function(req) {
 #'
 #' @return A tibble (possibly 0-row).
 #' @keywords internal
+#' @noRd
 as_onet_tibble <- function(x) {
   if (is.null(x) || length(x) == 0) {
     return(tibble::tibble())
   }
-  
+
   # Replace NULL values with NA so tibble conversion doesn't error
   if (is.list(x) && !is.data.frame(x)) {
     x <- lapply(x, function(col) if (is.null(col)) NA else col)
   }
-  
+
   tbl <- tibble::as_tibble(x)
   names(tbl) <- to_snake_case(names(tbl))
   tbl
@@ -111,14 +221,15 @@ as_onet_tibble <- function(x) {
 #' @param x Character vector to convert.
 #' @return Character vector in snake_case.
 #' @keywords internal
+#' @noRd
 to_snake_case <- function(x) {
   # Convert CamelCase / PascalCase / ALLCAPS blocks to snake_case
   # Examples:
   #   "HTTPResponse" -> "http_response"
   #   "API"          -> "api"
   #   "MyAPIClient"  -> "my_api_client"
-  x <- gsub("([A-Z]+)([A-Z][a-z])", "\\1_\\2", x)  # split "HTTPResponse" -> "HTTP_Response"
-  x <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", x)     # split "myAPI" -> "my_API"
+  x <- gsub("([A-Z]+)([A-Z][a-z])", "\\1_\\2", x) # split "HTTPResponse" -> "HTTP_Response"
+  x <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", x) # split "myAPI" -> "my_API"
   x <- gsub("__+", "_", x)
   tolower(x)
 }
@@ -132,6 +243,7 @@ to_snake_case <- function(x) {
 #'
 #' @return A tibble of the extracted data.
 #' @keywords internal
+#' @noRd
 extract_paged_data <- function(resp, key) {
   data <- resp[[key]]
   if (is.null(data) || length(data) == 0) {
@@ -151,20 +263,23 @@ extract_paged_data <- function(resp, key) {
 #'
 #' @return A tibble with the extracted data or empty tibble with correct schema.
 #' @keywords internal
+#' @noRd
 extract_list_data <- function(resp, key, schema = NULL) {
   data <- resp[[key]]
-  
+
   if (is.null(data) || length(data) == 0) {
-    if (!is.null(schema)) return(schema)
+    if (!is.null(schema)) {
+      return(schema)
+    }
     return(tibble::tibble())
   }
-  
+
   result <- purrr::map(data, as_onet_tibble) |> purrr::list_rbind()
-  
+
   if (!is.null(schema) && nrow(result) == 0) {
     return(schema)
   }
-  
+
   result
 }
 
@@ -177,10 +292,39 @@ extract_list_data <- function(resp, key, schema = NULL) {
 #'
 #' @return An empty tibble with the specified schema.
 #' @keywords internal
+#' @noRd
 empty_tibble <- function(...) {
   cols <- list(...)
-  if (length(cols) == 0) return(tibble::tibble())
+  if (length(cols) == 0) {
+    return(tibble::tibble())
+  }
   do.call(tibble::tibble, cols)
+}
+
+validate_single_string <- function(x, arg) {
+  if (!is.character(x) || length(x) != 1 || is.na(x)) {
+    cli::cli_abort("{.arg {arg}} must be a single character string.")
+  }
+
+  invisible(x)
+}
+
+occupation_schema <- function() {
+  empty_tibble(code = character(), title = character())
+}
+
+occupation_records_to_tbl <- function(records) {
+  if (is.null(records) || length(records) == 0) {
+    return(occupation_schema())
+  }
+
+  purrr::map(records, \(x) {
+    tibble::tibble(
+      code = x$code %||% NA_character_,
+      title = x$title %||% NA_character_
+    )
+  }) |>
+    purrr::list_rbind()
 }
 
 #' Paginate Through API Results
@@ -195,36 +339,37 @@ empty_tibble <- function(...) {
 #'
 #' @return A tibble containing all paginated results.
 #' @keywords internal
+#' @noRd
 paginate_api <- function(fetch_page, page_size = 2000, show_progress = TRUE) {
   all_rows <- list()
   start <- 1
   total <- NULL
-  
+
   repeat {
     page <- fetch_page(start = start, end = start + page_size - 1)
-    
+
     if (is.null(total)) {
       total <- page$total %||% 0
     }
-    
+
     if (!is.null(page$data) && nrow(page$data) > 0) {
       all_rows <- c(all_rows, list(page$data))
     }
-    
+
     if (isTRUE(page$total == 0) || isTRUE(page$end >= page$total)) {
       break
     }
-    
+
     start <- page$end + 1
-    
+
     if (isTRUE(show_progress) && total > 0) {
       cli::cli_inform("Fetching rows {start} to {min(start + page_size - 1, total)} of {total}...")
     }
   }
-  
+
   if (length(all_rows) == 0) {
     return(tibble::tibble())
   }
-  
+
   purrr::list_rbind(all_rows)
 }

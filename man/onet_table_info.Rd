@@ -8,13 +8,16 @@ onet_table_info(table_id)
 }
 \arguments{
 \item{table_id}{Character string specifying the table identifier
-(e.g., "occupation_data", "skills").}
+(e.g., "occupation_data").}
 }
 \value{
 A tibble with column metadata including:
 \describe{
-\item{name}{Column name}
+\item{name}{Column identifier}
+\item{title}{Column title}
 \item{type}{Column data type}
+\item{format}{Column format}
+\item{optional}{Whether the column is optional}
 \item{description}{Column description}
 }
 }
@@ -22,7 +25,7 @@ A tibble with column metadata including:
 Retrieves metadata about columns in a specific database table.
 }
 \examples{
-\dontrun{
-info <- onet_table_info("skills")
-}
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+info <- onet_table_info("occupation_data")
+\dontshow{\}) # examplesIf}
 }

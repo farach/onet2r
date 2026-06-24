@@ -19,3 +19,8 @@ A tibble of related occupations.
 \description{
 Get O*NET Related Occupations (details)
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_related_occupations("15-1252.00", end = 5)
+\dontshow{\}) # examplesIf}
+}

@@ -2,12 +2,12 @@
 % Please edit documentation in R/search.R
 \name{onet_search}
 \alias{onet_search}
-\title{Search O*NET Occupations}
+\title{Search O\*NET Occupations}
 \usage{
 onet_search(keyword, start = 1, end = 20)
 }
 \arguments{
-\item{keyword}{A character string containing the search term or O*NET-SOC code.}
+\item{keyword}{A character string containing the search term or O\*NET-SOC code.}
 
 \item{start}{Integer specifying the first result to return (default 1).}
 
@@ -16,19 +16,19 @@ onet_search(keyword, start = 1, end = 20)
 \value{
 A tibble with columns:
 \describe{
-\item{code}{O*NET-SOC occupation code}
+\item{code}{O\*NET-SOC occupation code}
 \item{title}{Occupation title}
 }
 }
 \description{
-Searches O\emph{NET occupations by keyword or O}NET-SOC code.
+Searches O\*NET occupations by keyword or O\*NET-SOC code.
 }
 \examples{
-\dontrun{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 # Search by keyword
 onet_search("software developer")
 
 # Search by SOC code
 onet_search("15-1252")
-}
+\dontshow{\}) # examplesIf}
 }

@@ -19,3 +19,8 @@ A tibble of tasks.
 \description{
 Get O*NET Occupation Tasks (details)
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_tasks("15-1252.00", end = 5)
+\dontshow{\}) # examplesIf}
+}

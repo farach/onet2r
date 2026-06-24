@@ -22,3 +22,8 @@ A tibble of work activities.
 Retrieves all work activity rows for a single occupation by automatically
 paginating through the endpoint.
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_work_activities_all("15-1252.00", show_progress = FALSE)
+\dontshow{\}) # examplesIf}
+}

@@ -1,0 +1,151 @@
+---
+title: "Adding OEWS wage and employment context"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Adding OEWS wage and employment context}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+O*NET describes the tasks, skills, abilities, and work contexts associated with
+occupations. The Bureau of Labor Statistics Occupational Employment and Wage
+Statistics (OEWS) program adds labor-market scale: employment counts and wage
+estimates by SOC occupation code.
+
+This vignette uses a small bundled OEWS sample so it can run without network
+access. For real analyses, call `onet_oews_national()`, `onet_oews_state()`,
+`onet_oews_metro()`, or `onet_oews_industry()` without `path`.
+
+```{r setup}
+library(onet2r)
+library(dplyr)
+
+sample_oews <- system.file(
+  "extdata",
+  "oews-national-sample.csv",
+  package = "onet2r"
+)
+```
+
+## Read OEWS estimates
+
+```{r read-oews}
+oews <- onet_oews_national(year = 2024, path = sample_oews)
+oews
+```
+
+The parser normalizes column names to snake_case and converts OEWS numeric
+fields such as employment and annual median wages from formatted strings to
+numeric columns.
+
+```{r inspect-oews}
+str(oews)
+```
+
+## Join OEWS to O*NET occupation codes
+
+O*NET-SOC codes commonly include a detail suffix, such as `.00`. OEWS uses
+six-digit SOC codes. `onet_join_oews()` creates a `soc_code` column and joins
+on that normalized code.
+
+```{r join-oews}
+occupations <- tibble::tibble(
+  code = c("15-1252.00", "29-1141.00", "11-1011.00"),
+  title = c("Software Developers", "Registered Nurses", "Chief Executives")
+)
+
+occupation_wages <- onet_join_oews(occupations, oews = oews)
+occupation_wages
+```
+
+## Employment-weighted O*NET summaries
+
+Many research workflows need to turn occupation-level O*NET records into
+labor-market-weighted measures. For example, the same skill can appear in
+multiple occupations with different skill ratings and very different employment
+levels.
+
+```{r weighted-summary}
+skill_rows <- tibble::tibble(
+  code = c("15-1252.00", "15-1252.00", "29-1141.00", "29-1141.00"),
+  element_id = c("2.A.1.a", "2.A.1.b", "2.A.1.a", "2.A.1.b"),
+  element_name = c(
+    "Reading Comprehension",
+    "Active Listening",
+    "Reading Comprehension",
+    "Active Listening"
+  ),
+  data_value = c(4.12, 4.00, 3.88, 4.25)
+)
+
+onet_weighted_summary(
+  skill_rows,
+  group = c("element_id", "element_name"),
+  value = "data_value",
+  oews = oews
+)
+```
+
+The output includes:
+
+- `n_records`: number of rows used in each grouped summary
+- `n_occupations`: number of occupations contributing to the summary
+- `total_weight`: sum of employment weights
+- `weighted_mean`: employment-weighted mean of the selected O*NET value
+- `wage_weighted_mean`: mean weighted by employment multiplied by annual median wage
+
+## PUMS employment weights
+
+If your workflow uses ACS or CPS microdata instead of OEWS employment counts,
+`onet_pums_employment_weights()` converts individual records to SOC-level
+weights. The `SOCP` and `PWGTP` names match common ACS PUMS output from
+`tidycensus::get_pums()`.
+
+```{r pums-weights}
+pums <- tibble::tibble(
+  SOCP = c("151252", "151252", "291141"),
+  PWGTP = c(120, 80, 200)
+)
+
+onet_pums_employment_weights(pums)
+```
+
+For live ACS pulls, start with `tidycensus` and then pass the resulting data
+frame to `onet_pums_employment_weights()`:
+
+```{r tidycensus-pums, eval = FALSE}
+pums <- tidycensus::get_pums(
+  variables = c("SOCP", "PWGTP", "WAGP"),
+  state = "all",
+  survey = "acs1",
+  year = 2023
+)
+
+weights <- onet_pums_employment_weights(pums)
+```
+
+## Real OEWS downloads
+
+BLS publishes annual public downloads. These calls download and cache the
+corresponding file:
+
+```{r real-downloads, eval = FALSE}
+national <- onet_oews_national(2024)
+states <- onet_oews_state(2024)
+metros <- onet_oews_metro(2024)
+industries <- onet_oews_industry(2024)
+```
+
+If automated downloads are rate-limited, download the ZIP manually from
+the BLS OEWS public data pages and pass the local path:
+
+```{r manual-download, eval = FALSE}
+national <- onet_oews_national(2024, path = "oesm24nat.zip")
+```

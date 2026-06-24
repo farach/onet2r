@@ -15,3 +15,8 @@ A list containing the occupation overview data.
 \description{
 Retrieves overview information for a specific occupation.
 }
+\examples{
+\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+onet_occupation("15-1252.00")
+\dontshow{\}) # examplesIf}
+}

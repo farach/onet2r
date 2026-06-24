@@ -1,0 +1,82 @@
+url: https://github.com/farach/onet2r
+
+template:
+  bootstrap: 5
+
+home:
+  title: Access O*NET Web Services API data from R
+  description: >
+    Search occupations, retrieve O*NET skills/tasks/work activities, and join
+    occupation data to BLS OEWS employment and wage estimates.
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [github]
+
+reference:
+  - title: Authentication and request controls
+    contents:
+      - onet_api_key
+      - onet_cache_use
+      - onet_cache_clear
+      - onet_rate_limit
+  - title: Occupation search and summaries
+    contents:
+      - onet_search
+      - onet_occupations
+      - onet_occupations_all
+      - onet_occupation
+      - onet_occupation_details
+  - title: Occupation detail endpoints
+    contents:
+      - onet_skills
+      - onet_skills_all
+      - onet_knowledge
+      - onet_abilities
+      - onet_work_styles
+      - onet_interests
+      - onet_work_context
+      - onet_work_context_all
+      - onet_work_activities
+      - onet_work_activities_all
+      - onet_tasks
+      - onet_detailed_work_activities
+      - onet_related_occupations
+      - onet_professional_associations
+      - onet_apprenticeship
+      - onet_education
+      - onet_job_zone
+  - title: Technology endpoints
+    contents:
+      - onet_hot_technology
+      - onet_technology
+      - onet_technology_skills
+      - onet_in_demand_skills
+  - title: Database tables
+    contents:
+      - onet_tables
+      - onet_table_info
+      - onet_table
+  - title: Crosswalks and taxonomy
+    contents:
+      - onet_crosswalk_military
+      - onet_taxonomy_map
+  - title: BLS OEWS wage and employment context
+    contents:
+      - onet_oews
+      - onet_oews_national
+      - onet_oews_state
+      - onet_oews_metro
+      - onet_oews_industry
+      - onet_join_oews
+      - onet_weighted_summary
+      - onet_pums_employment_weights
+
+articles:
+  - title: Articles
+    navbar: ~
+    contents:
+      - getting-started
+      - oews-wage-context
+      - output-validation

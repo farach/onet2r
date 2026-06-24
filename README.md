@@ -11,11 +11,18 @@
 -   🗄️ **Access database tables** with automatic pagination
 -   🔄 **Perform crosswalks** between military codes and civilian occupations
 -   📈 **Map taxonomies** between O\*NET-SOC versions
+-   💵 **Join BLS OEWS wages and employment** to O\*NET occupations
 -   ✅ **Consistent tibble outputs** with snake_case columns and stable empty schemas
 -   🔁 **Automatic retry logic** for rate limits (HTTP 429) and transient server errors
 -   📝 **Type-safe schemas** with validated empty result handling
 
 ## 📦 Installation
+
+Install the released version from CRAN:
+
+``` r
+install.packages("onet2r")
+```
 
 Install the development version from GitHub:
 
@@ -129,7 +136,19 @@ onet_technology_skills("15-1252.00", end = 2)
 | `onet_tables()`     | List available tables                |
 | `onet_table_info()` | Get table column info                |
 | `onet_table()`      | Retrieve full table (auto-paginated) |
-| `onet_table_page()` | Retrieve single page                 |
+
+### Labor Market Data
+
+| Function               | Description                                    |
+|------------------------|------------------------------------------------|
+| `onet_oews()`          | Download national/state/metro/industry OEWS estimates |
+| `onet_oews_national()` | Download national BLS OEWS wage/employment estimates |
+| `onet_oews_state()`    | Download state BLS OEWS estimates             |
+| `onet_oews_metro()`    | Download metro-area BLS OEWS estimates        |
+| `onet_oews_industry()` | Download industry BLS OEWS estimates          |
+| `onet_join_oews()`     | Join O\*NET occupation data to OEWS estimates  |
+| `onet_weighted_summary()` | Employment/wage-weighted O\*NET summaries  |
+| `onet_pums_employment_weights()` | Convert PUMS records to SOC employment weights |
 
 ### Crosswalks & Taxonomy
 
@@ -166,6 +185,26 @@ codes <- c("15-2051.00", "15-1252.00")
 all_skills <- codes |>
   purrr::map(\(code) onet_skills_all(code, show_progress = FALSE) |> dplyr::mutate(code = code)) |>
   purrr::list_rbind()
+
+# Join BLS OEWS national employment and wage estimates
+oews <- onet_oews_national(2024)
+wage_context <- all_occupations |>
+  onet_join_oews(oews = oews)
+
+# If BLS rate-limits automated downloads, download the ZIP manually from
+# the BLS OEWS public data pages and pass the local file path:
+oews <- onet_oews_national(2024, path = "oesm24nat.zip")
+
+# Compute employment-weighted skill summaries
+weighted_skills <- all_skills |>
+  onet_weighted_summary(
+    group = c("element_id", "element_name"),
+    value = "data_value",
+    oews = oews
+  )
+
+# Convert ACS/CPS PUMS records to occupation employment weights
+pums_weights <- onet_pums_employment_weights(pums, socp = "SOCP", weight = "PWGTP")
 ```
 
 ## 📊 What You Get
@@ -214,6 +253,9 @@ onet_search("xyzabc123nonexistent")
 | Store API key in `.Renviron`           | Keeps credentials out of scripts |
 | Use `start`/`end` for pagination       | Smaller, faster requests         |
 | Prefer detail endpoints over summaries | Structured data for analysis     |
+| Use `onet_join_oews()` for wage context | Adds employment and wage weights |
+| Use `onet_cache_use()` for repeated pulls | Avoids repeated identical API calls |
+| Use `onet_rate_limit()` for bulk pulls | Adds polite request spacing |
 
 ## 📚 Getting Help
 
