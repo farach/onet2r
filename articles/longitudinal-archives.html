@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Longitudinal O*NET Archive Analysis • onet2r</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -22,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,9 +42,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O&amp;#42;NET Is Hard</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
@@ -59,8 +66,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Longitudinal O*NET Archive Analysis</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Longitudinal O*NET Archive Analysis</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/longitudinal-archives.Rmd" class="external-link"><code>vignettes/longitudinal-archives.Rmd</code></a></small>
@@ -139,21 +145,38 @@ you want a reproducible, offline workflow.</p>
 <span>  release_date <span class="op">=</span> <span class="va">release_dates</span><span class="op">[[</span><span class="st">"30.3"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">abilities_303</span>, <span class="fl">8</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 18</span></span></span>
-<span><span class="co">#&gt;   release_version release_date soc_vintage domain   onet_soc_code soc_code title</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30.3            2026-05-01   2019        Abiliti… 15-1252.00    15-1252  Soft…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30.3            2026-05-01   2019        Abiliti… 15-1252.00    15-1252  Soft…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30.3            2026-05-01   2019        Abiliti… 29-1141.00    29-1141  Regi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30.3            2026-05-01   2019        Abiliti… 29-1141.00    29-1141  Regi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 30.3            2026-05-01   2019        Abiliti… 11-1011.00    11-1011  Chie…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 30.3            2026-05-01   2019        Abiliti… 11-1011.00    11-1011  Chie…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 30.3            2026-05-01   2019        Abiliti… 41-1011.00    41-1011  Firs…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 11 more variables: element_id &lt;chr&gt;, element_name &lt;chr&gt;, scale_id &lt;fct&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   data_value &lt;dbl&gt;, n &lt;int&gt;, standard_error &lt;dbl&gt;, lower_ci_bound &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   upper_ci_bound &lt;dbl&gt;, recommend_suppress &lt;chr&gt;, source_date &lt;date&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   domain_source &lt;fct&gt;</span></span></span></code></pre></div>
+<span><span class="va">abilities_303</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">release_version</span>,</span>
+<span>    <span class="va">onet_soc_code</span>,</span>
+<span>    <span class="va">soc_code</span>,</span>
+<span>    <span class="va">element_id</span>,</span>
+<span>    <span class="va">element_name</span>,</span>
+<span>    <span class="va">data_value</span>,</span>
+<span>    <span class="va">source_date</span>,</span>
+<span>    <span class="va">domain_source</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 8</span></span></span>
+<span><span class="co">#&gt;   release_version onet_soc_code soc_code element_id element_name       </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30.3            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30.3            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30.3            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30.3            29-1141.00    29-1141  1.A.1.b.1  Problem Sensitivity</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 30.3            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 30.3            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 30.3            41-1011.00    41-1011  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt;   data_value source_date domain_source</span></span>
+<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>       4.35 2025-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>       4.5  2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>       4.71 2025-08-01  Incumbent    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>       4.9  2024-08-01  Incumbent    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>       4.5  2025-07-01  Incumbent    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>       4.22 2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span>       4.15 2025-06-01  Analyst</span></span></code></pre></div>
 <p>The output has one row per occupation, element, scale, and release.
 The important longitudinal fields are:</p>
 <ul>
@@ -186,24 +209,43 @@ row-binds the normalized outputs.</p>
 <span></span>
 <span><span class="va">panel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">element_id</span>, <span class="va">release_version</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 18</span></span></span>
-<span><span class="co">#&gt;    release_version release_date soc_vintage domain  onet_soc_code soc_code title</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 30.2            2026-02-01   2019        Abilit… 11-1011.00    11-1011  Chie…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 30.3            2026-05-01   2019        Abilit… 11-1011.00    11-1011  Chie…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 30.2            2026-02-01   2019        Abilit… 11-1011.00    11-1011  Chie…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 30.3            2026-05-01   2019        Abilit… 11-1011.00    11-1011  Chie…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 30.2            2026-02-01   2019        Abilit… 15-1252.00    15-1252  Soft…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 30.3            2026-05-01   2019        Abilit… 15-1252.00    15-1252  Soft…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 30.2            2026-02-01   2019        Abilit… 15-1252.00    15-1252  Soft…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 30.3            2026-05-01   2019        Abilit… 15-1252.00    15-1252  Soft…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 30.2            2026-02-01   2019        Abilit… 29-1141.00    29-1141  Regi…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 30.3            2026-05-01   2019        Abilit… 29-1141.00    29-1141  Regi…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 11 more variables: element_id &lt;chr&gt;, element_name &lt;chr&gt;, scale_id &lt;fct&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   data_value &lt;dbl&gt;, n &lt;int&gt;, standard_error &lt;dbl&gt;, lower_ci_bound &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   upper_ci_bound &lt;dbl&gt;, recommend_suppress &lt;chr&gt;, source_date &lt;date&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   domain_source &lt;fct&gt;</span></span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">release_version</span>,</span>
+<span>    <span class="va">onet_soc_code</span>,</span>
+<span>    <span class="va">soc_code</span>,</span>
+<span>    <span class="va">element_id</span>,</span>
+<span>    <span class="va">element_name</span>,</span>
+<span>    <span class="va">data_value</span>,</span>
+<span>    <span class="va">source_date</span>,</span>
+<span>    <span class="va">domain_source</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 8</span></span></span>
+<span><span class="co">#&gt;    release_version onet_soc_code soc_code element_id element_name       </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 30.2            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 30.3            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 30.2            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 30.3            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 30.2            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 30.3            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 30.2            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 30.3            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 30.2            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 30.3            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension </span></span>
+<span><span class="co">#&gt;    data_value source_date domain_source</span></span>
+<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>       4.38 2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>       4.5  2025-07-01  Incumbent    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>       4.22 2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>       4.22 2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       4.12 2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>       4.35 2025-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>       4.5  2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>       4.5  2024-07-01  Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>       4.71 2024-08-01  Incumbent    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       4.71 2025-08-01  Incumbent</span></span></code></pre></div>
 <p>This is the table you would save as your audit trail before doing any
 modeling. It records the exact versions, values, and source dates used
 in the comparison.</p>
@@ -220,11 +262,24 @@ same-vintage comparisons. For real cross-vintage work, use
 O*NET-SOC crosswalks.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span></span>
-<span><span class="va">bridge</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 0 × 9</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 9 variables: from_vintage &lt;fct&gt;, to_vintage &lt;fct&gt;, from_soc_code &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   to_soc_code &lt;chr&gt;, from_title &lt;chr&gt;, to_title &lt;chr&gt;, step_count &lt;int&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   map_type &lt;fct&gt;, crosswalk_weight &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="va">bridge_schema</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  column <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bridge</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">bridge</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">bridge_schema</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 2</span></span></span>
+<span><span class="co">#&gt;   column           type     </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> from_vintage     factor   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> to_vintage       factor   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> from_soc_code    character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> to_soc_code      character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> from_title       character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> to_title         character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> step_count       integer  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> map_type         factor   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span> crosswalk_weight numeric</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reconcile-adjacent-releases">Reconcile Adjacent Releases<a class="anchor" aria-label="anchor" href="#reconcile-adjacent-releases"></a>
@@ -249,7 +304,8 @@ classifies each matched occupation-element-scale pair.</p>
 <span>    <span class="va">safely_comparable</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 11</span></span></span>
 <span><span class="co">#&gt;   from_soc_code to_soc_code element_name        from_value to_value value_change</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -260,8 +316,24 @@ classifies each matched occupation-element-scale pair.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 15-1252       15-1252     Problem Sensitivity       4.5      4.5         0    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 29-1141       29-1141     Oral Comprehension        4.71     4.71        0    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 11-1011       11-1011     Problem Sensitivity       4.22     4.22        0    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: from_source_date &lt;date&gt;, to_source_date &lt;date&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   change_type &lt;fct&gt;, method_break &lt;lgl&gt;, safely_comparable &lt;lgl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   from_source_date to_source_date change_type           method_break</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2024-08-01       2024-08-01     recode_or_recalc_flag FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2024-07-01       2025-07-01     real_update           FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2024-06-01       2025-06-01     real_update           FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2024-07-01       2025-07-01     real_update           TRUE        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2024-07-01       2024-07-01     stale_carryforward    FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 2024-08-01       2025-08-01     resampled_stable      FALSE       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 2024-07-01       2024-07-01     stale_carryforward    FALSE       </span></span>
+<span><span class="co">#&gt;   safely_comparable</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> TRUE             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> TRUE             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> TRUE             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> TRUE             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> TRUE</span></span></code></pre></div>
 <p>Read the <code>change_type</code> column before interpreting
 <code>value_change</code>:</p>
 <table class="table">
@@ -329,15 +401,21 @@ change is safe to compare.</p>
 <span>    <span class="va">change_type</span>,</span>
 <span>    <span class="va">method_break</span>,</span>
 <span>    <span class="va">safely_comparable</span></span>
-<span>  <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 8</span></span></span>
-<span><span class="co">#&gt;   to_soc_code element_name        from_value to_value value_change change_type  </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 29-1141     Problem Sensitivity       4.6      4.9         0.300 recode_or_re…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 11-1011     Oral Comprehension        4.38     4.5         0.120 real_update  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-1252     Oral Comprehension        4.12     4.35        0.230 real_update  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011     Oral Comprehension        4        4.15        0.150 real_update  </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: method_break &lt;lgl&gt;, safely_comparable &lt;lgl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   to_soc_code element_name        from_value to_value value_change</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 29-1141     Problem Sensitivity       4.6      4.9         0.300</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 11-1011     Oral Comprehension        4.38     4.5         0.120</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-1252     Oral Comprehension        4.12     4.35        0.230</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011     Oral Comprehension        4        4.15        0.150</span></span>
+<span><span class="co">#&gt;   change_type           method_break safely_comparable</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> recode_or_recalc_flag FALSE        FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> real_update           TRUE         FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> real_update           FALSE        TRUE             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> real_update           FALSE        TRUE</span></span></code></pre></div>
 <p>This is the table a researcher should inspect before making a claim
 such as “software developers require more oral comprehension than in the
 prior release.” The comparison is strongest when the value changed, the
@@ -350,18 +428,30 @@ source date changed, and no method or taxonomy warning is present.</p>
 reconciliation result. The job-family view is useful for spotting
 whether one part of the SOC taxonomy is driving the apparent change.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_change_summary.html">onet_change_summary</a></span><span class="op">(</span><span class="va">changes</span>, by <span class="op">=</span> <span class="st">"job_family"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_change_summary.html">onet_change_summary</a></span><span class="op">(</span><span class="va">changes</span>, by <span class="op">=</span> <span class="st">"job_family"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 10</span></span></span>
-<span><span class="co">#&gt;   summary_level job_family change_type     n_pairs share_pairs mean_value_change</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> overall       <span style="color: #BB0000;">NA</span>         real_update           7       1                0.114 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> job_family    11         stale_carryfor…       2       0.286            0.060<span style="text-decoration: underline;">0</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> job_family    15         stale_carryfor…       2       0.286            0.115 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> job_family    29         resampled_stab…       2       0.286            0.150 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> job_family    41         real_update           1       0.143            0.150 </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: median_abs_value_change &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   share_safely_comparable &lt;dbl&gt;, share_method_break &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   share_crosswalk_uncertain &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   summary_level job_family change_type        n_pairs share_pairs</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> overall       <span style="color: #BB0000;">NA</span>         real_update              7       1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> job_family    11         stale_carryforward       2       0.286</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> job_family    15         stale_carryforward       2       0.286</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> job_family    29         resampled_stable         2       0.286</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> job_family    41         real_update              1       0.143</span></span>
+<span><span class="co">#&gt;   mean_value_change median_abs_value_change share_safely_comparable</span></span>
+<span><span class="co">#&gt;               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            0.114                   0.120                    0.714</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>            0.060<span style="text-decoration: underline;">0</span>                  0.060<span style="text-decoration: underline;">0</span>                   0.5  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>            0.115                   0.115                    1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>            0.150                   0.150                    0.5  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>            0.150                   0.150                    1    </span></span>
+<span><span class="co">#&gt;   share_method_break share_crosswalk_uncertain</span></span>
+<span><span class="co">#&gt;                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>              0.143                         0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>              0.5                           0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>              0                             0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>              0                             0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>              0                             0</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="recommended-workflow-for-real-archive-work">Recommended Workflow for Real Archive Work<a class="anchor" aria-label="anchor" href="#recommended-workflow-for-real-archive-work"></a>

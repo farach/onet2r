@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Adding OEWS Wage and Employment Context • onet2r</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -22,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,9 +42,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O&amp;#42;NET Is Hard</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
@@ -59,8 +66,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Adding OEWS Wage and Employment Context</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Adding OEWS Wage and Employment Context</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/oews-wage-context.Rmd" class="external-link"><code>vignettes/oews-wage-context.Rmd</code></a></small>
@@ -213,13 +219,17 @@ level.</p>
 <span>  oews <span class="op">=</span> <span class="va">oews</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">weighted_abilities</span></span>
+<span><span class="va">weighted_abilities</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 7</span></span></span>
-<span><span class="co">#&gt;   element_id element_name     n_records n_occupations total_weight weighted_mean</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.A.1.a.1  Oral Comprehens…         3             3      5<span style="text-decoration: underline;">234</span>530          4.57</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1.A.1.b.1  Problem Sensiti…         3             3      5<span style="text-decoration: underline;">234</span>530          4.73</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: wage_weighted_mean &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   element_id element_name        n_records n_occupations total_weight</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.A.1.a.1  Oral Comprehension          3             3      5<span style="text-decoration: underline;">234</span>530</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1.A.1.b.1  Problem Sensitivity         3             3      5<span style="text-decoration: underline;">234</span>530</span></span>
+<span><span class="co">#&gt;   weighted_mean wage_weighted_mean</span></span>
+<span><span class="co">#&gt;           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>          4.57               4.54</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>          4.73               4.68</span></span></code></pre></div>
 <p>In this example, <code>n_occupations</code> is the number of O*NET
 occupations with a matching OEWS estimate for each ability row.
 <code>total_weight</code> is the summed OEWS employment used in the
@@ -246,17 +256,27 @@ rows to OEWS and sorts by employment-weighted ability contribution.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">weighted_value</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ability_context</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ability_context</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 7</span></span></span>
-<span><span class="co">#&gt;   onet_soc_code title    element_name data_value tot_emp a_median weighted_value</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 29-1141.00    Registe… Problem Sen…       4.9  3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070      15<span style="text-decoration: underline;">559</span>460 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00    Registe… Oral Compre…       4.71 3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070      14<span style="text-decoration: underline;">956</span>134 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-1252.00    Softwar… Problem Sen…       4.5  1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080       8<span style="text-decoration: underline;">315</span>550 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 15-1252.00    Softwar… Oral Compre…       4.35 1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080       8<span style="text-decoration: underline;">038</span>365 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 11-1011.00    Chief E… Oral Compre…       4.5   <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680        <span style="text-decoration: underline;">950</span>535 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 11-1011.00    Chief E… Problem Sen…       4.22  <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680        <span style="text-decoration: underline;">891</span>391.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 41-1011.00    First-L… Oral Compre…       4.15      <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   onet_soc_code title                                         </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 29-1141.00    Registered Nurses                             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00    Registered Nurses                             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-1252.00    Software Developers                           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 15-1252.00    Software Developers                           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 11-1011.00    Chief Executives                              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 11-1011.00    Chief Executives                              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 41-1011.00    First-Line Supervisors of Retail Sales Workers</span></span>
+<span><span class="co">#&gt;   element_name        data_value tot_emp a_median weighted_value</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Problem Sensitivity       4.9  3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070      15<span style="text-decoration: underline;">559</span>460 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Oral Comprehension        4.71 3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070      14<span style="text-decoration: underline;">956</span>134 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Problem Sensitivity       4.5  1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080       8<span style="text-decoration: underline;">315</span>550 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Oral Comprehension        4.35 1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080       8<span style="text-decoration: underline;">038</span>365 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Oral Comprehension        4.5   <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680        <span style="text-decoration: underline;">950</span>535 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> Problem Sensitivity       4.22  <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680        <span style="text-decoration: underline;">891</span>391.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> Oral Comprehension        4.15      <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
 <p>This table is not a causal estimate. It is a screening tool. It helps
 answer questions such as: “Which O*NET ability ratings are attached to
 the most workers?” or “Which occupations should we inspect first when

@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Why Longitudinal O*NET Analysis Is Hard • onet2r</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -22,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,9 +42,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O&amp;#42;NET Is Hard</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
@@ -59,8 +66,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Why Longitudinal O*NET Analysis Is Hard</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Why Longitudinal O*NET Analysis Is Hard</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/longitudinal-onet-background.Rmd" class="external-link"><code>vignettes/longitudinal-onet-background.Rmd</code></a></small>
@@ -148,11 +154,24 @@ studies, inspect <code>map_type</code>, <code>crosswalk_weight</code>,
 and <code>crosswalk_uncertain</code> before making claims about
 occupational change.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 0 × 9</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 9 variables: from_vintage &lt;fct&gt;, to_vintage &lt;fct&gt;, from_soc_code &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   to_soc_code &lt;chr&gt;, from_title &lt;chr&gt;, to_title &lt;chr&gt;, step_count &lt;int&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   map_type &lt;fct&gt;, crosswalk_weight &lt;dbl&gt;</span></span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span></span>
+<span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  column <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bridge</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">bridge</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 2</span></span></span>
+<span><span class="co">#&gt;   column           type     </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> from_vintage     factor   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> to_vintage       factor   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> from_soc_code    character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> to_soc_code      character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> from_title       character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> to_title         character</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> step_count       integer  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> map_type         factor   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span> crosswalk_weight numeric</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="a-release-to-release-change-may-not-be-a-true-content-change">3. A Release-to-Release “Change” May Not Be a True Content
@@ -172,7 +191,8 @@ cautions.</p>
 <span></span>
 <span><span class="va">changes</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">value_changed</span>, <span class="va">date_changed</span>, <span class="va">change_type</span>, <span class="va">safely_comparable</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">change_type</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">change_type</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
 <span><span class="co">#&gt;   value_changed date_changed change_type           safely_comparable</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>

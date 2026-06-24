@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Access O*NET Web Services API data from R • onet2r</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -13,10 +18,11 @@
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Access O*NET Web Services API data from R">
-<meta name="description" content="A tidyverse-first toolkit for O&amp;#42;NET Web Services, archived O&amp;#42;NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
+<meta name="description" content="A tidyverse-first toolkit for O*NET Web Services, archived O*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
 ">
-<meta property="og:description" content="A tidyverse-first toolkit for O&amp;#42;NET Web Services, archived O&amp;#42;NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
+<meta property="og:description" content="A tidyverse-first toolkit for O*NET Web Services, archived O*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
 ">
+<meta property="og:image" content="https://farach.github.io/onet2r/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -26,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,9 +47,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="articles/longitudinal-onet-background.html">Why Longitudinal O&amp;#42;NET Is Hard</a></li>
+    <li><a class="dropdown-item" href="articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
     <li><a class="dropdown-item" href="articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
@@ -59,531 +67,274 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="onet2r">onet2r<a class="anchor" aria-label="anchor" href="#onet2r"></a>
-</h1></div>
-<p><strong>onet2r</strong> is a modern, tidyverse-first R client for the <a href="https://services.onetcenter.org/" class="external-link">O*NET Web Services API v2</a>. It provides a clean, consistent, analysis-ready interface to U.S. occupational data, archived O*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.</p>
-<p>🔗 <strong>API Base URL:</strong> <a href="https://api-v2.onetcenter.org" class="external-link uri">https://api-v2.onetcenter.org</a></p>
-<p>📘 <strong>Package site:</strong> <a href="https://farach.github.io/onet2r/" class="uri">https://farach.github.io/onet2r/</a></p>
-<div class="section level2">
-<h2 id="id_-features">✨ Features<a class="anchor" aria-label="anchor" href="#id_-features"></a>
-</h2>
-<ul>
-<li>🔍 <strong>Search occupations</strong> by keyword or O*NET-SOC code</li>
-<li>📊 <strong>Retrieve occupation details</strong> — skills, knowledge, abilities, tasks, and hot technologies</li>
-<li>🗄️ <strong>Access database tables</strong> with automatic pagination</li>
-<li>🔄 <strong>Perform crosswalks</strong> between military codes and civilian occupations</li>
-<li>📈 <strong>Map taxonomies</strong> between O*NET-SOC versions</li>
-<li>💵 <strong>Join BLS OEWS wages and employment</strong> to O*NET occupations</li>
-<li>🕰️ <strong>Build longitudinal archive panels</strong> across O*NET database releases</li>
-<li>🧭 <strong>Classify release-to-release changes</strong> as true updates, resampling, carryforwards, or recodes</li>
-<li>✅ <strong>Consistent tibble outputs</strong> with snake_case columns and stable empty schemas</li>
-<li>🔁 <strong>Automatic retry logic</strong> for rate limits (HTTP 429) and transient server errors</li>
-<li>📝 <strong>Type-safe schemas</strong> with validated empty result handling</li>
-</ul>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="onet2r-">onet2r <a class="anchor" aria-label="anchor" href="#onet2r-"></a>
+</h1>
 </div>
+<p><code>onet2r</code> is an R package for working with O*NET Web Services, archived O*NET database releases, O*NET-SOC taxonomy bridges, and BLS OEWS wage and employment context.</p>
+<p>The package is built for two related jobs. First, it gives analysts tidy access to current O*NET occupation data. Second, it provides reproducible plumbing for researchers who bring their own occupation or task measure and need to validate keys, weight occupations, compare O*NET releases, and record provenance.</p>
 <div class="section level2">
-<h2 id="id_-installation">📦 Installation<a class="anchor" aria-label="anchor" href="#id_-installation"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the released version from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"onet2r"</span><span class="op">)</span></span></code></pre></div>
-<p>Install the development version from GitHub:</p>
+<p>You can install the development version from GitHub:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"farach/onet2r"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="id_-authentication">🔐 Authentication<a class="anchor" aria-label="anchor" href="#id_-authentication"></a>
+<h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a>
 </h2>
-<p>O*NET API requests require an API key. <a href="https://services.onetcenter.org/developer/" class="external-link">Register for a free key here</a>.</p>
-<p><strong>Recommended:</strong> Store your key in <code>.Renviron</code> for persistence across sessions:</p>
+<p>Live O*NET API calls require a free API key from <a href="https://services.onetcenter.org/developer/" class="external-link uri">https://services.onetcenter.org/developer/</a>. Store it in <code>.Renviron</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html" class="external-link">edit_r_environ</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Add this line:</p>
-<pre class="text"><code><span><span class="va">ONET_API_KEY</span><span class="op">=</span><span class="va">your</span><span class="op">-</span><span class="va">api</span><span class="op">-</span><span class="va">key</span><span class="op">-</span><span class="va">here</span></span></code></pre>
-<p>Restart R to load the environment variable.</p>
-<p><strong>Alternative:</strong> Set for the current session only:</p>
+<code class="sourceCode R"><span><span class="va">ONET_API_KEY</span><span class="op">=</span><span class="va">your</span><span class="op">-</span><span class="va">api</span><span class="op">-</span><span class="va">key</span><span class="op">-</span><span class="va">here</span></span></code></pre></div>
+<p>The archive, OEWS fixture, and measure examples below run without a key.</p>
+</div>
+<div class="section level2">
+<h2 id="read-archived-onet-releases">Read archived O*NET releases<a class="anchor" aria-label="anchor" href="#read-archived-onet-releases"></a>
+</h2>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>ONET_API_KEY <span class="op">=</span> <span class="st">"your-api-key-here"</span><span class="op">)</span></span></code></pre></div>
-<p>Verify your key is configured:</p>
+<code class="sourceCode R"><span><span class="va">archive_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"onet-mini"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
+<span><span class="va">archives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  `30.2` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">archive_base</span>, <span class="st">"db_30_2_text"</span><span class="op">)</span>,</span>
+<span>  `30.3` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">archive_base</span>, <span class="st">"db_30_3_text"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">release_dates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`30.2` <span class="op">=</span> <span class="st">"2026-02-01"</span>, `30.3` <span class="op">=</span> <span class="st">"2026-05-01"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">abilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Abilities"</span>,</span>
+<span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"30.2"</span>, <span class="st">"30.3"</span><span class="op">)</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"IM"</span>,</span>
+<span>  archives <span class="op">=</span> <span class="va">archives</span>,</span>
+<span>  release_dates <span class="op">=</span> <span class="va">release_dates</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">abilities</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">release_version</span>, <span class="va">onet_soc_code</span>, <span class="va">soc_code</span>, <span class="va">element_name</span>, <span class="va">data_value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 5</span></span>
+<span><span class="co">#&gt;   release_version onet_soc_code soc_code element_name        data_value</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;           &lt;chr&gt;         &lt;chr&gt;    &lt;chr&gt;                    &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 30.2            15-1252.00    15-1252  Oral Comprehension        4.12</span></span>
+<span><span class="co">#&gt; 2 30.2            15-1252.00    15-1252  Problem Sensitivity       4.5</span></span>
+<span><span class="co">#&gt; 3 30.2            29-1141.00    29-1141  Oral Comprehension        4.71</span></span>
+<span><span class="co">#&gt; 4 30.2            29-1141.00    29-1141  Problem Sensitivity       4.6</span></span>
+<span><span class="co">#&gt; 5 30.2            11-1011.00    11-1011  Oral Comprehension        4.38</span></span>
+<span><span class="co">#&gt; 6 30.2            11-1011.00    11-1011  Problem Sensitivity       4.22</span></span></code></pre></div>
+<p>O*NET-SOC remains at the 8-digit detail level in <code>onet_soc_code</code>. The six-digit <code>soc_code</code> is kept for employment joins.</p>
+</div>
+<div class="section level2">
+<h2 id="reconcile-changes-across-releases">Reconcile changes across releases<a class="anchor" aria-label="anchor" href="#reconcile-changes-across-releases"></a>
+</h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/onet_api_key.html">onet_api_key</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">bridge</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  from_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
+<span>  to_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
+<span>  from_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">abilities</span><span class="op">$</span><span class="va">onet_soc_code</span><span class="op">)</span>,</span>
+<span>  to_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">abilities</span><span class="op">$</span><span class="va">onet_soc_code</span><span class="op">)</span>,</span>
+<span>  from_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">abilities</span><span class="op">$</span><span class="va">soc_code</span><span class="op">)</span>,</span>
+<span>  to_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">abilities</span><span class="op">$</span><span class="va">soc_code</span><span class="op">)</span>,</span>
+<span>  map_type <span class="op">=</span> <span class="st">"one_to_one"</span>,</span>
+<span>  crosswalk_weight <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">abilities</span>, <span class="va">bridge</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">from_onet_soc_code</span>,</span>
+<span>    <span class="va">to_onet_soc_code</span>,</span>
+<span>    <span class="va">element_name</span>,</span>
+<span>    <span class="va">from_value</span>,</span>
+<span>    <span class="va">to_value</span>,</span>
+<span>    <span class="va">change_type</span>,</span>
+<span>    <span class="va">safely_comparable</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 × 7</span></span>
+<span><span class="co">#&gt;   from_onet_soc_code to_onet_soc_code element_name        from_value to_value</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;              &lt;chr&gt;            &lt;chr&gt;                    &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 15-1252.00         15-1252.00       Oral Comprehension        4.12     4.35</span></span>
+<span><span class="co">#&gt; 2 15-1252.00         15-1252.00       Problem Sensitivity       4.5      4.5</span></span>
+<span><span class="co">#&gt; 3 29-1141.00         29-1141.00       Oral Comprehension        4.71     4.71</span></span>
+<span><span class="co">#&gt; 4 29-1141.00         29-1141.00       Problem Sensitivity       4.6      4.9</span></span>
+<span><span class="co">#&gt; 5 11-1011.00         11-1011.00       Oral Comprehension        4.38     4.5</span></span>
+<span><span class="co">#&gt; 6 11-1011.00         11-1011.00       Problem Sensitivity       4.22     4.22</span></span>
+<span><span class="co">#&gt;   change_type           safely_comparable</span></span>
+<span><span class="co">#&gt;   &lt;fct&gt;                 &lt;lgl&gt;</span></span>
+<span><span class="co">#&gt; 1 real_update           TRUE</span></span>
+<span><span class="co">#&gt; 2 stale_carryforward    TRUE</span></span>
+<span><span class="co">#&gt; 3 resampled_stable      TRUE</span></span>
+<span><span class="co">#&gt; 4 recode_or_recalc_flag FALSE</span></span>
+<span><span class="co">#&gt; 5 real_update           FALSE</span></span>
+<span><span class="co">#&gt; 6 stale_carryforward    TRUE</span></span></code></pre></div>
+<p>Rows marked as transition data, suppressed estimates, new content, or dropped content are visible in <code>change_type</code>. They are not counted as safely comparable updates.</p>
 </div>
 <div class="section level2">
-<h2 id="id_-quick-start">🚀 Quick Start<a class="anchor" aria-label="anchor" href="#id_-quick-start"></a>
+<h2 id="bring-your-own-task-measure">Bring your own task measure<a class="anchor" aria-label="anchor" href="#bring-your-own-task-measure"></a>
 </h2>
+<p>The package does not ship an AI exposure score or any other substantive measure. You supply a score, and <code>onet2r</code> validates and carries the plumbing.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
+<span>  <span class="st">"30.3"</span>,</span>
+<span>  <span class="st">"Task Statements"</span>,</span>
+<span>  path <span class="op">=</span> <span class="va">archives</span><span class="op">[[</span><span class="st">"30.3"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  release_date <span class="op">=</span> <span class="st">"2026-05-01"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">task_ratings</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
+<span>  <span class="st">"30.3"</span>,</span>
+<span>  <span class="st">"Task Ratings"</span>,</span>
+<span>  path <span class="op">=</span> <span class="va">archives</span><span class="op">[[</span><span class="st">"30.3"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  release_date <span class="op">=</span> <span class="st">"2026-05-01"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Search for occupations</span></span>
-<span><span class="fu"><a href="reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"software developer"</span><span class="op">)</span></span>
+<span><span class="va">task_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  task_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1001"</span>, <span class="st">"1002"</span>, <span class="st">"2001"</span><span class="op">)</span>,</span>
+<span>  score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.80</span>, <span class="fl">0.40</span>, <span class="fl">0.20</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># List occupations (paged)</span></span>
-<span><span class="va">occ</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_occupations.html">onet_occupations</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
+<span><span class="va">measure</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_measure.html">onet_measure</a></span><span class="op">(</span></span>
+<span>  <span class="va">task_scores</span>,</span>
+<span>  key <span class="op">=</span> <span class="st">"task_id"</span>,</span>
+<span>  score <span class="op">=</span> <span class="st">"score"</span>,</span>
+<span>  key_type <span class="op">=</span> <span class="st">"task"</span>,</span>
+<span>  universe <span class="op">=</span> <span class="va">tasks</span><span class="op">$</span><span class="va">task_id</span>,</span>
+<span>  measure_id <span class="op">=</span> <span class="st">"stylized_task_score"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Get occupation summary</span></span>
-<span><span class="fu"><a href="reference/onet_occupation.html">onet_occupation</a></span><span class="op">(</span><span class="st">"15-1252.00"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Retrieve structured details (returns tibbles)</span></span>
-<span><span class="fu"><a href="reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/onet_knowledge.html">onet_knowledge</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/onet_abilities.html">onet_abilities</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/onet_tasks.html">onet_tasks</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Technology endpoints</span></span>
-<span><span class="fu"><a href="reference/onet_hot_technology.html">onet_hot_technology</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/onet_technology_skills.html">onet_technology_skills</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, end <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="id_-api-coverage">📋 API Coverage<a class="anchor" aria-label="anchor" href="#id_-api-coverage"></a>
-</h2>
-<div class="section level3">
-<h3 id="occupations">Occupations<a class="anchor" aria-label="anchor" href="#occupations"></a>
-</h3>
-<table class="table">
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/onet_occupations.html">onet_occupations()</a></code></td>
-<td>List one page of occupations</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_occupations_all.html">onet_occupations_all()</a></code></td>
-<td>List all occupations</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_occupation.html">onet_occupation()</a></code></td>
-<td>Get occupation summary</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_occupation_details.html">onet_occupation_details()</a></code></td>
-<td>Get full occupation report</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_search.html">onet_search()</a></code></td>
-<td>Search occupations by keyword</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="occupation-details-tibble-outputs">Occupation Details (tibble outputs)<a class="anchor" aria-label="anchor" href="#occupation-details-tibble-outputs"></a>
-</h3>
-<table class="table">
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/onet_skills.html">onet_skills()</a></code></td>
-<td>Skills data</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_skills_all.html">onet_skills_all()</a></code></td>
-<td>All skills rows</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_knowledge.html">onet_knowledge()</a></code></td>
-<td>Knowledge areas</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_abilities.html">onet_abilities()</a></code></td>
-<td>Abilities</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_work_styles.html">onet_work_styles()</a></code></td>
-<td>Work styles</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_interests.html">onet_interests()</a></code></td>
-<td>Occupational interests</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_work_context.html">onet_work_context()</a></code></td>
-<td>Work context</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_work_context_all.html">onet_work_context_all()</a></code></td>
-<td>All work context rows</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_work_activities.html">onet_work_activities()</a></code></td>
-<td>Work activities</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_work_activities_all.html">onet_work_activities_all()</a></code></td>
-<td>All work activities rows</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_tasks.html">onet_tasks()</a></code></td>
-<td>Tasks</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_detailed_work_activities.html">onet_detailed_work_activities()</a></code></td>
-<td>Detailed work activities</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_related_occupations.html">onet_related_occupations()</a></code></td>
-<td>Related occupations</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_professional_associations.html">onet_professional_associations()</a></code></td>
-<td>Professional associations</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_apprenticeship.html">onet_apprenticeship()</a></code></td>
-<td>Apprenticeship info</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_education.html">onet_education()</a></code></td>
-<td>Education requirements</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_job_zone.html">onet_job_zone()</a></code></td>
-<td>Job zone (returns list)</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="technology">Technology<a class="anchor" aria-label="anchor" href="#technology"></a>
-</h3>
-<table class="table">
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/onet_hot_technology.html">onet_hot_technology()</a></code></td>
-<td>Hot technology skills</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_technology_skills.html">onet_technology_skills()</a></code></td>
-<td>Technology skills</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_in_demand_skills.html">onet_in_demand_skills()</a></code></td>
-<td>In-demand skills</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="database-tables">Database Tables<a class="anchor" aria-label="anchor" href="#database-tables"></a>
-</h3>
-<table class="table">
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/onet_tables.html">onet_tables()</a></code></td>
-<td>List available tables</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_table_info.html">onet_table_info()</a></code></td>
-<td>Get table column info</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_table.html">onet_table()</a></code></td>
-<td>Retrieve full table (auto-paginated)</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="labor-market-data">Labor Market Data<a class="anchor" aria-label="anchor" href="#labor-market-data"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="66%">
-</colgroup>
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/onet_oews.html">onet_oews()</a></code></td>
-<td>Download national/state/metro/industry OEWS estimates</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_oews_national.html">onet_oews_national()</a></code></td>
-<td>Download national BLS OEWS wage/employment estimates</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_oews_state.html">onet_oews_state()</a></code></td>
-<td>Download state BLS OEWS estimates</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_oews_metro.html">onet_oews_metro()</a></code></td>
-<td>Download metro-area BLS OEWS estimates</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_oews_industry.html">onet_oews_industry()</a></code></td>
-<td>Download industry BLS OEWS estimates</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_join_oews.html">onet_join_oews()</a></code></td>
-<td>Join O*NET occupation data to OEWS estimates</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_weighted_summary.html">onet_weighted_summary()</a></code></td>
-<td>Employment/wage-weighted O*NET summaries</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_pums_employment_weights.html">onet_pums_employment_weights()</a></code></td>
-<td>Convert PUMS records to SOC employment weights</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="crosswalks--taxonomy">Crosswalks &amp; Taxonomy<a class="anchor" aria-label="anchor" href="#crosswalks--taxonomy"></a>
-</h3>
-<table class="table">
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/onet_crosswalk_military.html">onet_crosswalk_military()</a></code></td>
-<td>Map military to civilian occupations</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge()</a></code></td>
-<td>Bridge O*NET-SOC taxonomy vintages</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_taxonomy_map.html">onet_taxonomy_map()</a></code></td>
-<td>Map between O*NET-SOC versions</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="longitudinal-archives">Longitudinal Archives<a class="anchor" aria-label="anchor" href="#longitudinal-archives"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="38%">
-<col width="61%">
-</colgroup>
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="reference/onet_releases.html">onet_releases()</a></code></td>
-<td>List downloadable O*NET database releases</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_archive_download.html">onet_archive_download()</a></code></td>
-<td>Download and cache text archive ZIP files</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_archive_read.html">onet_archive_read()</a></code></td>
-<td>Read archive tables into a panel schema</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_panel.html">onet_panel()</a></code></td>
-<td>Assemble release panels by archive table</td>
-</tr>
-<tr class="odd">
-<td><code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code></td>
-<td>Classify adjacent-release changes</td>
-</tr>
-<tr class="even">
-<td><code><a href="reference/onet_change_summary.html">onet_change_summary()</a></code></td>
-<td>Summarize change types by job family</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="section level2">
-<h2 id="id_-example-workflow">🔧 Example Workflow<a class="anchor" aria-label="anchor" href="#id_-example-workflow"></a>
-</h2>
-<p>A typical workflow: search → select → pull details.</p>
+<span><span class="fu"><a href="reference/onet_measure_coverage.html">onet_measure_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 6</span></span>
+<span><span class="co">#&gt;   key_type n_input n_universe n_matched coverage_share employment_coverage_share</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;      &lt;int&gt;      &lt;int&gt;     &lt;int&gt;          &lt;dbl&gt;                     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 task           3          3         3              1                        NA</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">occupation_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_task_to_occupation.html">onet_task_to_occupation</a></span><span class="op">(</span></span>
+<span>  <span class="va">measure</span>,</span>
+<span>  task_ratings <span class="op">=</span> <span class="va">task_ratings</span>,</span>
+<span>  task_metadata <span class="op">=</span> <span class="va">tasks</span>,</span>
+<span>  include_supplemental <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Find target occupation</span></span>
-<span><span class="va">target_code</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"data scientist"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">title</span> <span class="op">==</span> <span class="st">"Data Scientists"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">code</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Pull structured details</span></span>
-<span><span class="va">skills</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="va">target_code</span>, end <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
-<span><span class="va">tasks</span>  <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_tasks.html">onet_tasks</a></span><span class="op">(</span><span class="va">target_code</span>, end <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
-<span><span class="va">tech</span>   <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_hot_technology.html">onet_hot_technology</a></span><span class="op">(</span><span class="va">target_code</span>, end <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Pull complete occupation-level sections for downstream analysis</span></span>
-<span><span class="va">all_occupations</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_occupations_all.html">onet_occupations_all</a></span><span class="op">(</span>show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">all_skills</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_skills_all.html">onet_skills_all</a></span><span class="op">(</span><span class="va">target_code</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Combine skills from multiple occupations</span></span>
-<span><span class="va">codes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-2051.00"</span>, <span class="st">"15-1252.00"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">all_skills</span> <span class="op">&lt;-</span> <span class="va">codes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">code</span><span class="op">)</span> <span class="fu"><a href="reference/onet_skills_all.html">onet_skills_all</a></span><span class="op">(</span><span class="va">code</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>code <span class="op">=</span> <span class="va">code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">list_rbind</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Join BLS OEWS national employment and wage estimates</span></span>
-<span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span><span class="op">)</span></span>
-<span><span class="va">wage_context</span> <span class="op">&lt;-</span> <span class="va">all_occupations</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/onet_join_oews.html">onet_join_oews</a></span><span class="op">(</span>oews <span class="op">=</span> <span class="va">oews</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># If BLS rate-limits automated downloads, download the ZIP manually from</span></span>
-<span><span class="co"># the BLS OEWS public data pages and pass the local file path:</span></span>
-<span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span>, path <span class="op">=</span> <span class="st">"oesm24nat.zip"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Compute employment-weighted skill summaries</span></span>
-<span><span class="va">weighted_skills</span> <span class="op">&lt;-</span> <span class="va">all_skills</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="reference/onet_weighted_summary.html">onet_weighted_summary</a></span><span class="op">(</span></span>
-<span>    group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"element_id"</span>, <span class="st">"element_name"</span><span class="op">)</span>,</span>
-<span>    value <span class="op">=</span> <span class="st">"data_value"</span>,</span>
-<span>    oews <span class="op">=</span> <span class="va">oews</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Convert ACS/CPS PUMS records to occupation employment weights</span></span>
-<span><span class="va">pums_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_pums_employment_weights.html">onet_pums_employment_weights</a></span><span class="op">(</span><span class="va">pums</span>, socp <span class="op">=</span> <span class="st">"SOCP"</span>, weight <span class="op">=</span> <span class="st">"PWGTP"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">occupation_scores</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span><span class="co">#&gt;   onet_soc_code n_tasks total_task_weight measure_score soc_code</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;           &lt;int&gt;             &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; 1 15-1252.00          1                95           0.8 15-1252</span></span>
+<span><span class="co">#&gt; 2 29-1141.00          1                98           0.2 29-1141</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="id_-what-you-get">📊 What You Get<a class="anchor" aria-label="anchor" href="#id_-what-you-get"></a>
+<h2 id="add-employment-weights">Add employment weights<a class="anchor" aria-label="anchor" href="#add-employment-weights"></a>
 </h2>
-<div class="section level3">
-<h3 id="consistent-analysis-ready-outputs">Consistent, Analysis-Ready Outputs<a class="anchor" aria-label="anchor" href="#consistent-analysis-ready-outputs"></a>
-</h3>
-<p>Most endpoints return tibbles with:</p>
-<ul>
-<li>
-<strong>snake_case column names</strong> (e.g., <code>percentage_of_respondents</code>)</li>
-<li>
-<strong>Stable empty schemas</strong> (empty tibble with correct columns and types)</li>
-<li>
-<strong>Predictable pagination</strong> via <code>start</code>/<code>end</code> arguments</li>
-</ul>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/onet_education.html">onet_education</a></span><span class="op">(</span><span class="st">"15-1252.00"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 6 × 3</span></span>
-<span><span class="co">#&gt;   code  title                          percentage_of_respondents</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;                                              &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 6     Bachelor's degree                                   64.7</span></span>
-<span><span class="co">#&gt; 2 7     Master's degree                                     20.5</span></span>
-<span><span class="co">#&gt; …</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="informative-error-messages">Informative Error Messages<a class="anchor" aria-label="anchor" href="#informative-error-messages"></a>
-</h3>
+<code class="sourceCode R"><span><span class="va">oews_sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span></span>
+<span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"oews-national-sample.csv"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews_sample</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">weights</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 7</span></span>
+<span><span class="co">#&gt;   reference_soc_code  year employment weight_share source source_taxonomy</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;              &lt;int&gt;      &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC</span></span>
+<span><span class="co">#&gt; 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC</span></span>
+<span><span class="co">#&gt; 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC</span></span>
+<span><span class="co">#&gt;   reference_taxonomy</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; 1 2018 SOC</span></span>
+<span><span class="co">#&gt; 2 2018 SOC</span></span>
+<span><span class="co">#&gt; 3 2018 SOC</span></span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Missing API key</span></span>
-<span><span class="co">#&gt; Error: O*NET API key not found.</span></span>
-<span><span class="co">#&gt; ℹ Set your API key with `Sys.setenv(ONET_API_KEY = "your-key")`</span></span>
-<span><span class="co">#&gt; ℹ Get a key at &lt;https://services.onetcenter.org/developer/&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">aggregate</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
+<span>  <span class="va">occupation_scores</span>,</span>
+<span>  <span class="va">weights</span>,</span>
+<span>  measure_id <span class="op">=</span> <span class="st">"stylized_task_score"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Invalid occupation code</span></span>
-<span><span class="fu"><a href="reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="st">"invalid-code"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error: Invalid O*NET-SOC code format: "invalid-code"</span></span>
-<span><span class="co">#&gt; ℹ Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)</span></span>
-<span></span>
-<span><span class="co"># No results (returns empty tibble with correct schema)</span></span>
-<span><span class="fu"><a href="reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"xyzabc123nonexistent"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 0 × 2</span></span>
-<span><span class="co">#&gt; # ℹ 2 variables: code &lt;chr&gt;, title &lt;chr&gt;</span></span></code></pre></div>
-</div>
+<span><span class="va">aggregate</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span><span class="co">#&gt;   measure_id          aggregate total_employment covered_employment</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                   &lt;dbl&gt;            &lt;dbl&gt;              &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 stylized_task_score     0.421          5234530            5023300</span></span>
+<span><span class="co">#&gt;   employment_coverage_share n_occupations n_reference_soc</span></span>
+<span><span class="co">#&gt;                       &lt;dbl&gt;         &lt;int&gt;           &lt;int&gt;</span></span>
+<span><span class="co">#&gt; 1                     0.960             2               2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">aggregate</span>, <span class="st">"provenance"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $measure_id</span></span>
+<span><span class="co">#&gt; [1] "stylized_task_score"</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; $weight_source</span></span>
+<span><span class="co">#&gt; [1] "OEWS"</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; $weight_year</span></span>
+<span><span class="co">#&gt; [1] 2024</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; $source_taxonomy</span></span>
+<span><span class="co">#&gt; [1] "2018 SOC"</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; $reference_taxonomy</span></span>
+<span><span class="co">#&gt; [1] "2018 SOC"</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; $bridge_used</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="id_-best-practices">💡 Best Practices<a class="anchor" aria-label="anchor" href="#id_-best-practices"></a>
+<h2 id="decompose-aggregate-change">Decompose aggregate change<a class="anchor" aria-label="anchor" href="#decompose-aggregate-change"></a>
 </h2>
-<table class="table">
-<colgroup>
-<col width="65%">
-<col width="34%">
-</colgroup>
-<thead><tr class="header">
-<th>Practice</th>
-<th>Why</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>Store API key in <code>.Renviron</code>
-</td>
-<td>Keeps credentials out of scripts</td>
-</tr>
-<tr class="even">
-<td>Use <code>start</code>/<code>end</code> for pagination</td>
-<td>Smaller, faster requests</td>
-</tr>
-<tr class="odd">
-<td>Prefer detail endpoints over summaries</td>
-<td>Structured data for analysis</td>
-</tr>
-<tr class="even">
-<td>Use <code><a href="reference/onet_join_oews.html">onet_join_oews()</a></code> for wage context</td>
-<td>Adds employment and wage weights</td>
-</tr>
-<tr class="odd">
-<td>Use <code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code> for archive comparisons</td>
-<td>Separates real changes from carryforwards and recodes</td>
-</tr>
-<tr class="even">
-<td>Use <code><a href="reference/onet_cache_use.html">onet_cache_use()</a></code> for repeated pulls</td>
-<td>Avoids repeated identical API calls</td>
-</tr>
-<tr class="odd">
-<td>Use <code><a href="reference/onet_rate_limit.html">onet_rate_limit()</a></code> for bulk pulls</td>
-<td>Adds polite request spacing</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">from_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
+<span>  measure_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">2.0</span><span class="op">)</span>,</span>
+<span>  safely_comparable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">to_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
+<span>  measure_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.0</span>, <span class="fl">2.5</span><span class="op">)</span>,</span>
+<span>  safely_comparable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">from_weights</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
+<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">to_weights</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
+<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">decomp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_decompose_change.html">onet_decompose_change</a></span><span class="op">(</span><span class="va">from_scores</span>, <span class="va">to_scores</span>, <span class="va">from_weights</span>, <span class="va">to_weights</span><span class="op">)</span></span>
+<span><span class="va">decomp</span></span>
+<span><span class="co">#&gt; # A tibble: 5 × 2</span></span>
+<span><span class="co">#&gt;   component       value</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;           &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 within          0.5</span></span>
+<span><span class="co">#&gt; 2 between        -0.25</span></span>
+<span><span class="co">#&gt; 3 interaction     0.125</span></span>
+<span><span class="co">#&gt; 4 unclassifiable  0.25</span></span>
+<span><span class="co">#&gt; 5 total_change    0.625</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">decomp</span>, <span class="st">"coverage"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span><span class="co">#&gt;   n_common n_safely_comparable leakage</span></span>
+<span><span class="co">#&gt;      &lt;int&gt;               &lt;int&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1        2                   1       0</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="id_-getting-help">📚 Getting Help<a class="anchor" aria-label="anchor" href="#id_-getting-help"></a>
+<h2 id="main-function-groups">Main function groups<a class="anchor" aria-label="anchor" href="#main-function-groups"></a>
 </h2>
 <ul>
-<li>
-<strong>Package documentation:</strong> <code><a href="reference/onet2r-package.html">?onet2r</a></code> or <code><a href="reference/onet_search.html">?onet_search</a></code>
-</li>
-<li>
-<strong>Vignettes:</strong> <code>browseVignettes("onet2r")</code>
-</li>
-<li>
-<strong>O*NET API docs:</strong> <a href="https://services.onetcenter.org/reference/" class="external-link uri">https://services.onetcenter.org/reference/</a>
-</li>
-<li>
-<strong>Report issues:</strong> <a href="https://github.com/farach/onet2r/issues" class="external-link uri">https://github.com/farach/onet2r/issues</a>
-</li>
+<li>Current O*NET API data: <code><a href="reference/onet_search.html">onet_search()</a></code>, <code><a href="reference/onet_occupation.html">onet_occupation()</a></code>, <code><a href="reference/onet_skills.html">onet_skills()</a></code>, <code><a href="reference/onet_tasks.html">onet_tasks()</a></code>, <code><a href="reference/onet_table.html">onet_table()</a></code>.</li>
+<li>Archived O*NET data: <code><a href="reference/onet_releases.html">onet_releases()</a></code>, <code><a href="reference/onet_archive_download.html">onet_archive_download()</a></code>, <code><a href="reference/onet_archive_read.html">onet_archive_read()</a></code>, <code><a href="reference/onet_panel.html">onet_panel()</a></code>, <code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code>.</li>
+<li>Wage and employment context: <code><a href="reference/onet_oews_national.html">onet_oews_national()</a></code>, <code><a href="reference/onet_join_oews.html">onet_join_oews()</a></code>, <code><a href="reference/onet_weighted_summary.html">onet_weighted_summary()</a></code>, <code><a href="reference/onet_weight_panel_oews.html">onet_weight_panel_oews()</a></code>, <code><a href="reference/onet_weight_panel_pums.html">onet_weight_panel_pums()</a></code>.</li>
+<li>User-measure plumbing: <code><a href="reference/onet_measure.html">onet_measure()</a></code>, <code><a href="reference/onet_task_to_occupation.html">onet_task_to_occupation()</a></code>, <code><a href="reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code>, <code><a href="reference/onet_robustness_diagnostic.html">onet_robustness_diagnostic()</a></code>, <code><a href="reference/onet_decompose_change.html">onet_decompose_change()</a></code>.</li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="id_-contributing">🤝 Contributing<a class="anchor" aria-label="anchor" href="#id_-contributing"></a>
-</h2>
-<p>Issues and PRs are welcome!</p>
-<p>When adding a new endpoint:</p>
-<ul>
-<li>Return a tibble for record-list endpoints</li>
-<li>Include stable empty schemas</li>
-<li>Add roxygen documentation for all arguments</li>
-<li>Write minimal tests (smoke test + schema validation)</li>
-</ul>
-<p>Please note that onet2r is released with a <a href="https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html" class="external-link">Contributor Code of Conduct</a>. By contributing, you agree to abide by its terms.</p>
-</div>
-<div class="section level2">
-<h2 id="id_-license">📄 License<a class="anchor" aria-label="anchor" href="#id_-license"></a>
-</h2>
-<p>MIT © 2026 Alex Farach</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

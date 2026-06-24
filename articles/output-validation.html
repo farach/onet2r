@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Validating onet2r Outputs • onet2r</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -22,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,9 +42,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O&amp;#42;NET Is Hard</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
@@ -59,8 +66,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Validating onet2r Outputs</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Validating onet2r Outputs</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/output-validation.Rmd" class="external-link"><code>vignettes/output-validation.Rmd</code></a></small>
@@ -171,21 +177,32 @@ output.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> join adds normalized SOC code           TRUE  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> weighted summary has employment weights TRUE</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">joined</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">joined</span>, <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 9</span></span></span>
-<span><span class="co">#&gt;   code       title  soc_code  year oews_type occ_title tot_emp a_median h_median</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00 Softw… 15-1252   <span style="text-decoration: underline;">2</span>024 national  Software… 1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080     64.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00 Regis… 29-1141   <span style="text-decoration: underline;">2</span>024 national  Register… 3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070     44.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 11-1011.00 Chief… 11-1011   <span style="text-decoration: underline;">2</span>024 national  Chief Ex…  <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680     99.4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011.00 First… 41-1011     <span style="color: #BB0000;">NA</span> <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>             <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">weighted</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   code       title                                          soc_code  year</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00 Software Developers                            15-1252   <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00 Registered Nurses                              29-1141   <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 11-1011.00 Chief Executives                               11-1011   <span style="text-decoration: underline;">2</span>024</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011.00 First-Line Supervisors of Retail Sales Workers 41-1011     <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt;   oews_type occ_title           tot_emp a_median h_median</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> national  Software Developers 1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080     64.0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> national  Registered Nurses   3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070     44.8</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> national  Chief Executives     <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680     99.4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>                       <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">weighted</span>, <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 7</span></span></span>
-<span><span class="co">#&gt;   element_id element_name     n_records n_occupations total_weight weighted_mean</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.A.1.a.1  Oral Comprehens…         3             3      5<span style="text-decoration: underline;">234</span>530          4.57</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1.A.1.b.1  Problem Sensiti…         3             3      5<span style="text-decoration: underline;">234</span>530          4.73</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: wage_weighted_mean &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   element_id element_name        n_records n_occupations total_weight</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.A.1.a.1  Oral Comprehension          3             3      5<span style="text-decoration: underline;">234</span>530</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1.A.1.b.1  Problem Sensitivity         3             3      5<span style="text-decoration: underline;">234</span>530</span></span>
+<span><span class="co">#&gt;   weighted_mean wage_weighted_mean</span></span>
+<span><span class="co">#&gt;           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>          4.57               4.54</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>          4.73               4.68</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-live-validation-status">Example: Live Validation Status<a class="anchor" aria-label="anchor" href="#example-live-validation-status"></a>
