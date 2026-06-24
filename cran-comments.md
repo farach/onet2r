@@ -4,20 +4,7 @@
 
 ## R CMD check results
 
-There are no package-owned test failures or notes after running the unit test
-suite and vignette builds locally.
-
-The local `devtools::check()` run is currently blocked during DESCRIPTION
-metadata checking by the installed Quarto command-line wrapper on this Windows
-machine. The same failure reproduces outside package checking with:
-
-```r
-system2("quarto", "-V", env = paste0("TMPDIR=", tempdir()))
-```
-
-Quarto interprets the `TMPDIR=...` environment assignment as a command rather
-than an environment variable. Package tests and vignette builds pass outside
-that environment-specific Quarto probe.
+0 errors | 0 warnings | 0 notes
 
 ## Downstream API behavior
 

@@ -1,7 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^CLAUDE\.md$
-^\.claude$
+^\.claude(/|$)
 ^LICENSE\.md$
 ^README\.md$
 ^\.git$

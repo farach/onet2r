@@ -6,11 +6,12 @@
 \alias{onet2r-package}
 \title{onet2r: Access 'O*NET' Web Services API}
 \description{
-Access the 'O*NET' Web Services Application Programming Interface (API) version 2.0. Search occupations, retrieve occupation details such as skills, knowledge, abilities, tasks, and work activities, access database tables, and perform taxonomy crosswalks. Results are returned as tibbles for easy integration with tidyverse workflows.
+Access the 'O*NET' Web Services Application Programming Interface (API) version 2.0. Search occupations, retrieve occupation details such as skills, knowledge, abilities, tasks, and work activities, access database tables, perform taxonomy crosswalks, join wage and employment context, and assemble longitudinal archive panels. Results are returned as tibbles for easy integration with tidyverse workflows.
 }
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://farach.github.io/onet2r/}
   \item \url{https://github.com/farach/onet2r}
   \item Report bugs at \url{https://github.com/farach/onet2r/issues}
 }

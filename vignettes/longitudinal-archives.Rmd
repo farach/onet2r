@@ -1,0 +1,119 @@
+---
+title: "Longitudinal O*NET archive analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Longitudinal O*NET archive analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(onet2r)
+library(tibble)
+```
+
+The longitudinal helpers support three related workflows:
+
+1. Discover available O*NET database releases.
+2. Read descriptor tables from archived text files into a consistent panel.
+3. Reconcile adjacent releases and separate real updates from carryforwards,
+   resampling, recodes, and crosswalk uncertainty.
+
+Live archive calls are guarded because they download files from O*NET. In an
+interactive session, start by listing releases and reading a descriptor table:
+
+```{r live-archive, eval = FALSE}
+releases <- onet_releases()
+head(releases)
+
+abilities <- onet_archive_read("30.3", "Abilities")
+head(abilities)
+
+panel <- onet_panel("Abilities", versions = c("30.2", "30.3"), scale = "IM")
+```
+
+For reproducible examples and tests, the reconciliation step can use any tibble
+with the same schema returned by `onet_panel()`. This tiny panel contains four
+occupation-element pairs across two releases. Each pair demonstrates one branch
+of the change classification truth table.
+
+```{r tiny-panel}
+panel <- tibble(
+  release_version = rep(c("1.0", "2.0"), each = 4),
+  release_date = rep(as.Date(c("2020-01-01", "2021-01-01")), each = 4),
+  soc_vintage = "2019",
+  domain = "Abilities",
+  onet_soc_code = rep(
+    c("11-1011.00", "15-1252.00", "29-1141.00", "41-1011.00"),
+    2
+  ),
+  soc_code = rep(c("11-1011", "15-1252", "29-1141", "41-1011"), 2),
+  title = "Occupation",
+  element_id = "1.A.1.a.1",
+  element_name = "Oral Comprehension",
+  scale_id = "IM",
+  data_value = c(4, 4, 4, 4, 4, 5, 4, 5),
+  source_date = c(
+    as.Date(c("2020-01-01", "2020-01-01", "2020-01-01", "2020-01-01")),
+    as.Date(c("2020-01-01", "2021-01-01", "2021-01-01", "2020-01-01"))
+  ),
+  domain_source = "Analyst"
+)
+
+bridge <- tibble(
+  from_vintage = "2019",
+  to_vintage = "2019",
+  from_soc_code = c("11-1011", "15-1252", "29-1141", "41-1011"),
+  to_soc_code = c("11-1011", "15-1252", "29-1141", "41-1011"),
+  from_title = "Occupation",
+  to_title = "Occupation",
+  step_count = 0L,
+  map_type = "one_to_one",
+  crosswalk_weight = 1
+)
+
+changes <- onet_panel_reconcile(panel, bridge)
+changes[, c(
+  "from_soc_code",
+  "to_soc_code",
+  "value_change",
+  "date_changed",
+  "change_type",
+  "safely_comparable"
+)]
+```
+
+The truth table is:
+
+| value changed | source date changed | `change_type` | initially comparable |
+| --- | --- | --- | --- |
+| no | no | `stale_carryforward` | yes |
+| yes | yes | `real_update` | yes |
+| no | yes | `resampled_stable` | yes |
+| yes | no | `recode_or_recalc_flag` | no |
+
+`method_break` and `crosswalk_uncertain` are override flags. A row is safely
+comparable only when the truth-table result is comparable and neither override
+flag is present.
+
+```{r summary}
+onet_change_summary(changes, by = "job_family")
+```
+
+When comparing across taxonomy vintages, create a bridge first:
+
+```{r bridge, eval = FALSE}
+bridge_2010_2019 <- onet_crosswalk_bridge("2010", "2019")
+table(bridge_2010_2019$map_type)
+```
+
+Rows with `map_type` equal to `split` or `merge` are retained, but
+`crosswalk_uncertain` is set to `TRUE` during reconciliation. This lets users
+keep the data while avoiding overconfident longitudinal claims.

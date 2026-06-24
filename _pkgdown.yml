@@ -1,18 +1,61 @@
-url: https://github.com/farach/onet2r
+url: https://farach.github.io/onet2r/
+destination: pkgdown
 
 template:
   bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#0f766e"
+    base_font:
+      google: Inter
+    heading_font:
+      google: Inter
+    code_font:
+      google: JetBrains Mono
 
 home:
   title: Access O*NET Web Services API data from R
   description: >
-    Search occupations, retrieve O*NET skills/tasks/work activities, and join
-    occupation data to BLS OEWS employment and wage estimates.
+    A tidyverse-first toolkit for O*NET Web Services, archived O*NET releases,
+    taxonomy crosswalks, and BLS OEWS wage and employment context.
+  links:
+    - text: O*NET Web Services API
+      href: https://services.onetcenter.org/
+    - text: O*NET Database Releases
+      href: https://www.onetcenter.org/db_releases.html
+    - text: BLS OEWS Data
+      href: https://www.bls.gov/oes/tables.htm
 
 navbar:
+  bg: primary
   structure:
     left: [intro, reference, articles, news]
     right: [github]
+  components:
+    intro:
+      text: Get Started
+      href: articles/getting-started.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+        - text: Getting Started
+          href: articles/getting-started.html
+        - text: Longitudinal Archives
+          href: articles/longitudinal-archives.html
+        - text: OEWS Wage Context
+          href: articles/oews-wage-context.html
+        - text: Output Validation
+          href: articles/output-validation.html
+    news:
+      text: News
+      href: news/index.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/farach/onet2r
+      aria-label: GitHub repository
 
 reference:
   - title: Authentication and request controls
@@ -61,7 +104,16 @@ reference:
   - title: Crosswalks and taxonomy
     contents:
       - onet_crosswalk_military
+      - onet_crosswalk_bridge
       - onet_taxonomy_map
+  - title: Longitudinal O*NET archives
+    contents:
+      - onet_releases
+      - onet_archive_download
+      - onet_archive_read
+      - onet_panel
+      - onet_panel_reconcile
+      - onet_change_summary
   - title: BLS OEWS wage and employment context
     contents:
       - onet_oews
@@ -78,5 +130,6 @@ articles:
     navbar: ~
     contents:
       - getting-started
+      - longitudinal-archives
       - oews-wage-context
       - output-validation
