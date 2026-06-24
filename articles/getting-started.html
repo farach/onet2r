@@ -37,7 +37,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O&amp;#42;NET Is Hard</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
@@ -80,251 +80,201 @@
 <span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">has_onet_key</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ONET_API_KEY"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">run_live</span> <span class="op">&lt;-</span> <span class="va">has_onet_key</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ONET2R_RUN_LIVE_VIGNETTES"</span><span class="op">)</span>, <span class="st">"true"</span><span class="op">)</span></span></code></pre></div>
-<p><code>onet2r</code> helps you move from occupation search to
-analysis-ready O*NET tables. The Web Services API requires a free API
-key from the <a href="https://services.onetcenter.org/developer/" class="external-link">O*NET
-developer portal</a>. Store it in <code>.Renviron</code> as
-<code>ONET_API_KEY=your-api-key-here</code> so you do not put secrets in
-scripts.</p>
-<p>This article uses small representative tibbles so the pkgdown site
-always shows output. To run the same chunks against the live API while
-building locally, set both <code>ONET_API_KEY</code> and
-<code>ONET2R_RUN_LIVE_VIGNETTES=true</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  setting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ONET_API_KEY configured"</span>, <span class="st">"live vignette calls enabled"</span><span class="op">)</span>,</span>
-<span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">has_onet_key</span>, <span class="va">run_live</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
-<span><span class="co">#&gt;   setting                     value</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ONET_API_KEY configured     TRUE </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> live vignette calls enabled FALSE</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="search-for-occupations">Search for Occupations<a class="anchor" aria-label="anchor" href="#search-for-occupations"></a>
-</h2>
-<p>Search is usually the first step. Results include an O*NET-SOC code
-and an occupation title.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">software_jobs</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"software developer"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>    code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"15-1251.00"</span>, <span class="st">"15-2051.00"</span><span class="op">)</span>,</span>
-<span>    title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>      <span class="st">"Software Developers"</span>,</span>
-<span>      <span class="st">"Computer Programmers"</span>,</span>
-<span>      <span class="st">"Data Scientists"</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
+<span><span class="va">run_live</span> <span class="op">&lt;-</span> <span class="va">has_onet_key</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ONET2R_RUN_LIVE_VIGNETTES"</span><span class="op">)</span>, <span class="st">"true"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">software_jobs</span>, <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
-<span><span class="co">#&gt;   code       title               </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00 Software Developers </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1251.00 Computer Programmers</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-2051.00 Data Scientists</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="retrieve-occupation-details">Retrieve Occupation Details<a class="anchor" aria-label="anchor" href="#retrieve-occupation-details"></a>
-</h2>
-<p>Most detail endpoints return tibbles. That makes them easy to
-inspect, join, and summarize.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">skills</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>    id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2.A.1.a"</span>, <span class="st">"2.A.1.b"</span>, <span class="st">"2.B.3.m"</span><span class="op">)</span>,</span>
-<span>    name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>      <span class="st">"Reading Comprehension"</span>,</span>
-<span>      <span class="st">"Active Listening"</span>,</span>
-<span>      <span class="st">"Programming"</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    description <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>      <span class="st">"Understanding written sentences and paragraphs in work-related documents."</span>,</span>
-<span>      <span class="st">"Giving full attention to what other people are saying."</span>,</span>
-<span>      <span class="st">"Writing computer programs for various purposes."</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.12</span>, <span class="fl">4.00</span>, <span class="fl">4.38</span><span class="op">)</span>,</span>
-<span>    scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Importance"</span>, <span class="st">"Importance"</span>, <span class="st">"Importance"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">skills</span>, <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 5</span></span></span>
-<span><span class="co">#&gt;   id      name                  description                          value scale</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.A.1.a Reading Comprehension Understanding written sentences and…  4.12 Impo…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.A.1.b Active Listening      Giving full attention to what other…  4    Impo…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2.B.3.m Programming           Writing computer programs for vario…  4.38 Impo…</span></span></code></pre></div>
-<p>The same pattern works for knowledge, abilities, tasks, work
-activities, work styles, work context, interests, technology, education,
-and job zones.</p>
-</div>
-<div class="section level2">
-<h2 id="work-with-onet-tables">Work with O*NET Tables<a class="anchor" aria-label="anchor" href="#work-with-onet-tables"></a>
-</h2>
-<p>The O*NET database tables expose lower-level source data. Use
-<code><a href="../reference/onet_tables.html">onet_tables()</a></code> to find available tables and
-<code><a href="../reference/onet_table_info.html">onet_table_info()</a></code> to inspect columns before downloading a
-full table.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tables</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/onet_tables.html">onet_tables</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>    id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Occupation Data"</span>, <span class="st">"Abilities"</span>, <span class="st">"Skills"</span>, <span class="st">"Task Ratings"</span><span class="op">)</span>,</span>
-<span>    title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Occupation Data"</span>, <span class="st">"Abilities"</span>, <span class="st">"Skills"</span>, <span class="st">"Task Ratings"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tables</span>, <span class="fl">6</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 2</span></span></span>
-<span><span class="co">#&gt;   id              title          </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Occupation Data Occupation Data</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Abilities       Abilities      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Skills          Skills         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Task Ratings    Task Ratings</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">table_info</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/onet_table_info.html">onet_table_info</a></span><span class="op">(</span><span class="st">"Abilities"</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>    name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"onetsoc_code"</span>, <span class="st">"element_id"</span>, <span class="st">"scale_id"</span>, <span class="st">"data_value"</span><span class="op">)</span>,</span>
-<span>    title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"O*NET-SOC Code"</span>, <span class="st">"Element ID"</span>, <span class="st">"Scale ID"</span>, <span class="st">"Data Value"</span><span class="op">)</span>,</span>
-<span>    type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"character"</span>, <span class="st">"character"</span>, <span class="st">"character"</span>, <span class="st">"decimal"</span><span class="op">)</span>,</span>
-<span>    format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="st">"n.n"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">table_info</span>, <span class="fl">8</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
-<span><span class="co">#&gt;   name         title          type      format</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> onetsoc_code O*NET-SOC Code character <span style="color: #BB0000;">NA</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> element_id   Element ID     character <span style="color: #BB0000;">NA</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> scale_id     Scale ID       character <span style="color: #BB0000;">NA</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> data_value   Data Value     decimal   n.n</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="join-labor-market-context">Join Labor-Market Context<a class="anchor" aria-label="anchor" href="#join-labor-market-context"></a>
-</h2>
-<p>O*NET describes what occupations do. BLS OEWS adds employment and
-wage scale. This example uses the package’s bundled OEWS sample so it
-always runs.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sample_oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span><span class="va">sample_oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
 <span>  <span class="st">"extdata"</span>,</span>
 <span>  <span class="st">"oews-national-sample.csv"</span>,</span>
 <span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">occupations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"29-1141.00"</span>, <span class="st">"11-1011.00"</span><span class="op">)</span>,</span>
-<span>  title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Software Developers"</span>, <span class="st">"Registered Nurses"</span>, <span class="st">"Chief Executives"</span><span class="op">)</span></span>
+<span><span class="va">archive_302</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>  <span class="st">"extdata"</span>,</span>
+<span>  <span class="st">"onet-mini"</span>,</span>
+<span>  <span class="st">"db_30_2_text"</span>,</span>
+<span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">occupation_wages</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_join_oews.html">onet_join_oews</a></span><span class="op">(</span><span class="va">occupations</span>, oews <span class="op">=</span> <span class="va">oews</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">occupation_wages</span>, <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 9</span></span></span>
-<span><span class="co">#&gt;   code       title  soc_code  year oews_type occ_title tot_emp a_median h_median</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00 Softw… 15-1252   <span style="text-decoration: underline;">2</span>024 national  Software… 1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080     64.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00 Regis… 29-1141   <span style="text-decoration: underline;">2</span>024 national  Register… 3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070     44.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 11-1011.00 Chief… 11-1011   <span style="text-decoration: underline;">2</span>024 national  Chief Ex…  <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680     99.4</span></span></code></pre></div>
+<span><span class="va">archive_303</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>  <span class="st">"extdata"</span>,</span>
+<span>  <span class="st">"onet-mini"</span>,</span>
+<span>  <span class="st">"db_30_3_text"</span>,</span>
+<span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><code>onet2r</code> helps you move from occupation search to
+analysis-ready O*NET tables, archived O*NET releases, and BLS OEWS wage
+and employment context. Current O*NET Web Services calls require a free
+API key from the <a href="https://services.onetcenter.org/developer/" class="external-link">O*NET developer
+portal</a>. Store it in <code>.Renviron</code> as
+<code>ONET_API_KEY=your-api-key-here</code> so you do not put secrets in
+scripts.</p>
+<p>The live Web Services examples are opt-in for package builds, because
+CRAN and most CI environments should not depend on an external API. The
+rest of this article uses local files through actual <code>onet2r</code>
+functions, so every displayed table is computed when the vignette is
+knitted.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  setting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ONET_API_KEY configured"</span>, <span class="st">"live vignette API calls enabled"</span><span class="op">)</span>,</span>
+<span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">has_onet_key</span>, <span class="va">run_live</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt;   setting                         value</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                           <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ONET_API_KEY configured         TRUE </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> live vignette API calls enabled FALSE</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="search-the-current-onet-api">Search the Current O*NET API<a class="anchor" aria-label="anchor" href="#search-the-current-onet-api"></a>
+</h2>
+<p>When live calls are enabled, the first step is usually
+<code><a href="../reference/onet_search.html">onet_search()</a></code>, followed by a detail endpoint such as
+<code><a href="../reference/onet_skills.html">onet_skills()</a></code> or <code><a href="../reference/onet_abilities.html">onet_abilities()</a></code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"software developer"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>    live_api_example <span class="op">=</span> <span class="st">"skipped"</span>,</span>
+<span>    reason <span class="op">=</span> <span class="st">"Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search()."</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
+<span><span class="co">#&gt;   live_api_example reason                                                       </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> skipped          Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run o…</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>    live_api_example <span class="op">=</span> <span class="st">"skipped"</span>,</span>
+<span>    reason <span class="op">=</span> <span class="st">"Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills()."</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
+<span><span class="co">#&gt;   live_api_example reason                                                       </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> skipped          Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run o…</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="summarize-weighted-onet-records">Summarize Weighted O*NET Records<a class="anchor" aria-label="anchor" href="#summarize-weighted-onet-records"></a>
+<h2 id="read-an-archived-onet-table">Read an Archived O*NET Table<a class="anchor" aria-label="anchor" href="#read-an-archived-onet-table"></a>
 </h2>
-<p>Employment-weighted summaries are useful when the same descriptor
-appears across occupations with very different labor-market sizes.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">skill_rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"15-1252.00"</span>, <span class="st">"29-1141.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>,</span>
-<span>  element_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2.A.1.a"</span>, <span class="st">"2.A.1.b"</span>, <span class="st">"2.A.1.a"</span>, <span class="st">"2.A.1.b"</span><span class="op">)</span>,</span>
-<span>  element_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Reading Comprehension"</span>,</span>
-<span>    <span class="st">"Active Listening"</span>,</span>
-<span>    <span class="st">"Reading Comprehension"</span>,</span>
-<span>    <span class="st">"Active Listening"</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  data_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.12</span>, <span class="fl">4.00</span>, <span class="fl">3.88</span>, <span class="fl">4.25</span><span class="op">)</span></span>
+<p>The Web Services API serves the current release. Historical work uses
+the downloadable archive tables. <code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code>
+normalizes those archive files into tibbles with stable columns.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">abilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
+<span>  <span class="st">"30.3"</span>,</span>
+<span>  <span class="st">"Abilities"</span>,</span>
+<span>  path <span class="op">=</span> <span class="va">archive_303</span>,</span>
+<span>  release_date <span class="op">=</span> <span class="st">"2026-05-01"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">weighted_skills</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weighted_summary.html">onet_weighted_summary</a></span><span class="op">(</span></span>
-<span>  <span class="va">skill_rows</span>,</span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">abilities</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 18</span></span></span>
+<span><span class="co">#&gt;   release_version release_date soc_vintage domain   onet_soc_code soc_code title</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30.3            2026-05-01   2019        Abiliti… 15-1252.00    15-1252  Soft…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30.3            2026-05-01   2019        Abiliti… 15-1252.00    15-1252  Soft…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30.3            2026-05-01   2019        Abiliti… 29-1141.00    29-1141  Regi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30.3            2026-05-01   2019        Abiliti… 29-1141.00    29-1141  Regi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 30.3            2026-05-01   2019        Abiliti… 11-1011.00    11-1011  Chie…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 30.3            2026-05-01   2019        Abiliti… 11-1011.00    11-1011  Chie…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 30.3            2026-05-01   2019        Abiliti… 41-1011.00    41-1011  Firs…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 11 more variables: element_id &lt;chr&gt;, element_name &lt;chr&gt;, scale_id &lt;fct&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   data_value &lt;dbl&gt;, n &lt;int&gt;, standard_error &lt;dbl&gt;, lower_ci_bound &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   upper_ci_bound &lt;dbl&gt;, recommend_suppress &lt;chr&gt;, source_date &lt;date&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   domain_source &lt;fct&gt;</span></span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="add-labor-market-context">Add Labor-Market Context<a class="anchor" aria-label="anchor" href="#add-labor-market-context"></a>
+</h2>
+<p>BLS OEWS estimates add employment and wage scale to O*NET occupation
+rows. <code><a href="../reference/onet_oews_national.html">onet_oews_national()</a></code> reads the OEWS file, and
+<code><a href="../reference/onet_join_oews.html">onet_join_oews()</a></code> joins by a normalized SOC code.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">occupations</span> <span class="op">&lt;-</span> <span class="va">abilities</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span>code <span class="op">=</span> <span class="va">onet_soc_code</span>, <span class="va">title</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">occupation_wages</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_join_oews.html">onet_join_oews</a></span><span class="op">(</span><span class="va">occupations</span>, oews <span class="op">=</span> <span class="va">oews</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">occupation_wages</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">code</span>, <span class="va">title</span>, <span class="va">soc_code</span>, <span class="va">tot_emp</span>, <span class="va">a_median</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 5</span></span></span>
+<span><span class="co">#&gt;   code       title                                     soc_code tot_emp a_median</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00 Software Developers                       15-1252  1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00 Registered Nurses                         29-1141  3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 11-1011.00 Chief Executives                          11-1011   <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011.00 First-Line Supervisors of Retail Sales W… 41-1011       <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="summarize-onet-rows-with-employment-weights">Summarize O*NET Rows with Employment Weights<a class="anchor" aria-label="anchor" href="#summarize-onet-rows-with-employment-weights"></a>
+</h2>
+<p><code><a href="../reference/onet_weighted_summary.html">onet_weighted_summary()</a></code> lets you summarize descriptor
+rows by employment or wage context. Here it computes employment-weighted
+ability means from actual archive rows and the bundled OEWS sample.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_weighted_summary.html">onet_weighted_summary</a></span><span class="op">(</span></span>
+<span>  <span class="va">abilities</span>,</span>
 <span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"element_id"</span>, <span class="st">"element_name"</span><span class="op">)</span>,</span>
 <span>  value <span class="op">=</span> <span class="st">"data_value"</span>,</span>
+<span>  occupation_code <span class="op">=</span> <span class="st">"onet_soc_code"</span>,</span>
 <span>  oews <span class="op">=</span> <span class="va">oews</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">weighted_skills</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 7</span></span></span>
 <span><span class="co">#&gt;   element_id element_name     n_records n_occupations total_weight weighted_mean</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2.A.1.a    Reading Compreh…         2             2      5<span style="text-decoration: underline;">023</span>300          3.97</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2.A.1.b    Active Listening         2             2      5<span style="text-decoration: underline;">023</span>300          4.16</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.A.1.a.1  Oral Comprehens…         3             3      5<span style="text-decoration: underline;">234</span>530          4.57</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1.A.1.b.1  Problem Sensiti…         3             3      5<span style="text-decoration: underline;">234</span>530          4.73</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: wage_weighted_mean &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="build-longitudinal-archive-comparisons">Build Longitudinal Archive Comparisons<a class="anchor" aria-label="anchor" href="#build-longitudinal-archive-comparisons"></a>
+<h2 id="compare-two-archive-releases">Compare Two Archive Releases<a class="anchor" aria-label="anchor" href="#compare-two-archive-releases"></a>
 </h2>
-<p>The API serves the current release. To compare releases over time,
-use the archive helpers. See the longitudinal articles for the
-methodological cautions.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  release_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1.0"</span>, <span class="st">"2.0"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  release_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>, <span class="st">"2021-01-01"</span><span class="op">)</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  soc_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
-<span>  domain <span class="op">=</span> <span class="st">"Abilities"</span>,</span>
-<span>  onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Software Developers"</span>, <span class="st">"Registered Nurses"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  element_id <span class="op">=</span> <span class="st">"1.A.1.a.1"</span>,</span>
-<span>  element_name <span class="op">=</span> <span class="st">"Oral Comprehension"</span>,</span>
-<span>  scale_id <span class="op">=</span> <span class="st">"IM"</span>,</span>
-<span>  data_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.0</span>, <span class="fl">4.2</span>, <span class="fl">4.4</span>, <span class="fl">4.2</span><span class="op">)</span>,</span>
-<span>  source_date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>, <span class="st">"2020-01-01"</span>, <span class="st">"2021-01-01"</span>, <span class="st">"2020-01-01"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  domain_source <span class="op">=</span> <span class="st">"Analyst"</span></span>
+<p>For historical analysis, build a panel, reconcile adjacent releases,
+and inspect comparability flags before interpreting changes.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Abilities"</span>,</span>
+<span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"30.2"</span>, <span class="st">"30.3"</span><span class="op">)</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"IM"</span>,</span>
+<span>  archives <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`30.2` <span class="op">=</span> <span class="va">archive_302</span>, `30.3` <span class="op">=</span> <span class="va">archive_303</span><span class="op">)</span>,</span>
+<span>  release_dates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`30.2` <span class="op">=</span> <span class="st">"2026-02-01"</span>, `30.3` <span class="op">=</span> <span class="st">"2026-05-01"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  from_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
-<span>  to_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
-<span>  from_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
-<span>  to_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
-<span>  from_title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Software Developers"</span>, <span class="st">"Registered Nurses"</span><span class="op">)</span>,</span>
-<span>  to_title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Software Developers"</span>, <span class="st">"Registered Nurses"</span><span class="op">)</span>,</span>
-<span>  step_count <span class="op">=</span> <span class="fl">0L</span>,</span>
-<span>  map_type <span class="op">=</span> <span class="st">"one_to_one"</span>,</span>
-<span>  crosswalk_weight <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span></span>
+<span>  <span class="va">panel</span>,</span>
+<span>  bridge <span class="op">=</span> <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">panel</span>, <span class="va">bridge</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">changes</span>, <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 26</span></span></span>
-<span><span class="co">#&gt;   from_release to_release from_release_date to_release_date from_soc_code</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.0          2.0        2020-01-01        2021-01-01      15-1252      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1.0          2.0        2020-01-01        2021-01-01      29-1141      </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 21 more variables: to_soc_code &lt;chr&gt;, soc_vintage_from &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   soc_vintage_to &lt;chr&gt;, domain &lt;chr&gt;, element_id &lt;chr&gt;, element_name &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   scale_id &lt;chr&gt;, from_value &lt;dbl&gt;, to_value &lt;dbl&gt;, value_change &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   value_percent_change &lt;dbl&gt;, from_source_date &lt;date&gt;, to_source_date &lt;date&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   date_changed &lt;lgl&gt;, value_changed &lt;lgl&gt;, change_type &lt;fct&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   method_break &lt;lgl&gt;, crosswalk_uncertain &lt;lgl&gt;, safely_comparable &lt;lgl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   map_type &lt;chr&gt;, crosswalk_weight &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="va">changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">to_soc_code</span>,</span>
+<span>    <span class="va">element_name</span>,</span>
+<span>    <span class="va">from_value</span>,</span>
+<span>    <span class="va">to_value</span>,</span>
+<span>    <span class="va">value_change</span>,</span>
+<span>    <span class="va">change_type</span>,</span>
+<span>    <span class="va">safely_comparable</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 7</span></span></span>
+<span><span class="co">#&gt;   to_soc_code element_name        from_value to_value value_change change_type  </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 29-1141     Problem Sensitivity       4.6      4.9         0.300 recode_or_re…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252     Oral Comprehension        4.12     4.35        0.230 real_update  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 41-1011     Oral Comprehension        4        4.15        0.150 real_update  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 11-1011     Oral Comprehension        4.38     4.5         0.120 real_update  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 15-1252     Problem Sensitivity       4.5      4.5         0     stale_carryf…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 29-1141     Oral Comprehension        4.71     4.71        0     resampled_st…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 11-1011     Problem Sensitivity       4.22     4.22        0     stale_carryf…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: safely_comparable &lt;lgl&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>

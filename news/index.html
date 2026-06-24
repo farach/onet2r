@@ -20,7 +20,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
+    <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O&amp;#42;NET Is Hard</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
@@ -45,13 +45,13 @@
 <li>
 <code><a href="../reference/onet_archive_download.html">onet_archive_download()</a></code> downloads text-format O*NET database archives by release version for reproducible local analysis (no issue).</li>
 <li>
-<code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code> reads descriptor tables from downloaded archives into a normalized long panel schema (no issue).</li>
+<code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code> reads descriptor tables from downloaded archives into a normalized long panel schema and now accepts local ZIP files or extracted archive directories for offline workflows (no issue).</li>
 <li>
 <code><a href="../reference/onet_change_summary.html">onet_change_summary()</a></code> summarizes reconciled O*NET changes overall and by SOC job family (no issue).</li>
 <li>
 <code><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge()</a></code> builds SOC taxonomy bridges across supported O*NET vintages and labels one-to-one, split, and merge mappings (no issue).</li>
 <li>
-<code><a href="../reference/onet_panel.html">onet_panel()</a></code> assembles descriptor tables across multiple O*NET releases for longitudinal analysis (no issue).</li>
+<code><a href="../reference/onet_panel.html">onet_panel()</a></code> assembles descriptor tables across multiple O*NET releases for longitudinal analysis and can use local archive paths with explicit release dates (no issue).</li>
 <li>
 <code><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code> classifies release-to-release changes as real updates, stable resampling, stale carryforwards, or recode/recalculation flags (no issue).</li>
 <li>
