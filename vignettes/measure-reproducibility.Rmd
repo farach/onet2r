@@ -42,6 +42,13 @@ archive_dir <- system.file(
   "db_30_3_text",
   package = "onet2r"
 )
+source_archive_dir <- file.path("inst", "extdata", "onet-mini", "db_30_3_text")
+if (
+  !file.exists(file.path(archive_dir, "task_statements.txt")) &&
+    dir.exists(source_archive_dir)
+) {
+  archive_dir <- source_archive_dir
+}
 
 tasks <- onet_archive_read(
   "30.3",
