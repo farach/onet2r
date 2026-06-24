@@ -1,8 +1,10 @@
-# onet2r <a href="https://github.com/farach/onet2r"></a>
+# onet2r
 
-**onet2r** is a modern, tidyverse-first R client for the [O\*NET Web Services API v2](https://services.onetcenter.org/). It provides a clean, consistent, analysis-ready interface to U. S. occupational data.
+**onet2r** is a modern, tidyverse-first R client for the [O\*NET Web Services API v2](https://services.onetcenter.org/). It provides a clean, consistent, analysis-ready interface to U.S. occupational data, archived O\*NET releases, taxonomy crosswalks, and BLS OEWS wage and employment context.
 
 🔗 **API Base URL:** <https://api-v2.onetcenter.org>
+
+📘 **Package site:** <https://farach.github.io/onet2r/>
 
 ## ✨ Features
 
@@ -12,6 +14,8 @@
 -   🔄 **Perform crosswalks** between military codes and civilian occupations
 -   📈 **Map taxonomies** between O\*NET-SOC versions
 -   💵 **Join BLS OEWS wages and employment** to O\*NET occupations
+-   🕰️ **Build longitudinal archive panels** across O\*NET database releases
+-   🧭 **Classify release-to-release changes** as true updates, resampling, carryforwards, or recodes
 -   ✅ **Consistent tibble outputs** with snake_case columns and stable empty schemas
 -   🔁 **Automatic retry logic** for rate limits (HTTP 429) and transient server errors
 -   📝 **Type-safe schemas** with validated empty result handling
@@ -155,7 +159,19 @@ onet_technology_skills("15-1252.00", end = 2)
 | Function                    | Description                          |
 |-----------------------------|--------------------------------------|
 | `onet_crosswalk_military()` | Map military to civilian occupations |
+| `onet_crosswalk_bridge()`   | Bridge O\*NET-SOC taxonomy vintages  |
 | `onet_taxonomy_map()`       | Map between O\*NET-SOC versions      |
+
+### Longitudinal Archives
+
+| Function                  | Description                                |
+|---------------------------|--------------------------------------------|
+| `onet_releases()`         | List downloadable O\*NET database releases |
+| `onet_archive_download()` | Download and cache text archive ZIP files  |
+| `onet_archive_read()`     | Read archive tables into a panel schema    |
+| `onet_panel()`            | Assemble release panels by archive table   |
+| `onet_panel_reconcile()`  | Classify adjacent-release changes          |
+| `onet_change_summary()`   | Summarize change types by job family       |
 
 ## 🔧 Example Workflow
 
@@ -213,7 +229,7 @@ pums_weights <- onet_pums_employment_weights(pums, socp = "SOCP", weight = "PWGT
 
 Most endpoints return tibbles with:
 
--   **snake_case column names** (e. g., `percentage_of_respondents`)
+-   **snake_case column names** (e.g., `percentage_of_respondents`)
 -   **Stable empty schemas** (empty tibble with correct columns and types)
 -   **Predictable pagination** via `start`/`end` arguments
 
@@ -224,7 +240,7 @@ onet_education("15-1252.00")
 #>   <chr> <chr>                                              <dbl>
 #> 1 6     Bachelor's degree                                   64.7
 #> 2 7     Master's degree                                     20.5
-#> ... 
+#> …
 ```
 
 ### Informative Error Messages
@@ -238,7 +254,7 @@ onet_education("15-1252.00")
 # Invalid occupation code
 onet_skills("invalid-code")
 #> Error: Invalid O*NET-SOC code format: "invalid-code"
-#> ℹ Expected format: XX-XXXX or XX-XXXX. XX (e.g., 15-1252 or 15-1252.00)
+#> ℹ Expected format: XX-XXXX or XX-XXXX.XX (e.g., 15-1252 or 15-1252.00)
 
 # No results (returns empty tibble with correct schema)
 onet_search("xyzabc123nonexistent")
@@ -254,6 +270,7 @@ onet_search("xyzabc123nonexistent")
 | Use `start`/`end` for pagination       | Smaller, faster requests         |
 | Prefer detail endpoints over summaries | Structured data for analysis     |
 | Use `onet_join_oews()` for wage context | Adds employment and wage weights |
+| Use `onet_panel_reconcile()` for archive comparisons | Separates real changes from carryforwards and recodes |
 | Use `onet_cache_use()` for repeated pulls | Avoids repeated identical API calls |
 | Use `onet_rate_limit()` for bulk pulls | Adds polite request spacing |
 

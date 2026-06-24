@@ -1,13 +1,14 @@
 Package: onet2r
 Title: Access 'O*NET' Web Services API
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("Alex", "Farach", email = "alexfarach@microsoft.com", role = c("aut", "cre", "cph"))
 Description: Access the 'O*NET' Web Services Application Programming Interface
     (API) version 2.0. Search occupations, retrieve occupation details such as
     skills, knowledge, abilities, tasks, and work activities, access database
-    tables, and perform taxonomy crosswalks. Results are returned as tibbles
-    for easy integration with tidyverse workflows.
+    tables, perform taxonomy crosswalks, join wage and employment context, and
+    assemble longitudinal archive panels. Results are returned as tibbles for
+    easy integration with tidyverse workflows.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -30,5 +31,5 @@ Suggests:
     withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-URL: https://github.com/farach/onet2r
+URL: https://farach.github.io/onet2r/, https://github.com/farach/onet2r
 BugReports: https://github.com/farach/onet2r/issues
