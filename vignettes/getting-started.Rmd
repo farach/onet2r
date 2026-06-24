@@ -42,10 +42,10 @@ archive_303 <- system.file(
 )
 ```
 
-`onet2r` helps you move from occupation search to analysis-ready O\*NET tables,
-archived O\*NET releases, and BLS OEWS wage and employment context. Current
-O\*NET Web Services calls require a free API key from the
-[O\*NET developer portal](https://services.onetcenter.org/developer/). Store it
+`onet2r` helps you move from occupation search to analysis-ready O&#42;NET tables,
+archived O&#42;NET releases, and BLS OEWS wage and employment context. Current
+O&#42;NET Web Services calls require a free API key from the
+[O&#42;NET developer portal](https://services.onetcenter.org/developer/). Store it
 in `.Renviron` as `ONET_API_KEY=your-api-key-here` so you do not put secrets in
 scripts.
 
@@ -61,7 +61,7 @@ tibble::tibble(
 )
 ```
 
-## Search the Current O\*NET API
+## Search the Current O&#42;NET API
 
 When live calls are enabled, the first step is usually `onet_search()`, followed
 by a detail endpoint such as `onet_skills()` or `onet_abilities()`.
@@ -88,7 +88,7 @@ if (run_live) {
 }
 ```
 
-## Read an Archived O\*NET Table
+## Read an Archived O&#42;NET Table
 
 The Web Services API serves the current release. Historical work uses the
 downloadable archive tables. `onet_archive_read()` normalizes those archive files
@@ -107,7 +107,7 @@ head(abilities, 8)
 
 ## Add Labor-Market Context
 
-BLS OEWS estimates add employment and wage scale to O\*NET occupation rows.
+BLS OEWS estimates add employment and wage scale to O&#42;NET occupation rows.
 `onet_oews_national()` reads the OEWS file, and `onet_join_oews()` joins by a
 normalized SOC code.
 
@@ -123,7 +123,7 @@ occupation_wages |>
   select(code, title, soc_code, tot_emp, a_median)
 ```
 
-## Summarize O\*NET Rows with Employment Weights
+## Summarize O&#42;NET Rows with Employment Weights
 
 `onet_weighted_summary()` lets you summarize descriptor rows by employment or
 wage context. Here it computes employment-weighted ability means from actual

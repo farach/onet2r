@@ -50,13 +50,13 @@ system.file("examples", "validate-outputs.R", package = "onet2r")
 The validation script always checks deterministic local outputs:
 
 - reading bundled OEWS sample data;
-- reading a local O\*NET archive-format table;
-- joining O\*NET occupation codes to OEWS estimates;
-- computing employment- and wage-weighted O\*NET summaries;
+- reading a local O&#42;NET archive-format table;
+- joining O&#42;NET occupation codes to OEWS estimates;
+- computing employment- and wage-weighted O&#42;NET summaries;
 - configuring cache and rate-limit settings.
 
 When `ONET_API_KEY` is available, it also performs live smoke checks across the
-main exported O\*NET functions. Each result is inspected for expected type,
+main exported O&#42;NET functions. Each result is inspected for expected type,
 minimum row count, and important columns.
 
 ## Example: Local Validation without an API Key

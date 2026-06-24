@@ -19,13 +19,13 @@ library(onet2r)
 library(dplyr)
 ```
 
-O\*NET tells you what occupations do: their tasks, abilities, skills, knowledge,
+O&#42;NET tells you what occupations do: their tasks, abilities, skills, knowledge,
 and work contexts. The Bureau of Labor Statistics Occupational Employment and
 Wage Statistics (OEWS) program tells you how large those occupations are in the
 labor market and what they pay. Joining the two lets you move from an
 occupation-level descriptor table to a labor-market-weighted question.
 
-This walkthrough asks: among occupations in a small O\*NET ability panel, which
+This walkthrough asks: among occupations in a small O&#42;NET ability panel, which
 ability ratings matter most once we account for national employment and wages?
 The OEWS file is bundled with the package so the article runs without network
 access. In production, call `onet_oews_national()` without `path` to download
@@ -56,17 +56,17 @@ oews <- onet_oews_national(year = 2024, path = sample_oews)
 oews
 ```
 
-Key columns for most O\*NET joins are `occ_code`, `tot_emp`, and `a_median`.
+Key columns for most O&#42;NET joins are `occ_code`, `tot_emp`, and `a_median`.
 
 ```{r inspect-oews}
 oews |>
   select(occ_code, occ_title, tot_emp, a_median, h_median)
 ```
 
-## Get O\*NET Occupations from an Actual Package Function
+## Get O&#42;NET Occupations from an Actual Package Function
 
 The occupation list below comes from `onet_archive_read()`, not a hand-built
-example table. It reads a local archive-format O\*NET `Abilities` table and then
+example table. It reads a local archive-format O&#42;NET `Abilities` table and then
 keeps one row per occupation.
 
 ```{r occupations-from-archive}
@@ -83,9 +83,9 @@ occupations <- abilities |>
 occupations
 ```
 
-## Join OEWS to O\*NET Occupation Codes
+## Join OEWS to O&#42;NET Occupation Codes
 
-O\*NET-SOC codes commonly include a detail suffix such as `.00`. OEWS uses
+O&#42;NET-SOC codes commonly include a detail suffix such as `.00`. OEWS uses
 six-digit SOC codes. `onet_join_oews()` creates a normalized `soc_code` and joins
 on that value.
 
@@ -109,12 +109,12 @@ occupation_wages |>
   )
 ```
 
-## Compute Employment-Weighted O\*NET Summaries
+## Compute Employment-Weighted O&#42;NET Summaries
 
 If you average ability scores across occupations without weights, a niche
 occupation counts the same as an occupation employing millions of workers.
 `onet_weighted_summary()` uses OEWS employment, and optionally wage, to summarize
-O\*NET descriptor rows at the labor-market level.
+O&#42;NET descriptor rows at the labor-market level.
 
 ```{r weighted-summary}
 weighted_abilities <- onet_weighted_summary(
@@ -128,7 +128,7 @@ weighted_abilities <- onet_weighted_summary(
 weighted_abilities
 ```
 
-In this example, `n_occupations` is the number of O\*NET occupations with a
+In this example, `n_occupations` is the number of O&#42;NET occupations with a
 matching OEWS estimate for each ability row. `total_weight` is the summed OEWS
 employment used in the weighted mean.
 
@@ -157,7 +157,7 @@ head(ability_context, 10)
 ```
 
 This table is not a causal estimate. It is a screening tool. It helps answer
-questions such as: "Which O\*NET ability ratings are attached to the most
+questions such as: "Which O&#42;NET ability ratings are attached to the most
 workers?" or "Which occupations should we inspect first when designing training
 or workforce-transition analyses?"
 

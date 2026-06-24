@@ -35,9 +35,9 @@ archive_303 <- system.file(
 )
 ```
 
-O\*NET is one of the most useful public sources for occupation-level skills,
+O&#42;NET is one of the most useful public sources for occupation-level skills,
 tasks, abilities, work activities, and work contexts. It is also easy to misuse
-as a time series. The most important fact is simple: O\*NET was not built as a
+as a time series. The most important fact is simple: O&#42;NET was not built as a
 longitudinal panel. The Web Services API serves the current release, while
 version-over-version analysis has to be reconstructed from the downloadable
 release archives [@onet_archive].
@@ -73,9 +73,9 @@ paths keep the output reproducible.
 
 ### 2. Occupation Codes Change across Taxonomies
 
-O\*NET-SOC vintages do not line up one-to-one forever. Occupations split, merge,
+O&#42;NET-SOC vintages do not line up one-to-one forever. Occupations split, merge,
 appear, and disappear. Hosseinioun et al. [-@hosseinioun2025skill] handle this
-by composing adjacent official O\*NET-SOC crosswalks, which is the same strategy
+by composing adjacent official O&#42;NET-SOC crosswalks, which is the same strategy
 used by `onet_crosswalk_bridge()`.
 
 The local example uses one SOC vintage, so the bridge is empty and reconciliation
@@ -89,7 +89,7 @@ onet_crosswalk_bridge("2019", "2019")
 
 ### 3. A Release-to-Release "Change" May Not Be a True Content Change
 
-Many O\*NET archive tables include a source date and domain source. These fields
+Many O&#42;NET archive tables include a source date and domain source. These fields
 matter because a value can appear unchanged simply because the occupation was
 not re-surveyed, or a value can change without a source-date change because of a
 recode or recalculation. Handel [-@handel2016onet] is a useful entry point for
@@ -113,41 +113,41 @@ difference.
 
 ## How This Differs from the Standard Task Approach
 
-The canonical task-framework literature often avoids O\*NET's
+The canonical task-framework literature often avoids O&#42;NET's
 version-over-version variation. Instead, it holds task scores fixed and gets
 time variation from changing occupational employment shares [@autor2003skill;
 @autordorn2013growth; @autor2013task]. That approach is standard because it is
 cleaner for many labor-market questions. `onet2r` enables a complementary route:
-directly comparing archived O\*NET content after marking taxonomy and
+directly comparing archived O&#42;NET content after marking taxonomy and
 survey-timing problems.
 
 Direct within-occupation change work is closer to what the longitudinal module
-does. Consoli et al. [-@consoli2023routinization] combine DOT and O\*NET to
+does. Consoli et al. [-@consoli2023routinization] combine DOT and O&#42;NET to
 study within-occupation task change over a long period. Chen et al.
-[-@chen2026ai] report a narrower O\*NET version comparison as one stylized fact
+[-@chen2026ai] report a narrower O&#42;NET version comparison as one stylized fact
 inside a paper whose main data source is online vacancies.
 
 ## Official Resources to Check
 
-- The O\*NET Database Releases Archive is the source for release ZIP files
+- The O&#42;NET Database Releases Archive is the source for release ZIP files
   [@onet_archive].
-- The O\*NET Data Dictionary documents table structure, date fields, source
+- The O&#42;NET Data Dictionary documents table structure, date fields, source
   fields, and historical content changes [@onet_dictionary].
-- The O\*NET-SOC taxonomy files provide the official adjacent crosswalks used by
+- The O&#42;NET-SOC taxonomy files provide the official adjacent crosswalks used by
   the bridge layer [@onet_crosswalks].
 - BLS provides a methodological overview for mapping Employment Projections and
-  O\*NET data, including split, merge, and imputation issues that motivate
+  O&#42;NET data, including split, merge, and imputation issues that motivate
   future employment-weighted bridge options [@bls2021mapping].
 
 ## Adjacent Tools to Verify before Citing
 
-Several tools map O\*NET to other classification systems rather than across
-O\*NET's own versions. They may be useful, but they are intentionally not in
+Several tools map O&#42;NET to other classification systems rather than across
+O&#42;NET's own versions. They may be useful, but they are intentionally not in
 `inst/REFERENCES.bib` until verified to citation standard:
 
 - Institute for Structural Research occupational task crosswalk files.
 - `occupationcross`, reported as an R package for occupational reclassification.
-- The Dais NOC-to-O\*NET crosswalk for Canada.
-- European Commission ESCO-O\*NET crosswalks.
+- The Dais NOC-to-O&#42;NET crosswalk for Canada.
+- European Commission ESCO-O&#42;NET crosswalks.
 
 ## References
