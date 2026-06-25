@@ -13,7 +13,7 @@
 #'   }
 #'
 #' @export
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' # Search by keyword
 #' onet_search("software developer")
 #'

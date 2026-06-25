@@ -42,6 +42,9 @@ work-activity rows after joining occupation-level employment and wage
 estimates. This is useful for moving from occupation-level O*NET outputs to
 labor-market-weighted measures.
 }
+\details{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
 \section{Lifecycle}{
 
 This helper is soft-deprecated for measure work. Prefer

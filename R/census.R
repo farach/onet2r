@@ -9,6 +9,8 @@
 #' Use this after downloading PUMS data with packages such as `tidycensus` or
 #' `ipumsr`.
 #'
+#' `r lifecycle::badge("deprecated")`
+#'
 #' @param pums A data frame containing individual-level occupation records.
 #' @param socp Name of the occupation-code column. ACS PUMS commonly uses
 #'   `"SOCP"`.

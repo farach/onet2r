@@ -119,6 +119,27 @@ test_that("onet_measure_aggregate requires a single weight period and cell", {
   result <- onet_measure_aggregate(measure, weights, year = 2024, cell = list(state = "US"))
   expect_equal(result$aggregate, 0.325)
 
+  multi_cell_weights <- tibble::tibble(
+    reference_soc_code = rep(c("15-1252", "29-1141"), 2),
+    year = 2024L,
+    state = rep(c("US", "WA"), each = 2),
+    employment = c(100, 300, 40, 60),
+    weight_share = c(0.2, 0.6, 0.08, 0.12),
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+  expect_error(
+    onet_measure_aggregate(measure, multi_cell_weights),
+    "exactly one cell"
+  )
+  cell_result <- onet_measure_aggregate(
+    measure,
+    multi_cell_weights,
+    cell = list(state = "WA")
+  )
+  expect_equal(cell_result$aggregate, 0.4)
+
   missing_year_weights <- tibble::tibble(
     reference_soc_code = c("15-1252", "29-1141", "11-1011"),
     year = c(2024L, 2024L, NA_integer_),

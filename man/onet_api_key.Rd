@@ -22,7 +22,5 @@ Set the key in your environment with:
 Or add it to your \code{.Renviron} file for persistence.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
-onet_api_key()
-\dontshow{\}) # examplesIf}
+nzchar(Sys.getenv("ONET_API_KEY", unset = ""))
 }

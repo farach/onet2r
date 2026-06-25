@@ -20,6 +20,8 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 sample_oews <- system.file(
   "extdata",
@@ -55,7 +57,7 @@ oews <- onet_oews_national(year = 2024, path = sample_oews)
 
 oews |>
   select(occ_code, occ_title, tot_emp, a_median, h_median) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Build a Reference-SOC Weight Panel
@@ -68,7 +70,7 @@ join is auditable.
 oews_weights <- onet_weight_panel_oews(oews, year = 2024)
 
 oews_weights |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Get O&#42;NET Occupation Scores from an Archive
@@ -94,7 +96,7 @@ oral_scores <- abilities |>
   )
 
 oral_scores |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Aggregate with OEWS Employment
@@ -108,9 +110,10 @@ oral_oews <- onet_measure_aggregate(
 
 oral_oews |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
+  onet_kable()
 
-onet_provenance(oral_oews)
+onet_provenance(oral_oews) |>
+  onet_kable()
 ```
 
 The aggregate is the employment-weighted score for occupations covered by both
@@ -118,7 +121,8 @@ the O&#42;NET fixture and the OEWS sample. Coverage tells you how much of the we
 panel was included.
 
 ```{r aggregate-coverage}
-onet_coverage(oral_oews)
+onet_coverage(oral_oews) |>
+  onet_kable()
 ```
 
 ## Inspect Occupation Contributions
@@ -132,18 +136,22 @@ contributions <- oral_scores |>
   select(title, reference_soc_code, measure_score, employment, weight_share, weighted_score)
 
 contributions |>
-  print(width = Inf)
+  onet_kable()
 ```
 
-```{r contribution-chart, fig.alt = "Bar chart showing employment-weighted ability contributions by occupation."}
-barplot(
-  height = setNames(contributions$weighted_score, contributions$title),
-  col = "#0f766e",
-  border = NA,
-  las = 2,
-  ylab = "Score times employment",
-  main = "Which Occupations Drive the Weighted Score?"
-)
+```{r contribution-chart, fig.alt = "Horizontal bar chart showing employment-weighted ability contributions by occupation."}
+ggplot2::ggplot(contributions, ggplot2::aes(
+  x = weighted_score,
+  y = stats::reorder(title, weighted_score)
+)) +
+  ggplot2::geom_col(fill = onet2r_colors[["teal"]], width = 0.65) +
+  ggplot2::labs(
+    title = "Which Occupations Drive the Weighted Score?",
+    subtitle = "Contribution is the occupation score times employment.",
+    x = "Score times employment",
+    y = NULL
+  ) +
+  onet2r_theme()
 ```
 
 ## Compare OEWS with a PUMS-Style Weight Panel
@@ -166,7 +174,7 @@ pums_weights <- onet_weight_panel_pums(
 )
 
 pums_weights |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 Because this PUMS-style panel has cells, pick one cell before aggregating.
@@ -186,7 +194,8 @@ tibble::tibble(
     oral_oews$employment_coverage_share,
     oral_pums_f$employment_coverage_share
   )
-)
+) |>
+  onet_kable()
 ```
 
 The point is not that one source is always better. OEWS gives official labor

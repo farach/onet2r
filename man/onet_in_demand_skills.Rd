@@ -23,7 +23,7 @@ may return 404; this helper uses the working hot-technology endpoint and
 filters to rows where \code{in_demand} is \code{TRUE}.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_in_demand_skills("15-1252.00", end = 5)
 \dontshow{\}) # examplesIf}
 }

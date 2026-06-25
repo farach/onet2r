@@ -20,7 +20,7 @@ A tibble of work style elements.
 Get O*NET Occupation Work Styles (details)
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_work_styles("15-1252.00", end = 5)
 \dontshow{\}) # examplesIf}
 }

@@ -18,6 +18,8 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 sample_oews <- system.file(
   "extdata",
@@ -100,15 +102,16 @@ tibble::tibble(
     nrow(onet_provenance(aggregate)) == 1,
     nrow(onet_coverage(aggregate)) == 1
   )
-)
+) |>
+  onet_kable()
 
 weights |>
   head(5) |>
-  print(width = Inf)
+  onet_kable()
 
 aggregate |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Example: Live Validation Status
@@ -121,7 +124,8 @@ environment.
 tibble::tibble(
   check = "ONET_API_KEY available for live API validation",
   passed = nzchar(Sys.getenv("ONET_API_KEY"))
-)
+) |>
+  onet_kable()
 ```
 
 The goal is not to replace unit tests. It is to give maintainers and users a

@@ -24,6 +24,9 @@ similar microdata with occupation codes into SOC-level employment weights.
 Use this after downloading PUMS data with packages such as \code{tidycensus} or
 \code{ipumsr}.
 }
+\details{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+}
 \section{Lifecycle}{
 
 This helper is soft-deprecated in favor of \code{\link[=onet_weight_panel_pums]{onet_weight_panel_pums()}}, which

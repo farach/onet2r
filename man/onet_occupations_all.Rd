@@ -25,7 +25,7 @@ Retrieves all occupations in the O*NET database by automatically paginating
 through the results.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_occupations_all(show_progress = FALSE)
 \dontshow{\}) # examplesIf}
 }

@@ -26,7 +26,7 @@ Use \code{\link[=onet_occupations_all]{onet_occupations_all()}} to automatically
 occupation list.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_occupations(start = 1, end = 5)
 \dontshow{\}) # examplesIf}
 }

@@ -30,7 +30,7 @@ A tibble with columns:
 Retrieves hot technologies for a specific occupation from the hot technology endpoint.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_hot_technology("15-1252.00", end = 5)
 \dontshow{\}) # examplesIf}
 }

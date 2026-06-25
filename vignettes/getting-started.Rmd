@@ -26,6 +26,8 @@ options(
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 has_onet_key <- nzchar(Sys.getenv("ONET_API_KEY"))
 run_live <- has_onet_key && identical(Sys.getenv("ONET2R_RUN_LIVE_VIGNETTES"), "true")
@@ -56,7 +58,8 @@ files through actual `onet2r` functions.
 tibble::tibble(
   setting = c("ONET_API_KEY configured", "live vignette API calls enabled"),
   value = c(has_onet_key, run_live)
-)
+) |>
+  onet_kable()
 ```
 
 ## Search the Current O&#42;NET API
@@ -66,23 +69,27 @@ by a detail endpoint such as `onet_skills()` or `onet_abilities()`.
 
 ```{r live-api-search}
 if (run_live) {
-  onet_search("software developer", start = 1, end = 5)
+  onet_search("software developer", start = 1, end = 5) |>
+    onet_kable()
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search()."
-  )
+  ) |>
+    onet_kable()
 }
 ```
 
 ```{r live-api-details}
 if (run_live) {
-  onet_skills("15-1252.00", start = 1, end = 5)
+  onet_skills("15-1252.00", start = 1, end = 5) |>
+    onet_kable()
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills()."
-  )
+  ) |>
+    onet_kable()
 }
 ```
 
@@ -112,7 +119,7 @@ abilities |>
     domain_source
   ) |>
   head(8) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Add Labor-Market Context
@@ -125,7 +132,7 @@ oews <- onet_oews_national(2024, path = sample_oews)
 weights <- onet_weight_panel_oews(oews, year = 2024)
 
 weights |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 To answer a concrete question, take one ability, treat the O&#42;NET values as the
@@ -144,9 +151,10 @@ oral_aggregate <- onet_measure_aggregate(
 
 oral_aggregate |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
+  onet_kable()
 
-onet_provenance(oral_aggregate)
+onet_provenance(oral_aggregate) |>
+  onet_kable()
 ```
 
 ## Compare Two Archive Releases
@@ -180,22 +188,29 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
-```{r getting-started-chart, fig.alt = "Bar chart of change classifications in the getting started example."}
+```{r getting-started-chart, fig.alt = "Horizontal bar chart of change classifications in the getting started example."}
 plot_data <- changes |>
   count(change_type, name = "rows") |>
   arrange(desc(rows))
 
-barplot(
-  height = setNames(plot_data$rows, plot_data$change_type),
-  col = "#0f766e",
-  border = NA,
-  las = 2,
-  ylab = "Rows",
-  main = "What Kind of Change Was Observed?"
-)
+ggplot2::ggplot(plot_data, ggplot2::aes(
+  x = stats::reorder(change_type, rows),
+  y = rows,
+  fill = change_type
+)) +
+  ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+  ggplot2::coord_flip() +
+  onet2r_discrete_fill() +
+  ggplot2::labs(
+    title = "What Kind of Change Was Observed?",
+    subtitle = "Interpret the classification before the numeric change.",
+    x = NULL,
+    y = "Rows"
+  ) +
+  onet2r_theme()
 ```
 
 ## Next Steps

@@ -25,7 +25,7 @@ Converts occupation codes between the active O*NET-SOC taxonomy
 and the 2010 SOC taxonomy.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 # Map from active O*NET-SOC to 2010 SOC
 onet_taxonomy_map("15-1252.00", from = "active", to = "2010")
 

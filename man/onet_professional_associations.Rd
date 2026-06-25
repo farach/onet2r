@@ -20,7 +20,7 @@ A tibble of professional associations.
 Get O*NET Professional Associations (details)
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_professional_associations("15-1252.00", end = 5)
 \dontshow{\}) # examplesIf}
 }

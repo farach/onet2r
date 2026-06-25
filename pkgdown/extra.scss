@@ -83,6 +83,32 @@ blockquote {
   background-color: rgba(15, 118, 110, 0.08);
 }
 
+.onet-callout {
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-left-width: 0.45rem;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  background: #fbfdfc;
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.06);
+}
+
+.onet-callout strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #0f172a;
+}
+
+.onet-callout-warning {
+  border-left-color: #be123c;
+  background: linear-gradient(135deg, rgba(190, 18, 60, 0.08), #fbfdfc 55%);
+}
+
+.onet-callout-tip {
+  border-left-color: #0f766e;
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.10), #fbfdfc 55%);
+}
+
 .contents .section h2,
 .ref-index h2 {
   border-bottom: 1px solid rgba(15, 118, 110, 0.18);

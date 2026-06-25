@@ -20,7 +20,7 @@ A tibble with one row per apprenticeship example title.
 Get O*NET Apprenticeship Opportunities (details)
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_apprenticeship("15-1252.00", end = 5)
 \dontshow{\}) # examplesIf}
 }

@@ -25,7 +25,7 @@ A tibble with column metadata including:
 Retrieves metadata about columns in a specific database table.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 info <- onet_table_info("occupation_data")
 \dontshow{\}) # examplesIf}
 }

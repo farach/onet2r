@@ -24,7 +24,7 @@ A tibble with columns:
 Searches O*NET occupations by keyword or O*NET-SOC code.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 # Search by keyword
 onet_search("software developer")
 

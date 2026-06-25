@@ -9,7 +9,7 @@
 #'   }
 #'
 #' @export
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' tables <- onet_tables()
 #' head(tables)
 onet_tables <- function() {
@@ -50,7 +50,7 @@ onet_tables <- function() {
 #'   }
 #'
 #' @export
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' info <- onet_table_info("occupation_data")
 onet_table_info <- function(table_id) {
   validate_single_string(table_id, "table_id")
@@ -105,7 +105,7 @@ onet_table_info <- function(table_id) {
 #' by setting `show_progress = FALSE`.
 #'
 #' @export
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' # Get occupation data without progress messages.
 #' occ_data <- onet_table("occupation_data", show_progress = FALSE)
 onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {

@@ -9,6 +9,8 @@
 #' estimates. This is useful for moving from occupation-level O&#42;NET outputs to
 #' labor-market-weighted measures.
 #'
+#' `r lifecycle::badge("deprecated")`
+#'
 #' @param data A data frame containing one row per occupation-value pair.
 #' @param group Character vector of columns to group by, such as task or skill
 #'   identifiers.

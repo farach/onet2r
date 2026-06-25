@@ -13,8 +13,8 @@
 #' Or add it to your `.Renviron` file for persistence.
 #'
 #' @export
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
-#' onet_api_key()
+#' @examples
+#' nzchar(Sys.getenv("ONET_API_KEY", unset = ""))
 onet_api_key <- function() {
   key <- Sys.getenv("ONET_API_KEY", unset = "")
   if (key == "") {

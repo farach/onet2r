@@ -13,7 +13,7 @@
 #'   }
 #'
 #' @export
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' # Search by military job title
 #' onet_crosswalk_military("infantry")
 #'
@@ -51,7 +51,7 @@ onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
 #'   }
 #'
 #' @export
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' # Map from active O*NET-SOC to 2010 SOC
 #' onet_taxonomy_map("15-1252.00", from = "active", to = "2010")
 #'

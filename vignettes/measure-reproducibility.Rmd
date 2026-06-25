@@ -26,6 +26,8 @@ options(
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 archive_dir <- system.file(
   "extdata",
@@ -65,7 +67,7 @@ task_ratings <- onet_archive_read(
 tasks |>
   select(onet_soc_code, task_id, task_type, task) |>
   head() |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 `Task Statements` carries task ids and Core or Supplemental labels. `Task
@@ -76,7 +78,7 @@ scores.
 task_ratings |>
   select(onet_soc_code, task_id, scale_id, scale_name, data_value, recommend_suppress) |>
   head() |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Validate a User-Supplied Measure
@@ -102,17 +104,21 @@ measure <- onet_measure(
   release_version = "30.3"
 )
 
-onet_coverage(measure)
+onet_coverage(measure) |>
+  onet_kable()
 ```
 
 The object also stores unmatched keys explicitly.
 
 ```{r unmatched}
-if (nrow(measure$unmatched) == 0) {
+unmatched <- if (nrow(measure$unmatched) == 0) {
   tibble::tibble(status = "No unmatched task ids")
 } else {
   measure$unmatched
 }
+
+unmatched |>
+  onet_kable()
 ```
 
 ## Roll Tasks to Occupations
@@ -129,7 +135,8 @@ occupation_scores <- onet_task_to_occupation(
   include_supplemental = FALSE
 )
 
-occupation_scores
+occupation_scores |>
+  onet_kable()
 ```
 
 Changing the Core-only rule is a plumbing choice, not a change to the user's
@@ -144,7 +151,8 @@ occupation_scores_all <- onet_task_to_occupation(
   include_supplemental = TRUE
 )
 
-occupation_scores_all
+occupation_scores_all |>
+  onet_kable()
 ```
 
 ## Add Employment Weights
@@ -160,7 +168,7 @@ oews_sample <- onet_oews_national(
 weights <- onet_weight_panel_oews(oews_sample, year = 2024)
 
 weights |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Aggregate and Inspect Provenance
@@ -174,9 +182,10 @@ national <- onet_measure_aggregate(
 
 national |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
+  onet_kable()
 
-onet_provenance(national)
+onet_provenance(national) |>
+  onet_kable()
 ```
 
 ## Check Sensitivity to Plumbing Choices
@@ -192,18 +201,32 @@ diagnostic <- onet_measure_sensitivity(
 
 diagnostic |>
   select(scenario, aggregate, employment_coverage_share, movement, movement_percent) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
-```{r robustness-chart, fig.alt = "Bar chart comparing core-only and core-plus-supplemental stylized task aggregates."}
-barplot(
-  height = setNames(diagnostic$aggregate, diagnostic$scenario),
-  col = c("#0f766e", "#14b8a6"),
-  border = NA,
-  las = 2,
-  ylab = "Aggregate score",
-  main = "Plumbing Choices Move the Headline Number"
-)
+```{r robustness-chart, fig.alt = "Horizontal dot chart comparing core-only and core-plus-supplemental stylized task aggregates."}
+ggplot2::ggplot(diagnostic, ggplot2::aes(
+  x = aggregate,
+  y = stats::reorder(scenario, aggregate)
+)) +
+  ggplot2::geom_vline(
+    xintercept = diagnostic$baseline_aggregate[[1]],
+    color = onet2r_colors[["slate"]],
+    linetype = "dashed"
+  ) +
+  ggplot2::geom_segment(
+    ggplot2::aes(x = 0, xend = aggregate, yend = scenario),
+    color = onet2r_colors[["light_gray"]],
+    linewidth = 1
+  ) +
+  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 3.3) +
+  ggplot2::labs(
+    title = "Plumbing Choices Move the Headline Number",
+    subtitle = "Dashed line marks the baseline scenario.",
+    x = "Aggregate score",
+    y = NULL
+  ) +
+  onet2r_theme()
 ```
 
 The diagnostic does not say which task score is right. It shows how much the

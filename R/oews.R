@@ -164,6 +164,8 @@ onet_oews_industry <- function(
 #' converting detailed O&#42;NET-SOC codes such as `"15-1252.00"` to SOC codes such
 #' as `"15-1252"`.
 #'
+#' `r lifecycle::badge("deprecated")`
+#'
 #' @param occupations A data frame containing an O&#42;NET occupation code column.
 #' @param oews Optional OEWS tibble. If omitted, `onet_oews_national()` is called.
 #' @param year Integer OEWS estimate year, used when `oews` is omitted.

@@ -20,8 +20,17 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
-archive_dir <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
+archive_path <- function(version) {
+  system.file(
+    "extdata",
+    "onet-mini",
+    paste0("db_", gsub(".", "_", version, fixed = TRUE), "_text"),
+    package = "onet2r"
+  )
+}
 oews_path <- system.file("extdata", "oews-national-sample.csv", package = "onet2r")
 ```
 
@@ -32,22 +41,34 @@ how much the headline number moves when non-substantive choices change.
 ## Build the Measure from Task Files
 
 ```{r build-measure}
-tasks <- onet_archive_read(
-  "30.3",
+tasks_243 <- onet_archive_read(
+  "24.3",
   "Task Statements",
-  path = archive_dir,
-  release_date = "2026-05-01"
+  path = archive_path("24.3"),
+  release_date = "2020-08-01"
 )
-ratings <- onet_archive_read(
-  "30.3",
+ratings_243 <- onet_archive_read(
+  "24.3",
   "Task Ratings",
-  path = archive_dir,
-  release_date = "2026-05-01"
+  path = archive_path("24.3"),
+  release_date = "2020-08-01"
+)
+tasks_251 <- onet_archive_read(
+  "25.1",
+  "Task Statements",
+  path = archive_path("25.1"),
+  release_date = "2020-11-01"
+)
+ratings_251 <- onet_archive_read(
+  "25.1",
+  "Task Ratings",
+  path = archive_path("25.1"),
+  release_date = "2020-11-01"
 )
 
 task_scores <- tibble::tibble(
-  task_id = c("1001", "1002", "2001"),
-  score = c(0.80, 0.40, 0.20)
+  task_id = c("1101", "1201", "1202", "2101"),
+  score = c(0.75, 0.80, 0.55, 0.25)
 )
 
 measure <- onet_measure(
@@ -55,12 +76,13 @@ measure <- onet_measure(
   key = "task_id",
   score = "score",
   key_type = "task",
-  universe = tasks$task_id,
+  universe = unique(c(tasks_243$task_id, tasks_251$task_id)),
   measure_id = "stylized_exposure",
-  release_version = "30.3"
+  release_version = "multi_release_fixture"
 )
 
-onet_coverage(measure)
+onet_coverage(measure) |>
+  onet_kable()
 ```
 
 ## Create Alternative Weight Panels
@@ -72,52 +94,111 @@ oews_weights <- onet_weight_panel_oews(
 )
 
 pums <- tibble::tibble(
-  SOCP = c("151252", "151252", "291141", "291141"),
+  SOCP = c("151252", "151253", "291141", "291141"),
   PWGTP = c(80, 120, 200, 80)
 )
 pums_weights <- onet_weight_panel_pums(pums, year = 2022)
 
-oews_weights
-pums_weights
+oews_weights |>
+  onet_kable()
+pums_weights |>
+  onet_kable()
 ```
 
 ## Run the Sensitivity Grid
 
 ```{r sensitivity-grid}
+bridge_2010_2019 <- tibble::tibble(
+  from_vintage = "mixed_fixture",
+  to_vintage = "2018 SOC",
+  from_onet_soc_code = c(
+    "15-1132.00",
+    "15-1132.00",
+    "15-1252.00",
+    "15-1253.00",
+    "29-1141.00"
+  ),
+  to_onet_soc_code = c(
+    "15-1252.00",
+    "15-1253.00",
+    "15-1252.00",
+    "15-1253.00",
+    "29-1141.00"
+  ),
+  map_type = c("split", "split", "one_to_one", "one_to_one", "one_to_one"),
+  crosswalk_weight = c(0.5, 0.5, 1, 1, 1)
+)
+
 sensitivity <- onet_measure_sensitivity(
   measure,
   weight_panels = list(oews = oews_weights, pums = pums_weights),
-  task_ratings = ratings,
-  task_metadata = tasks,
+  bridges = list(reference_bridge = bridge_2010_2019),
+  task_ratings = list(`2010-vintage 24.3` = ratings_243, `2019-vintage 25.1` = ratings_251),
+  task_metadata = list(`2010-vintage 24.3` = tasks_243, `2019-vintage 25.1` = tasks_251),
   include_supplemental = c(FALSE, TRUE)
 )
 
 sensitivity |>
   select(
     scenario,
+    task_release,
+    soc_vintage,
+    weight_panel,
+    include_supplemental,
     aggregate,
     employment_coverage_share,
     movement,
     movement_percent
   ) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
-```{r sensitivity-chart, fig.alt = "Bar chart of stylized exposure aggregates across task and weight choices."}
-barplot(
-  height = setNames(sensitivity$aggregate, sensitivity$scenario),
-  col = c("#0f766e", "#14b8a6", "#64748b", "#94a3b8"),
-  border = NA,
-  las = 2,
-  ylab = "Aggregate score",
-  main = "Sensitivity to Weight and Task Choices"
-)
+```{r sensitivity-chart, fig.alt = "Horizontal dot chart of stylized exposure aggregates across task release, weight source, and task handling choices."}
+plot_sensitivity <- sensitivity |>
+  mutate(
+    task_rule = if_else(include_supplemental, "core + supplemental", "core only"),
+    plot_label = paste(task_release, weight_panel, task_rule, sep = " / ")
+  )
+
+ggplot2::ggplot(plot_sensitivity, ggplot2::aes(
+  x = aggregate,
+  y = stats::reorder(plot_label, aggregate),
+  color = weight_panel,
+  shape = task_rule
+)) +
+  ggplot2::geom_vline(
+    xintercept = plot_sensitivity$baseline_aggregate[[1]],
+    color = onet2r_colors[["slate"]],
+    linetype = "dashed"
+  ) +
+  ggplot2::geom_point(size = 3.1) +
+  ggplot2::geom_text(
+    ggplot2::aes(label = sprintf("%+.3f", movement)),
+    hjust = -0.15,
+    size = 3,
+    show.legend = FALSE
+  ) +
+  ggplot2::scale_color_manual(
+    values = c(oews = onet2r_colors[["teal"]], pums = onet2r_colors[["amber"]])
+  ) +
+  ggplot2::labs(
+    title = "Sensitivity to Task Release, Weights, and Task Handling",
+    subtitle = "Dashed line marks the first scenario in the grid.",
+    x = "Aggregate score",
+    y = NULL,
+    color = "Weight source",
+    shape = "Task rule"
+  ) +
+  onet2r_theme()
 ```
 
 ## Inspect Provenance
 
 ```{r provenance}
-onet_provenance(sensitivity)
+onet_provenance(sensitivity) |>
+  select(any_of(c("weight_source", "weight_year", "bridge", "measure_id"))) |>
+  head(8) |>
+  onet_kable()
 ```
 
 If the sign, rank, or interpretation of a result depends on one plumbing choice,

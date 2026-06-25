@@ -20,6 +20,8 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 archive_dir <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
 ```
@@ -47,12 +49,12 @@ ratings <- onet_archive_read(
 
 tasks |>
   select(onet_soc_code, task_id, task_type, task) |>
-  print(width = Inf)
+  onet_kable()
 
 ratings |>
   select(onet_soc_code, task_id, scale_id, scale_name, data_value) |>
   head(8) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Validate Task Scores
@@ -72,7 +74,8 @@ measure <- onet_measure(
   measure_id = "stylized_task_score"
 )
 
-onet_coverage(measure)
+onet_coverage(measure) |>
+  onet_kable()
 ```
 
 ## Roll Up with Relevance Weights
@@ -94,8 +97,10 @@ core_plus_supplemental <- onet_task_to_occupation(
   include_supplemental = TRUE
 )
 
-core_only
-core_plus_supplemental
+core_only |>
+  onet_kable()
+core_plus_supplemental |>
+  onet_kable()
 ```
 
 ## Interpret the Plumbing Choice
@@ -108,19 +113,35 @@ comparison <- bind_rows(
   select(rule, onet_soc_code, n_tasks, total_task_weight, measure_score)
 
 comparison |>
-  print(width = Inf)
+  onet_kable()
 ```
 
-```{r task-chart, fig.alt = "Bar chart of occupation scores under core-only and core-plus-supplemental task rules."}
-labels <- paste(comparison$onet_soc_code, comparison$rule, sep = "\n")
-barplot(
-  height = setNames(comparison$measure_score, labels),
-  col = rep(c("#0f766e", "#14b8a6"), each = 2),
-  border = NA,
-  las = 2,
-  ylab = "Occupation score",
-  main = "Task Handling Can Change Occupation Scores"
-)
+```{r task-chart, fig.alt = "Grouped dot chart of occupation scores under core-only and core-plus-supplemental task rules."}
+ggplot2::ggplot(comparison, ggplot2::aes(
+  x = measure_score,
+  y = onet_soc_code,
+  color = rule
+)) +
+  ggplot2::geom_point(
+    ggplot2::aes(shape = rule),
+    size = 3,
+    position = ggplot2::position_dodge(width = 0.45)
+  ) +
+  ggplot2::labs(
+    title = "Task Handling Can Change Occupation Scores",
+    subtitle = "The task score is fixed; the rollup rule changes.",
+    x = "Occupation score",
+    y = "O*NET-SOC code",
+    color = NULL,
+    shape = NULL
+  ) +
+  ggplot2::scale_color_manual(
+    values = c(
+      "Core tasks only" = onet2r_colors[["teal"]],
+      "Core plus Supplemental" = onet2r_colors[["amber"]]
+    )
+  ) +
+  onet2r_theme()
 ```
 
 The task score did not change. The rollup rule changed. That distinction matters

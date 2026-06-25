@@ -230,6 +230,8 @@ test_that("onet_panel reads cross-vintage and task fixtures", {
   expect_false(any(reconciled$safely_comparable[reconciled$transition_data]))
   expect_equal(nrow(tasks), 5L)
   expect_equal(unique(as.character(tasks$scale_id)), "RT")
+  expect_true(all(as.character(tasks$scale_id) == "RT"))
+  expect_true(all(tasks$scale_name == "Relevance of Task"))
 })
 
 test_that("onet_crosswalk_bridge classifies split and merge mappings", {

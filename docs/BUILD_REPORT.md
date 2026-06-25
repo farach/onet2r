@@ -1,4 +1,4 @@
-# onet2r 0.4.0 build report
+# onet2r 0.4.1 build report
 
 Date: 2026-06-25
 
@@ -6,31 +6,34 @@ Date: 2026-06-25
 
 - Windows 11 x64
 - R 4.5.2
-- Package version: 0.4.0
+- Package version: 0.4.1
 
 ## Checks run
 
 - `devtools::document()`: completed after roxygen changes.
-- Exported documentation audit: all exported aliases have `\value{}` and `\examples{}` sections.
-- `devtools::test()`: 293 passing tests, 0 failures, 0 warnings, 0 skips.
-- `Rscript inst/examples/validate-outputs.R`: completed using bundled fixtures and local example data.
+- `devtools::build_readme()`: completed after README source changes.
+- `devtools::test()`: 297 passing tests with local environment; 294 passing and 2 live smoke tests skipped when `ONET_API_KEY` was unset.
+- `Rscript inst/examples/validate-outputs.R`: completed with `ONET_API_KEY` unset, exercising bundled OEWS, archive, measure, aggregation, sensitivity, decomposition, cache, and rate-limit outputs.
 - `urlchecker::url_check()`: all URLs correct.
+- `lintr::lint_package()`: 203 remaining default line-length findings; no remaining non-line-length lints.
 - `pkgdown::check_pkgdown()`: no problems found.
-- `pkgdown::build_site()`: completed successfully.
-- Generated pkgdown HTML scan: no malformed O&#42;NET rendering and no instruction leakage.
-- `rcmdcheck::rcmdcheck(args = "--as-cran")`: 0 errors, 0 warnings, 2 notes.
+- `pkgdown::build_site(new_process = FALSE)`: completed successfully.
+- Generated pkgdown HTML scan: no malformed O&#42;NET rendering, no `# A tibble` console dumps in article output, no base `barplot()` remnants, and no instruction leakage.
+- `rcmdcheck::rcmdcheck(args = "--as-cran")`: 0 errors, 0 warnings, 1 note.
 
-## R CMD check notes
+## R CMD check note
 
 1. New submission.
-2. Unable to verify current time.
+
+The final R CMD check was run with `ONET_API_KEY` unset so examples could not make live Web Services calls or expose local credentials. `LC_CTYPE` was also unset to avoid a local Windows startup warning unrelated to the package.
 
 ## Optional checks
 
-- `lintr::lint_package()` was run. Non-line-length findings were fixed. The remaining 196 findings are default 80-character line-length warnings in existing source, tests, and vignettes.
+- `air` was not installed.
 - `spelling` was not installed.
 - `goodpractice` was not installed.
+- `covr` was not installed.
 
 ## Output inspection
 
-The validation script and rebuilt articles exercise the archive, panel reconciliation, measure, aggregation, sensitivity, decomposition, OEWS weight-panel, and PUMS weight-panel workflows on bundled or local example data. Vignettes and README examples render with displayed output and bounded `head()` or summary tables where output would otherwise be too long.
+The rebuilt README and pkgdown articles now use actual `onet2r` function outputs instead of rebuilt example tables except where a user-supplied stylized score is intentionally demonstrated. Tables are rendered with `knitr::kable()`, charts use a shared ggplot2 style with opaque backgrounds, and the historical, OEWS, sensitivity, and decomposition walkthroughs use bundled offline fixtures.

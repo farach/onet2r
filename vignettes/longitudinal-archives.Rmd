@@ -20,6 +20,8 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 example_archive <- function(version) {
   system.file(
@@ -75,7 +77,7 @@ abilities_303 |>
     domain_source
   ) |>
   head(8) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 The output has one row per occupation, element, scale, and release. The
@@ -113,7 +115,7 @@ panel |>
     domain_source
   ) |>
   head(10) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 This is the table you would save as your audit trail before doing any modeling.
@@ -143,7 +145,7 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(10) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 Read `change_type` before interpreting `value_change`.
@@ -170,7 +172,7 @@ changes |>
     method_break,
     safely_comparable
   ) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Cross a Taxonomy Seam
@@ -216,22 +218,44 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
-```{r summary-chart, fig.alt = "Bar chart of same-vintage change classifications."}
-summary_counts <- changes |>
-  count(change_type, name = "rows") |>
-  arrange(desc(rows))
+```{r summary-chart, fig.alt = "Dumbbell chart of cross-vintage ability changes, with safe comparisons separated from unsafe comparisons."}
+plot_changes <- cross_changes |>
+  filter(!is.na(from_value), !is.na(to_value)) |>
+  mutate(
+    comparison = paste(to_onet_soc_code, element_name, sep = ": "),
+    comparability = if_else(safely_comparable, "Safe", "Not safe")
+  )
 
-barplot(
-  height = setNames(summary_counts$rows, summary_counts$change_type),
-  col = "#0f766e",
-  border = NA,
-  las = 2,
-  ylab = "Rows",
-  main = "Change Classification Comes Before Interpretation"
-)
+ggplot2::ggplot(plot_changes, ggplot2::aes(y = comparison)) +
+  ggplot2::geom_segment(
+    ggplot2::aes(
+      x = from_value,
+      xend = to_value,
+      yend = comparison,
+      color = comparability
+    ),
+    linewidth = 1.1
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(x = from_value),
+    color = onet2r_colors[["slate"]],
+    size = 2.8
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(x = to_value, color = comparability),
+    size = 3.2
+  ) +
+  onet2r_discrete_color(name = "Comparability") +
+  ggplot2::labs(
+    title = "A Cross-Vintage Difference Is Not Automatically Comparable",
+    subtitle = "Start and end points come from the bundled archive fixtures.",
+    x = "Importance rating",
+    y = NULL
+  ) +
+  onet2r_theme()
 ```
 
 ## Summarize the Panel
@@ -242,7 +266,7 @@ driving the apparent change.
 
 ```{r summary}
 onet_change_summary(changes, by = "job_family") |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## Recommended Workflow for Real Archive Work

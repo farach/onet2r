@@ -1,6 +1,6 @@
 # Data notes and verified assumptions
 
-These notes record facts checked for the 0.4.0 contracts. Facts that could not
+These notes record facts checked for the 0.4.1 contracts. Facts that could not
 be verified are treated as assumptions and guarded in tests or left out of
 automated behavior.
 
@@ -22,6 +22,9 @@ Verified from O&#42;NET Resource Center Data Dictionary pages for release 30.3:
   `Relevance of Task`. The task aggregation default uses `RT` for relevance
   weights because it is the direct task-to-occupation relevance scale in this
   file.
+- The packaged cross-vintage task fixture is tested with `scale = "RT"` and
+  asserts that every returned task-rating row carries `Scale ID` equal to `RT`
+  and `Scale Name` equal to `Relevance of Task`.
 - The DWA reference file changed in release 30.3. `DWA Reference.txt` became
   `GWAs to IWAs to DWAs.txt`, and old `DWA ID` fields became
   `DWA Element ID` fields with a new identifier format.
@@ -92,3 +95,6 @@ Sources:
   exercise 2010-to-2019 O&#42;NET-SOC behavior. They preserve official column
   names but are not official O&#42;NET data.
 - Current package tests do not require network access or API keys.
+- Multi-period and multi-cell weight panels must be filtered before
+  aggregation. Tests cover the explicit single-year and single-cell errors and
+  the successful filtered path.

@@ -20,6 +20,8 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 archive_303 <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
 oews_path <- system.file("extdata", "oews-national-sample.csv", package = "onet2r")
@@ -43,7 +45,8 @@ score <- abilities |>
   filter(element_id == "1.A.1.a.1") |>
   transmute(onet_soc_code, measure_score = data_value)
 
-score
+score |>
+  onet_kable()
 ```
 
 ## OEWS Weights
@@ -60,10 +63,11 @@ oews_result <- onet_measure_aggregate(
   measure_id = "oral_comprehension_fixture"
 )
 
-oews_weights
+oews_weights |>
+  onet_kable()
 oews_result |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ## PUMS Weights
@@ -94,7 +98,8 @@ pums_m <- onet_measure_aggregate(
   cell = list(sex = "M")
 )
 
-pums_weights
+pums_weights |>
+  onet_kable()
 ```
 
 ## Compare the Answers
@@ -110,18 +115,28 @@ comparison <- tibble::tibble(
   )
 )
 
-comparison
+comparison |>
+  onet_kable()
 ```
 
-```{r weights-chart, fig.alt = "Bar chart comparing OEWS and PUMS-style weighted aggregates."}
-barplot(
-  height = setNames(comparison$aggregate, comparison$population),
-  col = c("#0f766e", "#14b8a6", "#64748b"),
-  border = NA,
-  las = 2,
-  ylab = "Aggregate score",
-  main = "Weight Source Changes the Population"
-)
+```{r weights-chart, fig.alt = "Horizontal dot chart comparing OEWS and PUMS-style weighted aggregates."}
+ggplot2::ggplot(comparison, ggplot2::aes(
+  x = aggregate,
+  y = stats::reorder(population, aggregate)
+)) +
+  ggplot2::geom_segment(
+    ggplot2::aes(x = 0, xend = aggregate, yend = population),
+    color = onet2r_colors[["light_gray"]],
+    linewidth = 1.1
+  ) +
+  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 3.5) +
+  ggplot2::labs(
+    title = "Weight Source Changes the Population",
+    subtitle = "The score is fixed; the target population changes.",
+    x = "Aggregate score",
+    y = NULL
+  ) +
+  onet2r_theme()
 ```
 
 If your claim is about the national labor market, OEWS is the natural default.

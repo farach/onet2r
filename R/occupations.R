@@ -21,7 +21,7 @@
 #' Use [onet_occupations_all()] to automatically paginate through the full
 #' occupation list.
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_occupations(start = 1, end = 5)
 #'
 #' @export
@@ -45,7 +45,7 @@ onet_occupations <- function(start = 1, end = 1000) {
 #'   \item{title}{Occupation title}
 #' }
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_occupations_all(show_progress = FALSE)
 #'
 #' @export
@@ -83,7 +83,7 @@ onet_occupations_page <- function(start = 1, end = 1000) {
 #' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @return A list containing the occupation overview data.
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_occupation("15-1252.00")
 #'
 #' @export
@@ -105,7 +105,7 @@ onet_occupation <- function(code) {
 #' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
 #' @return A list containing the available occupation details sections.
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_occupation_details("15-1252.00")
 #'
 #' @export
@@ -127,7 +127,7 @@ onet_occupation_details <- function(code) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of skills.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_skills("15-1252.00", end = 5)
 #' @export
 onet_skills <- function(code, start = 1, end = 20) {
@@ -146,7 +146,7 @@ onet_skills <- function(code, start = 1, end = 20) {
 #'   for pagination (default TRUE).
 #'
 #' @return A tibble of skills.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_skills_all("15-1252.00", show_progress = FALSE)
 #' @export
 onet_skills_all <- function(code, page_size = 2000, show_progress = TRUE) {
@@ -165,7 +165,7 @@ onet_skills_all <- function(code, page_size = 2000, show_progress = TRUE) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of knowledge elements.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_knowledge("15-1252.00", end = 5)
 #' @export
 onet_knowledge <- function(code, start = 1, end = 20) {
@@ -177,7 +177,7 @@ onet_knowledge <- function(code, start = 1, end = 20) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of ability elements.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_abilities("15-1252.00", end = 5)
 #' @export
 onet_abilities <- function(code, start = 1, end = 20) {
@@ -189,7 +189,7 @@ onet_abilities <- function(code, start = 1, end = 20) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of work style elements.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_work_styles("15-1252.00", end = 5)
 #' @export
 onet_work_styles <- function(code, start = 1, end = 20) {
@@ -201,7 +201,7 @@ onet_work_styles <- function(code, start = 1, end = 20) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of interest elements.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_interests("15-1252.00", end = 5)
 #' @export
 onet_interests <- function(code, start = 1, end = 20) {
@@ -213,7 +213,7 @@ onet_interests <- function(code, start = 1, end = 20) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of work context elements.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_work_context("15-1252.00", end = 5)
 #' @export
 onet_work_context <- function(code, start = 1, end = 20) {
@@ -232,7 +232,7 @@ onet_work_context <- function(code, start = 1, end = 20) {
 #'   for pagination (default TRUE).
 #'
 #' @return A tibble of work context elements.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_work_context_all("15-1252.00", show_progress = FALSE)
 #' @export
 onet_work_context_all <- function(code, page_size = 2000, show_progress = TRUE) {
@@ -251,7 +251,7 @@ onet_work_context_all <- function(code, page_size = 2000, show_progress = TRUE) 
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of work activities.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_work_activities("15-1252.00", end = 5)
 #' @export
 onet_work_activities <- function(code, start = 1, end = 20) {
@@ -270,7 +270,7 @@ onet_work_activities <- function(code, start = 1, end = 20) {
 #'   for pagination (default TRUE).
 #'
 #' @return A tibble of work activities.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_work_activities_all("15-1252.00", show_progress = FALSE)
 #' @export
 onet_work_activities_all <- function(code, page_size = 2000, show_progress = TRUE) {
@@ -291,7 +291,7 @@ onet_work_activities_all <- function(code, page_size = 2000, show_progress = TRU
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of tasks.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_tasks("15-1252.00", end = 5)
 #' @export
 onet_tasks <- function(code, start = 1, end = 20) {
@@ -317,7 +317,7 @@ onet_tasks <- function(code, start = 1, end = 20) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of detailed work activities.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_detailed_work_activities("15-1252.00", end = 5)
 #' @export
 onet_detailed_work_activities <- function(code, start = 1, end = 20) {
@@ -340,7 +340,7 @@ onet_detailed_work_activities <- function(code, start = 1, end = 20) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of related occupations.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_related_occupations("15-1252.00", end = 5)
 #' @export
 onet_related_occupations <- function(code, start = 1, end = 20) {
@@ -363,7 +363,7 @@ onet_related_occupations <- function(code, start = 1, end = 20) {
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of professional associations.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_professional_associations("15-1252.00", end = 5)
 #' @export
 onet_professional_associations <- function(code, start = 1, end = 20) {
@@ -389,7 +389,7 @@ onet_professional_associations <- function(code, start = 1, end = 20) {
 #'
 #' @return A tibble with one row per apprenticeship example title.
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_apprenticeship("15-1252.00", end = 5)
 #'
 #' @export
@@ -420,7 +420,7 @@ onet_apprenticeship <- function(code, start = 1, end = 20) {
 #'
 #' @param code An O&#42;NET-SOC occupation code.
 #' @return A list (faithful to API response).
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_job_zone("15-1252.00")
 #' @export
 onet_job_zone <- function(code) {
@@ -448,7 +448,7 @@ onet_job_zone <- function(code) {
 #'   \item{percentage_of_respondents}{Percent of respondents reporting this level}
 #' }
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_education("15-1252.00")
 #'
 #' @export
@@ -494,7 +494,7 @@ onet_education <- function(code, start = 1, end = 20) {
 #'   \item{percentage}{Percent of postings/mentions as defined by API}
 #' }
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_hot_technology("15-1252.00", end = 5)
 #'
 #' @export
@@ -552,7 +552,7 @@ onet_technology <- function(code, start = 1, end = 20) {
 #'
 #' @return A tibble with one row per technology example, including category metadata.
 #'
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_technology_skills("15-1252.00", end = 3)
 #'
 #' @export
@@ -614,7 +614,7 @@ onet_technology_skills <- function(code, start = 1, end = 20, include_more = FAL
 #' @param start Integer specifying the first result to return.
 #' @param end Integer specifying the last result to return.
 #' @return A tibble of in-demand skills records.
-#' @examplesIf nzchar(Sys.getenv("ONET_API_KEY"))
+#' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_in_demand_skills("15-1252.00", end = 5)
 #' @export
 onet_in_demand_skills <- function(code, start = 1, end = 20) {

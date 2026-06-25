@@ -4,20 +4,17 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 2 notes
+0 errors | 0 warnings | 1 note
 
 * checking CRAN incoming feasibility ... NOTE
   New submission
 
-* checking for future file timestamps ... NOTE
-  unable to verify current time
-
 ## Downstream API behavior
 
 Examples that require live O&#42;NET or Bureau of Labor Statistics web services
-are guarded. The package also includes local sample Occupational Employment and
-Wage Statistics data so examples and vignettes can demonstrate the expected
-output shape without making network requests.
+are guarded behind interactive checks. The package also includes local sample
+Occupational Employment and Wage Statistics data so examples and vignettes can
+demonstrate the expected output shape without making network requests.
 
 ## Method references
 

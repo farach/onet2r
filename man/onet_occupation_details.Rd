@@ -17,7 +17,7 @@ Retrieves the details index for a specific occupation. The response includes
 links to available detailed sections from the occupation overview.
 }
 \examples{
-\dontshow{if (nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_occupation_details("15-1252.00")
 \dontshow{\}) # examplesIf}
 }

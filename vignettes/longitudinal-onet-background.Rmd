@@ -22,6 +22,8 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 ```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
+helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
+source(helper_paths[file.exists(helper_paths)][[1]])
 
 archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
 archive_243 <- file.path(archive_base, "db_24_3_text")
@@ -59,7 +61,8 @@ panel <- onet_panel(
 )
 
 panel |>
-  count(release_version, release_date, soc_vintage, domain)
+  count(release_version, release_date, soc_vintage, domain) |>
+  onet_kable()
 ```
 
 The table above is produced by `onet_panel()`. In a live workflow, the same call
@@ -107,7 +110,7 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
 ### 3. A Release-to-Release "Change" May Not Be a True Content Change
@@ -127,20 +130,31 @@ changes <- onet_panel_reconcile(
 changes |>
   distinct(value_changed, date_changed, change_type, safely_comparable) |>
   arrange(change_type) |>
-  print(width = Inf)
+  onet_kable()
 ```
 
-```{r comparable-chart, fig.alt = "Bar chart showing safely comparable and not safely comparable rows in the cross-vintage example."}
+```{r comparable-chart, fig.alt = "Horizontal bar chart showing safely comparable and not safely comparable rows in the cross-vintage example."}
 comparison_counts <- cross_changes |>
-  count(safely_comparable, name = "rows")
+  mutate(comparability = if_else(safely_comparable, "Safe", "Not safe")) |>
+  count(comparability, name = "rows")
 
-barplot(
-  height = setNames(comparison_counts$rows, comparison_counts$safely_comparable),
-  col = c("#64748b", "#0f766e"),
-  border = NA,
-  ylab = "Rows",
-  main = "How Many Rows Are Safe to Compare?"
-)
+ggplot2::ggplot(comparison_counts, ggplot2::aes(
+  x = comparability,
+  y = rows,
+  fill = comparability
+)) +
+  ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
+  ggplot2::coord_flip() +
+  ggplot2::scale_fill_manual(
+    values = c("Safe" = onet2r_colors[["teal"]], "Not safe" = onet2r_colors[["rose"]])
+  ) +
+  ggplot2::labs(
+    title = "How Many Rows Are Safe to Compare?",
+    subtitle = "The count comes from the cross-vintage example, not a hand-built table.",
+    x = NULL,
+    y = "Rows"
+  ) +
+  onet2r_theme()
 ```
 
 Those rows are not a hand-built truth table. They are the observed
