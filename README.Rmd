@@ -66,8 +66,15 @@ The archive, OEWS, and measure examples below run without a key.
 suppressPackageStartupMessages({
   library(onet2r)
   library(dplyr)
-  helper_paths <- c("vignettes/_helpers.R", "_helpers.R")
-  source(helper_paths[file.exists(helper_paths)][[1]])
+  helper_paths <- c(
+    "inst/vignette-helpers.R",
+    "vignette-helpers.R",
+    system.file("vignette-helpers.R", package = "onet2r")
+  )
+  helper_path <- helper_paths[
+    nzchar(helper_paths) & file.exists(helper_paths)
+  ][[1]]
+  source(helper_path)
 })
 ```
 
