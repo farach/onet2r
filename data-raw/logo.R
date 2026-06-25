@@ -21,19 +21,20 @@ polygon(0.72 * x, 0.72 * y, col = "#ecfeff", border = "#99f6e4", lwd = 4)
 
 text(
   0,
-  0.16,
+  0.12,
   "onet2r",
   col = "#0f172a",
-  cex = 2.7,
+  cex = 6.0,
   font = 2,
   family = "sans"
 )
 text(
   0,
-  -0.22,
-  "O*NET + weights",
-  col = "#334155",
-  cex = 1.05,
+  -0.28,
+  "O*NET",
+  col = "#1e293b",
+  cex = 3.0,
+  font = 2,
   family = "sans"
 )
 par(op)
