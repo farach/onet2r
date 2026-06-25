@@ -1,14 +1,19 @@
 ---
-title: "Within-versus-between decomposition"
+title: "Within-Versus-Between Decomposition"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Within-versus-between decomposition}
+  %\VignetteIndexEntry{Within-Versus-Between Decomposition}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
 options(tibble.print_min = 4, tibble.print_max = 8)
 options(
   cli.num_colors = 1,
@@ -18,7 +23,7 @@ options(
 )
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
 ```
@@ -29,7 +34,7 @@ With O&#42;NET, the within term needs an extra gate: only rows that survive the
 comparability checks should be counted as safely comparable within-occupation
 change.
 
-## A two-occupation example
+## A Two-Occupation Example
 
 ```{r inputs}
 from_scores <- tibble::tibble(
@@ -66,8 +71,26 @@ decomp <- onet_decompose_change(
   to_weights
 )
 
-decomp
-attr(decomp, "coverage")
+decomp |>
+  select(component, value) |>
+  print(width = Inf)
+
+onet_coverage(decomp)
+```
+
+```{r decomposition-chart, fig.alt = "Bar chart showing within, between, interaction, and unclassifiable decomposition components."}
+components <- decomp |>
+  filter(component != "total_change")
+
+barplot(
+  height = setNames(components$value, components$component),
+  col = c("#0f766e", "#14b8a6", "#99f6e4", "#64748b"),
+  border = NA,
+  las = 2,
+  ylab = "Contribution to change",
+  main = "Where Did the Aggregate Change Come From?"
+)
+abline(h = 0, col = "#334155")
 ```
 
 The component rows other than `total_change` sum to the total change.
@@ -81,11 +104,11 @@ decomp |>
   )
 ```
 
-## A demographic split
+## A Demographic Split
 
 The same decomposition can be run after users prepare weight panels for
 demographic cells. The package does not download raw PUMS data in examples, but
-the fixture below follows the same reference-SOC, year, cell, employment shape.
+the fixture below follows the same reference-SOC, cell, employment shape.
 
 ```{r demographic-weights}
 from_weights_by_sex <- tibble::tibble(
@@ -112,6 +135,7 @@ split_results <- lapply(unique(from_weights_by_sex$sex), function(cell) {
   purrr::list_rbind()
 
 split_results |>
+  select(sex, component, value) |>
   print(n = Inf, width = Inf)
 ```
 

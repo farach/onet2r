@@ -1,0 +1,4 @@
+O*NET-SOC Code	Title	Element ID	Element Name	Scale ID	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Date	Domain Source
+15-1252.00	Software Developers	1.A.1.a.1	Oral Comprehension	IM	4.48	25	0.15	4.18	4.78	N	11/2020	Analyst - Transition
+15-1253.00	Software Quality Assurance Analysts and Testers	1.A.1.a.1	Oral Comprehension	IM	4.30	23	0.17	3.96	4.64	N	11/2020	Analyst - Transition
+29-1141.00	Registered Nurses	1.A.1.a.1	Oral Comprehension	IM	4.66	29	0.11	4.44	4.88	N	11/2020	Incumbent

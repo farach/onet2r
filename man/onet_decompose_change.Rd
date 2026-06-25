@@ -34,11 +34,32 @@ onet_decompose_change(
 marking rows safe for within-change attribution.}
 }
 \value{
-A tibble with decomposition components. Coverage information is
-attached as a \code{coverage} attribute.
+A tibble with decomposition components and coverage list-column
+metadata readable with \code{\link[=onet_coverage]{onet_coverage()}}.
 }
 \description{
 Decomposes aggregate change between two periods into within-occupation,
 between-occupation, interaction, and unclassifiable components. The within
 term is restricted to rows marked comparable.
+}
+\examples{
+from_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(0.6, 0.3),
+  safely_comparable = c(TRUE, TRUE)
+)
+to_scores <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  measure_score = c(0.7, 0.2),
+  safely_comparable = c(TRUE, FALSE)
+)
+from_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(100, 300)
+)
+to_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  employment = c(150, 250)
+)
+onet_decompose_change(from_scores, to_scores, from_weights, to_weights)
 }

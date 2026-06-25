@@ -1,6 +1,6 @@
 Package: onet2r
-Title: Access 'O*NET' Web Services API
-Version: 0.3.0
+Title: Work with 'O*NET' Web Services, Archives, and Weights
+Version: 0.4.0
 Authors@R:
     person("Alex", "Farach", email = "alexfarach@microsoft.com", role = c("aut", "cre", "cph"))
 Description: Access the 'O*NET' Web Services Application Programming Interface
@@ -20,6 +20,7 @@ Imports:
     cli,
     dplyr (>= 1.1.0),
     httr2 (>= 1.0.0),
+    lifecycle,
     purrr,
     rlang,
     tibble
@@ -28,7 +29,6 @@ Suggests:
     readxl,
     rmarkdown,
     testthat (>= 3.0.0),
-    tidycensus,
     withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr

@@ -4,18 +4,25 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 2 notes
+
+* checking CRAN incoming feasibility ... NOTE
+  New submission
 
 * checking for future file timestamps ... NOTE
   unable to verify current time
 
 ## Downstream API behavior
 
-Examples that require live O\*NET or BLS web services are guarded. The package
-also includes local sample OEWS data so examples and vignettes can demonstrate
-the expected output shape without making network requests.
+Examples that require live O&#42;NET or Bureau of Labor Statistics web services
+are guarded. The package also includes local sample Occupational Employment and
+Wage Statistics data so examples and vignettes can demonstrate the expected
+output shape without making network requests.
 
 ## Method references
 
-There are no published methodological references for this package. It provides
-an R client for public O\*NET and BLS data products.
+This package is primarily an R client and reproducibility layer for public
+O&#42;NET and Bureau of Labor Statistics data products. It does not ship a
+substantive exposure score. The vignettes cite the official O&#42;NET Resource
+Center documentation and Bureau of Labor Statistics mapping guidance used by the
+longitudinal and weighting workflows.

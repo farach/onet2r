@@ -174,6 +174,10 @@ onet_oews_industry <- function(
 #'
 #' @return A tibble containing `occupations` plus a `soc_code` column and
 #'   matching national OEWS employment and wage estimate columns.
+#'
+#' @section Lifecycle:
+#' This helper is soft-deprecated in favor of [onet_weight_panel_oews()] plus
+#' [onet_measure_aggregate()] for vintage-aware weighting.
 #' @export
 #'
 #' @examples
@@ -189,8 +193,36 @@ onet_oews_industry <- function(
 #'   a_median = c(133080, 93070)
 #' )
 #'
-#' onet_join_oews(occupations, oews = oews)
+#' suppressWarnings(onet_join_oews(occupations, oews = oews))
 onet_join_oews <- function(
+    occupations,
+    oews = NULL,
+    year = latest_oews_year(),
+    by = "code",
+    cache_dir = tools::R_user_dir("onet2r", "cache"),
+    force = FALSE,
+    quiet = TRUE) {
+  lifecycle::deprecate_soft(
+    "0.4.0",
+    "onet_join_oews()",
+    "onet_weight_panel_oews()",
+    details = paste(
+      "Use `onet_weight_panel_oews()` to build weights and",
+      "`onet_measure_aggregate()` to aggregate user-supplied measures."
+    )
+  )
+  join_oews_impl(
+    occupations = occupations,
+    oews = oews,
+    year = year,
+    by = by,
+    cache_dir = cache_dir,
+    force = force,
+    quiet = quiet
+  )
+}
+
+join_oews_impl <- function(
     occupations,
     oews = NULL,
     year = latest_oews_year(),

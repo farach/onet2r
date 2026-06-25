@@ -12,27 +12,22 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
 )
+options(tibble.print_min = 4, tibble.print_max = 8)
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
 
-archive_302 <- system.file(
-  "extdata",
-  "onet-mini",
-  "db_30_2_text",
-  package = "onet2r"
-)
-
-archive_303 <- system.file(
-  "extdata",
-  "onet-mini",
-  "db_30_3_text",
-  package = "onet2r"
-)
+archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+archive_243 <- file.path(archive_base, "db_24_3_text")
+archive_251 <- file.path(archive_base, "db_25_1_text")
+archive_302 <- file.path(archive_base, "db_30_2_text")
+archive_303 <- file.path(archive_base, "db_30_3_text")
 ```
 
 O&#42;NET is one of the most useful public sources for occupation-level skills,
@@ -46,7 +41,7 @@ That reconstruction is why `onet2r` includes archive, bridge, and reconciliation
 helpers. They do not make the historical data automatically causal or
 comparable. They make the assumptions visible.
 
-## The Three Problems Users Must Handle
+## The 3 Problems Users Must Handle
 
 ### 1. The API Is Current-Release First
 
@@ -78,17 +73,40 @@ appear, and disappear. Hosseinioun et al. [-@hosseinioun2025skill] handle this
 by composing adjacent official O&#42;NET-SOC crosswalks, which is the same strategy
 used by `onet_crosswalk_bridge()`.
 
-The local example uses one SOC vintage, so the bridge is empty and reconciliation
-falls back to same-code comparisons. For cross-vintage studies, inspect
-`map_type`, `crosswalk_weight`, and `crosswalk_uncertain` before making claims
-about occupational change.
+The synthetic fixture below spans the 2010-to-2019 O&#42;NET-SOC seam. One 2010
+software occupation maps to 2 2019 occupations, so the bridge is uncertain for
+within-occupation comparison.
 
-```{r bridge-schema}
-bridge <- onet_crosswalk_bridge("2019", "2019")
-tibble::tibble(
-  column = names(bridge),
-  type = vapply(bridge, \(x) class(x)[[1]], character(1))
-) |>
+```{r cross-vintage-panel}
+cross_panel <- onet_panel(
+  "Abilities",
+  versions = c("24.3", "25.1"),
+  scale = "IM",
+  archives = c(`24.3` = archive_243, `25.1` = archive_251),
+  release_dates = c(`24.3` = "2020-08-01", `25.1` = "2020-11-01")
+)
+
+bridge_2010_2019 <- tibble::tibble(
+  from_vintage = "2010",
+  to_vintage = "2019",
+  from_onet_soc_code = c("15-1132.00", "15-1132.00", "29-1141.00"),
+  to_onet_soc_code = c("15-1252.00", "15-1253.00", "29-1141.00"),
+  map_type = c("split", "split", "one_to_one"),
+  crosswalk_weight = c(0.5, 0.5, 1)
+)
+
+cross_changes <- onet_panel_reconcile(cross_panel, bridge_2010_2019)
+
+cross_changes |>
+  select(
+    from_onet_soc_code,
+    to_onet_soc_code,
+    element_name,
+    change_type,
+    crosswalk_uncertain,
+    transition_data,
+    safely_comparable
+  ) |>
   print(width = Inf)
 ```
 
@@ -112,10 +130,22 @@ changes |>
   print(width = Inf)
 ```
 
+```{r comparable-chart, fig.alt = "Bar chart showing safely comparable and not safely comparable rows in the cross-vintage example."}
+comparison_counts <- cross_changes |>
+  count(safely_comparable, name = "rows")
+
+barplot(
+  height = setNames(comparison_counts$rows, comparison_counts$safely_comparable),
+  col = c("#64748b", "#0f766e"),
+  border = NA,
+  ylab = "Rows",
+  main = "How Many Rows Are Safe to Compare?"
+)
+```
+
 Those rows are not a hand-built truth table. They are the observed
-classifications from the example archive panel. The four patterns are the
-minimum checks users should make before interpreting any cross-release
-difference.
+classifications from the example archive panels. The patterns are the minimum
+checks users should make before interpreting any cross-release difference.
 
 ## How This Differs from the Standard Task Approach
 

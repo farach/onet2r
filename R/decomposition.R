@@ -18,9 +18,30 @@
 #' @param comparable Optional logical column in `to_scores` or `from_scores`
 #'   marking rows safe for within-change attribution.
 #'
-#' @return A tibble with decomposition components. Coverage information is
-#'   attached as a `coverage` attribute.
+#' @return A tibble with decomposition components and coverage list-column
+#'   metadata readable with [onet_coverage()].
 #' @export
+#'
+#' @examples
+#' from_scores <- tibble::tibble(
+#'   reference_soc_code = c("15-1252", "29-1141"),
+#'   measure_score = c(0.6, 0.3),
+#'   safely_comparable = c(TRUE, TRUE)
+#' )
+#' to_scores <- tibble::tibble(
+#'   reference_soc_code = c("15-1252", "29-1141"),
+#'   measure_score = c(0.7, 0.2),
+#'   safely_comparable = c(TRUE, FALSE)
+#' )
+#' from_weights <- tibble::tibble(
+#'   reference_soc_code = c("15-1252", "29-1141"),
+#'   employment = c(100, 300)
+#' )
+#' to_weights <- tibble::tibble(
+#'   reference_soc_code = c("15-1252", "29-1141"),
+#'   employment = c(150, 250)
+#' )
+#' onet_decompose_change(from_scores, to_scores, from_weights, to_weights)
 onet_decompose_change <- function(
     from_scores,
     to_scores,
@@ -79,11 +100,13 @@ onet_decompose_change <- function(
     component = c("within", "between", "interaction", "unclassifiable", "total_change"),
     value = c(within, between, interaction, unclassifiable, total_change)
   )
-  attr(result, "coverage") <- tibble::tibble(
+  coverage <- tibble::tibble(
     n_common = nrow(data),
     n_safely_comparable = sum(data$comparable, na.rm = TRUE),
     leakage = total_change - sum(result$value[result$component != "total_change"], na.rm = TRUE)
   )
+  result$coverage <- rep(list(coverage), nrow(result))
+  class(result) <- unique(c("onet_decomposition", class(result)))
   result
 }
 

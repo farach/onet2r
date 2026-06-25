@@ -10,7 +10,9 @@ onet_measure_aggregate(
   occupation_code = "onet_soc_code",
   score = "measure_score",
   bridge = NULL,
-  measure_id = "user_measure"
+  measure_id = "user_measure",
+  year = NULL,
+  cell = NULL
 )
 }
 \arguments{
@@ -26,11 +28,34 @@ onet_measure_aggregate(
 \item{bridge}{Optional bridge from O*NET-SOC to \code{reference_soc_code}.}
 
 \item{measure_id}{Identifier used when \code{measure} is a data frame.}
+
+\item{year}{Optional single year used to filter a multi-year weight panel.}
+
+\item{cell}{Optional named list or named vector used to filter a multi-cell
+weight panel, such as \code{list(state = "WA")}.}
 }
 \value{
-A one-row tibble with the aggregate and coverage fields. Provenance
-is attached as a \code{provenance} attribute.
+A one-row tibble with the aggregate, coverage fields, and list-column
+metadata readable with \code{\link[=onet_provenance]{onet_provenance()}} and \code{\link[=onet_coverage]{onet_coverage()}}.
 }
 \description{
 Aggregates an occupation-level measure using a normalized weight panel.
+}
+\examples{
+measure <- onet_measure(
+  tibble::tibble(onet_soc_code = c("15-1252.00", "29-1141.00"), score = c(0.7, 0.2)),
+  key = "onet_soc_code",
+  score = "score",
+  measure_id = "stylized_score"
+)
+weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  year = 2024L,
+  employment = c(100, 300),
+  weight_share = c(0.25, 0.75),
+  source = "fixture",
+  source_taxonomy = "2018 SOC",
+  reference_taxonomy = "2018 SOC"
+)
+onet_measure_aggregate(measure, weights)
 }

@@ -4,7 +4,7 @@
 \name{onet2r-package}
 \alias{onet2r}
 \alias{onet2r-package}
-\title{onet2r: Access 'O*NET' Web Services API}
+\title{onet2r: Work with 'O*NET' Web Services, Archives, and Weights}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

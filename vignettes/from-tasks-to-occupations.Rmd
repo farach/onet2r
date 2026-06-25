@@ -1,0 +1,128 @@
+---
+title: "From Tasks to Occupations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{From Tasks to Occupations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+options(tibble.print_min = 4, tibble.print_max = 8)
+```
+
+```{r setup, include = FALSE}
+library(onet2r)
+library(dplyr)
+
+archive_dir <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
+```
+
+Many user measures start at the task level: a researcher labels tasks, a model
+scores task text, or a team codes task exposure manually. Occupation-level
+analysis needs one score per occupation. `onet_task_to_occupation()` performs
+that mechanical rollup using O&#42;NET task ratings.
+
+## Read Task Statements and Ratings
+
+```{r tasks}
+tasks <- onet_archive_read(
+  "30.3",
+  "Task Statements",
+  path = archive_dir,
+  release_date = "2026-05-01"
+)
+ratings <- onet_archive_read(
+  "30.3",
+  "Task Ratings",
+  path = archive_dir,
+  release_date = "2026-05-01"
+)
+
+tasks |>
+  select(onet_soc_code, task_id, task_type, task) |>
+  print(width = Inf)
+
+ratings |>
+  select(onet_soc_code, task_id, scale_id, scale_name, data_value) |>
+  head(8) |>
+  print(width = Inf)
+```
+
+## Validate Task Scores
+
+```{r measure}
+task_scores <- tibble::tibble(
+  task_id = c("1001", "1002", "2001"),
+  score = c(0.80, 0.40, 0.20)
+)
+
+measure <- onet_measure(
+  task_scores,
+  key = "task_id",
+  score = "score",
+  key_type = "task",
+  universe = tasks$task_id,
+  measure_id = "stylized_task_score"
+)
+
+onet_coverage(measure)
+```
+
+## Roll Up with Relevance Weights
+
+```{r rollup-relevance}
+core_only <- onet_task_to_occupation(
+  measure,
+  task_ratings = ratings,
+  task_metadata = tasks,
+  weight_scale = "RT",
+  include_supplemental = FALSE
+)
+
+core_plus_supplemental <- onet_task_to_occupation(
+  measure,
+  task_ratings = ratings,
+  task_metadata = tasks,
+  weight_scale = "RT",
+  include_supplemental = TRUE
+)
+
+core_only
+core_plus_supplemental
+```
+
+## Interpret the Plumbing Choice
+
+```{r compare-task-handling}
+comparison <- bind_rows(
+  core_only |> mutate(rule = "Core tasks only"),
+  core_plus_supplemental |> mutate(rule = "Core plus Supplemental")
+) |>
+  select(rule, onet_soc_code, n_tasks, total_task_weight, measure_score)
+
+comparison |>
+  print(width = Inf)
+```
+
+```{r task-chart, fig.alt = "Bar chart of occupation scores under core-only and core-plus-supplemental task rules."}
+labels <- paste(comparison$onet_soc_code, comparison$rule, sep = "\n")
+barplot(
+  height = setNames(comparison$measure_score, labels),
+  col = rep(c("#0f766e", "#14b8a6"), each = 2),
+  border = NA,
+  las = 2,
+  ylab = "Occupation score",
+  main = "Task Handling Can Change Occupation Scores"
+)
+```
+
+The task score did not change. The rollup rule changed. That distinction matters
+because a transparent article should separate substantive scoring from package
+plumbing.

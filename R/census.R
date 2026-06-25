@@ -16,6 +16,10 @@
 #'   receives weight 1. ACS PUMS commonly uses `"PWGTP"`.
 #'
 #' @return A tibble with `soc_code`, `employment`, and `records`.
+#'
+#' @section Lifecycle:
+#' This helper is soft-deprecated in favor of [onet_weight_panel_pums()], which
+#' keeps source and reference taxonomies explicit.
 #' @export
 #'
 #' @examples
@@ -24,11 +28,17 @@
 #'   PWGTP = c(120, 80, 200)
 #' )
 #'
-#' onet_pums_employment_weights(pums)
+#' suppressWarnings(onet_pums_employment_weights(pums))
 onet_pums_employment_weights <- function(
     pums,
     socp = "SOCP",
     weight = "PWGTP") {
+  lifecycle::deprecate_soft(
+    "0.4.0",
+    "onet_pums_employment_weights()",
+    "onet_weight_panel_pums()",
+    details = "Use `onet_weight_panel_pums()` for vintage-aware PUMS weights."
+  )
   if (!is.data.frame(pums)) {
     cli::cli_abort("{.arg pums} must be a data frame.")
   }

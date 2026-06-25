@@ -192,6 +192,46 @@ test_that("onet_panel accepts local archives by version", {
   expect_equal(unique(result$release_date), as.Date(c("2026-02-01", "2026-05-01")))
 })
 
+test_that("onet_panel reads cross-vintage and task fixtures", {
+  archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+  archives <- c(
+    `24.3` = file.path(archive_base, "db_24_3_text"),
+    `25.1` = file.path(archive_base, "db_25_1_text")
+  )
+  release_dates <- c(`24.3` = "2020-08-01", `25.1` = "2020-11-01")
+
+  abilities <- onet_panel(
+    "Abilities",
+    versions = c("24.3", "25.1"),
+    scale = "IM",
+    archives = archives,
+    release_dates = release_dates
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2010",
+    to_vintage = "2019",
+    from_onet_soc_code = c("15-1132.00", "15-1132.00", "29-1141.00"),
+    to_onet_soc_code = c("15-1252.00", "15-1253.00", "29-1141.00"),
+    map_type = c("split", "split", "one_to_one"),
+    crosswalk_weight = c(0.5, 0.5, 1)
+  )
+  reconciled <- onet_panel_reconcile(abilities, bridge)
+  tasks <- onet_panel(
+    "Task Ratings",
+    versions = c("24.3", "25.1"),
+    scale = "RT",
+    archives = archives,
+    release_dates = release_dates
+  )
+
+  expect_equal(as.character(unique(abilities$soc_vintage)), c("2010", "2019"))
+  expect_true(any(reconciled$transition_data))
+  expect_true(any(reconciled$crosswalk_uncertain))
+  expect_false(any(reconciled$safely_comparable[reconciled$transition_data]))
+  expect_equal(nrow(tasks), 5L)
+  expect_equal(unique(as.character(tasks$scale_id)), "RT")
+})
+
 test_that("onet_crosswalk_bridge classifies split and merge mappings", {
   local_mocked_bindings(
     read_adjacent_crosswalk = function(from, to) {

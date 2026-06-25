@@ -1,0 +1,4 @@
+O*NET-SOC Code	Title	Element ID	Element Name	Scale ID	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Date	Domain Source
+15-1132.00	Software Developers, Applications	1.A.1.a.1	Oral Comprehension	IM	4.20	24	0.16	3.88	4.52	N	08/2020	Analyst
+15-1132.00	Software Developers, Applications	1.A.1.b.1	Problem Sensitivity	IM	4.40	24	0.14	4.12	4.68	N	08/2020	Analyst
+29-1141.00	Registered Nurses	1.A.1.a.1	Oral Comprehension	IM	4.60	28	0.12	4.36	4.84	N	08/2020	Incumbent

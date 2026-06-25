@@ -24,11 +24,17 @@ similar microdata with occupation codes into SOC-level employment weights.
 Use this after downloading PUMS data with packages such as \code{tidycensus} or
 \code{ipumsr}.
 }
+\section{Lifecycle}{
+
+This helper is soft-deprecated in favor of \code{\link[=onet_weight_panel_pums]{onet_weight_panel_pums()}}, which
+keeps source and reference taxonomies explicit.
+}
+
 \examples{
 pums <- tibble::tibble(
   SOCP = c("151252", "151252", "291141"),
   PWGTP = c(120, 80, 200)
 )
 
-onet_pums_employment_weights(pums)
+suppressWarnings(onet_pums_employment_weights(pums))
 }

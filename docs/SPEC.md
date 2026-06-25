@@ -1,6 +1,6 @@
-# onet2r 0.3.0 specification
+# onet2r 0.4.0 specification
 
-This document fixes the contracts for the 0.3.0 work. It is intentionally
+This document fixes the contracts for the 0.4.0 work. It is intentionally
 limited to plumbing: versioned O&#42;NET data, crosswalks, weights, validation,
 aggregation, and provenance around a measure supplied by the user. The package
 does not ship a substantive AI exposure score or task score.
@@ -12,7 +12,9 @@ does not ship a substantive AI exposure score or task score.
   taxonomy bridges. Six-digit SOC is a derived employment-join key.
 - All user-facing outputs are tibbles with stable empty schemas.
 - Network work is optional in examples and tests. Tests use bundled fixtures.
-- Every aggregation records provenance sufficient to reproduce the number.
+- Every aggregation records provenance sufficient to reproduce the number in
+  an accessor-readable column, not only as a fragile attribute.
+- Multi-year or multi-cell weight panels must be filtered before aggregation.
 
 ## Longitudinal panel contract
 
@@ -69,6 +71,12 @@ OEWS and PUMS weights are normalized to one shape:
 Raw PUMS microdata is never cached by the package. Only aggregated weights may
 be cached under `tools::R_user_dir("onet2r", "cache")`.
 
+`onet_measure_aggregate()` accepts exactly one weight period and one optional
+cell at a time. If a panel contains more than one `year`, callers must pass
+`year`. If a panel contains multiple non-standard cell columns, callers must
+pass `cell` as a named list or vector. A filtered panel must contain at most one
+row per `reference_soc_code`.
+
 ## Measure object contract
 
 A bring-your-own measure object is created from a user table and records:
@@ -87,20 +95,43 @@ requested aggregation.
 ## Aggregation contract
 
 Task-level aggregation rolls task scores to occupation scores with task
-relevance or importance weights from O&#42;NET task files. The user chooses
-Core-only or Core-plus-Supplementary task handling.
+relevance or importance weights from O&#42;NET task files. The default task
+weight scale is `RT`, which is the Task Ratings scale id for Relevance of Task.
+The user chooses Core-only or Core-plus-Supplemental task handling.
 
 Occupation-level aggregation rolls occupation scores to population aggregates
 using the shared weight-panel object. The output includes:
 
 - aggregate value and total employment covered;
 - coverage counts and shares;
-- provenance columns or an attached provenance attribute.
+- a `provenance` list-column readable with `onet_provenance()`.
 
-## Robustness diagnostic contract
+`onet_provenance()` returns a tibble describing the measure id, weight source,
+weight year, source and reference taxonomies, bridge use, and crosswalk path for
+an aggregate or sensitivity table.
 
-The diagnostic recomputes the same user measure under alternative plumbing
-choices and returns a tidy table with one row per choice set:
+`onet_coverage()` returns coverage for a measure, aggregate, or decomposition
+object. `onet_measure_coverage()` remains as a measure-specific compatibility
+wrapper.
+
+## Sensitivity and robustness diagnostic contract
+
+`onet_measure_sensitivity()` runs the same user-supplied measure through a grid
+of plumbing choices. For occupation-level measures, the grid is bridges by
+weight panels. For task-level measures, the grid also includes task relevance
+scale and supplemental-task choices. It returns one row per scenario with:
+
+- scenario label;
+- measure id and release or taxonomy metadata;
+- weight source, weight year, source taxonomy, reference taxonomy;
+- bridge use and crosswalk path;
+- task scale and supplemental-task choice when relevant;
+- aggregate value and employment coverage;
+- baseline movement fields from `onet_robustness_diagnostic()`;
+- a `provenance` list-column for each scenario.
+
+`onet_robustness_diagnostic()` remains a formatter for already computed
+scenario results and returns a tidy table with one row per choice set:
 
 - O&#42;NET release or taxonomy vintage;
 - weight source and year;
@@ -117,3 +148,19 @@ and two weight panels. It returns within, between, interaction, total change,
 and unclassifiable components. The within term only uses rows flagged
 `safely_comparable`. Components plus the unclassifiable bucket must equal the
 total aggregate change within numeric tolerance.
+
+The decomposition output includes a `coverage` list-column readable with
+`onet_coverage()`. Coverage reports common occupations, safely comparable
+occupations, and arithmetic leakage.
+
+## Fixture contract
+
+Bundled fixtures under `inst/extdata/onet-mini/` are tiny and synthetic. They
+must keep the source file names and column names used by official O&#42;NET text
+archives, but their values are only for arithmetic, schema, and narrative tests.
+
+- `db_24_3_text` represents a 2010 O&#42;NET-SOC vintage release.
+- `db_25_1_text` represents the first 2019 O&#42;NET-SOC vintage release.
+- `db_30_2_text` and `db_30_3_text` represent same-vintage 2019 releases.
+- Task fixtures include `Task Statements` and `Task Ratings` rows with `RT`
+  relevance values and `IM` importance values.

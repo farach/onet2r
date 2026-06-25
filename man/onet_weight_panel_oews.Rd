@@ -35,3 +35,10 @@ A normalized employment-weight panel.
 \description{
 Create an OEWS Weight Panel
 }
+\examples{
+oews <- tibble::tibble(
+  occ_code = c("15-1252", "29-1141"),
+  tot_emp = c(100, 300)
+)
+onet_weight_panel_oews(oews, year = 2024)
+}

@@ -676,7 +676,7 @@ onet_details_element_page <- function(code, section, start = 1, end = 20) {
 
 validate_page_size <- function(page_size) {
   if (!is.numeric(page_size) || length(page_size) != 1 || is.na(page_size) ||
-    page_size < 1 || page_size > 2000) {
+        page_size < 1 || page_size > 2000) {
     cli::cli_abort("{.arg page_size} must be between 1 and 2000.")
   }
 

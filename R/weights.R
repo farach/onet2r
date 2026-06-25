@@ -18,6 +18,14 @@
 #'
 #' @return A tibble with source and reference SOC mapping fields.
 #' @export
+#'
+#' @examples
+#' jobs <- tibble::tibble(occ_code = c("15-1252", "29-1141"))
+#' onet_reference_soc_resolve(
+#'   jobs,
+#'   code = "occ_code",
+#'   source_taxonomy = "2018 SOC"
+#' )
 onet_reference_soc_resolve <- function(
     data,
     code,
@@ -76,6 +84,13 @@ onet_reference_soc_resolve <- function(
 #'
 #' @return A normalized employment-weight panel.
 #' @export
+#'
+#' @examples
+#' oews <- tibble::tibble(
+#'   occ_code = c("15-1252", "29-1141"),
+#'   tot_emp = c(100, 300)
+#' )
+#' onet_weight_panel_oews(oews, year = 2024)
 onet_weight_panel_oews <- function(
     oews,
     year,
@@ -128,6 +143,14 @@ onet_weight_panel_oews <- function(
 #'
 #' @return A normalized employment-weight panel.
 #' @export
+#'
+#' @examples
+#' pums <- tibble::tibble(
+#'   SOCP = c("151252", "151252", "291141"),
+#'   PWGTP = c(50, 50, 300),
+#'   state = c("WA", "WA", "WA")
+#' )
+#' onet_weight_panel_pums(pums, year = 2024, group = "state")
 onet_weight_panel_pums <- function(
     pums,
     year,

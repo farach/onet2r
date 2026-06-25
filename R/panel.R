@@ -200,17 +200,19 @@ onet_panel <- function(
 
   panel <- purrr::map(
     versions,
-    \(version) onet_archive_read(
-      version,
-      table_or_element,
-      path = archive_value_for_version(archives, versions, version, "archives"),
-      release_date = archive_value_for_version(
-        release_dates,
-        versions,
+    \(version) {
+      onet_archive_read(
         version,
-        "release_dates"
+        table_or_element,
+        path = archive_value_for_version(archives, versions, version, "archives"),
+        release_date = archive_value_for_version(
+          release_dates,
+          versions,
+          version,
+          "release_dates"
+        )
       )
-    )
+    }
   ) |>
     purrr::list_rbind()
 
@@ -854,11 +856,9 @@ classify_crosswalk <- function(data) {
   data <- normalize_bridge(data)
   from_counts <- counts_by_key(data$from_onet_soc_code)
   to_counts <- counts_by_key(data$to_onet_soc_code)
-  data$map_type <- dplyr::case_when(
-    from_counts > 1 ~ "split",
-    to_counts > 1 ~ "merge",
-    TRUE ~ "one_to_one"
-  )
+  data$map_type <- rep("one_to_one", length(from_counts))
+  data$map_type[to_counts > 1] <- "merge"
+  data$map_type[from_counts > 1] <- "split"
   data$crosswalk_weight <- ifelse(from_counts > 1, 1 / from_counts, 1)
   tibble::as_tibble(data)
 }

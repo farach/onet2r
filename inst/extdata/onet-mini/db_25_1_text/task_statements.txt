@@ -1,0 +1,4 @@
+O*NET-SOC Code	Title	Task ID	Task	Task Type	Incumbents Responding	Date	Domain Source
+15-1252.00	Software Developers	1201	Develop software systems from user requirements.	Core	25	11/2020	Analyst - Transition
+15-1253.00	Software Quality Assurance Analysts and Testers	1202	Test software systems and document defects.	Core	23	11/2020	Analyst - Transition
+29-1141.00	Registered Nurses	2101	Monitor patient health and record signs.	Core	29	11/2020	Incumbent

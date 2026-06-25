@@ -41,3 +41,11 @@ A normalized employment-weight panel.
 \description{
 Create a PUMS Weight Panel
 }
+\examples{
+pums <- tibble::tibble(
+  SOCP = c("151252", "151252", "291141"),
+  PWGTP = c(50, 50, 300),
+  state = c("WA", "WA", "WA")
+)
+onet_weight_panel_pums(pums, year = 2024, group = "state")
+}

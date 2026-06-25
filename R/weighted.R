@@ -22,6 +22,11 @@
 #'
 #' @return A tibble with `group` columns plus `n_records`, `n_occupations`,
 #'   `total_weight`, `weighted_mean`, and `wage_weighted_mean`.
+#'
+#' @section Lifecycle:
+#' This helper is soft-deprecated for measure work. Prefer
+#' [onet_weight_panel_oews()], [onet_weight_panel_pums()], and
+#' [onet_measure_aggregate()] for vintage-aware weighting.
 #' @export
 #'
 #' @examples
@@ -41,11 +46,13 @@
 #'   a_median = c(133080, 93070)
 #' )
 #'
-#' onet_weighted_summary(
-#'   skills,
-#'   group = c("element_id", "element_name"),
-#'   value = "data_value",
-#'   oews = oews
+#' suppressWarnings(
+#'   onet_weighted_summary(
+#'     skills,
+#'     group = c("element_id", "element_name"),
+#'     value = "data_value",
+#'     oews = oews
+#'   )
 #' )
 onet_weighted_summary <- function(
     data,
@@ -55,6 +62,15 @@ onet_weighted_summary <- function(
     oews = NULL,
     weight = "tot_emp",
     wage = "a_median") {
+  lifecycle::deprecate_soft(
+    "0.4.0",
+    "onet_weighted_summary()",
+    "onet_measure_aggregate()",
+    details = paste(
+      "Build a weight panel with `onet_weight_panel_oews()` or",
+      "`onet_weight_panel_pums()` before aggregating measures."
+    )
+  )
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame.")
   }
@@ -72,7 +88,7 @@ onet_weighted_summary <- function(
         )
       )
     }
-    data <- onet_join_oews(data, oews = oews, by = occupation_code)
+    data <- join_oews_impl(data, oews = oews, by = occupation_code)
   }
   validate_single_column(data, weight, "weight")
 

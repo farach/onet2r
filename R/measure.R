@@ -105,9 +105,99 @@ onet_measure <- function(
 #'
 #' @return A tibble with key and optional employment coverage.
 #' @export
+#'
+#' @examples
+#' measure <- onet_measure(
+#'   tibble::tibble(onet_soc_code = "15-1252.00", score = 0.7),
+#'   key = "onet_soc_code",
+#'   score = "score",
+#'   universe = c("15-1252.00", "29-1141.00")
+#' )
+#' onet_measure_coverage(measure)
 onet_measure_coverage <- function(measure) {
-  validate_onet_measure(measure)
-  measure$coverage
+  onet_coverage(measure)
+}
+
+#' Return Object Coverage
+#'
+#' Returns the coverage table recorded by an onet2r measure, aggregate, or
+#' decomposition object. For sensitivity results, returns one coverage row per
+#' scenario with scenario identifiers attached.
+#'
+#' @param x An onet2r object with coverage metadata.
+#'
+#' @return A tibble with coverage fields.
+#' @export
+#'
+#' @examples
+#' measure <- onet_measure(
+#'   tibble::tibble(onet_soc_code = "15-1252.00", score = 0.7),
+#'   key = "onet_soc_code",
+#'   score = "score",
+#'   universe = c("15-1252.00", "29-1141.00")
+#' )
+#' onet_coverage(measure)
+onet_coverage <- function(x) {
+  if (inherits(x, "onet_measure")) {
+    validate_onet_measure(x)
+    return(x$coverage)
+  }
+  if (inherits(x, "onet_sensitivity") && "coverage" %in% names(x) && length(x$coverage) > 0) {
+    coverage <- purrr::list_rbind(x$coverage)
+    scenario_cols <- intersect(
+      c(
+        "scenario",
+        "task_release",
+        "soc_vintage",
+        "weight_panel",
+        "bridge",
+        "weight_scale",
+        "include_supplemental"
+      ),
+      names(x)
+    )
+    scenario_cols <- setdiff(scenario_cols, names(coverage))
+    return(dplyr::bind_cols(tibble::as_tibble(x[scenario_cols]), coverage))
+  }
+  if (is.data.frame(x) && "coverage" %in% names(x) && length(x$coverage) > 0) {
+    return(x$coverage[[1]])
+  }
+  cli::cli_abort("{.arg x} does not contain onet2r coverage metadata.")
+}
+
+#' Return Aggregate Provenance
+#'
+#' Returns the provenance recorded by an aggregate or sensitivity table.
+#'
+#' @param x An object returned by [onet_measure_aggregate()] or
+#'   [onet_measure_sensitivity()].
+#'
+#' @return A tibble with provenance fields.
+#' @export
+#'
+#' @examples
+#' measure <- onet_measure(
+#'   tibble::tibble(onet_soc_code = c("15-1252.00", "29-1141.00"), score = c(0.7, 0.2)),
+#'   key = "onet_soc_code",
+#'   score = "score",
+#'   measure_id = "stylized_score"
+#' )
+#' weights <- tibble::tibble(
+#'   reference_soc_code = c("15-1252", "29-1141"),
+#'   year = 2024L,
+#'   employment = c(100, 300),
+#'   weight_share = c(0.25, 0.75),
+#'   source = "fixture",
+#'   source_taxonomy = "2018 SOC",
+#'   reference_taxonomy = "2018 SOC"
+#' )
+#' aggregate <- onet_measure_aggregate(measure, weights)
+#' onet_provenance(aggregate)
+onet_provenance <- function(x) {
+  if (is.data.frame(x) && "provenance" %in% names(x)) {
+    return(purrr::list_rbind(x$provenance))
+  }
+  cli::cli_abort("{.arg x} does not contain onet2r provenance metadata.")
 }
 
 #' Aggregate Task Scores to Occupations
@@ -129,6 +219,22 @@ onet_measure_coverage <- function(measure) {
 #'
 #' @return A tibble with occupation-level measure scores.
 #' @export
+#'
+#' @examples
+#' task_measure <- onet_measure(
+#'   tibble::tibble(task_id = c("1001", "1002"), score = c(0.8, 0.4)),
+#'   key = "task_id",
+#'   score = "score",
+#'   key_type = "task"
+#' )
+#' task_ratings <- tibble::tibble(
+#'   onet_soc_code = c("15-1252.00", "15-1252.00"),
+#'   task_id = c("1001", "1002"),
+#'   scale_id = "RT",
+#'   data_value = c(80, 20),
+#'   task_type = "Core"
+#' )
+#' onet_task_to_occupation(task_measure, task_ratings)
 onet_task_to_occupation <- function(
     measure,
     task_ratings,
@@ -215,20 +321,43 @@ onet_task_to_occupation <- function(
 #' @param score Score column when `measure` is a data frame.
 #' @param bridge Optional bridge from O&#42;NET-SOC to `reference_soc_code`.
 #' @param measure_id Identifier used when `measure` is a data frame.
+#' @param year Optional single year used to filter a multi-year weight panel.
+#' @param cell Optional named list or named vector used to filter a multi-cell
+#'   weight panel, such as `list(state = "WA")`.
 #'
-#' @return A one-row tibble with the aggregate and coverage fields. Provenance
-#'   is attached as a `provenance` attribute.
+#' @return A one-row tibble with the aggregate, coverage fields, and list-column
+#'   metadata readable with [onet_provenance()] and [onet_coverage()].
 #' @export
+#'
+#' @examples
+#' measure <- onet_measure(
+#'   tibble::tibble(onet_soc_code = c("15-1252.00", "29-1141.00"), score = c(0.7, 0.2)),
+#'   key = "onet_soc_code",
+#'   score = "score",
+#'   measure_id = "stylized_score"
+#' )
+#' weights <- tibble::tibble(
+#'   reference_soc_code = c("15-1252", "29-1141"),
+#'   year = 2024L,
+#'   employment = c(100, 300),
+#'   weight_share = c(0.25, 0.75),
+#'   source = "fixture",
+#'   source_taxonomy = "2018 SOC",
+#'   reference_taxonomy = "2018 SOC"
+#' )
+#' onet_measure_aggregate(measure, weights)
 onet_measure_aggregate <- function(
     measure,
     weight_panel,
     occupation_code = "onet_soc_code",
     score = "measure_score",
     bridge = NULL,
-    measure_id = "user_measure") {
+    measure_id = "user_measure",
+    year = NULL,
+    cell = NULL) {
   scores <- occupation_scores_table(measure, occupation_code, score, measure_id)
   validate_weight_panel(weight_panel)
-  weights <- tibble::as_tibble(weight_panel)
+  weights <- filter_aggregate_weight_panel(weight_panel, year = year, cell = cell)
 
   mapped <- map_occupation_scores(scores, bridge)
   joined <- dplyr::left_join(
@@ -255,8 +384,143 @@ onet_measure_aggregate <- function(
     n_occupations = dplyr::n_distinct(joined$measure_key),
     n_reference_soc = dplyr::n_distinct(joined$reference_soc_code)
   )
-  attr(result, "provenance") <- aggregation_provenance(scores, weights, bridge)
-  result
+  new_onet_aggregate(
+    result,
+    provenance = aggregation_provenance(scores, weights, bridge)
+  )
+}
+
+#' Stress Test a User-Supplied Measure
+#'
+#' Runs the same user-supplied measure through alternative weight panels,
+#' bridges, and task-handling choices. The package does not create the
+#' substantive measure. It only changes the plumbing around that measure.
+#'
+#' @param measure An `onet_measure` object.
+#' @param weight_panels A weight-panel data frame or named list of weight-panel
+#'   data frames.
+#' @param bridges Optional bridge data frame, `NULL`, or named list of bridges.
+#' @param task_ratings For task-level measures, a task-ratings data frame or
+#'   named list of task-ratings data frames.
+#' @param task_metadata Optional task metadata data frame or named list matching
+#'   `task_ratings`.
+#' @param include_supplemental Logical vector. For task-level measures, controls
+#'   whether Supplemental tasks are included.
+#' @param weight_scale Character vector of task rating scale ids. Defaults to
+#'   `"RT"`, the Task Ratings scale for Relevance of Task.
+#' @param year Optional single year passed to [onet_measure_aggregate()].
+#' @param cell Optional cell filter passed to [onet_measure_aggregate()].
+#' @param baseline Optional scenario label used as the movement baseline.
+#'
+#' @return A tibble with one row per scenario, aggregate results, movement
+#'   fields, and provenance list-column metadata.
+#' @export
+#'
+#' @examples
+#' scores <- tibble::tibble(
+#'   onet_soc_code = c("15-1252.00", "29-1141.00"),
+#'   score = c(0.7, 0.2)
+#' )
+#' measure <- onet_measure(scores, "onet_soc_code", "score")
+#' weights <- tibble::tibble(
+#'   reference_soc_code = c("15-1252", "29-1141"),
+#'   year = 2024L,
+#'   employment = c(100, 300),
+#'   weight_share = c(0.25, 0.75),
+#'   source = "fixture",
+#'   source_taxonomy = "2018 SOC",
+#'   reference_taxonomy = "2018 SOC"
+#' )
+#' onet_measure_sensitivity(measure, weights)
+onet_measure_sensitivity <- function(
+    measure,
+    weight_panels,
+    bridges = list(no_bridge = NULL),
+    task_ratings = NULL,
+    task_metadata = NULL,
+    include_supplemental = FALSE,
+    weight_scale = "RT",
+    year = NULL,
+    cell = NULL,
+    baseline = NULL) {
+  validate_onet_measure(measure)
+  weight_panels <- named_data_frame_list(weight_panels, "weight_panels", "weights")
+  bridges <- named_bridge_list(bridges)
+
+  if (!is.logical(include_supplemental) || anyNA(include_supplemental)) {
+    cli::cli_abort("{.arg include_supplemental} must be a logical vector without missing values.")
+  }
+  if (!is.character(weight_scale) || length(weight_scale) == 0 || anyNA(weight_scale)) {
+    cli::cli_abort("{.arg weight_scale} must be a character vector without missing values.")
+  }
+
+  task_sets <- sensitivity_task_sets(measure, task_ratings, task_metadata)
+  rows <- list()
+  row_index <- 1L
+
+  for (task_name in names(task_sets)) {
+    task_set <- task_sets[[task_name]]
+    scales <- if (measure$metadata$key_type == "task") weight_scale else NA_character_
+    supplemental_choices <- if (measure$metadata$key_type == "task") {
+      include_supplemental
+    } else {
+      NA
+    }
+    for (scale_choice in scales) {
+      for (supplemental_choice in supplemental_choices) {
+        scores_input <- sensitivity_scores_input(
+          measure = measure,
+          task_set = task_set,
+          weight_scale = scale_choice,
+          include_supplemental = supplemental_choice
+        )
+        for (weight_name in names(weight_panels)) {
+          for (bridge_name in names(bridges)) {
+            aggregate <- onet_measure_aggregate(
+              scores_input$scores,
+              weight_panel = weight_panels[[weight_name]],
+              bridge = bridges[[bridge_name]],
+              measure_id = measure$metadata$measure_id,
+              year = year,
+              cell = cell
+            )
+            aggregate$scenario <- sensitivity_scenario_label(
+              task_name = task_name,
+              weight_name = weight_name,
+              bridge_name = bridge_name,
+              weight_scale = scale_choice,
+              include_supplemental = supplemental_choice,
+              is_task = measure$metadata$key_type == "task"
+            )
+            aggregate$task_release <- scores_input$release_version
+            aggregate$soc_vintage <- scores_input$soc_vintage
+            aggregate$weight_panel <- weight_name
+            aggregate$bridge <- bridge_name
+            aggregate$weight_scale <- scale_choice
+            aggregate$include_supplemental <- supplemental_choice
+            rows[[row_index]] <- aggregate
+            row_index <- row_index + 1L
+          }
+        }
+      }
+    }
+  }
+
+  out <- purrr::list_rbind(rows) |>
+    dplyr::relocate(
+      "scenario",
+      "measure_id",
+      "task_release",
+      "soc_vintage",
+      "weight_panel",
+      "bridge",
+      "weight_scale",
+      "include_supplemental"
+    )
+
+  out <- onet_robustness_diagnostic(out, baseline = baseline)
+  class(out) <- unique(c("onet_sensitivity", class(out)))
+  out
 }
 
 #' Compare Aggregates Across Plumbing Choices
@@ -269,6 +533,13 @@ onet_measure_aggregate <- function(
 #'
 #' @return A tibble with baseline movement fields.
 #' @export
+#'
+#' @examples
+#' scenarios <- tibble::tibble(
+#'   scenario = c("baseline", "alternate_weights"),
+#'   aggregate = c(0.40, 0.45)
+#' )
+#' onet_robustness_diagnostic(scenarios)
 onet_robustness_diagnostic <- function(
     results,
     baseline = NULL,
@@ -402,12 +673,291 @@ normalize_measure_bridge <- function(bridge) {
 }
 
 aggregation_provenance <- function(scores, weights, bridge) {
-  list(
+  tibble::tibble(
     measure_id = scores$measure_id[[1]],
-    weight_source = unique(weights$source),
-    weight_year = unique(weights$year),
-    source_taxonomy = unique(weights$source_taxonomy),
-    reference_taxonomy = unique(weights$reference_taxonomy),
-    bridge_used = !is.null(bridge)
+    weight_source = collapse_unique(weights$source),
+    weight_year = unique(stats::na.omit(as.integer(weights$year)))[[1]],
+    source_taxonomy = collapse_unique(weights$source_taxonomy),
+    reference_taxonomy = collapse_unique(weights$reference_taxonomy),
+    bridge_used = !is.null(bridge),
+    crosswalk_path = aggregate_crosswalk_path(weights, bridge)
   )
+}
+
+new_onet_aggregate <- function(result, provenance) {
+  coverage <- result[c(
+    "measure_id",
+    "total_employment",
+    "covered_employment",
+    "employment_coverage_share",
+    "n_occupations",
+    "n_reference_soc"
+  )]
+  result$coverage <- list(coverage)
+  result$provenance <- list(provenance)
+  class(result) <- unique(c("onet_aggregate", class(result)))
+  result
+}
+
+filter_aggregate_weight_panel <- function(weight_panel, year = NULL, cell = NULL) {
+  weights <- tibble::as_tibble(weight_panel)
+  weight_years <- as.integer(weights$year)
+  if (!is.null(year)) {
+    if (!is.numeric(year) || length(year) != 1 || is.na(year)) {
+      cli::cli_abort("{.arg year} must be a single non-missing numeric year.")
+    }
+    year_value <- as.integer(year)
+    weights <- weights[!is.na(weight_years) & weight_years == year_value, , drop = FALSE]
+    weight_years <- as.integer(weights$year)
+  }
+  if (nrow(weights) == 0) {
+    cli::cli_abort("The filtered {.arg weight_panel} has no rows.")
+  }
+  if (anyNA(weight_years)) {
+    cli::cli_abort(
+      c(
+        "{.arg weight_panel} must not contain missing years for aggregation.",
+        "i" = "Pass {.arg year} to filter a multi-period panel or remove rows with missing years."
+      )
+    )
+  }
+
+  years <- unique(weight_years)
+  if (length(years) != 1) {
+    cli::cli_abort(
+      c(
+        "{.arg weight_panel} must contain exactly one year for aggregation.",
+        "i" = "Pass {.arg year} or pre-filter the panel."
+      )
+    )
+  }
+
+  cell_cols <- weight_panel_cell_columns(weights)
+  if (!is.null(cell)) {
+    cell <- normalize_cell_filter(cell, cell_cols)
+    for (cell_name in names(cell)) {
+      cell_value <- as.character(cell[[cell_name]])
+      weights <- weights[as.character(weights[[cell_name]]) == cell_value, , drop = FALSE]
+    }
+  }
+  if (nrow(weights) == 0) {
+    cli::cli_abort("The filtered {.arg weight_panel} has no rows.")
+  }
+  if (length(cell_cols) > 0) {
+    cell_count <- nrow(unique(weights[cell_cols]))
+    if (cell_count != 1) {
+      cli::cli_abort(
+        c(
+          "{.arg weight_panel} must contain exactly one cell for aggregation.",
+          "i" = "Pass {.arg cell} or pre-filter the panel."
+        )
+      )
+    }
+  }
+
+  duplicates <- weights |>
+    dplyr::summarise(n = dplyr::n(), .by = "reference_soc_code") |>
+    dplyr::filter(.data$n > 1)
+  if (nrow(duplicates) > 0) {
+    cli::cli_abort(
+      "{.arg weight_panel} must have at most one row per {.var reference_soc_code} after filtering."
+    )
+  }
+
+  weights
+}
+
+weight_panel_cell_columns <- function(weights) {
+  standard <- c(
+    "reference_soc_code",
+    "year",
+    "employment",
+    "weight_share",
+    "source",
+    "source_taxonomy",
+    "reference_taxonomy",
+    "employment_se"
+  )
+  setdiff(names(weights), standard)
+}
+
+normalize_cell_filter <- function(cell, cell_cols) {
+  if (is.atomic(cell)) {
+    cell <- as.list(cell)
+  }
+  if (!is.list(cell) || is.null(names(cell)) || any(!nzchar(names(cell)))) {
+    cli::cli_abort("{.arg cell} must be a named list or named vector.")
+  }
+  unknown <- setdiff(names(cell), cell_cols)
+  if (length(unknown) > 0) {
+    cli::cli_abort("{.arg cell} contains unknown cell columns: {.var {unknown}}.")
+  }
+  cell
+}
+
+collapse_unique <- function(x) {
+  out <- unique(as.character(x))
+  out <- out[!is.na(out) & nzchar(out)]
+  if (length(out) == 0) {
+    return(NA_character_)
+  }
+  paste(out, collapse = ", ")
+}
+
+aggregate_crosswalk_path <- function(weights, bridge) {
+  if (!is.null(bridge)) {
+    bridge <- tibble::as_tibble(bridge)
+    if (all(c("from_vintage", "to_vintage") %in% names(bridge))) {
+      from <- collapse_unique(bridge$from_vintage)
+      to <- collapse_unique(bridge$to_vintage)
+      return(paste(from, to, sep = " -> "))
+    }
+    return("custom bridge")
+  }
+  paste(
+    collapse_unique(weights$source_taxonomy),
+    collapse_unique(weights$reference_taxonomy),
+    sep = " -> "
+  )
+}
+
+named_data_frame_list <- function(x, arg, default_name) {
+  if (is.data.frame(x)) {
+    out <- list(x)
+    names(out) <- default_name
+    return(out)
+  }
+  if (!is.list(x) || length(x) == 0) {
+    cli::cli_abort("{.arg {arg}} must be a data frame or non-empty list of data frames.")
+  }
+  ok <- vapply(x, is.data.frame, logical(1))
+  if (!all(ok)) {
+    cli::cli_abort("{.arg {arg}} must contain only data frames.")
+  }
+  names(x) <- scenario_names(names(x), default_name, length(x))
+  x
+}
+
+named_bridge_list <- function(x) {
+  if (is.null(x)) {
+    return(list(no_bridge = NULL))
+  }
+  if (is.data.frame(x)) {
+    return(list(bridge = x))
+  }
+  if (!is.list(x) || length(x) == 0) {
+    cli::cli_abort("{.arg bridges} must be `NULL`, a data frame, or a non-empty list.")
+  }
+  ok <- vapply(x, \(item) is.null(item) || is.data.frame(item), logical(1))
+  if (!all(ok)) {
+    cli::cli_abort("{.arg bridges} must contain only data frames or `NULL` entries.")
+  }
+  names(x) <- scenario_names(names(x), "bridge", length(x))
+  x
+}
+
+scenario_names <- function(names, prefix, n) {
+  if (!is.null(names) && all(nzchar(names))) {
+    return(names)
+  }
+  if (n == 1) {
+    return(prefix)
+  }
+  paste0(prefix, "_", seq_len(n))
+}
+
+sensitivity_task_sets <- function(measure, task_ratings, task_metadata) {
+  if (measure$metadata$key_type != "task") {
+    return(list(measure_release = list(ratings = NULL, metadata = NULL)))
+  }
+  if (is.null(task_ratings)) {
+    cli::cli_abort("{.arg task_ratings} is required when {.arg measure} has task keys.")
+  }
+  ratings <- named_data_frame_list(task_ratings, "task_ratings", "task_release")
+  metadata <- sensitivity_metadata_list(task_metadata, ratings)
+  purrr::map(names(ratings), \(name) {
+    list(ratings = ratings[[name]], metadata = metadata[[name]])
+  }) |>
+    stats::setNames(names(ratings))
+}
+
+sensitivity_metadata_list <- function(task_metadata, ratings) {
+  if (is.null(task_metadata)) {
+    return(stats::setNames(rep(list(NULL), length(ratings)), names(ratings)))
+  }
+  if (is.data.frame(task_metadata)) {
+    return(stats::setNames(rep(list(task_metadata), length(ratings)), names(ratings)))
+  }
+  if (!is.list(task_metadata) || length(task_metadata) == 0) {
+    cli::cli_abort("{.arg task_metadata} must be a data frame, list, or `NULL`.")
+  }
+  ok <- vapply(task_metadata, \(item) is.null(item) || is.data.frame(item), logical(1))
+  if (!all(ok)) {
+    cli::cli_abort("{.arg task_metadata} must contain only data frames or `NULL` entries.")
+  }
+  if (!is.null(names(task_metadata)) && all(names(ratings) %in% names(task_metadata))) {
+    return(task_metadata[names(ratings)])
+  }
+  if (length(task_metadata) != length(ratings)) {
+    cli::cli_abort("{.arg task_metadata} must match {.arg task_ratings} by name or length.")
+  }
+  names(task_metadata) <- names(ratings)
+  task_metadata
+}
+
+sensitivity_scores_input <- function(
+    measure,
+    task_set,
+    weight_scale,
+    include_supplemental) {
+  if (measure$metadata$key_type != "task") {
+    return(list(
+      scores = measure,
+      release_version = measure$metadata$release_version,
+      soc_vintage = NA_character_
+    ))
+  }
+
+  scores <- onet_task_to_occupation(
+    measure,
+    task_ratings = task_set$ratings,
+    task_metadata = task_set$metadata,
+    weight_scale = weight_scale,
+    include_supplemental = include_supplemental
+  )
+  list(
+    scores = scores,
+    release_version = sensitivity_release_value(task_set$ratings, "release_version"),
+    soc_vintage = sensitivity_release_value(task_set$ratings, "soc_vintage")
+  )
+}
+
+sensitivity_release_value <- function(data, column) {
+  if (!is.data.frame(data) || !column %in% names(data)) {
+    return(NA_character_)
+  }
+  values <- unique(as.character(data[[column]]))
+  values <- values[!is.na(values) & nzchar(values)]
+  if (length(values) == 0) {
+    return(NA_character_)
+  }
+  paste(values, collapse = ", ")
+}
+
+sensitivity_scenario_label <- function(
+    task_name,
+    weight_name,
+    bridge_name,
+    weight_scale,
+    include_supplemental,
+    is_task) {
+  parts <- c(task_name, weight_name, bridge_name)
+  if (is_task) {
+    task_part <- paste0(
+      weight_scale,
+      if (isTRUE(include_supplemental)) "_core_plus_supplemental" else "_core"
+    )
+    parts <- c(task_part, parts)
+  }
+  paste(parts, collapse = " / ")
 }

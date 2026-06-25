@@ -38,6 +38,12 @@ Joins O*NET occupation data to national OEWS employment and wage estimates by
 converting detailed O*NET-SOC codes such as \code{"15-1252.00"} to SOC codes such
 as \code{"15-1252"}.
 }
+\section{Lifecycle}{
+
+This helper is soft-deprecated in favor of \code{\link[=onet_weight_panel_oews]{onet_weight_panel_oews()}} plus
+\code{\link[=onet_measure_aggregate]{onet_measure_aggregate()}} for vintage-aware weighting.
+}
+
 \examples{
 occupations <- tibble::tibble(
   code = c("15-1252.00", "29-1141.00"),
@@ -51,5 +57,5 @@ oews <- tibble::tibble(
   a_median = c(133080, 93070)
 )
 
-onet_join_oews(occupations, oews = oews)
+suppressWarnings(onet_join_oews(occupations, oews = oews))
 }

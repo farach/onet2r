@@ -1,0 +1,7 @@
+O*NET-SOC Code	Title	Task ID	Task	Scale ID	Scale Name	Category	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Date	Domain Source
+15-1252.00	Software Developers	1201	Develop software systems from user requirements.	RT	Relevance of Task		94	25	2.1000	90	98	N	11/2020	Analyst - Transition
+15-1252.00	Software Developers	1201	Develop software systems from user requirements.	IM	Importance		4.5	25	0.1800	4.1	4.9	N	11/2020	Analyst - Transition
+15-1253.00	Software Quality Assurance Analysts and Testers	1202	Test software systems and document defects.	RT	Relevance of Task		91	23	2.3000	86	96	N	11/2020	Analyst - Transition
+15-1253.00	Software Quality Assurance Analysts and Testers	1202	Test software systems and document defects.	IM	Importance		4.3	23	0.2200	3.9	4.7	N	11/2020	Analyst - Transition
+29-1141.00	Registered Nurses	2101	Monitor patient health and record signs.	RT	Relevance of Task		98	29	1.5000	95	100	N	11/2020	Incumbent
+29-1141.00	Registered Nurses	2101	Monitor patient health and record signs.	IM	Importance		4.8	29	0.1000	4.6	5.0	N	11/2020	Incumbent

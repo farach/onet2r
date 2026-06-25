@@ -10,28 +10,17 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
 )
+options(tibble.print_min = 4, tibble.print_max = 8)
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
-```
 
-O&#42;NET tells you what occupations do: their tasks, abilities, skills, knowledge,
-and work contexts. The Bureau of Labor Statistics Occupational Employment and
-Wage Statistics (OEWS) program tells you how large those occupations are in the
-labor market and what they pay. Joining the two lets you move from an
-occupation-level descriptor table to a labor-market-weighted question.
-
-This walkthrough asks: among occupations in a small O&#42;NET ability panel, which
-ability ratings matter most once we account for national employment and wages?
-The OEWS file is bundled with the package so the article runs without network
-access. In production, call `onet_oews_national()` without `path` to download
-the public BLS file.
-
-```{r paths}
 sample_oews <- system.file(
   "extdata",
   "oews-national-sample.csv",
@@ -46,6 +35,16 @@ archive_303 <- system.file(
 )
 ```
 
+O&#42;NET tells you what occupations do: their tasks, abilities, skills, knowledge,
+and work contexts. The Bureau of Labor Statistics Occupational Employment and
+Wage Statistics (OEWS) program tells you how large those occupations are in the
+labor market and what they pay. Joining the two lets you move from an
+occupation-level descriptor table to a labor-market-weighted question.
+
+This walkthrough asks: among occupations in a small O&#42;NET ability panel, what
+does a national employment-weighted ability score look like, and what changes if
+we use a custom PUMS-style population instead?
+
 ## Read OEWS Estimates
 
 `onet_oews_national()` normalizes BLS OEWS files into snake_case columns and
@@ -53,23 +52,32 @@ parses formatted employment and wage fields into numeric values.
 
 ```{r read-oews}
 oews <- onet_oews_national(year = 2024, path = sample_oews)
-oews
-```
 
-Key columns for most O&#42;NET joins are `occ_code`, `tot_emp`, and `a_median`.
-
-```{r inspect-oews}
 oews |>
-  select(occ_code, occ_title, tot_emp, a_median, h_median)
+  select(occ_code, occ_title, tot_emp, a_median, h_median) |>
+  print(width = Inf)
 ```
 
-## Get O&#42;NET Occupations from an Actual Package Function
+## Build a Reference-SOC Weight Panel
 
-The occupation list below comes from `onet_archive_read()`, not a hand-built
-example table. It reads a local archive-format O&#42;NET `Abilities` table and then
-keeps one row per occupation.
+OEWS uses 6-digit SOC codes. O&#42;NET archive tables use 8-digit O&#42;NET-SOC detail
+codes. The weight-panel helper records the source and reference taxonomy so the
+join is auditable.
 
-```{r occupations-from-archive}
+```{r oews-weight-panel}
+oews_weights <- onet_weight_panel_oews(oews, year = 2024)
+
+oews_weights |>
+  print(width = Inf)
+```
+
+## Get O&#42;NET Occupation Scores from an Archive
+
+The occupation scores below come from `onet_archive_read()`, not a hand-built
+example table. We use Oral Comprehension as a concrete descriptor because it is
+available in the bundled fixture.
+
+```{r occupation-scores}
 abilities <- onet_archive_read(
   "30.3",
   "Abilities",
@@ -77,108 +85,110 @@ abilities <- onet_archive_read(
   release_date = "2026-05-01"
 )
 
-occupations <- abilities |>
-  distinct(code = onet_soc_code, title)
-
-occupations
-```
-
-## Join OEWS to O&#42;NET Occupation Codes
-
-O&#42;NET-SOC codes commonly include a detail suffix such as `.00`. OEWS uses
-six-digit SOC codes. `onet_join_oews()` creates a normalized `soc_code` and joins
-on that value.
-
-```{r join-oews}
-occupation_wages <- onet_join_oews(occupations, oews = oews)
-
-occupation_wages |>
-  select(code, title, soc_code, tot_emp, a_median, h_median)
-```
-
-The join also tells you where wage context is missing. Missing rows usually mean
-you need a different OEWS geography, a different year, or a crosswalk between
-classification vintages.
-
-```{r missing-oews}
-occupation_wages |>
+oral_scores <- abilities |>
+  filter(element_id == "1.A.1.a.1") |>
   transmute(
-    code,
-    title,
-    has_oews_match = !is.na(tot_emp)
-  )
-```
-
-## Compute Employment-Weighted O&#42;NET Summaries
-
-If you average ability scores across occupations without weights, a niche
-occupation counts the same as an occupation employing millions of workers.
-`onet_weighted_summary()` uses OEWS employment, and optionally wage, to summarize
-O&#42;NET descriptor rows at the labor-market level.
-
-```{r weighted-summary}
-weighted_abilities <- onet_weighted_summary(
-  abilities,
-  group = c("element_id", "element_name"),
-  value = "data_value",
-  occupation_code = "onet_soc_code",
-  oews = oews
-)
-
-weighted_abilities |>
-  print(width = Inf)
-```
-
-In this example, `n_occupations` is the number of O&#42;NET occupations with a
-matching OEWS estimate for each ability row. `total_weight` is the summed OEWS
-employment used in the weighted mean.
-
-## Prioritize Occupation-Level Rows
-
-A practical analyst often wants to know where a descriptor is both high and
-attached to a large workforce. The next table joins ability rows to OEWS and
-sorts by employment-weighted ability contribution.
-
-```{r priority-table}
-ability_context <- abilities |>
-  onet_join_oews(oews = oews, by = "onet_soc_code") |>
-  mutate(weighted_value = data_value * tot_emp) |>
-  select(
     onet_soc_code,
     title,
-    element_name,
-    data_value,
-    tot_emp,
-    a_median,
-    weighted_value
-  ) |>
-  arrange(desc(weighted_value))
+    measure_score = data_value
+  )
 
-head(ability_context, 10) |>
+oral_scores |>
   print(width = Inf)
 ```
 
-This table is not a causal estimate. It is a screening tool. It helps answer
-questions such as: "Which O&#42;NET ability ratings are attached to the most
-workers?" or "Which occupations should we inspect first when designing training
-or workforce-transition analyses?"
+## Aggregate with OEWS Employment
 
-## PUMS Employment Weights
+```{r aggregate-oews}
+oral_oews <- onet_measure_aggregate(
+  oral_scores,
+  oews_weights,
+  measure_id = "oral_comprehension_fixture"
+)
 
-If your workflow uses ACS or CPS microdata instead of OEWS employment counts,
-`onet_pums_employment_weights()` converts person-level records into SOC-level
-weights. The tiny input below is intentionally minimal: in a real analysis,
-`SOCP` and `PWGTP` would usually come from `tidycensus::get_pums()`.
+oral_oews |>
+  select(-coverage, -provenance) |>
+  print(width = Inf)
+
+onet_provenance(oral_oews)
+```
+
+The aggregate is the employment-weighted score for occupations covered by both
+the O&#42;NET fixture and the OEWS sample. Coverage tells you how much of the weight
+panel was included.
+
+```{r aggregate-coverage}
+onet_coverage(oral_oews)
+```
+
+## Inspect Occupation Contributions
+
+```{r contribution-table}
+contributions <- oral_scores |>
+  mutate(reference_soc_code = sub("\\.\\d{2}$", "", onet_soc_code)) |>
+  inner_join(oews_weights, by = join_by(reference_soc_code), relationship = "many-to-one") |>
+  mutate(weighted_score = measure_score * employment) |>
+  arrange(desc(weighted_score)) |>
+  select(title, reference_soc_code, measure_score, employment, weight_share, weighted_score)
+
+contributions |>
+  print(width = Inf)
+```
+
+```{r contribution-chart, fig.alt = "Bar chart showing employment-weighted ability contributions by occupation."}
+barplot(
+  height = setNames(contributions$weighted_score, contributions$title),
+  col = "#0f766e",
+  border = NA,
+  las = 2,
+  ylab = "Score times employment",
+  main = "Which Occupations Drive the Weighted Score?"
+)
+```
+
+## Compare OEWS with a PUMS-Style Weight Panel
+
+OEWS is the right default for official occupation employment and wage context.
+PUMS-derived weights are useful when the target population is a custom sample,
+geography, or demographic cell.
 
 ```{r pums-weights}
 pums <- tibble::tibble(
-  SOCP = c("151252", "151252", "291141"),
-  PWGTP = c(120, 80, 200)
+  SOCP = c("151252", "151252", "291141", "291141", "111011"),
+  PWGTP = c(120, 80, 90, 110, 20),
+  sex = c("F", "M", "F", "M", "F")
 )
 
-onet_pums_employment_weights(pums)
+pums_weights <- onet_weight_panel_pums(
+  pums,
+  year = 2022,
+  group = "sex"
+)
+
+pums_weights |>
+  print(width = Inf)
 ```
 
-Use OEWS when you want official occupation employment and wage estimates. Use
-PUMS-derived weights when your analysis needs custom populations, geographies,
-or demographic slices that OEWS does not publish directly.
+Because this PUMS-style panel has cells, pick one cell before aggregating.
+
+```{r pums-aggregate}
+oral_pums_f <- onet_measure_aggregate(
+  oral_scores,
+  pums_weights,
+  measure_id = "oral_comprehension_fixture",
+  cell = list(sex = "F")
+)
+
+tibble::tibble(
+  weight_source = c("OEWS national", "PUMS-style F cell"),
+  aggregate = c(oral_oews$aggregate, oral_pums_f$aggregate),
+  coverage = c(
+    oral_oews$employment_coverage_share,
+    oral_pums_f$employment_coverage_share
+  )
+)
+```
+
+The point is not that one source is always better. OEWS gives official labor
+market estimates. PUMS gives custom cells. The package makes the weight source,
+year, taxonomy, and coverage explicit so readers can see what changed.

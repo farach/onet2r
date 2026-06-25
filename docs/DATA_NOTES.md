@@ -1,6 +1,6 @@
 # Data notes and verified assumptions
 
-These notes record facts checked for the 0.3.0 contracts. Facts that could not
+These notes record facts checked for the 0.4.0 contracts. Facts that could not
 be verified are treated as assumptions and guarded in tests or left out of
 automated behavior.
 
@@ -18,6 +18,10 @@ Verified from O&#42;NET Resource Center Data Dictionary pages for release 30.3:
   `Domain Source`.
 - Task rating scales include `IM` for importance, `FT` for frequency, and `RT`
   for relevance. Frequency has seven category rows per task.
+- In the release 30.3 Task Ratings dictionary example, `RT` is labeled
+  `Relevance of Task`. The task aggregation default uses `RT` for relevance
+  weights because it is the direct task-to-occupation relevance scale in this
+  file.
 - The DWA reference file changed in release 30.3. `DWA Reference.txt` became
   `GWAs to IWAs to DWAs.txt`, and old `DWA ID` fields became
   `DWA Element ID` fields with a new identifier format.
@@ -28,6 +32,7 @@ Sources:
 
 - https://www.onetcenter.org/dictionary/30.3/excel/task_statements.html
 - https://www.onetcenter.org/dictionary/30.3/excel/task_ratings.html
+- https://www.onetcenter.org/dictionary/30.3/excel/scales_reference.html
 - https://www.onetcenter.org/dictionary/30.3/excel/gwas_to_iwas_to_dwas.html
 - https://www.onetcenter.org/dictionary/30.3/excel/tasks_to_dwas.html
 - https://www.onetcenter.org/dl_files/30_3_migration_reference.xlsx
@@ -83,4 +88,7 @@ Sources:
   treated as a transparent fallback, not as BLS employment-share weights.
 - Local fixtures are intentionally small. They check schema and arithmetic but
   are not a complete copy of any O&#42;NET, OEWS, or Census file.
+- Local `db_24_3_text` and `db_25_1_text` fixtures are synthetic slices used to
+  exercise 2010-to-2019 O&#42;NET-SOC behavior. They preserve official column
+  names but are not official O&#42;NET data.
 - Current package tests do not require network access or API keys.

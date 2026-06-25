@@ -46,3 +46,19 @@ A tibble with occupation-level measure scores.
 Rolls a task-level measure up to occupations using O*NET task relevance,
 importance, or equal task weights.
 }
+\examples{
+task_measure <- onet_measure(
+  tibble::tibble(task_id = c("1001", "1002"), score = c(0.8, 0.4)),
+  key = "task_id",
+  score = "score",
+  key_type = "task"
+)
+task_ratings <- tibble::tibble(
+  onet_soc_code = c("15-1252.00", "15-1252.00"),
+  task_id = c("1001", "1002"),
+  scale_id = "RT",
+  data_value = c(80, 20),
+  task_type = "Core"
+)
+onet_task_to_occupation(task_measure, task_ratings)
+}

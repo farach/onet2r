@@ -1,14 +1,19 @@
 ---
-title: "Reproducible user measures"
+title: "Reproducible User Measures"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Reproducible user measures}
+  %\VignetteIndexEntry{Reproducible User Measures}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
 options(tibble.print_min = 4, tibble.print_max = 8)
 options(
   cli.num_colors = 1,
@@ -18,38 +23,32 @@ options(
 )
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
-```
 
-O&#42;NET users often arrive with their own score: an AI exposure measure, a task
-classification, a skill index, or a hand-coded construct. `onet2r` does not try
-to decide which score is correct. It helps with the parts around the score:
-checking keys, using versioned O&#42;NET files, aggregating tasks to occupations,
-adding employment weights, and recording enough provenance for someone else to
-reproduce the number.
-
-This article uses the small archive fixtures shipped with the package. The
-numbers are stylized, but every table below is produced by package functions.
-
-## Read task files from a pinned release
-
-```{r read-task-fixtures}
 archive_dir <- system.file(
   "extdata",
   "onet-mini",
   "db_30_3_text",
   package = "onet2r"
 )
-source_archive_dir <- file.path("inst", "extdata", "onet-mini", "db_30_3_text")
-if (
-  !file.exists(file.path(archive_dir, "task_statements.txt")) &&
-    dir.exists(source_archive_dir)
-) {
-  archive_dir <- source_archive_dir
-}
+```
 
+O&#42;NET users often arrive with their own score: an exposure measure, a task
+classification, a skill index, or a hand-coded construct. `onet2r` does not try
+to decide which score is correct. It helps with the parts around the score:
+checking keys, using versioned O&#42;NET files, aggregating tasks to occupations,
+adding employment weights, and recording enough provenance for someone else to
+reproduce the number.
+
+This article uses the small archive fixtures shipped with the package. The task
+score is stylized and should not be interpreted as a real exposure measure.
+Every displayed table is produced by package functions.
+
+## Read Task Files from a Pinned Release
+
+```{r read-task-fixtures}
 tasks <- onet_archive_read(
   "30.3",
   "Task Statements",
@@ -70,20 +69,20 @@ tasks |>
 ```
 
 `Task Statements` carries task ids and Core or Supplemental labels. `Task
-Ratings` carries the relevance, importance, and frequency ratings used to
-aggregate task-level scores.
+Ratings` carries relevance and importance ratings used to aggregate task-level
+scores.
 
 ```{r task-ratings-preview}
 task_ratings |>
-  select(onet_soc_code, task_id, scale_id, data_value, recommend_suppress) |>
+  select(onet_soc_code, task_id, scale_id, scale_name, data_value, recommend_suppress) |>
   head() |>
   print(width = Inf)
 ```
 
-## Validate a user-supplied measure
+## Validate a User-Supplied Measure
 
-Here the user brings a three-task score. It could come from a model, a survey,
-or manual coding. The constructor checks that the task ids match the selected
+Here the user brings a 3-task score. It could come from a model, a survey, or
+manual coding. The constructor checks that the task ids match the selected
 O&#42;NET release universe.
 
 ```{r construct-measure}
@@ -103,7 +102,7 @@ measure <- onet_measure(
   release_version = "30.3"
 )
 
-onet_measure_coverage(measure)
+onet_coverage(measure)
 ```
 
 The object also stores unmatched keys explicitly.
@@ -116,7 +115,7 @@ if (nrow(measure$unmatched) == 0) {
 }
 ```
 
-## Roll tasks to occupations
+## Roll Tasks to Occupations
 
 The next step is mechanical. We use O&#42;NET task relevance ratings as weights
 and restrict the calculation to Core tasks.
@@ -134,7 +133,7 @@ occupation_scores
 ```
 
 Changing the Core-only rule is a plumbing choice, not a change to the user's
-score. It belongs in provenance and robustness checks.
+score. It belongs in provenance and sensitivity checks.
 
 ```{r task-rollup-all}
 occupation_scores_all <- onet_task_to_occupation(
@@ -148,7 +147,7 @@ occupation_scores_all <- onet_task_to_occupation(
 occupation_scores_all
 ```
 
-## Add employment weights
+## Add Employment Weights
 
 OEWS files are SOC-level. The weight helper makes the source vintage explicit
 and returns a single shape used downstream.
@@ -164,7 +163,7 @@ weights |>
   print(width = Inf)
 ```
 
-## Aggregate and inspect provenance
+## Aggregate and Inspect Provenance
 
 ```{r aggregate}
 national <- onet_measure_aggregate(
@@ -174,29 +173,38 @@ national <- onet_measure_aggregate(
 )
 
 national |>
+  select(-coverage, -provenance) |>
   print(width = Inf)
-attr(national, "provenance")
+
+onet_provenance(national)
 ```
 
-## Check sensitivity to plumbing choices
+## Check Sensitivity to Plumbing Choices
 
 ```{r robustness}
-national_all_tasks <- onet_measure_aggregate(
-  occupation_scores_all,
-  weights,
-  measure_id = "stylized_task_score"
-)
-
-diagnostic <- onet_robustness_diagnostic(
-  tibble::tibble(
-    scenario = c("core_tasks", "core_plus_supplemental"),
-    aggregate = c(national$aggregate, national_all_tasks$aggregate)
-  )
+diagnostic <- onet_measure_sensitivity(
+  measure,
+  weight_panels = weights,
+  task_ratings = task_ratings,
+  task_metadata = tasks,
+  include_supplemental = c(FALSE, TRUE)
 )
 
 diagnostic |>
+  select(scenario, aggregate, employment_coverage_share, movement, movement_percent) |>
   print(width = Inf)
 ```
 
+```{r robustness-chart, fig.alt = "Bar chart comparing core-only and core-plus-supplemental stylized task aggregates."}
+barplot(
+  height = setNames(diagnostic$aggregate, diagnostic$scenario),
+  col = c("#0f766e", "#14b8a6"),
+  border = NA,
+  las = 2,
+  ylab = "Aggregate score",
+  main = "Plumbing Choices Move the Headline Number"
+)
+```
+
 The diagnostic does not say which task score is right. It shows how much the
-headline number moves when the non-substantive plumbing changes.
+headline number moves when non-substantive plumbing changes.

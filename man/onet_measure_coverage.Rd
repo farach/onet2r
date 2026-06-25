@@ -15,3 +15,12 @@ A tibble with key and optional employment coverage.
 \description{
 Return Measure Coverage
 }
+\examples{
+measure <- onet_measure(
+  tibble::tibble(onet_soc_code = "15-1252.00", score = 0.7),
+  key = "onet_soc_code",
+  score = "score",
+  universe = c("15-1252.00", "29-1141.00")
+)
+onet_measure_coverage(measure)
+}

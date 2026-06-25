@@ -25,5 +25,6 @@ test_that("onet_decompose_change components sum to total change", {
   components <- sum(result$value[result$component != "total_change"])
   total <- result$value[result$component == "total_change"]
   expect_equal(components, total)
-  expect_equal(attr(result, "coverage")$leakage, 0)
+  expect_s3_class(result, "onet_decomposition")
+  expect_equal(onet_coverage(result)$leakage, 0)
 })

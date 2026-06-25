@@ -1,0 +1,5 @@
+O*NET-SOC Code	Title	Task ID	Task	Scale ID	Scale Name	Category	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Date	Domain Source
+15-1132.00	Software Developers, Applications	1101	Design software applications to meet user needs.	RT	Relevance of Task		92	24	2.5000	87	97	N	08/2020	Incumbent
+15-1132.00	Software Developers, Applications	1101	Design software applications to meet user needs.	IM	Importance		4.4	24	0.2000	4.0	4.8	N	08/2020	Incumbent
+29-1141.00	Registered Nurses	2101	Monitor patient health and record signs.	RT	Relevance of Task		97	28	1.6000	94	100	N	08/2020	Incumbent
+29-1141.00	Registered Nurses	2101	Monitor patient health and record signs.	IM	Importance		4.7	28	0.1000	4.5	4.9	N	08/2020	Incumbent

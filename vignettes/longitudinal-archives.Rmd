@@ -10,27 +10,17 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
 )
+options(tibble.print_min = 4, tibble.print_max = 8)
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
-```
 
-Read `vignette("longitudinal-onet-background", package = "onet2r")` before
-interpreting changes. O&#42;NET was not designed as a longitudinal panel, so the
-practical job is not only to compute differences. It is to separate real
-descriptor updates from carryforwards, re-surveys with stable values, recodes,
-and taxonomy seams.
-
-This walkthrough uses packaged archive-format text files so every displayed
-table comes from `onet2r` functions while the vignette remains CRAN-safe and
-does not require network access. In a real project, replace the local paths with
-downloaded O&#42;NET archive versions.
-
-```{r local-archives}
 example_archive <- function(version) {
   system.file(
     "extdata",
@@ -39,21 +29,22 @@ example_archive <- function(version) {
     package = "onet2r"
   )
 }
-
-archives <- c(
-  `30.2` = example_archive("30.2"),
-  `30.3` = example_archive("30.3")
-)
-
-release_dates <- c(`30.2` = "2026-02-01", `30.3` = "2026-05-01")
-
-archives
 ```
+
+Read `vignette("longitudinal-onet-background", package = "onet2r")` before
+interpreting changes. O&#42;NET was not designed as a longitudinal panel, so the
+practical job is not only to compute differences. It is to separate real
+descriptor updates from carryforwards, re-surveys with stable values, recodes,
+transition rows, and taxonomy seams.
+
+This walkthrough uses packaged archive-format text files so every displayed
+table comes from `onet2r` functions while the vignette remains CRAN-safe and
+does not require network access.
 
 ## A Practical Question
 
 Suppose you want to know whether selected cognitive ability ratings changed
-between two O&#42;NET releases for occupations that matter in workforce planning:
+between O&#42;NET releases for occupations that matter in workforce planning:
 software developers, registered nurses, chief executives, and retail
 supervisors. A naive `new - old` difference is not enough, because unchanged
 values may be carryforwards and changed values may reflect a recode rather than
@@ -62,15 +53,14 @@ a fresh survey update.
 ## Read One Archive Table
 
 `onet_archive_read()` reads an O&#42;NET text archive table and normalizes it into
-one panel schema. The local `path` argument is useful when you have downloaded
-archives manually or when you want a reproducible, offline workflow.
+one panel schema.
 
 ```{r read-one-archive}
 abilities_303 <- onet_archive_read(
   "30.3",
   "Abilities",
-  path = archives[["30.3"]],
-  release_date = release_dates[["30.3"]]
+  path = example_archive("30.3"),
+  release_date = "2026-05-01"
 )
 
 abilities_303 |>
@@ -89,26 +79,27 @@ abilities_303 |>
 ```
 
 The output has one row per occupation, element, scale, and release. The
-important longitudinal fields are:
+important longitudinal fields are `release_version`, `soc_vintage`,
+`onet_soc_code`, `data_value`, `source_date`, and `domain_source`.
 
-- `release_version` and `release_date`, which identify the archive release;
-- `soc_vintage`, `onet_soc_code`, and `soc_code`, which identify the taxonomy;
-- `data_value`, the descriptor score;
-- `source_date` and `domain_source`, which help distinguish fresh updates from
-  carryforwards or method changes.
-
-## Assemble a Two-Release Panel
+## Assemble a Same-Vintage Panel
 
 `onet_panel()` applies the same reader across releases and row-binds the
 normalized outputs.
 
 ```{r build-panel}
+same_vintage_archives <- c(
+  `30.2` = example_archive("30.2"),
+  `30.3` = example_archive("30.3")
+)
+same_vintage_dates <- c(`30.2` = "2026-02-01", `30.3` = "2026-05-01")
+
 panel <- onet_panel(
   "Abilities",
   versions = c("30.2", "30.3"),
   scale = "IM",
-  archives = archives,
-  release_dates = release_dates
+  archives = same_vintage_archives,
+  release_dates = same_vintage_dates
 )
 
 panel |>
@@ -116,8 +107,6 @@ panel |>
   select(
     release_version,
     onet_soc_code,
-    soc_code,
-    element_id,
     element_name,
     data_value,
     source_date,
@@ -130,31 +119,13 @@ panel |>
 This is the table you would save as your audit trail before doing any modeling.
 It records the exact versions, values, and source dates used in the comparison.
 
-## Bridge Taxonomy Vintages
-
-The example releases both use the 2019 O&#42;NET-SOC vintage, so no crosswalk is
-needed. Calling `onet_crosswalk_bridge("2019", "2019")` returns the empty bridge
-schema that `onet_panel_reconcile()` can use for same-vintage comparisons. For
-real cross-vintage work, use `onet_crosswalk_bridge()` to compose official
-adjacent O&#42;NET-SOC crosswalks.
-
-```{r bridge}
-bridge <- onet_crosswalk_bridge("2019", "2019")
-bridge_schema <- tibble::tibble(
-  column = names(bridge),
-  type = vapply(bridge, \(x) class(x)[[1]], character(1))
-)
-bridge_schema |>
-  print(width = Inf)
-```
-
 ## Reconcile Adjacent Releases
 
 `onet_panel_reconcile()` compares adjacent releases and classifies each matched
 occupation-element-scale pair.
 
 ```{r reconcile}
-changes <- onet_panel_reconcile(panel, bridge)
+changes <- onet_panel_reconcile(panel, onet_crosswalk_bridge("2019", "2019"))
 
 changes |>
   select(
@@ -175,23 +146,14 @@ changes |>
   print(width = Inf)
 ```
 
-Read the `change_type` column before interpreting `value_change`:
+Read `change_type` before interpreting `value_change`.
 
 | Value changed? | Source date changed? | Classification | Interpretation |
 | --- | --- | --- | --- |
 | no | no | `stale_carryforward` | The release likely carried forward the prior value. |
 | yes | yes | `real_update` | The value changed with a new source date. |
 | no | yes | `resampled_stable` | The occupation appears updated, but the score stayed stable. |
-| yes | no | `recode_or_recalc_flag` | Treat cautiously; the value changed without a new source date. |
-
-`method_break` and `crosswalk_uncertain` are additional overrides. A row is
-`safely_comparable` only when the truth-table result is comparable and neither
-override is present.
-
-## Answer the Practical Question
-
-For this small example, the most useful review table is not every pair. It is
-the subset where values changed, sorted by whether the change is safe to compare.
+| yes | no | `recode_or_recalc_flag` | Treat cautiously because the value changed without a new source date. |
 
 ```{r changed-rows}
 changes |>
@@ -211,10 +173,66 @@ changes |>
   print(width = Inf)
 ```
 
-This is the table a researcher should inspect before making a claim such as
-"software developers require more oral comprehension than in the prior release."
-The comparison is strongest when the value changed, the source date changed, and
-no method or taxonomy warning is present.
+## Cross a Taxonomy Seam
+
+Same-vintage comparisons are the easy case. The next example uses the bundled
+2010-vintage and 2019-vintage fixtures. The bridge is intentionally tiny, but it
+shows the real problem: a 2010 occupation can split into more than one 2019
+occupation.
+
+```{r cross-vintage}
+cross_archives <- c(
+  `24.3` = example_archive("24.3"),
+  `25.1` = example_archive("25.1")
+)
+cross_dates <- c(`24.3` = "2020-08-01", `25.1` = "2020-11-01")
+
+cross_panel <- onet_panel(
+  "Abilities",
+  versions = c("24.3", "25.1"),
+  scale = "IM",
+  archives = cross_archives,
+  release_dates = cross_dates
+)
+
+bridge_2010_2019 <- tibble::tibble(
+  from_vintage = "2010",
+  to_vintage = "2019",
+  from_onet_soc_code = c("15-1132.00", "15-1132.00", "29-1141.00"),
+  to_onet_soc_code = c("15-1252.00", "15-1253.00", "29-1141.00"),
+  map_type = c("split", "split", "one_to_one"),
+  crosswalk_weight = c(0.5, 0.5, 1)
+)
+
+cross_changes <- onet_panel_reconcile(cross_panel, bridge_2010_2019)
+
+cross_changes |>
+  select(
+    from_onet_soc_code,
+    to_onet_soc_code,
+    element_name,
+    change_type,
+    crosswalk_uncertain,
+    transition_data,
+    safely_comparable
+  ) |>
+  print(width = Inf)
+```
+
+```{r summary-chart, fig.alt = "Bar chart of same-vintage change classifications."}
+summary_counts <- changes |>
+  count(change_type, name = "rows") |>
+  arrange(desc(rows))
+
+barplot(
+  height = setNames(summary_counts$rows, summary_counts$change_type),
+  col = "#0f766e",
+  border = NA,
+  las = 2,
+  ylab = "Rows",
+  main = "Change Classification Comes Before Interpretation"
+)
+```
 
 ## Summarize the Panel
 

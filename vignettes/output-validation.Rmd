@@ -12,9 +12,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(tibble.print_min = 4, tibble.print_max = 8)
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
 
@@ -33,9 +34,9 @@ archive_303 <- system.file(
 ```
 
 The package test suite checks implementation details with mocked responses and
-small deterministic files. For real projects, it is also useful to inspect output
-shape: Are expected columns present? Are rows non-empty where they should be?
-Are list endpoints returning the fields users need?
+small deterministic files. For real projects, it is also useful to inspect
+output shape: Are expected columns present? Are rows non-empty where they should
+be? Are list endpoints returning the fields users need?
 
 `onet2r` includes a practical validation script that maintainers can run from
 the source tree with `Rscript inst/examples/validate-outputs.R`. From an
@@ -51,8 +52,8 @@ The validation script always checks deterministic local outputs:
 
 - reading bundled OEWS sample data;
 - reading a local O&#42;NET archive-format table;
-- joining O&#42;NET occupation codes to OEWS estimates;
-- computing employment- and wage-weighted O&#42;NET summaries;
+- creating a reference-SOC OEWS weight panel;
+- aggregating an occupation score with coverage and provenance;
 - configuring cache and rate-limit settings.
 
 When `ONET_API_KEY` is available, it also performs live smoke checks across the
@@ -65,6 +66,7 @@ The local validation below uses package functions rather than copied output.
 
 ```{r local-validation}
 oews <- onet_oews_national(2024, path = sample_oews)
+weights <- onet_weight_panel_oews(oews, year = 2024)
 
 abilities <- onet_archive_read(
   "30.3",
@@ -73,37 +75,39 @@ abilities <- onet_archive_read(
   release_date = "2026-05-01"
 )
 
-occupations <- abilities |>
-  distinct(code = onet_soc_code, title)
+oral_scores <- abilities |>
+  filter(element_id == "1.A.1.a.1") |>
+  transmute(onet_soc_code, measure_score = data_value)
 
-joined <- onet_join_oews(occupations, oews = oews)
-
-weighted <- onet_weighted_summary(
-  abilities,
-  group = c("element_id", "element_name"),
-  value = "data_value",
-  occupation_code = "onet_soc_code",
-  oews = oews
+aggregate <- onet_measure_aggregate(
+  oral_scores,
+  weights,
+  measure_id = "oral_comprehension_fixture"
 )
 
 tibble::tibble(
   check = c(
     "OEWS output is a tibble",
     "archive output has source dates",
-    "join adds normalized SOC code",
-    "weighted summary has employment weights"
+    "weight panel has reference SOC codes",
+    "aggregate has provenance",
+    "aggregate has coverage"
   ),
   passed = c(
     inherits(oews, "tbl_df"),
     all(c("source_date", "data_value") %in% names(abilities)),
-    all(c("soc_code", "tot_emp", "a_median") %in% names(joined)),
-    all(c("total_weight", "weighted_mean") %in% names(weighted))
+    all(c("reference_soc_code", "employment") %in% names(weights)),
+    nrow(onet_provenance(aggregate)) == 1,
+    nrow(onet_coverage(aggregate)) == 1
   )
 )
 
-head(joined, 5) |>
+weights |>
+  head(5) |>
   print(width = Inf)
-head(weighted, 5) |>
+
+aggregate |>
+  select(-coverage, -provenance) |>
   print(width = Inf)
 ```
 

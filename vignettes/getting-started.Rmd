@@ -10,11 +10,20 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+options(tibble.print_min = 4, tibble.print_max = 8)
+options(
+  cli.num_colors = 1,
+  crayon.enabled = FALSE,
+  pillar.bold = FALSE,
+  pillar.subtle = FALSE
 )
 ```
 
-```{r setup}
+```{r setup, include = FALSE}
 library(onet2r)
 library(dplyr)
 
@@ -27,32 +36,21 @@ sample_oews <- system.file(
   package = "onet2r"
 )
 
-archive_302 <- system.file(
-  "extdata",
-  "onet-mini",
-  "db_30_2_text",
-  package = "onet2r"
-)
-
-archive_303 <- system.file(
-  "extdata",
-  "onet-mini",
-  "db_30_3_text",
-  package = "onet2r"
-)
+archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+archive_302 <- file.path(archive_base, "db_30_2_text")
+archive_303 <- file.path(archive_base, "db_30_3_text")
 ```
 
 `onet2r` helps you move from occupation search to analysis-ready O&#42;NET tables,
 archived O&#42;NET releases, and BLS OEWS wage and employment context. Current
 O&#42;NET Web Services calls require a free API key from the
 [O&#42;NET developer portal](https://services.onetcenter.org/developer/). Store it
-in `.Renviron` as `ONET_API_KEY=your-api-key-here` so you do not put secrets in
-scripts.
+in `.Renviron` as `ONET_API_KEY=your-api-key-here` so scripts do not contain
+secrets.
 
-The live Web Services examples are opt-in for package builds, because CRAN and
-most CI environments should not depend on an external API. The rest of this
-article uses local files through actual `onet2r` functions, so every displayed
-table is computed when the vignette is knitted.
+The live Web Services examples are opt-in for package builds because CRAN and CI
+should not depend on an external API. Everything else in this article uses local
+files through actual `onet2r` functions.
 
 ```{r auth-status}
 tibble::tibble(
@@ -120,36 +118,35 @@ abilities |>
 ## Add Labor-Market Context
 
 BLS OEWS estimates add employment and wage scale to O&#42;NET occupation rows.
-`onet_oews_national()` reads the OEWS file, and `onet_join_oews()` joins by a
-normalized SOC code.
+The modern weighting path creates an explicit reference-SOC weight panel.
 
-```{r oews-join}
+```{r oews-weights}
 oews <- onet_oews_national(2024, path = sample_oews)
+weights <- onet_weight_panel_oews(oews, year = 2024)
 
-occupations <- abilities |>
-  distinct(code = onet_soc_code, title)
-
-occupation_wages <- onet_join_oews(occupations, oews = oews)
-
-occupation_wages |>
-  select(code, title, soc_code, tot_emp, a_median)
+weights |>
+  print(width = Inf)
 ```
 
-## Summarize O&#42;NET Rows with Employment Weights
+To answer a concrete question, take one ability, treat the O&#42;NET values as the
+user-supplied occupation score, and aggregate with OEWS employment.
 
-`onet_weighted_summary()` lets you summarize descriptor rows by employment or
-wage context. Here it computes employment-weighted ability means from actual
-archive rows and the bundled OEWS sample.
+```{r aggregate-ability}
+oral_scores <- abilities |>
+  filter(element_id == "1.A.1.a.1") |>
+  transmute(onet_soc_code, measure_score = data_value)
 
-```{r weighted-summary}
-onet_weighted_summary(
-  abilities,
-  group = c("element_id", "element_name"),
-  value = "data_value",
-  occupation_code = "onet_soc_code",
-  oews = oews
-) |>
+oral_aggregate <- onet_measure_aggregate(
+  oral_scores,
+  weights,
+  measure_id = "oral_comprehension_fixture"
+)
+
+oral_aggregate |>
+  select(-coverage, -provenance) |>
   print(width = Inf)
+
+onet_provenance(oral_aggregate)
 ```
 
 ## Compare Two Archive Releases
@@ -186,11 +183,28 @@ changes |>
   print(width = Inf)
 ```
 
+```{r getting-started-chart, fig.alt = "Bar chart of change classifications in the getting started example."}
+plot_data <- changes |>
+  count(change_type, name = "rows") |>
+  arrange(desc(rows))
+
+barplot(
+  height = setNames(plot_data$rows, plot_data$change_type),
+  col = "#0f766e",
+  border = NA,
+  las = 2,
+  ylab = "Rows",
+  main = "What Kind of Change Was Observed?"
+)
+```
+
 ## Next Steps
 
 - Read `vignette("longitudinal-onet-background", package = "onet2r")` before
   interpreting cross-release changes.
 - Read `vignette("longitudinal-archives", package = "onet2r")` to assemble and
   reconcile archive panels.
-- Read `vignette("oews-wage-context", package = "onet2r")` to add BLS wage and
-  employment estimates.
+- Read `vignette("oews-wage-context", package = "onet2r")` to choose and apply
+  employment weights.
+- Read `vignette("stress-testing-exposure-measure", package = "onet2r")` to
+  stress test a user-supplied measure.

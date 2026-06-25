@@ -27,3 +27,10 @@ A tibble with baseline movement fields.
 \description{
 Compare Aggregates Across Plumbing Choices
 }
+\examples{
+scenarios <- tibble::tibble(
+  scenario = c("baseline", "alternate_weights"),
+  aggregate = c(0.40, 0.45)
+)
+onet_robustness_diagnostic(scenarios)
+}

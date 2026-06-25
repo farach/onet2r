@@ -6,7 +6,9 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-"
+  fig.path = "man/figures/README-",
+  fig.width = 7,
+  fig.height = 4
 )
 options(tibble.print_min = 4, tibble.print_max = 8)
 options(
@@ -15,18 +17,26 @@ options(
   pillar.bold = FALSE,
   pillar.subtle = FALSE
 )
+local({
+  output_hook <- knitr::knit_hooks$get("output")
+  knitr::knit_hooks$set(output = function(x, options) {
+    x <- gsub("[ \t]+(\r?\n)", "\\1", x)
+    output_hook(x, options)
+  })
+})
 ```
 
-# onet2r <img src="man/figures/logo.png" align="right" height="138" alt="" />
+# onet2r <img src="man/figures/logo.png" align="right" height="138" alt="onet2r hex logo" />
 
 `onet2r` is an R package for working with O&#42;NET Web Services, archived
-O&#42;NET database releases, O&#42;NET-SOC taxonomy bridges, and BLS OEWS wage and
-employment context.
+O&#42;NET database releases, O&#42;NET-SOC taxonomy bridges, BLS OEWS wage and
+employment context, and reproducible user-supplied occupation measures.
 
-The package is built for two related jobs. First, it gives analysts tidy access
-to current O&#42;NET occupation data. Second, it provides reproducible plumbing for
-researchers who bring their own occupation or task measure and need to validate
-keys, weight occupations, compare O&#42;NET releases, and record provenance.
+The package is built for analysts who need tidy current-release O&#42;NET data and
+for researchers who need to ask careful historical questions. O&#42;NET was not
+designed as a longitudinal panel, so `onet2r` makes the plumbing visible:
+archive versions, taxonomy seams, source dates, employment weights, coverage,
+and provenance.
 
 ## Installation
 
@@ -50,16 +60,16 @@ Live O&#42;NET API calls require a free API key from
 ONET_API_KEY=your-api-key-here
 ```
 
-The archive, OEWS fixture, and measure examples below run without a key.
+The archive, OEWS, and measure examples below run without a key.
 
-## Read archived O&#42;NET releases
-
-```{r setup, message = FALSE}
+```{r setup, include = FALSE}
 suppressPackageStartupMessages({
   library(onet2r)
   library(dplyr)
 })
 ```
+
+## Read Archived Releases
 
 ```{r archive-panel}
 archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
@@ -82,24 +92,16 @@ abilities |>
   head(6)
 ```
 
-O&#42;NET-SOC remains at the 8-digit detail level in `onet_soc_code`. The
-six-digit `soc_code` is kept for employment joins.
+O&#42;NET-SOC remains at the native 8-digit detail level in `onet_soc_code`.
+The 6-digit `soc_code` exists for labor-market joins.
 
-## Reconcile changes across releases
+## Reconcile Historical Change
 
 ```{r reconcile}
-bridge <- tibble::tibble(
-  from_vintage = "2019",
-  to_vintage = "2019",
-  from_onet_soc_code = unique(abilities$onet_soc_code),
-  to_onet_soc_code = unique(abilities$onet_soc_code),
-  from_soc_code = unique(abilities$soc_code),
-  to_soc_code = unique(abilities$soc_code),
-  map_type = "one_to_one",
-  crosswalk_weight = 1
+changes <- onet_panel_reconcile(
+  abilities,
+  bridge = onet_crosswalk_bridge("2019", "2019")
 )
-
-changes <- onet_panel_reconcile(abilities, bridge)
 
 changes |>
   select(
@@ -108,21 +110,39 @@ changes |>
     element_name,
     from_value,
     to_value,
+    value_change,
     change_type,
     safely_comparable
   ) |>
-  head(6) |>
+  arrange(desc(abs(value_change))) |>
+  head(8) |>
   print(width = Inf)
+```
+
+```{r change-chart, fig.alt = "Bar chart of archive change classifications in the bundled example panel."}
+change_counts <- changes |>
+  count(change_type, name = "rows") |>
+  arrange(desc(rows))
+
+barplot(
+  height = setNames(change_counts$rows, change_counts$change_type),
+  col = "#0f766e",
+  border = NA,
+  las = 2,
+  ylab = "Rows",
+  main = "Change Types in a Bundled Archive Panel"
+)
 ```
 
 Rows marked as transition data, suppressed estimates, new content, or dropped
 content are visible in `change_type`. They are not counted as safely comparable
 updates.
 
-## Bring your own task measure
+## Bring Your Own Measure
 
-The package does not ship an AI exposure score or any other substantive
-measure. You supply a score, and `onet2r` validates and carries the plumbing.
+The package does not ship an AI exposure score or any other substantive measure.
+You supply a score, and `onet2r` validates keys, performs mechanical rollups,
+adds weights, and records provenance.
 
 ```{r task-measure}
 tasks <- onet_archive_read(
@@ -152,7 +172,7 @@ measure <- onet_measure(
   measure_id = "stylized_task_score"
 )
 
-onet_measure_coverage(measure)
+onet_coverage(measure)
 ```
 
 ```{r task-rollup}
@@ -166,7 +186,7 @@ occupation_scores <- onet_task_to_occupation(
 occupation_scores
 ```
 
-## Add employment weights
+## Add Employment Weights
 
 ```{r weights}
 oews_sample <- onet_oews_national(
@@ -187,11 +207,29 @@ aggregate <- onet_measure_aggregate(
 )
 
 aggregate |>
+  select(-coverage, -provenance) |>
   print(width = Inf)
-attr(aggregate, "provenance")
+
+onet_provenance(aggregate)
 ```
 
-## Decompose aggregate change
+## Stress Test the Plumbing
+
+```{r sensitivity}
+sensitivity <- onet_measure_sensitivity(
+  measure,
+  weight_panels = weights,
+  task_ratings = task_ratings,
+  task_metadata = tasks,
+  include_supplemental = c(FALSE, TRUE)
+)
+
+sensitivity |>
+  select(scenario, aggregate, employment_coverage_share, movement) |>
+  print(width = Inf)
+```
+
+## Decompose Aggregate Change
 
 ```{r decomposition}
 from_scores <- tibble::tibble(
@@ -214,19 +252,22 @@ to_weights <- tibble::tibble(
 )
 
 decomp <- onet_decompose_change(from_scores, to_scores, from_weights, to_weights)
-decomp
-attr(decomp, "coverage")
+
+decomp |>
+  select(component, value) |>
+  print(width = Inf)
+
+onet_coverage(decomp)
 ```
 
-## Main function groups
+## Main Function Groups
 
 - Current O&#42;NET API data: `onet_search()`, `onet_occupation()`,
   `onet_skills()`, `onet_tasks()`, `onet_table()`.
 - Archived O&#42;NET data: `onet_releases()`, `onet_archive_download()`,
   `onet_archive_read()`, `onet_panel()`, `onet_panel_reconcile()`.
-- Wage and employment context: `onet_oews_national()`, `onet_join_oews()`,
-  `onet_weighted_summary()`, `onet_weight_panel_oews()`,
-  `onet_weight_panel_pums()`.
+- Wage and employment context: `onet_oews_national()`,
+  `onet_weight_panel_oews()`, `onet_weight_panel_pums()`.
 - User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
-  `onet_measure_aggregate()`, `onet_robustness_diagnostic()`,
-  `onet_decompose_change()`.
+  `onet_measure_aggregate()`, `onet_measure_sensitivity()`,
+  `onet_provenance()`, `onet_coverage()`, `onet_decompose_change()`.

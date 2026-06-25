@@ -1,0 +1,3 @@
+O*NET-SOC Code	Title	Task ID	Task	Task Type	Incumbents Responding	Date	Domain Source
+15-1132.00	Software Developers, Applications	1101	Design software applications to meet user needs.	Core	24	08/2020	Incumbent
+29-1141.00	Registered Nurses	2101	Monitor patient health and record signs.	Core	28	08/2020	Incumbent

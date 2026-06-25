@@ -16,11 +16,14 @@ test_that("onet_weighted_summary computes employment and wage weighted output", 
     a_median = c(100, 200)
   )
 
-  result <- onet_weighted_summary(
-    skills,
-    group = c("element_id", "element_name"),
-    value = "data_value",
-    oews = oews
+  expect_warning(
+    result <- onet_weighted_summary(
+      skills,
+      group = c("element_id", "element_name"),
+      value = "data_value",
+      oews = oews
+    ),
+    class = "lifecycle_warning_deprecated"
   )
 
   expect_named(
@@ -56,10 +59,13 @@ test_that("onet_weighted_summary works with pre-joined weights", {
     tot_emp = c(20, 60)
   )
 
-  result <- onet_weighted_summary(
-    data,
-    group = "task",
-    value = "value"
+  expect_warning(
+    result <- onet_weighted_summary(
+      data,
+      group = "task",
+      value = "value"
+    ),
+    class = "lifecycle_warning_deprecated"
   )
 
   expect_equal(result$weighted_mean, 3.5)
@@ -74,7 +80,10 @@ test_that("onet_weighted_summary requires weights or OEWS data", {
   )
 
   expect_error(
-    onet_weighted_summary(data, group = "task", value = "value"),
+    expect_warning(
+      result <- onet_weighted_summary(data, group = "task", value = "value"),
+      class = "lifecycle_warning_deprecated"
+    ),
     "does not contain the weight column"
   )
 })

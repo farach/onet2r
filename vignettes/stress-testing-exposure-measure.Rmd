@@ -1,0 +1,125 @@
+---
+title: "Stress-Testing a User-Supplied Exposure Measure"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Stress-Testing a User-Supplied Exposure Measure}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+options(tibble.print_min = 4, tibble.print_max = 8)
+```
+
+```{r setup, include = FALSE}
+library(onet2r)
+library(dplyr)
+
+archive_dir <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
+oews_path <- system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+```
+
+This article uses a stylized task score to show the sensitivity workflow. The
+score is not a package-endorsed exposure measure. The package's job is to show
+how much the headline number moves when non-substantive choices change.
+
+## Build the Measure from Task Files
+
+```{r build-measure}
+tasks <- onet_archive_read(
+  "30.3",
+  "Task Statements",
+  path = archive_dir,
+  release_date = "2026-05-01"
+)
+ratings <- onet_archive_read(
+  "30.3",
+  "Task Ratings",
+  path = archive_dir,
+  release_date = "2026-05-01"
+)
+
+task_scores <- tibble::tibble(
+  task_id = c("1001", "1002", "2001"),
+  score = c(0.80, 0.40, 0.20)
+)
+
+measure <- onet_measure(
+  task_scores,
+  key = "task_id",
+  score = "score",
+  key_type = "task",
+  universe = tasks$task_id,
+  measure_id = "stylized_exposure",
+  release_version = "30.3"
+)
+
+onet_coverage(measure)
+```
+
+## Create Alternative Weight Panels
+
+```{r weight-panels}
+oews_weights <- onet_weight_panel_oews(
+  onet_oews_national(2024, path = oews_path),
+  year = 2024
+)
+
+pums <- tibble::tibble(
+  SOCP = c("151252", "151252", "291141", "291141"),
+  PWGTP = c(80, 120, 200, 80)
+)
+pums_weights <- onet_weight_panel_pums(pums, year = 2022)
+
+oews_weights
+pums_weights
+```
+
+## Run the Sensitivity Grid
+
+```{r sensitivity-grid}
+sensitivity <- onet_measure_sensitivity(
+  measure,
+  weight_panels = list(oews = oews_weights, pums = pums_weights),
+  task_ratings = ratings,
+  task_metadata = tasks,
+  include_supplemental = c(FALSE, TRUE)
+)
+
+sensitivity |>
+  select(
+    scenario,
+    aggregate,
+    employment_coverage_share,
+    movement,
+    movement_percent
+  ) |>
+  print(width = Inf)
+```
+
+```{r sensitivity-chart, fig.alt = "Bar chart of stylized exposure aggregates across task and weight choices."}
+barplot(
+  height = setNames(sensitivity$aggregate, sensitivity$scenario),
+  col = c("#0f766e", "#14b8a6", "#64748b", "#94a3b8"),
+  border = NA,
+  las = 2,
+  ylab = "Aggregate score",
+  main = "Sensitivity to Weight and Task Choices"
+)
+```
+
+## Inspect Provenance
+
+```{r provenance}
+onet_provenance(sensitivity)
+```
+
+If the sign, rank, or interpretation of a result depends on one plumbing choice,
+that belongs in the write-up. The function does not make the result more true.
+It makes the fragility visible.

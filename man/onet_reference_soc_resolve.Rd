@@ -35,3 +35,11 @@ Maps a source occupation code column onto a reference SOC vintage using an
 optional crosswalk. If no crosswalk is supplied, source and reference codes
 are treated as the same SOC grain.
 }
+\examples{
+jobs <- tibble::tibble(occ_code = c("15-1252", "29-1141"))
+onet_reference_soc_resolve(
+  jobs,
+  code = "occ_code",
+  source_taxonomy = "2018 SOC"
+)
+}

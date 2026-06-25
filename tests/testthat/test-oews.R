@@ -79,7 +79,10 @@ test_that("onet_join_oews joins O*NET occupations to OEWS estimates", {
     a_median = c(133080, 93070)
   )
 
-  result <- onet_join_oews(occupations, oews = oews)
+  expect_warning(
+    result <- onet_join_oews(occupations, oews = oews),
+    class = "lifecycle_warning_deprecated"
+  )
 
   expect_equal(result$soc_code, c("15-1252", "29-1141", "99-9999"))
   expect_equal(result$tot_emp, c(1847900, 3175400, NA))

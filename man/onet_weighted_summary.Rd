@@ -42,6 +42,13 @@ work-activity rows after joining occupation-level employment and wage
 estimates. This is useful for moving from occupation-level O*NET outputs to
 labor-market-weighted measures.
 }
+\section{Lifecycle}{
+
+This helper is soft-deprecated for measure work. Prefer
+\code{\link[=onet_weight_panel_oews]{onet_weight_panel_oews()}}, \code{\link[=onet_weight_panel_pums]{onet_weight_panel_pums()}}, and
+\code{\link[=onet_measure_aggregate]{onet_measure_aggregate()}} for vintage-aware weighting.
+}
+
 \examples{
 skills <- tibble::tibble(
   code = c("15-1252.00", "15-1252.00", "29-1141.00", "29-1141.00"),
@@ -59,10 +66,12 @@ oews <- tibble::tibble(
   a_median = c(133080, 93070)
 )
 
-onet_weighted_summary(
-  skills,
-  group = c("element_id", "element_name"),
-  value = "data_value",
-  oews = oews
+suppressWarnings(
+  onet_weighted_summary(
+    skills,
+    group = c("element_id", "element_name"),
+    value = "data_value",
+    oews = oews
+  )
 )
 }

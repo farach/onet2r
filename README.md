@@ -1,15 +1,15 @@
 
-# onet2r <img src="man/figures/logo.png" align="right" height="138" alt="" />
+# onet2r <img src="man/figures/logo.png" align="right" height="138" alt="onet2r hex logo" />
 
 `onet2r` is an R package for working with O\*NET Web Services, archived
-O\*NET database releases, O\*NET-SOC taxonomy bridges, and BLS OEWS wage
-and employment context.
+O\*NET database releases, O\*NET-SOC taxonomy bridges, BLS OEWS wage and
+employment context, and reproducible user-supplied occupation measures.
 
-The package is built for two related jobs. First, it gives analysts tidy
-access to current O\*NET occupation data. Second, it provides
-reproducible plumbing for researchers who bring their own occupation or
-task measure and need to validate keys, weight occupations, compare
-O\*NET releases, and record provenance.
+The package is built for analysts who need tidy current-release O\*NET
+data and for researchers who need to ask careful historical questions.
+O\*NET was not designed as a longitudinal panel, so `onet2r` makes the
+plumbing visible: archive versions, taxonomy seams, source dates,
+employment weights, coverage, and provenance.
 
 ## Installation
 
@@ -33,16 +33,9 @@ Live O\*NET API calls require a free API key from
 ONET_API_KEY=your-api-key-here
 ```
 
-The archive, OEWS fixture, and measure examples below run without a key.
+The archive, OEWS, and measure examples below run without a key.
 
-## Read archived O\*NET releases
-
-``` r
-suppressPackageStartupMessages({
-  library(onet2r)
-  library(dplyr)
-})
-```
+## Read Archived Releases
 
 ``` r
 archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
@@ -74,24 +67,16 @@ abilities |>
 #> 6 30.2            11-1011.00    11-1011  Problem Sensitivity       4.22
 ```
 
-O\*NET-SOC remains at the 8-digit detail level in `onet_soc_code`. The
-six-digit `soc_code` is kept for employment joins.
+O\*NET-SOC remains at the native 8-digit detail level in
+`onet_soc_code`. The 6-digit `soc_code` exists for labor-market joins.
 
-## Reconcile changes across releases
+## Reconcile Historical Change
 
 ``` r
-bridge <- tibble::tibble(
-  from_vintage = "2019",
-  to_vintage = "2019",
-  from_onet_soc_code = unique(abilities$onet_soc_code),
-  to_onet_soc_code = unique(abilities$onet_soc_code),
-  from_soc_code = unique(abilities$soc_code),
-  to_soc_code = unique(abilities$soc_code),
-  map_type = "one_to_one",
-  crosswalk_weight = 1
+changes <- onet_panel_reconcile(
+  abilities,
+  bridge = onet_crosswalk_bridge("2019", "2019")
 )
-
-changes <- onet_panel_reconcile(abilities, bridge)
 
 changes |>
   select(
@@ -100,39 +85,60 @@ changes |>
     element_name,
     from_value,
     to_value,
+    value_change,
     change_type,
     safely_comparable
   ) |>
-  head(6) |>
+  arrange(desc(abs(value_change))) |>
+  head(8) |>
   print(width = Inf)
-#> # A tibble: 6 × 7
+#> # A tibble: 7 × 8
 #>   from_onet_soc_code to_onet_soc_code element_name        from_value to_value
 #>   <chr>              <chr>            <chr>                    <dbl>    <dbl>
-#> 1 15-1252.00         15-1252.00       Oral Comprehension        4.12     4.35
-#> 2 15-1252.00         15-1252.00       Problem Sensitivity       4.5      4.5
-#> 3 29-1141.00         29-1141.00       Oral Comprehension        4.71     4.71
-#> 4 29-1141.00         29-1141.00       Problem Sensitivity       4.6      4.9
-#> 5 11-1011.00         11-1011.00       Oral Comprehension        4.38     4.5
-#> 6 11-1011.00         11-1011.00       Problem Sensitivity       4.22     4.22
-#>   change_type           safely_comparable
-#>   <fct>                 <lgl>
-#> 1 real_update           TRUE
-#> 2 stale_carryforward    TRUE
-#> 3 resampled_stable      TRUE
-#> 4 recode_or_recalc_flag FALSE
-#> 5 real_update           FALSE
-#> 6 stale_carryforward    TRUE
+#> 1 29-1141.00         29-1141.00       Problem Sensitivity       4.6      4.9
+#> 2 15-1252.00         15-1252.00       Oral Comprehension        4.12     4.35
+#> 3 41-1011.00         41-1011.00       Oral Comprehension        4        4.15
+#> 4 11-1011.00         11-1011.00       Oral Comprehension        4.38     4.5
+#> 5 15-1252.00         15-1252.00       Problem Sensitivity       4.5      4.5
+#> 6 29-1141.00         29-1141.00       Oral Comprehension        4.71     4.71
+#> 7 11-1011.00         11-1011.00       Problem Sensitivity       4.22     4.22
+#>   value_change change_type           safely_comparable
+#>          <dbl> <fct>                 <lgl>
+#> 1        0.300 recode_or_recalc_flag FALSE
+#> 2        0.230 real_update           TRUE
+#> 3        0.150 real_update           TRUE
+#> 4        0.120 real_update           FALSE
+#> 5        0     stale_carryforward    TRUE
+#> 6        0     resampled_stable      TRUE
+#> 7        0     stale_carryforward    TRUE
 ```
+
+``` r
+change_counts <- changes |>
+  count(change_type, name = "rows") |>
+  arrange(desc(rows))
+
+barplot(
+  height = setNames(change_counts$rows, change_counts$change_type),
+  col = "#0f766e",
+  border = NA,
+  las = 2,
+  ylab = "Rows",
+  main = "Change Types in a Bundled Archive Panel"
+)
+```
+
+<img src="man/figures/README-change-chart-1.png" alt="Bar chart of archive change classifications in the bundled example panel."  />
 
 Rows marked as transition data, suppressed estimates, new content, or
 dropped content are visible in `change_type`. They are not counted as
 safely comparable updates.
 
-## Bring your own task measure
+## Bring Your Own Measure
 
 The package does not ship an AI exposure score or any other substantive
-measure. You supply a score, and `onet2r` validates and carries the
-plumbing.
+measure. You supply a score, and `onet2r` validates keys, performs
+mechanical rollups, adds weights, and records provenance.
 
 ``` r
 tasks <- onet_archive_read(
@@ -162,7 +168,7 @@ measure <- onet_measure(
   measure_id = "stylized_task_score"
 )
 
-onet_measure_coverage(measure)
+onet_coverage(measure)
 #> # A tibble: 1 × 6
 #>   key_type n_input n_universe n_matched coverage_share employment_coverage_share
 #>   <chr>      <int>      <int>     <int>          <dbl>                     <dbl>
@@ -185,7 +191,7 @@ occupation_scores
 #> 2 29-1141.00          1                98           0.2 29-1141
 ```
 
-## Add employment weights
+## Add Employment Weights
 
 ``` r
 oews_sample <- onet_oews_national(
@@ -217,6 +223,7 @@ aggregate <- onet_measure_aggregate(
 )
 
 aggregate |>
+  select(-coverage, -provenance) |>
   print(width = Inf)
 #> # A tibble: 1 × 7
 #>   measure_id          aggregate total_employment covered_employment
@@ -225,27 +232,41 @@ aggregate |>
 #>   employment_coverage_share n_occupations n_reference_soc
 #>                       <dbl>         <int>           <int>
 #> 1                     0.960             2               2
-attr(aggregate, "provenance")
-#> $measure_id
-#> [1] "stylized_task_score"
-#>
-#> $weight_source
-#> [1] "OEWS"
-#>
-#> $weight_year
-#> [1] 2024
-#>
-#> $source_taxonomy
-#> [1] "2018 SOC"
-#>
-#> $reference_taxonomy
-#> [1] "2018 SOC"
-#>
-#> $bridge_used
-#> [1] FALSE
+
+onet_provenance(aggregate)
+#> # A tibble: 1 × 7
+#>   measure_id        weight_source weight_year source_taxonomy reference_taxonomy
+#>   <chr>             <chr>               <int> <chr>           <chr>
+#> 1 stylized_task_sc… OEWS                 2024 2018 SOC        2018 SOC
+#> # ℹ 2 more variables: bridge_used <lgl>, crosswalk_path <chr>
 ```
 
-## Decompose aggregate change
+## Stress Test the Plumbing
+
+``` r
+sensitivity <- onet_measure_sensitivity(
+  measure,
+  weight_panels = weights,
+  task_ratings = task_ratings,
+  task_metadata = tasks,
+  include_supplemental = c(FALSE, TRUE)
+)
+
+sensitivity |>
+  select(scenario, aggregate, employment_coverage_share, movement) |>
+  print(width = Inf)
+#> # A tibble: 2 × 4
+#>   scenario                                                       aggregate
+#>   <chr>                                                              <dbl>
+#> 1 RT_core / task_release / weights / no_bridge                       0.421
+#> 2 RT_core_plus_supplemental / task_release / weights / no_bridge     0.373
+#>   employment_coverage_share movement
+#>                       <dbl>    <dbl>
+#> 1                     0.960   0
+#> 2                     0.960  -0.0473
+```
+
+## Decompose Aggregate Change
 
 ``` r
 from_scores <- tibble::tibble(
@@ -268,7 +289,10 @@ to_weights <- tibble::tibble(
 )
 
 decomp <- onet_decompose_change(from_scores, to_scores, from_weights, to_weights)
-decomp
+
+decomp |>
+  select(component, value) |>
+  print(width = Inf)
 #> # A tibble: 5 × 2
 #>   component       value
 #>   <chr>           <dbl>
@@ -277,22 +301,22 @@ decomp
 #> 3 interaction     0.125
 #> 4 unclassifiable  0.25
 #> 5 total_change    0.625
-attr(decomp, "coverage")
+
+onet_coverage(decomp)
 #> # A tibble: 1 × 3
 #>   n_common n_safely_comparable leakage
 #>      <int>               <int>   <dbl>
 #> 1        2                   1       0
 ```
 
-## Main function groups
+## Main Function Groups
 
 - Current O\*NET API data: `onet_search()`, `onet_occupation()`,
   `onet_skills()`, `onet_tasks()`, `onet_table()`.
 - Archived O\*NET data: `onet_releases()`, `onet_archive_download()`,
   `onet_archive_read()`, `onet_panel()`, `onet_panel_reconcile()`.
 - Wage and employment context: `onet_oews_national()`,
-  `onet_join_oews()`, `onet_weighted_summary()`,
   `onet_weight_panel_oews()`, `onet_weight_panel_pums()`.
 - User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
-  `onet_measure_aggregate()`, `onet_robustness_diagnostic()`,
-  `onet_decompose_change()`.
+  `onet_measure_aggregate()`, `onet_measure_sensitivity()`,
+  `onet_provenance()`, `onet_coverage()`, `onet_decompose_change()`.

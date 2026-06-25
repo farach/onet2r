@@ -3,7 +3,7 @@
 # Run from an installed package or from the source tree with:
 # Rscript inst/examples/validate-outputs.R
 #
-# Live O*NET API calls require ONET_API_KEY. Local archive and OEWS examples use
+# Live O&#42;NET API calls require ONET_API_KEY. Local archive and OEWS examples use
 # bundled sample files so they are deterministic and do not depend on downloads.
 
 options(cli.num_colors = 1, crayon.enabled = FALSE, pillar.bold = FALSE)
@@ -68,29 +68,12 @@ abilities <- onet_archive_read(
 )
 inspect_tbl(abilities, c("onet_soc_code", "element_id", "data_value", "source_date"))
 
-occupations <- abilities |>
-  dplyr::distinct(code = onet_soc_code, title)
-wage_context <- onet_join_oews(occupations, oews = oews)
-inspect_tbl(wage_context, c("code", "soc_code", "tot_emp", "a_median"))
-
-weighted <- onet_weighted_summary(
-  abilities,
-  group = c("element_id", "element_name"),
-  value = "data_value",
-  occupation_code = "onet_soc_code",
-  oews = oews
-)
-inspect_tbl(
-  weighted,
-  c("element_id", "element_name", "total_weight", "weighted_mean")
-)
-
 pums <- tibble::tibble(
   SOCP = c("151252", "151252", "291141"),
   PWGTP = c(120, 80, 200)
 )
-pums_weights <- onet_pums_employment_weights(pums)
-inspect_tbl(pums_weights, c("soc_code", "employment", "records"))
+pums_weights <- onet_weight_panel_pums(pums, year = 2022)
+inspect_tbl(pums_weights, c("reference_soc_code", "employment", "weight_share"))
 
 tasks <- onet_archive_read(
   "30.3",
@@ -109,6 +92,18 @@ inspect_tbl(task_ratings, c("onet_soc_code", "task_id", "scale_id", "data_value"
 
 weight_panel <- onet_weight_panel_oews(oews, year = 2024)
 inspect_tbl(weight_panel, c("reference_soc_code", "employment", "weight_share"))
+
+oral_scores <- abilities |>
+  dplyr::filter(element_id == "1.A.1.a.1") |>
+  dplyr::transmute(onet_soc_code, measure_score = data_value)
+oral_aggregate <- onet_measure_aggregate(
+  oral_scores,
+  weight_panel,
+  measure_id = "validation_oral_comprehension"
+)
+inspect_tbl(oral_aggregate, c("measure_id", "aggregate", "covered_employment"))
+inspect_tbl(onet_provenance(oral_aggregate), c("measure_id", "weight_source"))
+inspect_tbl(onet_coverage(oral_aggregate), c("measure_id", "employment_coverage_share"))
 
 task_scores <- tibble::tibble(
   task_id = c("1001", "1002", "2001"),
@@ -165,7 +160,7 @@ decomposition <- onet_decompose_change(
   )
 )
 inspect_tbl(decomposition, c("component", "value"))
-stopifnot(isTRUE(all.equal(attr(decomposition, "coverage")$leakage, 0)))
+stopifnot(isTRUE(all.equal(onet_coverage(decomposition)$leakage, 0)))
 
 onet_cache_use(enabled = FALSE)
 onet_rate_limit(0)
@@ -206,5 +201,5 @@ if (nzchar(Sys.getenv("ONET_API_KEY"))) {
   inspect_tbl(onet_crosswalk_military("11B", end = 5), c("code", "title"), min_rows = 0)
   inspect_tbl(onet_taxonomy_map(code, from = "active", to = "2010"), c("code", "title"), min_rows = 0)
 } else {
-  message("Skipping live O*NET checks because ONET_API_KEY is not set.")
+  message("Skipping live O&#42;NET checks because ONET_API_KEY is not set.")
 }
