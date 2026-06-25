@@ -18,15 +18,16 @@ score <- abilities |>
   filter(element_id == "1.A.1.a.1") |>
   transmute(onet_soc_code, measure_score = data_value)
 
-score
-#> # A tibble: 4 × 2
-#>   onet_soc_code measure_score
-#>   <chr>                 <dbl>
-#> 1 15-1252.00             4.35
-#> 2 29-1141.00             4.71
-#> 3 11-1011.00             4.5 
-#> 4 41-1011.00             4.15
+score |>
+  onet_kable()
 ```
+
+| onet_soc_code | measure_score |
+|:--------------|:--------------|
+| 15-1252.00    | 4.35          |
+| 29-1141.00    | 4.71          |
+| 11-1011.00    | 4.50          |
+| 41-1011.00    | 4.15          |
 
 ## OEWS Weights
 
@@ -42,25 +43,25 @@ oews_result <- onet_measure_aggregate(
   measure_id = "oral_comprehension_fixture"
 )
 
-oews_weights
-#> # A tibble: 3 × 7
-#>   reference_soc_code  year employment weight_share source source_taxonomy
-#>   <chr>              <int>      <dbl>        <dbl> <chr>  <chr>          
-#> 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC       
-#> 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC       
-#> 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC       
-#> # ℹ 1 more variable: reference_taxonomy <chr>
+oews_weights |>
+  onet_kable()
+```
+
+| reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
+|:-------------------|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
+| 11-1011            | 2024 | 211230     | 0.040        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | 2024 | 1847900    | 0.353        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | 2024 | 3175400    | 0.607        | OEWS   | 2018 SOC        | 2018 SOC           |
+
+``` r
 oews_result |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
-#> # A tibble: 1 × 7
-#>   measure_id                 aggregate total_employment covered_employment
-#>   <chr>                          <dbl>            <dbl>              <dbl>
-#> 1 oral_comprehension_fixture      4.57          5234530            5234530
-#>   employment_coverage_share n_occupations n_reference_soc
-#>                       <dbl>         <int>           <int>
-#> 1                         1             4               4
+  onet_kable()
 ```
+
+| measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
+|:---------------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
+| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 4             | 4               |
 
 ## PUMS Weights
 
@@ -90,18 +91,18 @@ pums_m <- onet_measure_aggregate(
   cell = list(sex = "M")
 )
 
-pums_weights
-#> # A tibble: 6 × 8
-#>   reference_soc_code sex    year employment weight_share source source_taxonomy
-#>   <chr>              <chr> <int>      <dbl>        <dbl> <chr>  <chr>          
-#> 1 11-1011            F      2022         10       0.0227 PUMS   2018 SOC       
-#> 2 11-1011            M      2022         30       0.0682 PUMS   2018 SOC       
-#> 3 15-1252            F      2022        120       0.273  PUMS   2018 SOC       
-#> 4 15-1252            M      2022         80       0.182  PUMS   2018 SOC       
-#> 5 29-1141            F      2022         90       0.205  PUMS   2018 SOC       
-#> 6 29-1141            M      2022        110       0.25   PUMS   2018 SOC       
-#> # ℹ 1 more variable: reference_taxonomy <chr>
+pums_weights |>
+  onet_kable()
 ```
+
+| reference_soc_code | sex | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
+|:-------------------|:----|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
+| 11-1011            | F   | 2022 | 10         | 0.023        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 11-1011            | M   | 2022 | 30         | 0.068        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | F   | 2022 | 120        | 0.273        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | M   | 2022 | 80         | 0.182        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | F   | 2022 | 90         | 0.205        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | M   | 2022 | 110        | 0.250        | PUMS   | 2018 SOC        | 2018 SOC           |
 
 ## Compare the Answers
 
@@ -116,27 +117,37 @@ comparison <- tibble::tibble(
   )
 )
 
-comparison
-#> # A tibble: 3 × 3
-#>   population    aggregate coverage
-#>   <chr>             <dbl>    <dbl>
-#> 1 OEWS national      4.57        1
-#> 2 PUMS-style F       4.50        1
-#> 3 PUMS-style M       4.55        1
+comparison |>
+  onet_kable()
 ```
+
+| population    | aggregate | coverage |
+|:--------------|:----------|:---------|
+| OEWS national | 4.574     | 1        |
+| PUMS-style F  | 4.504     | 1        |
+| PUMS-style M  | 4.550     | 1        |
 
 ``` r
-barplot(
-  height = setNames(comparison$aggregate, comparison$population),
-  col = c("#0f766e", "#14b8a6", "#64748b"),
-  border = NA,
-  las = 2,
-  ylab = "Aggregate score",
-  main = "Weight Source Changes the Population"
-)
+ggplot2::ggplot(comparison, ggplot2::aes(
+  x = aggregate,
+  y = stats::reorder(population, aggregate)
+)) +
+  ggplot2::geom_segment(
+    ggplot2::aes(x = 0, xend = aggregate, yend = population),
+    color = onet2r_colors[["light_gray"]],
+    linewidth = 1.1
+  ) +
+  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 3.5) +
+  ggplot2::labs(
+    title = "Weight Source Changes the Population",
+    subtitle = "The score is fixed; the target population changes.",
+    x = "Aggregate score",
+    y = NULL
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart comparing OEWS and PUMS-style weighted
+![Horizontal dot chart comparing OEWS and PUMS-style weighted
 aggregates.](choosing-employment-weights_files/figure-html/weights-chart-1.png)
 
 If your claim is about the national labor market, OEWS is the natural

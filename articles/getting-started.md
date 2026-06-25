@@ -16,13 +16,14 @@ this article uses local files through actual `onet2r` functions.
 tibble::tibble(
   setting = c("ONET_API_KEY configured", "live vignette API calls enabled"),
   value = c(has_onet_key, run_live)
-)
-#> # A tibble: 2 × 2
-#>   setting                         value
-#>   <chr>                           <lgl>
-#> 1 ONET_API_KEY configured         FALSE
-#> 2 live vignette API calls enabled FALSE
+) |>
+  onet_kable()
 ```
+
+| setting                         | value |
+|:--------------------------------|:------|
+| ONET_API_KEY configured         | FALSE |
+| live vignette API calls enabled | FALSE |
 
 ## Search the Current O\*NET API
 
@@ -35,33 +36,37 @@ or
 
 ``` r
 if (run_live) {
-  onet_search("software developer", start = 1, end = 5)
+  onet_search("software developer", start = 1, end = 5) |>
+    onet_kable()
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search()."
-  )
+  ) |>
+    onet_kable()
 }
-#> # A tibble: 1 × 2
-#>   live_api_example reason                                                       
-#>   <chr>            <chr>                                                        
-#> 1 skipped          Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run o…
 ```
+
+| live_api_example | reason                                                                    |
+|:-----------------|:--------------------------------------------------------------------------|
+| skipped          | Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search(). |
 
 ``` r
 if (run_live) {
-  onet_skills("15-1252.00", start = 1, end = 5)
+  onet_skills("15-1252.00", start = 1, end = 5) |>
+    onet_kable()
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills()."
-  )
+  ) |>
+    onet_kable()
 }
-#> # A tibble: 1 × 2
-#>   live_api_example reason                                                       
-#>   <chr>            <chr>                                                        
-#> 1 skipped          Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run o…
 ```
+
+| live_api_example | reason                                                                    |
+|:-----------------|:--------------------------------------------------------------------------|
+| skipped          | Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills(). |
 
 ## Read an Archived O\*NET Table
 
@@ -90,27 +95,18 @@ abilities |>
     domain_source
   ) |>
   head(8) |>
-  print(width = Inf)
-#> # A tibble: 7 × 8
-#>   release_version onet_soc_code soc_code element_id element_name       
-#>   <chr>           <chr>         <chr>    <chr>      <chr>              
-#> 1 30.3            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension 
-#> 2 30.3            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity
-#> 3 30.3            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension 
-#> 4 30.3            29-1141.00    29-1141  1.A.1.b.1  Problem Sensitivity
-#> 5 30.3            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension 
-#> 6 30.3            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity
-#> 7 30.3            41-1011.00    41-1011  1.A.1.a.1  Oral Comprehension 
-#>   data_value source_date domain_source
-#>        <dbl> <date>      <fct>        
-#> 1       4.35 2025-07-01  Analyst      
-#> 2       4.5  2024-07-01  Analyst      
-#> 3       4.71 2025-08-01  Incumbent    
-#> 4       4.9  2024-08-01  Incumbent    
-#> 5       4.5  2025-07-01  Incumbent    
-#> 6       4.22 2024-07-01  Analyst      
-#> 7       4.15 2025-06-01  Analyst
+  onet_kable()
 ```
+
+| release_version | onet_soc_code | soc_code | element_id | element_name        | data_value | source_date | domain_source |
+|:----------------|:--------------|:---------|:-----------|:--------------------|:-----------|:------------|:--------------|
+| 30.3            | 15-1252.00    | 15-1252  | 1.A.1.a.1  | Oral Comprehension  | 4.35       | 2025-07-01  | Analyst       |
+| 30.3            | 15-1252.00    | 15-1252  | 1.A.1.b.1  | Problem Sensitivity | 4.50       | 2024-07-01  | Analyst       |
+| 30.3            | 29-1141.00    | 29-1141  | 1.A.1.a.1  | Oral Comprehension  | 4.71       | 2025-08-01  | Incumbent     |
+| 30.3            | 29-1141.00    | 29-1141  | 1.A.1.b.1  | Problem Sensitivity | 4.90       | 2024-08-01  | Incumbent     |
+| 30.3            | 11-1011.00    | 11-1011  | 1.A.1.a.1  | Oral Comprehension  | 4.50       | 2025-07-01  | Incumbent     |
+| 30.3            | 11-1011.00    | 11-1011  | 1.A.1.b.1  | Problem Sensitivity | 4.22       | 2024-07-01  | Analyst       |
+| 30.3            | 41-1011.00    | 41-1011  | 1.A.1.a.1  | Oral Comprehension  | 4.15       | 2025-06-01  | Analyst       |
 
 ## Add Labor-Market Context
 
@@ -123,19 +119,14 @@ oews <- onet_oews_national(2024, path = sample_oews)
 weights <- onet_weight_panel_oews(oews, year = 2024)
 
 weights |>
-  print(width = Inf)
-#> # A tibble: 3 × 7
-#>   reference_soc_code  year employment weight_share source source_taxonomy
-#>   <chr>              <int>      <dbl>        <dbl> <chr>  <chr>          
-#> 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC       
-#> 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC       
-#> 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC       
-#>   reference_taxonomy
-#>   <chr>             
-#> 1 2018 SOC          
-#> 2 2018 SOC          
-#> 3 2018 SOC
+  onet_kable()
 ```
+
+| reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
+|:-------------------|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
+| 11-1011            | 2024 | 211230     | 0.040        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | 2024 | 1847900    | 0.353        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | 2024 | 3175400    | 0.607        | OEWS   | 2018 SOC        | 2018 SOC           |
 
 To answer a concrete question, take one ability, treat the O\*NET values
 as the user-supplied occupation score, and aggregate with OEWS
@@ -154,22 +145,22 @@ oral_aggregate <- onet_measure_aggregate(
 
 oral_aggregate |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
-#> # A tibble: 1 × 7
-#>   measure_id                 aggregate total_employment covered_employment
-#>   <chr>                          <dbl>            <dbl>              <dbl>
-#> 1 oral_comprehension_fixture      4.57          5234530            5234530
-#>   employment_coverage_share n_occupations n_reference_soc
-#>                       <dbl>         <int>           <int>
-#> 1                         1             4               4
-
-onet_provenance(oral_aggregate)
-#> # A tibble: 1 × 7
-#>   measure_id        weight_source weight_year source_taxonomy reference_taxonomy
-#>   <chr>             <chr>               <int> <chr>           <chr>             
-#> 1 oral_comprehensi… OEWS                 2024 2018 SOC        2018 SOC          
-#> # ℹ 2 more variables: bridge_used <lgl>, crosswalk_path <chr>
+  onet_kable()
 ```
+
+| measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
+|:---------------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
+| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 4             | 4               |
+
+``` r
+
+onet_provenance(oral_aggregate) |>
+  onet_kable()
+```
+
+| measure_id                 | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
+|:---------------------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
+| oral_comprehension_fixture | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
 ## Compare Two Archive Releases
 
@@ -202,44 +193,42 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  print(width = Inf)
-#> # A tibble: 7 × 7
-#>   to_soc_code element_name        from_value to_value value_change
-#>   <chr>       <chr>                    <dbl>    <dbl>        <dbl>
-#> 1 29-1141     Problem Sensitivity       4.6      4.9         0.300
-#> 2 15-1252     Oral Comprehension        4.12     4.35        0.230
-#> 3 41-1011     Oral Comprehension        4        4.15        0.150
-#> 4 11-1011     Oral Comprehension        4.38     4.5         0.120
-#> 5 15-1252     Problem Sensitivity       4.5      4.5         0    
-#> 6 29-1141     Oral Comprehension        4.71     4.71        0    
-#> 7 11-1011     Problem Sensitivity       4.22     4.22        0    
-#>   change_type           safely_comparable
-#>   <fct>                 <lgl>            
-#> 1 recode_or_recalc_flag FALSE            
-#> 2 real_update           TRUE             
-#> 3 real_update           TRUE             
-#> 4 real_update           FALSE            
-#> 5 stale_carryforward    TRUE             
-#> 6 resampled_stable      TRUE             
-#> 7 stale_carryforward    TRUE
+  onet_kable()
 ```
+
+| to_soc_code | element_name        | from_value | to_value | value_change | change_type           | safely_comparable |
+|:------------|:--------------------|:-----------|:---------|:-------------|:----------------------|:------------------|
+| 29-1141     | Problem Sensitivity | 4.60       | 4.90     | 0.30         | recode_or_recalc_flag | FALSE             |
+| 15-1252     | Oral Comprehension  | 4.12       | 4.35     | 0.23         | real_update           | TRUE              |
+| 41-1011     | Oral Comprehension  | 4.00       | 4.15     | 0.15         | real_update           | TRUE              |
+| 11-1011     | Oral Comprehension  | 4.38       | 4.50     | 0.12         | real_update           | FALSE             |
+| 15-1252     | Problem Sensitivity | 4.50       | 4.50     | 0.00         | stale_carryforward    | TRUE              |
+| 29-1141     | Oral Comprehension  | 4.71       | 4.71     | 0.00         | resampled_stable      | TRUE              |
+| 11-1011     | Problem Sensitivity | 4.22       | 4.22     | 0.00         | stale_carryforward    | TRUE              |
 
 ``` r
 plot_data <- changes |>
   count(change_type, name = "rows") |>
   arrange(desc(rows))
 
-barplot(
-  height = setNames(plot_data$rows, plot_data$change_type),
-  col = "#0f766e",
-  border = NA,
-  las = 2,
-  ylab = "Rows",
-  main = "What Kind of Change Was Observed?"
-)
+ggplot2::ggplot(plot_data, ggplot2::aes(
+  x = stats::reorder(change_type, rows),
+  y = rows,
+  fill = change_type
+)) +
+  ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
+  ggplot2::coord_flip() +
+  onet2r_discrete_fill() +
+  ggplot2::labs(
+    title = "What Kind of Change Was Observed?",
+    subtitle = "Interpret the classification before the numeric change.",
+    x = NULL,
+    y = "Rows"
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart of change classifications in the getting started
+![Horizontal bar chart of change classifications in the getting started
 example.](getting-started_files/figure-html/getting-started-chart-1.png)
 
 ## Next Steps

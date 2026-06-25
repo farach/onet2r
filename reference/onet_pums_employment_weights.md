@@ -30,6 +30,10 @@ onet_pums_employment_weights(pums, socp = "SOCP", weight = "PWGTP")
 
 A tibble with `soc_code`, `employment`, and `records`.
 
+## Details
+
+**\[deprecated\]**
+
 ## Lifecycle
 
 This helper is soft-deprecated in favor of

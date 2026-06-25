@@ -46,27 +46,18 @@ abilities_303 |>
     domain_source
   ) |>
   head(8) |>
-  print(width = Inf)
-#> # A tibble: 7 × 8
-#>   release_version onet_soc_code soc_code element_id element_name       
-#>   <chr>           <chr>         <chr>    <chr>      <chr>              
-#> 1 30.3            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension 
-#> 2 30.3            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity
-#> 3 30.3            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension 
-#> 4 30.3            29-1141.00    29-1141  1.A.1.b.1  Problem Sensitivity
-#> 5 30.3            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension 
-#> 6 30.3            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity
-#> 7 30.3            41-1011.00    41-1011  1.A.1.a.1  Oral Comprehension 
-#>   data_value source_date domain_source
-#>        <dbl> <date>      <fct>        
-#> 1       4.35 2025-07-01  Analyst      
-#> 2       4.5  2024-07-01  Analyst      
-#> 3       4.71 2025-08-01  Incumbent    
-#> 4       4.9  2024-08-01  Incumbent    
-#> 5       4.5  2025-07-01  Incumbent    
-#> 6       4.22 2024-07-01  Analyst      
-#> 7       4.15 2025-06-01  Analyst
+  onet_kable()
 ```
+
+| release_version | onet_soc_code | soc_code | element_id | element_name        | data_value | source_date | domain_source |
+|:----------------|:--------------|:---------|:-----------|:--------------------|:-----------|:------------|:--------------|
+| 30.3            | 15-1252.00    | 15-1252  | 1.A.1.a.1  | Oral Comprehension  | 4.35       | 2025-07-01  | Analyst       |
+| 30.3            | 15-1252.00    | 15-1252  | 1.A.1.b.1  | Problem Sensitivity | 4.50       | 2024-07-01  | Analyst       |
+| 30.3            | 29-1141.00    | 29-1141  | 1.A.1.a.1  | Oral Comprehension  | 4.71       | 2025-08-01  | Incumbent     |
+| 30.3            | 29-1141.00    | 29-1141  | 1.A.1.b.1  | Problem Sensitivity | 4.90       | 2024-08-01  | Incumbent     |
+| 30.3            | 11-1011.00    | 11-1011  | 1.A.1.a.1  | Oral Comprehension  | 4.50       | 2025-07-01  | Incumbent     |
+| 30.3            | 11-1011.00    | 11-1011  | 1.A.1.b.1  | Problem Sensitivity | 4.22       | 2024-07-01  | Analyst       |
+| 30.3            | 41-1011.00    | 41-1011  | 1.A.1.a.1  | Oral Comprehension  | 4.15       | 2025-06-01  | Analyst       |
 
 The output has one row per occupation, element, scale, and release. The
 important longitudinal fields are `release_version`, `soc_vintage`,
@@ -104,22 +95,21 @@ panel |>
     domain_source
   ) |>
   head(10) |>
-  print(width = Inf)
-#> # A tibble: 10 × 6
-#>   release_version onet_soc_code element_name        data_value source_date
-#>   <chr>           <chr>         <chr>                    <dbl> <date>     
-#> 1 30.2            11-1011.00    Oral Comprehension        4.38 2024-07-01 
-#> 2 30.3            11-1011.00    Oral Comprehension        4.5  2025-07-01 
-#> 3 30.2            11-1011.00    Problem Sensitivity       4.22 2024-07-01 
-#> 4 30.3            11-1011.00    Problem Sensitivity       4.22 2024-07-01 
-#>   domain_source
-#>   <fct>        
-#> 1 Analyst      
-#> 2 Incumbent    
-#> 3 Analyst      
-#> 4 Analyst      
-#> # ℹ 6 more rows
+  onet_kable()
 ```
+
+| release_version | onet_soc_code | element_name        | data_value | source_date | domain_source |
+|:----------------|:--------------|:--------------------|:-----------|:------------|:--------------|
+| 30.2            | 11-1011.00    | Oral Comprehension  | 4.38       | 2024-07-01  | Analyst       |
+| 30.3            | 11-1011.00    | Oral Comprehension  | 4.50       | 2025-07-01  | Incumbent     |
+| 30.2            | 11-1011.00    | Problem Sensitivity | 4.22       | 2024-07-01  | Analyst       |
+| 30.3            | 11-1011.00    | Problem Sensitivity | 4.22       | 2024-07-01  | Analyst       |
+| 30.2            | 15-1252.00    | Oral Comprehension  | 4.12       | 2024-07-01  | Analyst       |
+| 30.3            | 15-1252.00    | Oral Comprehension  | 4.35       | 2025-07-01  | Analyst       |
+| 30.2            | 15-1252.00    | Problem Sensitivity | 4.50       | 2024-07-01  | Analyst       |
+| 30.3            | 15-1252.00    | Problem Sensitivity | 4.50       | 2024-07-01  | Analyst       |
+| 30.2            | 29-1141.00    | Oral Comprehension  | 4.71       | 2024-08-01  | Incumbent     |
+| 30.3            | 29-1141.00    | Oral Comprehension  | 4.71       | 2025-08-01  | Incumbent     |
 
 This is the table you would save as your audit trail before doing any
 modeling. It records the exact versions, values, and source dates used
@@ -150,36 +140,18 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(10) |>
-  print(width = Inf)
-#> # A tibble: 7 × 11
-#>   from_soc_code to_soc_code element_name        from_value to_value value_change
-#>   <chr>         <chr>       <chr>                    <dbl>    <dbl>        <dbl>
-#> 1 29-1141       29-1141     Problem Sensitivity       4.6      4.9         0.300
-#> 2 15-1252       15-1252     Oral Comprehension        4.12     4.35        0.230
-#> 3 41-1011       41-1011     Oral Comprehension        4        4.15        0.150
-#> 4 11-1011       11-1011     Oral Comprehension        4.38     4.5         0.120
-#> 5 15-1252       15-1252     Problem Sensitivity       4.5      4.5         0    
-#> 6 29-1141       29-1141     Oral Comprehension        4.71     4.71        0    
-#> 7 11-1011       11-1011     Problem Sensitivity       4.22     4.22        0    
-#>   from_source_date to_source_date change_type           method_break
-#>   <date>           <date>         <fct>                 <lgl>       
-#> 1 2024-08-01       2024-08-01     recode_or_recalc_flag FALSE       
-#> 2 2024-07-01       2025-07-01     real_update           FALSE       
-#> 3 2024-06-01       2025-06-01     real_update           FALSE       
-#> 4 2024-07-01       2025-07-01     real_update           TRUE        
-#> 5 2024-07-01       2024-07-01     stale_carryforward    FALSE       
-#> 6 2024-08-01       2025-08-01     resampled_stable      FALSE       
-#> 7 2024-07-01       2024-07-01     stale_carryforward    FALSE       
-#>   safely_comparable
-#>   <lgl>            
-#> 1 FALSE            
-#> 2 TRUE             
-#> 3 TRUE             
-#> 4 FALSE            
-#> 5 TRUE             
-#> 6 TRUE             
-#> 7 TRUE
+  onet_kable()
 ```
+
+| from_soc_code | to_soc_code | element_name        | from_value | to_value | value_change | from_source_date | to_source_date | change_type           | method_break | safely_comparable |
+|:--------------|:------------|:--------------------|:-----------|:---------|:-------------|:-----------------|:---------------|:----------------------|:-------------|:------------------|
+| 29-1141       | 29-1141     | Problem Sensitivity | 4.60       | 4.90     | 0.30         | 2024-08-01       | 2024-08-01     | recode_or_recalc_flag | FALSE        | FALSE             |
+| 15-1252       | 15-1252     | Oral Comprehension  | 4.12       | 4.35     | 0.23         | 2024-07-01       | 2025-07-01     | real_update           | FALSE        | TRUE              |
+| 41-1011       | 41-1011     | Oral Comprehension  | 4.00       | 4.15     | 0.15         | 2024-06-01       | 2025-06-01     | real_update           | FALSE        | TRUE              |
+| 11-1011       | 11-1011     | Oral Comprehension  | 4.38       | 4.50     | 0.12         | 2024-07-01       | 2025-07-01     | real_update           | TRUE         | FALSE             |
+| 15-1252       | 15-1252     | Problem Sensitivity | 4.50       | 4.50     | 0.00         | 2024-07-01       | 2024-07-01     | stale_carryforward    | FALSE        | TRUE              |
+| 29-1141       | 29-1141     | Oral Comprehension  | 4.71       | 4.71     | 0.00         | 2024-08-01       | 2025-08-01     | resampled_stable      | FALSE        | TRUE              |
+| 11-1011       | 11-1011     | Problem Sensitivity | 4.22       | 4.22     | 0.00         | 2024-07-01       | 2024-07-01     | stale_carryforward    | FALSE        | TRUE              |
 
 Read `change_type` before interpreting `value_change`.
 
@@ -205,21 +177,15 @@ changes |>
     method_break,
     safely_comparable
   ) |>
-  print(width = Inf)
-#> # A tibble: 4 × 8
-#>   to_soc_code element_name        from_value to_value value_change
-#>   <chr>       <chr>                    <dbl>    <dbl>        <dbl>
-#> 1 29-1141     Problem Sensitivity       4.6      4.9         0.300
-#> 2 11-1011     Oral Comprehension        4.38     4.5         0.120
-#> 3 15-1252     Oral Comprehension        4.12     4.35        0.230
-#> 4 41-1011     Oral Comprehension        4        4.15        0.150
-#>   change_type           method_break safely_comparable
-#>   <fct>                 <lgl>        <lgl>            
-#> 1 recode_or_recalc_flag FALSE        FALSE            
-#> 2 real_update           TRUE         FALSE            
-#> 3 real_update           FALSE        TRUE             
-#> 4 real_update           FALSE        TRUE
+  onet_kable()
 ```
+
+| to_soc_code | element_name        | from_value | to_value | value_change | change_type           | method_break | safely_comparable |
+|:------------|:--------------------|:-----------|:---------|:-------------|:----------------------|:-------------|:------------------|
+| 29-1141     | Problem Sensitivity | 4.60       | 4.90     | 0.30         | recode_or_recalc_flag | FALSE        | FALSE             |
+| 11-1011     | Oral Comprehension  | 4.38       | 4.50     | 0.12         | real_update           | TRUE         | FALSE             |
+| 15-1252     | Oral Comprehension  | 4.12       | 4.35     | 0.23         | real_update           | FALSE        | TRUE              |
+| 41-1011     | Oral Comprehension  | 4.00       | 4.15     | 0.15         | real_update           | FALSE        | TRUE              |
 
 ## Cross a Taxonomy Seam
 
@@ -264,41 +230,57 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  print(width = Inf)
-#> # A tibble: 5 × 7
-#>   from_onet_soc_code to_onet_soc_code element_name        change_type    
-#>   <chr>              <chr>            <chr>               <fct>          
-#> 1 15-1132.00         15-1252.00       Oral Comprehension  transition_data
-#> 2 15-1132.00         15-1253.00       Oral Comprehension  transition_data
-#> 3 29-1141.00         29-1141.00       Oral Comprehension  real_update    
-#> 4 15-1132.00         15-1252.00       Problem Sensitivity dropped        
-#> 5 15-1132.00         15-1253.00       Problem Sensitivity dropped        
-#>   crosswalk_uncertain transition_data safely_comparable
-#>   <lgl>               <lgl>           <lgl>            
-#> 1 TRUE                TRUE            FALSE            
-#> 2 TRUE                TRUE            FALSE            
-#> 3 FALSE               FALSE           TRUE             
-#> 4 TRUE                FALSE           FALSE            
-#> 5 TRUE                FALSE           FALSE
+  onet_kable()
 ```
+
+| from_onet_soc_code | to_onet_soc_code | element_name        | change_type     | crosswalk_uncertain | transition_data | safely_comparable |
+|:-------------------|:-----------------|:--------------------|:----------------|:--------------------|:----------------|:------------------|
+| 15-1132.00         | 15-1252.00       | Oral Comprehension  | transition_data | TRUE                | TRUE            | FALSE             |
+| 15-1132.00         | 15-1253.00       | Oral Comprehension  | transition_data | TRUE                | TRUE            | FALSE             |
+| 29-1141.00         | 29-1141.00       | Oral Comprehension  | real_update     | FALSE               | FALSE           | TRUE              |
+| 15-1132.00         | 15-1252.00       | Problem Sensitivity | dropped         | TRUE                | FALSE           | FALSE             |
+| 15-1132.00         | 15-1253.00       | Problem Sensitivity | dropped         | TRUE                | FALSE           | FALSE             |
 
 ``` r
-summary_counts <- changes |>
-  count(change_type, name = "rows") |>
-  arrange(desc(rows))
+plot_changes <- cross_changes |>
+  filter(!is.na(from_value), !is.na(to_value)) |>
+  mutate(
+    comparison = paste(to_onet_soc_code, element_name, sep = ": "),
+    comparability = if_else(safely_comparable, "Safe", "Not safe")
+  )
 
-barplot(
-  height = setNames(summary_counts$rows, summary_counts$change_type),
-  col = "#0f766e",
-  border = NA,
-  las = 2,
-  ylab = "Rows",
-  main = "Change Classification Comes Before Interpretation"
-)
+ggplot2::ggplot(plot_changes, ggplot2::aes(y = comparison)) +
+  ggplot2::geom_segment(
+    ggplot2::aes(
+      x = from_value,
+      xend = to_value,
+      yend = comparison,
+      color = comparability
+    ),
+    linewidth = 1.1
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(x = from_value),
+    color = onet2r_colors[["slate"]],
+    size = 2.8
+  ) +
+  ggplot2::geom_point(
+    ggplot2::aes(x = to_value, color = comparability),
+    size = 3.2
+  ) +
+  onet2r_discrete_color(name = "Comparability") +
+  ggplot2::labs(
+    title = "A Cross-Vintage Difference Is Not Automatically Comparable",
+    subtitle = "Start and end points come from the bundled archive fixtures.",
+    x = "Importance rating",
+    y = NULL
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart of same-vintage change
-classifications.](longitudinal-archives_files/figure-html/summary-chart-1.png)
+![Dumbbell chart of cross-vintage ability changes, with safe comparisons
+separated from unsafe
+comparisons.](longitudinal-archives_files/figure-html/summary-chart-1.png)
 
 ## Summarize the Panel
 
@@ -309,30 +291,16 @@ the apparent change.
 
 ``` r
 onet_change_summary(changes, by = "job_family") |>
-  print(width = Inf)
-#> # A tibble: 5 × 10
-#>   summary_level job_family change_type        n_pairs share_pairs
-#>   <chr>         <chr>      <chr>                <int>       <dbl>
-#> 1 overall       NA         real_update              7       1    
-#> 2 job_family    11         stale_carryforward       2       0.286
-#> 3 job_family    15         stale_carryforward       2       0.286
-#> 4 job_family    29         resampled_stable         2       0.286
-#> 5 job_family    41         real_update              1       0.143
-#>   mean_value_change median_abs_value_change share_safely_comparable
-#>               <dbl>                   <dbl>                   <dbl>
-#> 1            0.114                   0.120                    0.714
-#> 2            0.0600                  0.0600                   0.5  
-#> 3            0.115                   0.115                    1    
-#> 4            0.150                   0.150                    0.5  
-#> 5            0.150                   0.150                    1    
-#>   share_method_break share_crosswalk_uncertain
-#>                <dbl>                     <dbl>
-#> 1              0.143                         0
-#> 2              0.5                           0
-#> 3              0                             0
-#> 4              0                             0
-#> 5              0                             0
+  onet_kable()
 ```
+
+| summary_level | job_family | change_type        | n_pairs | share_pairs | mean_value_change | median_abs_value_change | share_safely_comparable | share_method_break | share_crosswalk_uncertain |
+|:--------------|:-----------|:-------------------|:--------|:------------|:------------------|:------------------------|:------------------------|:-------------------|:--------------------------|
+| overall       | NA         | real_update        | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         |
+| job_family    | 11         | stale_carryforward | 2       | 0.286       | 0.060             | 0.060                   | 0.500                   | 0.500              | 0                         |
+| job_family    | 15         | stale_carryforward | 2       | 0.286       | 0.115             | 0.115                   | 1.000                   | 0.000              | 0                         |
+| job_family    | 29         | resampled_stable   | 2       | 0.286       | 0.150             | 0.150                   | 0.500                   | 0.000              | 0                         |
+| job_family    | 41         | real_update        | 1       | 0.143       | 0.150             | 0.150                   | 1.000                   | 0.000              | 0                         |
 
 ## Recommended Workflow for Real Archive Work
 

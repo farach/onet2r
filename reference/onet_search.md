@@ -37,7 +37,7 @@ A tibble with columns:
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 # Search by keyword
 onet_search("software developer")
 

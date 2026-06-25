@@ -35,7 +35,7 @@ metadata.
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 onet_technology_skills("15-1252.00", end = 3)
 }
 ```

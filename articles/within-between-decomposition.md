@@ -6,44 +6,83 @@ different scores. With O\*NET, the within term needs an extra gate: only
 rows that survive the comparability checks should be counted as safely
 comparable within-occupation change.
 
-## A Two-Occupation Example
+## A Fixture-Derived Example
 
 ``` r
-from_scores <- tibble::tibble(
-  reference_soc_code = c("15-1252", "29-1141"),
-  measure_score = c(1.0, 2.0),
-  safely_comparable = c(TRUE, FALSE)
+archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+cross_panel <- onet_panel(
+  "Abilities",
+  versions = c("24.3", "25.1"),
+  scale = "IM",
+  archives = c(
+    `24.3` = file.path(archive_base, "db_24_3_text"),
+    `25.1` = file.path(archive_base, "db_25_1_text")
+  ),
+  release_dates = c(`24.3` = "2020-08-01", `25.1` = "2020-11-01")
 )
-to_scores <- tibble::tibble(
-  reference_soc_code = c("15-1252", "29-1141"),
-  measure_score = c(2.0, 2.5),
-  safely_comparable = c(TRUE, FALSE)
+
+bridge <- tibble::tibble(
+  from_vintage = "2010",
+  to_vintage = "2019",
+  from_onet_soc_code = c("15-1132.00", "15-1132.00", "29-1141.00"),
+  to_onet_soc_code = c("15-1252.00", "15-1253.00", "29-1141.00"),
+  map_type = c("split", "split", "one_to_one"),
+  crosswalk_weight = c(0.5, 0.5, 1)
 )
+
+ability_changes <- onet_panel_reconcile(cross_panel, bridge)
+score_changes <- ability_changes |>
+  filter(element_id == "1.A.1.a.1", !is.na(from_value), !is.na(to_value)) |>
+  mutate(reference_soc_code = sub("\\.\\d{2}$", "", to_onet_soc_code))
+
+from_scores <- score_changes |>
+  select(
+    reference_soc_code,
+    measure_score = from_value,
+    safely_comparable
+  )
+to_scores <- score_changes |>
+  select(
+    reference_soc_code,
+    measure_score = to_value,
+    safely_comparable
+  )
+
 from_weights <- tibble::tibble(
-  reference_soc_code = c("15-1252", "29-1141"),
-  employment = c(100, 100)
+  reference_soc_code = c("15-1252", "15-1253", "29-1141"),
+  employment = c(120, 80, 200)
 )
 to_weights <- tibble::tibble(
-  reference_soc_code = c("15-1252", "29-1141"),
-  employment = c(150, 50)
+  reference_soc_code = c("15-1252", "15-1253", "29-1141"),
+  employment = c(170, 110, 160)
 )
 
-from_scores
-#> # A tibble: 2 × 3
-#>   reference_soc_code measure_score safely_comparable
-#>   <chr>                      <dbl> <lgl>            
-#> 1 15-1252                        1 TRUE             
-#> 2 29-1141                        2 FALSE
-to_scores
-#> # A tibble: 2 × 3
-#>   reference_soc_code measure_score safely_comparable
-#>   <chr>                      <dbl> <lgl>            
-#> 1 15-1252                      2   TRUE             
-#> 2 29-1141                      2.5 FALSE
+from_scores |>
+  onet_kable()
 ```
 
-The first occupation is safe for within-change attribution. The second
-is not, so its within movement goes to the unclassifiable bucket.
+| reference_soc_code | measure_score | safely_comparable |
+|:-------------------|:--------------|:------------------|
+| 15-1252            | 4.2           | FALSE             |
+| 15-1253            | 4.2           | FALSE             |
+| 29-1141            | 4.6           | TRUE              |
+
+``` r
+to_scores |>
+  onet_kable()
+```
+
+| reference_soc_code | measure_score | safely_comparable |
+|:-------------------|:--------------|:------------------|
+| 15-1252            | 4.48          | FALSE             |
+| 15-1253            | 4.30          | FALSE             |
+| 29-1141            | 4.66          | TRUE              |
+
+The comparability flag comes from
+[`onet_panel_reconcile()`](https://farach.github.io/onet2r/reference/onet_panel_reconcile.md),
+not from a hand-labeled example table. Rows that cross the split with
+transition data are kept in the accounting but do not get treated as
+clean within-occupation change.
 
 ``` r
 decomp <- onet_decompose_change(
@@ -55,40 +94,64 @@ decomp <- onet_decompose_change(
 
 decomp |>
   select(component, value) |>
-  print(width = Inf)
-#> # A tibble: 5 × 2
-#>   component       value
-#>   <chr>           <dbl>
-#> 1 within          0.5  
-#> 2 between        -0.25 
-#> 3 interaction     0.125
-#> 4 unclassifiable  0.25 
-#> 5 total_change    0.625
-
-onet_coverage(decomp)
-#> # A tibble: 1 × 3
-#>   n_common n_safely_comparable leakage
-#>      <int>               <int>   <dbl>
-#> 1        2                   1       0
+  onet_kable()
 ```
+
+| component      | value  |
+|:---------------|:-------|
+| within         | 0.030  |
+| between        | -0.055 |
+| interaction    | 0.021  |
+| unclassifiable | 0.104  |
+| total_change   | 0.100  |
+
+``` r
+
+onet_coverage(decomp) |>
+  onet_kable()
+```
+
+| n_common | n_safely_comparable | leakage |
+|:---------|:--------------------|:--------|
+| 3        | 1                   | 0       |
 
 ``` r
 components <- decomp |>
-  filter(component != "total_change")
+  filter(component != "total_change") |>
+  mutate(
+    component = factor(component, levels = component),
+    start = dplyr::lag(cumsum(value), default = 0),
+    end = start + value,
+    direction = if_else(value >= 0, "Positive", "Negative")
+  )
 
-barplot(
-  height = setNames(components$value, components$component),
-  col = c("#0f766e", "#14b8a6", "#99f6e4", "#64748b"),
-  border = NA,
-  las = 2,
-  ylab = "Contribution to change",
-  main = "Where Did the Aggregate Change Come From?"
-)
-abline(h = 0, col = "#334155")
+ggplot2::ggplot(components, ggplot2::aes(x = component)) +
+  ggplot2::geom_rect(
+    ggplot2::aes(
+      xmin = as.numeric(component) - 0.35,
+      xmax = as.numeric(component) + 0.35,
+      ymin = pmin(start, end),
+      ymax = pmax(start, end),
+      fill = direction
+    )
+  ) +
+  ggplot2::geom_hline(yintercept = 0, color = onet2r_colors[["slate"]]) +
+  ggplot2::scale_x_discrete(labels = function(x) gsub("_", " ", x)) +
+  ggplot2::scale_fill_manual(
+    values = c(Positive = onet2r_colors[["teal"]], Negative = onet2r_colors[["rose"]])
+  ) +
+  ggplot2::labs(
+    title = "Where Did the Aggregate Change Come From?",
+    subtitle = "Unsafe within movement is isolated in the unclassifiable bucket.",
+    x = NULL,
+    y = "Contribution to change",
+    fill = NULL
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart showing within, between, interaction, and unclassifiable
-decomposition
+![Waterfall chart showing within, between, interaction, and
+unclassifiable decomposition
 components.](within-between-decomposition_files/figure-html/decomposition-chart-1.png)
 
 The component rows other than `total_change` sum to the total change.
@@ -99,12 +162,13 @@ decomp |>
     component_sum = sum(value[component != "total_change"]),
     total_change = value[component == "total_change"],
     difference = component_sum - total_change
-  )
-#> # A tibble: 1 × 3
-#>   component_sum total_change difference
-#>           <dbl>        <dbl>      <dbl>
-#> 1         0.625        0.625          0
+  ) |>
+  onet_kable()
 ```
+
+| component_sum | total_change | difference |
+|:--------------|:-------------|:-----------|
+| 0.1           | 0.1          | 0          |
 
 ## A Demographic Split
 
@@ -139,21 +203,21 @@ split_results <- lapply(unique(from_weights_by_sex$sex), function(cell) {
 
 split_results |>
   select(sex, component, value) |>
-  print(n = Inf, width = Inf)
-#> # A tibble: 10 × 3
-#>    sex   component       value
-#>    <chr> <chr>           <dbl>
-#>  1 F     within          0.364
-#>  2 F     between        -0.220
-#>  3 F     interaction     0.110
-#>  4 F     unclassifiable  0.318
-#>  5 F     total_change    0.572
-#>  6 M     within          0.667
-#>  7 M     between        -0.333
-#>  8 M     interaction     0.167
-#>  9 M     unclassifiable  0.167
-#> 10 M     total_change    0.667
+  onet_kable()
 ```
+
+| sex | component      | value  |
+|:----|:---------------|:-------|
+| F   | within         | 0.038  |
+| F   | between        | -0.088 |
+| F   | interaction    | 0.048  |
+| F   | unclassifiable | 0.102  |
+| F   | total_change   | 0.100  |
+| M   | within         | 0.020  |
+| M   | between        | -0.133 |
+| M   | interaction    | 0.073  |
+| M   | unclassifiable | 0.187  |
+| M   | total_change   | 0.147  |
 
 Each cell has its own weight shift and its own unclassifiable bucket.
 That is the part reviewers need to see when an aggregate result depends

@@ -21,7 +21,7 @@ A list containing the occupation overview data.
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 onet_occupation("15-1252.00")
 }
 ```

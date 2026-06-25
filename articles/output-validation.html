@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,41 +152,124 @@ output.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">aggregate</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">aggregate</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 2</span></span></span>
-<span><span class="co">#&gt;   check                                passed</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> OEWS output is a tibble              TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> archive output has source dates      TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> weight panel has reference SOC codes TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> aggregate has provenance             TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> aggregate has coverage               TRUE</span></span>
-<span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">check</th>
+<th align="left">passed</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">OEWS output is a tibble</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">archive output has source dates</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">weight panel has reference SOC codes</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">aggregate has provenance</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">aggregate has coverage</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="va">weights</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 7</span></span></span>
-<span><span class="co">#&gt;   reference_soc_code  year employment weight_share source source_taxonomy</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 11-1011             <span style="text-decoration: underline;">2</span>024     <span style="text-decoration: underline;">211</span>230       0.040<span style="text-decoration: underline;">4</span> OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252             <span style="text-decoration: underline;">2</span>024    1<span style="text-decoration: underline;">847</span>900       0.353  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 29-1141             <span style="text-decoration: underline;">2</span>024    3<span style="text-decoration: underline;">175</span>400       0.607  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt;   reference_taxonomy</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2018 SOC</span></span>
-<span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="21%">
+<col width="5%">
+<col width="12%">
+<col width="14%">
+<col width="7%">
+<col width="17%">
+<col width="21%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">reference_soc_code</th>
+<th align="left">year</th>
+<th align="left">employment</th>
+<th align="left">weight_share</th>
+<th align="left">source</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">2024</td>
+<td align="left">211230</td>
+<td align="left">0.040</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252</td>
+<td align="left">2024</td>
+<td align="left">1847900</td>
+<td align="left">0.353</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">2024</td>
+<td align="left">3175400</td>
+<td align="left">0.607</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="va">aggregate</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
-<span><span class="co">#&gt;   measure_id                 aggregate total_employment covered_employment</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> oral_comprehension_fixture      4.57          5<span style="text-decoration: underline;">234</span>530            5<span style="text-decoration: underline;">234</span>530</span></span>
-<span><span class="co">#&gt;   employment_coverage_share n_occupations n_reference_soc</span></span>
-<span><span class="co">#&gt;                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                         1             4               4</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="7%">
+<col width="13%">
+<col width="14%">
+<col width="20%">
+<col width="10%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">aggregate</th>
+<th align="left">total_employment</th>
+<th align="left">covered_employment</th>
+<th align="left">employment_coverage_share</th>
+<th align="left">n_occupations</th>
+<th align="left">n_reference_soc</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">oral_comprehension_fixture</td>
+<td align="left">4.574</td>
+<td align="left">5234530</td>
+<td align="left">5234530</td>
+<td align="left">1</td>
+<td align="left">4</td>
+<td align="left">4</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="example-live-validation-status">Example: Live Validation Status<a class="anchor" aria-label="anchor" href="#example-live-validation-status"></a>
@@ -194,15 +277,22 @@ output.</p>
 <p>Live validation only runs when a user supplies an API key. The site
 still executes this chunk and reports whether live checks are available
 in the current environment.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  check <span class="op">=</span> <span class="st">"ONET_API_KEY available for live API validation"</span>,</span>
 <span>  passed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ONET_API_KEY"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
-<span><span class="co">#&gt;   check                                          passed</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                          <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ONET_API_KEY available for live API validation FALSE</span></span></code></pre></div>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">check</th>
+<th align="left">passed</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">ONET_API_KEY available for live API validation</td>
+<td align="left">FALSE</td>
+</tr></tbody>
+</table>
 <p>The goal is not to replace unit tests. It is to give maintainers and
 users a repeatable, practical way to confirm that live API outputs still
 match the shapes used in examples, vignettes, and downstream

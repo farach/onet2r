@@ -55,6 +55,10 @@ onet_join_oews(
 A tibble containing `occupations` plus a `soc_code` column and matching
 national OEWS employment and wage estimate columns.
 
+## Details
+
+**\[deprecated\]**
+
 ## Lifecycle
 
 This helper is soft-deprecated in favor of

@@ -6,6 +6,11 @@ domain sources, suppression flags, and taxonomy vintages. Ignoring those
 fields can turn a carryforward, transition row, or crosswalk seam into a
 misleading trend.
 
+**Do not start with the coefficient.** Start with the audit fields. If a
+result depends on rows that were carried forward, bridged across a
+split, or marked as transition data, the caveat belongs next to the
+estimate.
+
 ## The Naive Difference
 
 ``` r
@@ -38,18 +43,18 @@ naive <- naive |>
 
 naive |>
   head(8) |>
-  print(width = Inf)
-#> # A tibble: 7 × 6
-#>   onet_soc_code element_id element_name        from_value to_value naive_change
-#>   <chr>         <chr>      <chr>                    <dbl>    <dbl>        <dbl>
-#> 1 29-1141.00    1.A.1.b.1  Problem Sensitivity       4.6      4.9         0.300
-#> 2 15-1252.00    1.A.1.a.1  Oral Comprehension        4.12     4.35        0.230
-#> 3 41-1011.00    1.A.1.a.1  Oral Comprehension        4        4.15        0.150
-#> 4 11-1011.00    1.A.1.a.1  Oral Comprehension        4.38     4.5         0.120
-#> 5 15-1252.00    1.A.1.b.1  Problem Sensitivity       4.5      4.5         0    
-#> 6 29-1141.00    1.A.1.a.1  Oral Comprehension        4.71     4.71        0    
-#> 7 11-1011.00    1.A.1.b.1  Problem Sensitivity       4.22     4.22        0
+  onet_kable()
 ```
+
+| onet_soc_code | element_id | element_name        | from_value | to_value | naive_change |
+|:--------------|:-----------|:--------------------|:-----------|:---------|:-------------|
+| 29-1141.00    | 1.A.1.b.1  | Problem Sensitivity | 4.60       | 4.90     | 0.30         |
+| 15-1252.00    | 1.A.1.a.1  | Oral Comprehension  | 4.12       | 4.35     | 0.23         |
+| 41-1011.00    | 1.A.1.a.1  | Oral Comprehension  | 4.00       | 4.15     | 0.15         |
+| 11-1011.00    | 1.A.1.a.1  | Oral Comprehension  | 4.38       | 4.50     | 0.12         |
+| 15-1252.00    | 1.A.1.b.1  | Problem Sensitivity | 4.50       | 4.50     | 0.00         |
+| 29-1141.00    | 1.A.1.a.1  | Oral Comprehension  | 4.71       | 4.71     | 0.00         |
+| 11-1011.00    | 1.A.1.b.1  | Problem Sensitivity | 4.22       | 4.22     | 0.00         |
 
 The naive table is useful as a screening tool. It is not enough for an
 interpretation.
@@ -72,32 +77,27 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  print(width = Inf)
-#> # A tibble: 7 × 8
-#>   to_soc_code element_name        value_change change_type          
-#>   <chr>       <chr>                      <dbl> <fct>                
-#> 1 29-1141     Problem Sensitivity        0.300 recode_or_recalc_flag
-#> 2 15-1252     Oral Comprehension         0.230 real_update          
-#> 3 41-1011     Oral Comprehension         0.150 real_update          
-#> 4 11-1011     Oral Comprehension         0.120 real_update          
-#> 5 15-1252     Problem Sensitivity        0     stale_carryforward   
-#> 6 29-1141     Oral Comprehension         0     resampled_stable     
-#> 7 11-1011     Problem Sensitivity        0     stale_carryforward   
-#>   from_source_date to_source_date method_break safely_comparable
-#>   <date>           <date>         <lgl>        <lgl>            
-#> 1 2024-08-01       2024-08-01     FALSE        FALSE            
-#> 2 2024-07-01       2025-07-01     FALSE        TRUE             
-#> 3 2024-06-01       2025-06-01     FALSE        TRUE             
-#> 4 2024-07-01       2025-07-01     TRUE         FALSE            
-#> 5 2024-07-01       2024-07-01     FALSE        TRUE             
-#> 6 2024-08-01       2025-08-01     FALSE        TRUE             
-#> 7 2024-07-01       2024-07-01     FALSE        TRUE
+  onet_kable()
 ```
+
+| to_soc_code | element_name        | value_change | change_type           | from_source_date | to_source_date | method_break | safely_comparable |
+|:------------|:--------------------|:-------------|:----------------------|:-----------------|:---------------|:-------------|:------------------|
+| 29-1141     | Problem Sensitivity | 0.30         | recode_or_recalc_flag | 2024-08-01       | 2024-08-01     | FALSE        | FALSE             |
+| 15-1252     | Oral Comprehension  | 0.23         | real_update           | 2024-07-01       | 2025-07-01     | FALSE        | TRUE              |
+| 41-1011     | Oral Comprehension  | 0.15         | real_update           | 2024-06-01       | 2025-06-01     | FALSE        | TRUE              |
+| 11-1011     | Oral Comprehension  | 0.12         | real_update           | 2024-07-01       | 2025-07-01     | TRUE         | FALSE             |
+| 15-1252     | Problem Sensitivity | 0.00         | stale_carryforward    | 2024-07-01       | 2024-07-01     | FALSE        | TRUE              |
+| 29-1141     | Oral Comprehension  | 0.00         | resampled_stable      | 2024-08-01       | 2025-08-01     | FALSE        | TRUE              |
+| 11-1011     | Problem Sensitivity | 0.00         | stale_carryforward    | 2024-07-01       | 2024-07-01     | FALSE        | TRUE              |
 
 Now the same differences have labels. A change without a source-date
 change is not as strong as a change with fresh source data. A method
 break should be treated as a warning rather than as clean
 within-occupation change.
+
+**A useful rule of thumb.** Use `value_change` to find rows worth
+inspecting, then use `change_type`, `method_break`, and
+`safely_comparable` to decide what those rows can support.
 
 ## The Taxonomy Seam
 
@@ -134,38 +134,43 @@ seam |>
     crosswalk_uncertain,
     safely_comparable
   ) |>
-  print(width = Inf)
-#> # A tibble: 5 × 7
-#>   from_onet_soc_code to_onet_soc_code element_name        change_type    
-#>   <chr>              <chr>            <chr>               <fct>          
-#> 1 15-1132.00         15-1252.00       Oral Comprehension  transition_data
-#> 2 15-1132.00         15-1253.00       Oral Comprehension  transition_data
-#> 3 29-1141.00         29-1141.00       Oral Comprehension  real_update    
-#> 4 15-1132.00         15-1252.00       Problem Sensitivity dropped        
-#> 5 15-1132.00         15-1253.00       Problem Sensitivity dropped        
-#>   transition_data crosswalk_uncertain safely_comparable
-#>   <lgl>           <lgl>               <lgl>            
-#> 1 TRUE            TRUE                FALSE            
-#> 2 TRUE            TRUE                FALSE            
-#> 3 FALSE           FALSE               TRUE             
-#> 4 FALSE           TRUE                FALSE            
-#> 5 FALSE           TRUE                FALSE
+  onet_kable()
 ```
+
+| from_onet_soc_code | to_onet_soc_code | element_name        | change_type     | transition_data | crosswalk_uncertain | safely_comparable |
+|:-------------------|:-----------------|:--------------------|:----------------|:----------------|:--------------------|:------------------|
+| 15-1132.00         | 15-1252.00       | Oral Comprehension  | transition_data | TRUE            | TRUE                | FALSE             |
+| 15-1132.00         | 15-1253.00       | Oral Comprehension  | transition_data | TRUE            | TRUE                | FALSE             |
+| 29-1141.00         | 29-1141.00       | Oral Comprehension  | real_update     | FALSE           | FALSE               | TRUE              |
+| 15-1132.00         | 15-1252.00       | Problem Sensitivity | dropped         | FALSE           | TRUE                | FALSE             |
+| 15-1132.00         | 15-1253.00       | Problem Sensitivity | dropped         | FALSE           | TRUE                | FALSE             |
 
 ``` r
 safe_counts <- seam |>
-  count(safely_comparable, name = "rows")
+  mutate(comparability = if_else(safely_comparable, "Safe", "Not safe")) |>
+  count(comparability, name = "rows")
 
-barplot(
-  height = setNames(safe_counts$rows, safe_counts$safely_comparable),
-  col = c("#64748b", "#0f766e"),
-  border = NA,
-  ylab = "Rows",
-  main = "Taxonomy Seams Reduce Safe Comparisons"
-)
+ggplot2::ggplot(safe_counts, ggplot2::aes(
+  x = comparability,
+  y = rows,
+  fill = comparability
+)) +
+  ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
+  ggplot2::coord_flip() +
+  ggplot2::scale_fill_manual(
+    values = c("Safe" = onet2r_colors[["teal"]], "Not safe" = onet2r_colors[["rose"]])
+  ) +
+  ggplot2::labs(
+    title = "Taxonomy Seams Reduce Safe Comparisons",
+    subtitle = "A split occupation carries extra uncertainty even when codes can be bridged.",
+    x = NULL,
+    y = "Rows"
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart comparing safe and unsafe comparisons at a taxonomy
+![Horizontal bar chart comparing safe and unsafe comparisons at a
+taxonomy
 seam.](how-to-fool-yourself-with-onet-over-time_files/figure-html/fool-yourself-chart-1.png)
 
 Before making a historical claim, ask: Did the value change? Did the

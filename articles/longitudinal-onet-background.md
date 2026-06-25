@@ -31,13 +31,14 @@ panel <- onet_panel(
 )
 
 panel |>
-  count(release_version, release_date, soc_vintage, domain)
-#> # A tibble: 2 × 5
-#>   release_version release_date soc_vintage domain        n
-#>   <chr>           <date>       <fct>       <chr>     <int>
-#> 1 30.2            2026-02-01   2019        Abilities     7
-#> 2 30.3            2026-05-01   2019        Abilities     7
+  count(release_version, release_date, soc_vintage, domain) |>
+  onet_kable()
 ```
+
+| release_version | release_date | soc_vintage | domain    | n   |
+|:----------------|:-------------|:------------|:----------|:----|
+| 30.2            | 2026-02-01   | 2019        | Abilities | 7   |
+| 30.3            | 2026-05-01   | 2019        | Abilities | 7   |
 
 The table above is produced by
 [`onet_panel()`](https://farach.github.io/onet2r/reference/onet_panel.md).
@@ -87,23 +88,16 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  print(width = Inf)
-#> # A tibble: 5 × 7
-#>   from_onet_soc_code to_onet_soc_code element_name        change_type    
-#>   <chr>              <chr>            <chr>               <fct>          
-#> 1 15-1132.00         15-1252.00       Oral Comprehension  transition_data
-#> 2 15-1132.00         15-1253.00       Oral Comprehension  transition_data
-#> 3 29-1141.00         29-1141.00       Oral Comprehension  real_update    
-#> 4 15-1132.00         15-1252.00       Problem Sensitivity dropped        
-#> 5 15-1132.00         15-1253.00       Problem Sensitivity dropped        
-#>   crosswalk_uncertain transition_data safely_comparable
-#>   <lgl>               <lgl>           <lgl>            
-#> 1 TRUE                TRUE            FALSE            
-#> 2 TRUE                TRUE            FALSE            
-#> 3 FALSE               FALSE           TRUE             
-#> 4 TRUE                FALSE           FALSE            
-#> 5 TRUE                FALSE           FALSE
+  onet_kable()
 ```
+
+| from_onet_soc_code | to_onet_soc_code | element_name        | change_type     | crosswalk_uncertain | transition_data | safely_comparable |
+|:-------------------|:-----------------|:--------------------|:----------------|:--------------------|:----------------|:------------------|
+| 15-1132.00         | 15-1252.00       | Oral Comprehension  | transition_data | TRUE                | TRUE            | FALSE             |
+| 15-1132.00         | 15-1253.00       | Oral Comprehension  | transition_data | TRUE                | TRUE            | FALSE             |
+| 29-1141.00         | 29-1141.00       | Oral Comprehension  | real_update     | FALSE               | FALSE           | TRUE              |
+| 15-1132.00         | 15-1252.00       | Problem Sensitivity | dropped         | TRUE                | FALSE           | FALSE             |
+| 15-1132.00         | 15-1253.00       | Problem Sensitivity | dropped         | TRUE                | FALSE           | FALSE             |
 
 ### 3. A Release-to-Release “Change” May Not Be a True Content Change
 
@@ -123,32 +117,43 @@ changes <- onet_panel_reconcile(
 changes |>
   distinct(value_changed, date_changed, change_type, safely_comparable) |>
   arrange(change_type) |>
-  print(width = Inf)
-#> # A tibble: 5 × 4
-#>   value_changed date_changed change_type           safely_comparable
-#>   <lgl>         <lgl>        <fct>                 <lgl>            
-#> 1 FALSE         FALSE        stale_carryforward    TRUE             
-#> 2 TRUE          TRUE         real_update           TRUE             
-#> 3 TRUE          TRUE         real_update           FALSE            
-#> 4 FALSE         TRUE         resampled_stable      TRUE             
-#> 5 TRUE          FALSE        recode_or_recalc_flag FALSE
+  onet_kable()
 ```
+
+| value_changed | date_changed | change_type           | safely_comparable |
+|:--------------|:-------------|:----------------------|:------------------|
+| FALSE         | FALSE        | stale_carryforward    | TRUE              |
+| TRUE          | TRUE         | real_update           | TRUE              |
+| TRUE          | TRUE         | real_update           | FALSE             |
+| FALSE         | TRUE         | resampled_stable      | TRUE              |
+| TRUE          | FALSE        | recode_or_recalc_flag | FALSE             |
 
 ``` r
 comparison_counts <- cross_changes |>
-  count(safely_comparable, name = "rows")
+  mutate(comparability = if_else(safely_comparable, "Safe", "Not safe")) |>
+  count(comparability, name = "rows")
 
-barplot(
-  height = setNames(comparison_counts$rows, comparison_counts$safely_comparable),
-  col = c("#64748b", "#0f766e"),
-  border = NA,
-  ylab = "Rows",
-  main = "How Many Rows Are Safe to Compare?"
-)
+ggplot2::ggplot(comparison_counts, ggplot2::aes(
+  x = comparability,
+  y = rows,
+  fill = comparability
+)) +
+  ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
+  ggplot2::coord_flip() +
+  ggplot2::scale_fill_manual(
+    values = c("Safe" = onet2r_colors[["teal"]], "Not safe" = onet2r_colors[["rose"]])
+  ) +
+  ggplot2::labs(
+    title = "How Many Rows Are Safe to Compare?",
+    subtitle = "The count comes from the cross-vintage example, not a hand-built table.",
+    x = NULL,
+    y = "Rows"
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart showing safely comparable and not safely comparable rows in
-the cross-vintage
+![Horizontal bar chart showing safely comparable and not safely
+comparable rows in the cross-vintage
 example.](longitudinal-onet-background_files/figure-html/comparable-chart-1.png)
 
 Those rows are not a hand-built truth table. They are the observed

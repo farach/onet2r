@@ -36,7 +36,7 @@ A tibble with columns:
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 onet_occupations_all(show_progress = FALSE)
 }
 ```

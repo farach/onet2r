@@ -58,6 +58,10 @@ onet_weighted_summary(
 A tibble with `group` columns plus `n_records`, `n_occupations`,
 `total_weight`, `weighted_mean`, and `wage_weighted_mean`.
 
+## Details
+
+**\[deprecated\]**
+
 ## Lifecycle
 
 This helper is soft-deprecated for measure work. Prefer

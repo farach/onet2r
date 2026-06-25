@@ -23,7 +23,7 @@ A tibble with columns:
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 tables <- onet_tables()
 head(tables)
 }

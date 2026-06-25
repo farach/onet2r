@@ -70,42 +70,41 @@ tibble::tibble(
     nrow(onet_provenance(aggregate)) == 1,
     nrow(onet_coverage(aggregate)) == 1
   )
-)
-#> # A tibble: 5 × 2
-#>   check                                passed
-#>   <chr>                                <lgl> 
-#> 1 OEWS output is a tibble              TRUE  
-#> 2 archive output has source dates      TRUE  
-#> 3 weight panel has reference SOC codes TRUE  
-#> 4 aggregate has provenance             TRUE  
-#> 5 aggregate has coverage               TRUE
+) |>
+  onet_kable()
+```
+
+| check                                | passed |
+|:-------------------------------------|:-------|
+| OEWS output is a tibble              | TRUE   |
+| archive output has source dates      | TRUE   |
+| weight panel has reference SOC codes | TRUE   |
+| aggregate has provenance             | TRUE   |
+| aggregate has coverage               | TRUE   |
+
+``` r
 
 weights |>
   head(5) |>
-  print(width = Inf)
-#> # A tibble: 3 × 7
-#>   reference_soc_code  year employment weight_share source source_taxonomy
-#>   <chr>              <int>      <dbl>        <dbl> <chr>  <chr>          
-#> 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC       
-#> 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC       
-#> 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC       
-#>   reference_taxonomy
-#>   <chr>             
-#> 1 2018 SOC          
-#> 2 2018 SOC          
-#> 3 2018 SOC
+  onet_kable()
+```
+
+| reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
+|:-------------------|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
+| 11-1011            | 2024 | 211230     | 0.040        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | 2024 | 1847900    | 0.353        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | 2024 | 3175400    | 0.607        | OEWS   | 2018 SOC        | 2018 SOC           |
+
+``` r
 
 aggregate |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
-#> # A tibble: 1 × 7
-#>   measure_id                 aggregate total_employment covered_employment
-#>   <chr>                          <dbl>            <dbl>              <dbl>
-#> 1 oral_comprehension_fixture      4.57          5234530            5234530
-#>   employment_coverage_share n_occupations n_reference_soc
-#>                       <dbl>         <int>           <int>
-#> 1                         1             4               4
+  onet_kable()
 ```
+
+| measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
+|:---------------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
+| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 4             | 4               |
 
 ## Example: Live Validation Status
 
@@ -117,12 +116,13 @@ in the current environment.
 tibble::tibble(
   check = "ONET_API_KEY available for live API validation",
   passed = nzchar(Sys.getenv("ONET_API_KEY"))
-)
-#> # A tibble: 1 × 2
-#>   check                                          passed
-#>   <chr>                                          <lgl> 
-#> 1 ONET_API_KEY available for live API validation FALSE
+) |>
+  onet_kable()
 ```
+
+| check                                          | passed |
+|:-----------------------------------------------|:-------|
+| ONET_API_KEY available for live API validation | FALSE  |
 
 The goal is not to replace unit tests. It is to give maintainers and
 users a repeatable, practical way to confirm that live API outputs still

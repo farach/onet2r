@@ -29,7 +29,7 @@ A tibble of professional associations.
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 onet_professional_associations("15-1252.00", end = 5)
 }
 ```

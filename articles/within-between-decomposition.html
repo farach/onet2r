@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,44 +89,115 @@ different scores. With O*NET, the within term needs an extra gate: only
 rows that survive the comparability checks should be counted as safely
 comparable within-occupation change.</p>
 <div class="section level2">
-<h2 id="a-two-occupation-example">A Two-Occupation Example<a class="anchor" aria-label="anchor" href="#a-two-occupation-example"></a>
+<h2 id="a-fixture-derived-example">A Fixture-Derived Example<a class="anchor" aria-label="anchor" href="#a-fixture-derived-example"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">from_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
-<span>  measure_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">2.0</span><span class="op">)</span>,</span>
-<span>  safely_comparable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">to_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
-<span>  measure_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.0</span>, <span class="fl">2.5</span><span class="op">)</span>,</span>
-<span>  safely_comparable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">from_weights</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
-<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">to_weights</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
-<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">150</span>, <span class="fl">50</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">archive_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"onet-mini"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
+<span><span class="va">cross_panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Abilities"</span>,</span>
+<span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"24.3"</span>, <span class="st">"25.1"</span><span class="op">)</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"IM"</span>,</span>
+<span>  archives <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    `24.3` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">archive_base</span>, <span class="st">"db_24_3_text"</span><span class="op">)</span>,</span>
+<span>    `25.1` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">archive_base</span>, <span class="st">"db_25_1_text"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  release_dates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`24.3` <span class="op">=</span> <span class="st">"2020-08-01"</span>, `25.1` <span class="op">=</span> <span class="st">"2020-11-01"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">from_scores</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span><span class="co">#&gt;   reference_soc_code measure_score safely_comparable</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                      &lt;dbl&gt; &lt;lgl&gt;            </span></span>
-<span><span class="co">#&gt; 1 15-1252                        1 TRUE             </span></span>
-<span><span class="co">#&gt; 2 29-1141                        2 FALSE</span></span>
-<span><span class="va">to_scores</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span><span class="co">#&gt;   reference_soc_code measure_score safely_comparable</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                      &lt;dbl&gt; &lt;lgl&gt;            </span></span>
-<span><span class="co">#&gt; 1 15-1252                      2   TRUE             </span></span>
-<span><span class="co">#&gt; 2 29-1141                      2.5 FALSE</span></span></code></pre></div>
-<p>The first occupation is safe for within-change attribution. The
-second is not, so its within movement goes to the unclassifiable
-bucket.</p>
+<span><span class="va">bridge</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  from_vintage <span class="op">=</span> <span class="st">"2010"</span>,</span>
+<span>  to_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
+<span>  from_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1132.00"</span>, <span class="st">"15-1132.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>,</span>
+<span>  to_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"15-1253.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>,</span>
+<span>  map_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"split"</span>, <span class="st">"split"</span>, <span class="st">"one_to_one"</span><span class="op">)</span>,</span>
+<span>  crosswalk_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ability_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">cross_panel</span>, <span class="va">bridge</span><span class="op">)</span></span>
+<span><span class="va">score_changes</span> <span class="op">&lt;-</span> <span class="va">ability_changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">element_id</span> <span class="op">==</span> <span class="st">"1.A.1.a.1"</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">from_value</span><span class="op">)</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">to_value</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"\\.\\d{2}$"</span>, <span class="st">""</span>, <span class="va">to_onet_soc_code</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">from_scores</span> <span class="op">&lt;-</span> <span class="va">score_changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
+<span>    <span class="va">reference_soc_code</span>,</span>
+<span>    measure_score <span class="op">=</span> <span class="va">from_value</span>,</span>
+<span>    <span class="va">safely_comparable</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">to_scores</span> <span class="op">&lt;-</span> <span class="va">score_changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
+<span>    <span class="va">reference_soc_code</span>,</span>
+<span>    measure_score <span class="op">=</span> <span class="va">to_value</span>,</span>
+<span>    <span class="va">safely_comparable</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">from_weights</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"15-1253"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
+<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">80</span>, <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">to_weights</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"15-1253"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
+<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">170</span>, <span class="fl">110</span>, <span class="fl">160</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">from_scores</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">reference_soc_code</th>
+<th align="left">measure_score</th>
+<th align="left">safely_comparable</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252</td>
+<td align="left">4.2</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">15-1253</td>
+<td align="left">4.2</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">4.6</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">to_scores</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">reference_soc_code</th>
+<th align="left">measure_score</th>
+<th align="left">safely_comparable</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252</td>
+<td align="left">4.48</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">15-1253</td>
+<td align="left">4.30</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">4.66</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<p>The comparability flag comes from
+<code><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code>, not from a hand-labeled example
+table. Rows that cross the split with transition data are kept in the
+accounting but do not get treated as clean within-occupation change.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">decomp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_decompose_change.html">onet_decompose_change</a></span><span class="op">(</span></span>
 <span>  <span class="va">from_scores</span>,</span>
 <span>  <span class="va">to_scores</span>,</span>
@@ -136,48 +207,107 @@ bucket.</p>
 <span></span>
 <span><span class="va">decomp</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">component</span>, <span class="va">value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 5 × 2</span></span>
-<span><span class="co">#&gt;   component       value</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;           &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 within          0.5  </span></span>
-<span><span class="co">#&gt; 2 between        -0.25 </span></span>
-<span><span class="co">#&gt; 3 interaction     0.125</span></span>
-<span><span class="co">#&gt; 4 unclassifiable  0.25 </span></span>
-<span><span class="co">#&gt; 5 total_change    0.625</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">decomp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span><span class="co">#&gt;   n_common n_safely_comparable leakage</span></span>
-<span><span class="co">#&gt;      &lt;int&gt;               &lt;int&gt;   &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1        2                   1       0</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">component</th>
+<th align="left">value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">within</td>
+<td align="left">0.030</td>
+</tr>
+<tr class="even">
+<td align="left">between</td>
+<td align="left">-0.055</td>
+</tr>
+<tr class="odd">
+<td align="left">interaction</td>
+<td align="left">0.021</td>
+</tr>
+<tr class="even">
+<td align="left">unclassifiable</td>
+<td align="left">0.104</td>
+</tr>
+<tr class="odd">
+<td align="left">total_change</td>
+<td align="left">0.100</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">decomp</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">n_common</th>
+<th align="left">n_safely_comparable</th>
+<th align="left">leakage</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">3</td>
+<td align="left">1</td>
+<td align="left">0</td>
+</tr></tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">components</span> <span class="op">&lt;-</span> <span class="va">decomp</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">component</span> <span class="op">!=</span> <span class="st">"total_change"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">component</span> <span class="op">!=</span> <span class="st">"total_change"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span></span>
+<span>    component <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">component</span>, levels <span class="op">=</span> <span class="va">component</span><span class="op">)</span>,</span>
+<span>    start <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span>, default <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    end <span class="op">=</span> <span class="va">start</span> <span class="op">+</span> <span class="va">value</span>,</span>
+<span>    direction <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">value</span> <span class="op">&gt;=</span> <span class="fl">0</span>, <span class="st">"Positive"</span>, <span class="st">"Negative"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
-<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">components</span><span class="op">$</span><span class="va">value</span>, <span class="va">components</span><span class="op">$</span><span class="va">component</span><span class="op">)</span>,</span>
-<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#0f766e"</span>, <span class="st">"#14b8a6"</span>, <span class="st">"#99f6e4"</span>, <span class="st">"#64748b"</span><span class="op">)</span>,</span>
-<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Contribution to change"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Where Did the Aggregate Change Come From?"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"#334155"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="within-between-decomposition_files/figure-html/decomposition-chart-1.png" class="r-plt" alt="Bar chart showing within, between, interaction, and unclassifiable decomposition components." width="672"></p>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">components</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">component</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_rect</a></span><span class="op">(</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
+<span>      xmin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">component</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.35</span>,</span>
+<span>      xmax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">component</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.35</span>,</span>
+<span>      ymin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">start</span>, <span class="va">end</span><span class="op">)</span>,</span>
+<span>      ymax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">start</span>, <span class="va">end</span><span class="op">)</span>,</span>
+<span>      fill <span class="op">=</span> <span class="va">direction</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"slate"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"_"</span>, <span class="st">" "</span>, <span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Positive <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>, Negative <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"rose"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Where Did the Aggregate Change Come From?"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Unsafe within movement is isolated in the unclassifiable bucket."</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    y <span class="op">=</span> <span class="st">"Contribution to change"</span>,</span>
+<span>    fill <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="within-between-decomposition_files/figure-html/decomposition-chart-1.png" class="r-plt" alt="Waterfall chart showing within, between, interaction, and unclassifiable decomposition components." width="672"></p>
 <p>The component rows other than <code>total_change</code> sum to the
 total change.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">decomp</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">summarise</span><span class="op">(</span></span>
 <span>    component_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">value</span><span class="op">[</span><span class="va">component</span> <span class="op">!=</span> <span class="st">"total_change"</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>    total_change <span class="op">=</span> <span class="va">value</span><span class="op">[</span><span class="va">component</span> <span class="op">==</span> <span class="st">"total_change"</span><span class="op">]</span>,</span>
 <span>    difference <span class="op">=</span> <span class="va">component_sum</span> <span class="op">-</span> <span class="va">total_change</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span><span class="co">#&gt;   component_sum total_change difference</span></span>
-<span><span class="co">#&gt;           &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1         0.625        0.625          0</span></span></code></pre></div>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">component_sum</th>
+<th align="left">total_change</th>
+<th align="left">difference</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">0.1</td>
+<td align="left">0.1</td>
+<td align="left">0</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="a-demographic-split">A Demographic Split<a class="anchor" aria-label="anchor" href="#a-demographic-split"></a>
@@ -186,7 +316,7 @@ total change.</p>
 for demographic cells. The package does not download raw PUMS data in
 examples, but the fixture below follows the same reference-SOC, cell,
 employment shape.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">from_weights_by_sex</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span>, <span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
 <span>  sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span><span class="op">)</span>,</span>
@@ -212,20 +342,66 @@ employment shape.</p>
 <span></span>
 <span><span class="va">split_results</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">sex</span>, <span class="va">component</span>, <span class="va">value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="cn">Inf</span>, width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 10 × 3</span></span>
-<span><span class="co">#&gt;    sex   component       value</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;           &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 F     within          0.364</span></span>
-<span><span class="co">#&gt;  2 F     between        -0.220</span></span>
-<span><span class="co">#&gt;  3 F     interaction     0.110</span></span>
-<span><span class="co">#&gt;  4 F     unclassifiable  0.318</span></span>
-<span><span class="co">#&gt;  5 F     total_change    0.572</span></span>
-<span><span class="co">#&gt;  6 M     within          0.667</span></span>
-<span><span class="co">#&gt;  7 M     between        -0.333</span></span>
-<span><span class="co">#&gt;  8 M     interaction     0.167</span></span>
-<span><span class="co">#&gt;  9 M     unclassifiable  0.167</span></span>
-<span><span class="co">#&gt; 10 M     total_change    0.667</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">sex</th>
+<th align="left">component</th>
+<th align="left">value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">F</td>
+<td align="left">within</td>
+<td align="left">0.038</td>
+</tr>
+<tr class="even">
+<td align="left">F</td>
+<td align="left">between</td>
+<td align="left">-0.088</td>
+</tr>
+<tr class="odd">
+<td align="left">F</td>
+<td align="left">interaction</td>
+<td align="left">0.048</td>
+</tr>
+<tr class="even">
+<td align="left">F</td>
+<td align="left">unclassifiable</td>
+<td align="left">0.102</td>
+</tr>
+<tr class="odd">
+<td align="left">F</td>
+<td align="left">total_change</td>
+<td align="left">0.100</td>
+</tr>
+<tr class="even">
+<td align="left">M</td>
+<td align="left">within</td>
+<td align="left">0.020</td>
+</tr>
+<tr class="odd">
+<td align="left">M</td>
+<td align="left">between</td>
+<td align="left">-0.133</td>
+</tr>
+<tr class="even">
+<td align="left">M</td>
+<td align="left">interaction</td>
+<td align="left">0.073</td>
+</tr>
+<tr class="odd">
+<td align="left">M</td>
+<td align="left">unclassifiable</td>
+<td align="left">0.187</td>
+</tr>
+<tr class="even">
+<td align="left">M</td>
+<td align="left">total_change</td>
+<td align="left">0.147</td>
+</tr>
+</tbody>
+</table>
 <p>Each cell has its own weight shift and its own unclassifiable bucket.
 That is the part reviewers need to see when an aggregate result depends
 on vintage bridges, source dates, or task-handling choices.</p>

@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,18 +114,41 @@ functions.</p>
 <span><span class="va">tasks</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">task_type</span>, <span class="va">task</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 4</span></span>
-<span><span class="co">#&gt;   onet_soc_code task_id task_type   </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;         &lt;chr&gt;   &lt;chr&gt;       </span></span>
-<span><span class="co">#&gt; 1 15-1252.00    1001    Core        </span></span>
-<span><span class="co">#&gt; 2 15-1252.00    1002    Supplemental</span></span>
-<span><span class="co">#&gt; 3 29-1141.00    2001    Core        </span></span>
-<span><span class="co">#&gt;   task                                         </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                                        </span></span>
-<span><span class="co">#&gt; 1 Analyze user needs and software requirements.</span></span>
-<span><span class="co">#&gt; 2 Prepare reports on software testing status.  </span></span>
-<span><span class="co">#&gt; 3 Monitor patient health and record signs.</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="17%">
+<col width="9%">
+<col width="16%">
+<col width="56%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">task_id</th>
+<th align="left">task_type</th>
+<th align="left">task</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1001</td>
+<td align="left">Core</td>
+<td align="left">Analyze user needs and software requirements.</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252.00</td>
+<td align="left">1002</td>
+<td align="left">Supplemental</td>
+<td align="left">Prepare reports on software testing status.</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141.00</td>
+<td align="left">2001</td>
+<td align="left">Core</td>
+<td align="left">Monitor patient health and record signs.</td>
+</tr>
+</tbody>
+</table>
 <p><code>Task Statements</code> carries task ids and Core or
 Supplemental labels. <code>Task Ratings</code> carries relevance and
 importance ratings used to aggregate task-level scores.</p>
@@ -133,15 +156,67 @@ importance ratings used to aggregate task-level scores.</p>
 <code class="sourceCode R"><span><span class="va">task_ratings</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">scale_id</span>, <span class="va">scale_name</span>, <span class="va">data_value</span>, <span class="va">recommend_suppress</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 5 × 6</span></span>
-<span><span class="co">#&gt;   onet_soc_code task_id scale_id scale_name        data_value recommend_suppress</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;         &lt;chr&gt;   &lt;fct&gt;    &lt;chr&gt;                  &lt;dbl&gt; &lt;chr&gt;             </span></span>
-<span><span class="co">#&gt; 1 15-1252.00    1001    RT       Relevance of Task       95   N                 </span></span>
-<span><span class="co">#&gt; 2 15-1252.00    1001    IM       Importance               4.5 N                 </span></span>
-<span><span class="co">#&gt; 3 15-1252.00    1002    RT       Relevance of Task       45   N                 </span></span>
-<span><span class="co">#&gt; 4 29-1141.00    2001    RT       Relevance of Task       98   N                 </span></span>
-<span><span class="co">#&gt; 5 29-1141.00    2001    IM       Importance               4.8 N</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="17%">
+<col width="10%">
+<col width="11%">
+<col width="22%">
+<col width="13%">
+<col width="24%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">task_id</th>
+<th align="left">scale_id</th>
+<th align="left">scale_name</th>
+<th align="left">data_value</th>
+<th align="left">recommend_suppress</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1001</td>
+<td align="left">RT</td>
+<td align="left">Relevance of Task</td>
+<td align="left">95.0</td>
+<td align="left">N</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252.00</td>
+<td align="left">1001</td>
+<td align="left">IM</td>
+<td align="left">Importance</td>
+<td align="left">4.5</td>
+<td align="left">N</td>
+</tr>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1002</td>
+<td align="left">RT</td>
+<td align="left">Relevance of Task</td>
+<td align="left">45.0</td>
+<td align="left">N</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141.00</td>
+<td align="left">2001</td>
+<td align="left">RT</td>
+<td align="left">Relevance of Task</td>
+<td align="left">98.0</td>
+<td align="left">N</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141.00</td>
+<td align="left">2001</td>
+<td align="left">IM</td>
+<td align="left">Importance</td>
+<td align="left">4.8</td>
+<td align="left">N</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="validate-a-user-supplied-measure">Validate a User-Supplied Measure<a class="anchor" aria-label="anchor" href="#validate-a-user-supplied-measure"></a>
@@ -166,22 +241,52 @@ the selected O*NET release universe.</p>
 <span>  release_version <span class="op">=</span> <span class="st">"30.3"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 6</span></span>
-<span><span class="co">#&gt;   key_type n_input n_universe n_matched coverage_share employment_coverage_share</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;      &lt;int&gt;      &lt;int&gt;     &lt;int&gt;          &lt;dbl&gt;                     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 task           3          3         3              1                        NA</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="11%">
+<col width="10%">
+<col width="13%">
+<col width="12%">
+<col width="18%">
+<col width="32%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">key_type</th>
+<th align="left">n_input</th>
+<th align="left">n_universe</th>
+<th align="left">n_matched</th>
+<th align="left">coverage_share</th>
+<th align="left">employment_coverage_share</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">task</td>
+<td align="left">3</td>
+<td align="left">3</td>
+<td align="left">3</td>
+<td align="left">1</td>
+<td align="left">NA</td>
+</tr></tbody>
+</table>
 <p>The object also stores unmatched keys explicitly.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">measure</span><span class="op">$</span><span class="va">unmatched</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">unmatched</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">measure</span><span class="op">$</span><span class="va">unmatched</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"No unmatched task ids"</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="va">measure</span><span class="op">$</span><span class="va">unmatched</span></span>
 <span><span class="op">}</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 1</span></span>
-<span><span class="co">#&gt;   status               </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                </span></span>
-<span><span class="co">#&gt; 1 No unmatched task ids</span></span></code></pre></div>
+<span></span>
+<span><span class="va">unmatched</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">status</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">No unmatched task ids</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="roll-tasks-to-occupations">Roll Tasks to Occupations<a class="anchor" aria-label="anchor" href="#roll-tasks-to-occupations"></a>
@@ -197,12 +302,33 @@ weights and restrict the calculation to Core tasks.</p>
 <span>  include_supplemental <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">occupation_scores</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span><span class="co">#&gt;   onet_soc_code n_tasks total_task_weight measure_score soc_code</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;           &lt;int&gt;             &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;   </span></span>
-<span><span class="co">#&gt; 1 15-1252.00          1                95           0.8 15-1252 </span></span>
-<span><span class="co">#&gt; 2 29-1141.00          1                98           0.2 29-1141</span></span></code></pre></div>
+<span><span class="va">occupation_scores</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">n_tasks</th>
+<th align="left">total_task_weight</th>
+<th align="left">measure_score</th>
+<th align="left">soc_code</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1</td>
+<td align="left">95</td>
+<td align="left">0.8</td>
+<td align="left">15-1252</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141.00</td>
+<td align="left">1</td>
+<td align="left">98</td>
+<td align="left">0.2</td>
+<td align="left">29-1141</td>
+</tr>
+</tbody>
+</table>
 <p>Changing the Core-only rule is a plumbing choice, not a change to the
 user’s score. It belongs in provenance and sensitivity checks.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -214,12 +340,33 @@ user’s score. It belongs in provenance and sensitivity checks.</p>
 <span>  include_supplemental <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">occupation_scores_all</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span><span class="co">#&gt;   onet_soc_code n_tasks total_task_weight measure_score soc_code</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;           &lt;int&gt;             &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;   </span></span>
-<span><span class="co">#&gt; 1 15-1252.00          2               140         0.671 15-1252 </span></span>
-<span><span class="co">#&gt; 2 29-1141.00          1                98         0.2   29-1141</span></span></code></pre></div>
+<span><span class="va">occupation_scores_all</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">n_tasks</th>
+<th align="left">total_task_weight</th>
+<th align="left">measure_score</th>
+<th align="left">soc_code</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">2</td>
+<td align="left">140</td>
+<td align="left">0.671</td>
+<td align="left">15-1252</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141.00</td>
+<td align="left">1</td>
+<td align="left">98</td>
+<td align="left">0.200</td>
+<td align="left">29-1141</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="add-employment-weights">Add Employment Weights<a class="anchor" aria-label="anchor" href="#add-employment-weights"></a>
@@ -234,18 +381,56 @@ explicit and returns a single shape used downstream.</p>
 <span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews_sample</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">weights</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 7</span></span>
-<span><span class="co">#&gt;   reference_soc_code  year employment weight_share source source_taxonomy</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;              &lt;int&gt;      &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          </span></span>
-<span><span class="co">#&gt; 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt;   reference_taxonomy</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;             </span></span>
-<span><span class="co">#&gt; 1 2018 SOC          </span></span>
-<span><span class="co">#&gt; 2 2018 SOC          </span></span>
-<span><span class="co">#&gt; 3 2018 SOC</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="21%">
+<col width="5%">
+<col width="12%">
+<col width="14%">
+<col width="7%">
+<col width="17%">
+<col width="21%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">reference_soc_code</th>
+<th align="left">year</th>
+<th align="left">employment</th>
+<th align="left">weight_share</th>
+<th align="left">source</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">2024</td>
+<td align="left">211230</td>
+<td align="left">0.040</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252</td>
+<td align="left">2024</td>
+<td align="left">1847900</td>
+<td align="left">0.353</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">2024</td>
+<td align="left">3175400</td>
+<td align="left">0.607</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="aggregate-and-inspect-provenance">Aggregate and Inspect Provenance<a class="anchor" aria-label="anchor" href="#aggregate-and-inspect-provenance"></a>
@@ -259,26 +444,74 @@ explicit and returns a single shape used downstream.</p>
 <span></span>
 <span><span class="va">national</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
-<span><span class="co">#&gt;   measure_id          aggregate total_employment covered_employment</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                   &lt;dbl&gt;            &lt;dbl&gt;              &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 stylized_task_score     0.421          5234530            5023300</span></span>
-<span><span class="co">#&gt;   employment_coverage_share n_occupations n_reference_soc</span></span>
-<span><span class="co">#&gt;                       &lt;dbl&gt;         &lt;int&gt;           &lt;int&gt;</span></span>
-<span><span class="co">#&gt; 1                     0.960             2               2</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">national</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
-<span><span class="co">#&gt;   measure_id        weight_source weight_year source_taxonomy reference_taxonomy</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;             &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;             </span></span>
-<span><span class="co">#&gt; 1 stylized_task_sc… OEWS                 2024 2018 SOC        2018 SOC          </span></span>
-<span><span class="co">#&gt; # ℹ 2 more variables: bridge_used &lt;lgl&gt;, crosswalk_path &lt;chr&gt;</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="16%">
+<col width="8%">
+<col width="13%">
+<col width="15%">
+<col width="21%">
+<col width="11%">
+<col width="13%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">aggregate</th>
+<th align="left">total_employment</th>
+<th align="left">covered_employment</th>
+<th align="left">employment_coverage_share</th>
+<th align="left">n_occupations</th>
+<th align="left">n_reference_soc</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">stylized_task_score</td>
+<td align="left">0.421</td>
+<td align="left">5234530</td>
+<td align="left">5023300</td>
+<td align="left">0.96</td>
+<td align="left">2</td>
+<td align="left">2</td>
+</tr></tbody>
+</table>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">national</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="17%">
+<col width="12%">
+<col width="10%">
+<col width="14%">
+<col width="16%">
+<col width="10%">
+<col width="18%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">weight_source</th>
+<th align="left">weight_year</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+<th align="left">bridge_used</th>
+<th align="left">crosswalk_path</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">stylized_task_score</td>
+<td align="left">OEWS</td>
+<td align="left">2024</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+<td align="left">FALSE</td>
+<td align="left">2018 SOC -&gt; 2018 SOC</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="check-sensitivity-to-plumbing-choices">Check Sensitivity to Plumbing Choices<a class="anchor" aria-label="anchor" href="#check-sensitivity-to-plumbing-choices"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">diagnostic</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_sensitivity.html">onet_measure_sensitivity</a></span><span class="op">(</span></span>
 <span>  <span class="va">measure</span>,</span>
 <span>  weight_panels <span class="op">=</span> <span class="va">weights</span>,</span>
@@ -289,26 +522,64 @@ explicit and returns a single shape used downstream.</p>
 <span></span>
 <span><span class="va">diagnostic</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">scenario</span>, <span class="va">aggregate</span>, <span class="va">employment_coverage_share</span>, <span class="va">movement</span>, <span class="va">movement_percent</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span><span class="co">#&gt;   scenario                                                       aggregate</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                                                              &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 RT_core / task_release / weights / no_bridge                       0.421</span></span>
-<span><span class="co">#&gt; 2 RT_core_plus_supplemental / task_release / weights / no_bridge     0.373</span></span>
-<span><span class="co">#&gt;   employment_coverage_share movement movement_percent</span></span>
-<span><span class="co">#&gt;                       &lt;dbl&gt;    &lt;dbl&gt;            &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1                     0.960   0                 0    </span></span>
-<span><span class="co">#&gt; 2                     0.960  -0.0473           -0.112</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
-<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">diagnostic</span><span class="op">$</span><span class="va">aggregate</span>, <span class="va">diagnostic</span><span class="op">$</span><span class="va">scenario</span><span class="op">)</span>,</span>
-<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#0f766e"</span>, <span class="st">"#14b8a6"</span><span class="op">)</span>,</span>
-<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Aggregate score"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Plumbing Choices Move the Headline Number"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="measure-reproducibility_files/figure-html/robustness-chart-1.png" class="r-plt" alt="Bar chart comparing core-only and core-plus-supplemental stylized task aggregates." width="672"></p>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="50%">
+<col width="8%">
+<col width="20%">
+<col width="7%">
+<col width="13%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">scenario</th>
+<th align="left">aggregate</th>
+<th align="left">employment_coverage_share</th>
+<th align="left">movement</th>
+<th align="left">movement_percent</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">RT_core / task_release / weights / no_bridge</td>
+<td align="left">0.421</td>
+<td align="left">0.96</td>
+<td align="left">0.000</td>
+<td align="left">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">RT_core_plus_supplemental / task_release / weights /
+no_bridge</td>
+<td align="left">0.373</td>
+<td align="left">0.96</td>
+<td align="left">-0.047</td>
+<td align="left">-0.112</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">diagnostic</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">aggregate</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">scenario</span>, <span class="va">aggregate</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span></span>
+<span>    xintercept <span class="op">=</span> <span class="va">diagnostic</span><span class="op">$</span><span class="va">baseline_aggregate</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>    color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"slate"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>    linetype <span class="op">=</span> <span class="st">"dashed"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html" class="external-link">geom_segment</a></span><span class="op">(</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0</span>, xend <span class="op">=</span> <span class="va">aggregate</span>, yend <span class="op">=</span> <span class="va">scenario</span><span class="op">)</span>,</span>
+<span>    color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"light_gray"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>    linewidth <span class="op">=</span> <span class="fl">1</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>, size <span class="op">=</span> <span class="fl">3.3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Plumbing Choices Move the Headline Number"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Dashed line marks the baseline scenario."</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Aggregate score"</span>,</span>
+<span>    y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="measure-reproducibility_files/figure-html/robustness-chart-1.png" class="r-plt" alt="Horizontal dot chart comparing core-only and core-plus-supplemental stylized task aggregates." width="672"></p>
 <p>The diagnostic does not say which task score is right. It shows how
 much the headline number moves when non-substantive plumbing
 changes.</p>

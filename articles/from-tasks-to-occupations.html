@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,36 +107,98 @@ using O*NET task ratings.</p>
 <span></span>
 <span><span class="va">tasks</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">task_type</span>, <span class="va">task</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
-<span><span class="co">#&gt;   onet_soc_code task_id task_type   </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00    1001    Core        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252.00    1002    Supplemental</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 29-1141.00    2001    Core        </span></span>
-<span><span class="co">#&gt;   task                                         </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Analyze user needs and software requirements.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Prepare reports on software testing status.  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Monitor patient health and record signs.</span></span>
-<span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="17%">
+<col width="9%">
+<col width="16%">
+<col width="56%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">task_id</th>
+<th align="left">task_type</th>
+<th align="left">task</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1001</td>
+<td align="left">Core</td>
+<td align="left">Analyze user needs and software requirements.</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252.00</td>
+<td align="left">1002</td>
+<td align="left">Supplemental</td>
+<td align="left">Prepare reports on software testing status.</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141.00</td>
+<td align="left">2001</td>
+<td align="left">Core</td>
+<td align="left">Monitor patient health and record signs.</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="va">ratings</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">scale_id</span>, <span class="va">scale_name</span>, <span class="va">data_value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 5</span></span></span>
-<span><span class="co">#&gt;   onet_soc_code task_id scale_id scale_name        data_value</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00    1001    RT       Relevance of Task       95  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252.00    1001    IM       Importance               4.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-1252.00    1002    RT       Relevance of Task       45  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 29-1141.00    2001    RT       Relevance of Task       98  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 29-1141.00    2001    IM       Importance               4.8</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">task_id</th>
+<th align="left">scale_id</th>
+<th align="left">scale_name</th>
+<th align="left">data_value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1001</td>
+<td align="left">RT</td>
+<td align="left">Relevance of Task</td>
+<td align="left">95.0</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252.00</td>
+<td align="left">1001</td>
+<td align="left">IM</td>
+<td align="left">Importance</td>
+<td align="left">4.5</td>
+</tr>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1002</td>
+<td align="left">RT</td>
+<td align="left">Relevance of Task</td>
+<td align="left">45.0</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141.00</td>
+<td align="left">2001</td>
+<td align="left">RT</td>
+<td align="left">Relevance of Task</td>
+<td align="left">98.0</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141.00</td>
+<td align="left">2001</td>
+<td align="left">IM</td>
+<td align="left">Importance</td>
+<td align="left">4.8</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="validate-task-scores">Validate Task Scores<a class="anchor" aria-label="anchor" href="#validate-task-scores"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">task_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  task_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1001"</span>, <span class="st">"1002"</span>, <span class="st">"2001"</span><span class="op">)</span>,</span>
 <span>  score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.80</span>, <span class="fl">0.40</span>, <span class="fl">0.20</span><span class="op">)</span></span>
@@ -151,16 +213,39 @@ using O*NET task ratings.</p>
 <span>  measure_id <span class="op">=</span> <span class="st">"stylized_task_score"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
-<span><span class="co">#&gt;   key_type n_input n_universe n_matched coverage_share employment_coverage_share</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> task           3          3         3              1                        <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="11%">
+<col width="10%">
+<col width="13%">
+<col width="12%">
+<col width="18%">
+<col width="32%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">key_type</th>
+<th align="left">n_input</th>
+<th align="left">n_universe</th>
+<th align="left">n_matched</th>
+<th align="left">coverage_share</th>
+<th align="left">employment_coverage_share</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">task</td>
+<td align="left">3</td>
+<td align="left">3</td>
+<td align="left">3</td>
+<td align="left">1</td>
+<td align="left">NA</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="roll-up-with-relevance-weights">Roll Up with Relevance Weights<a class="anchor" aria-label="anchor" href="#roll-up-with-relevance-weights"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">core_only</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_task_to_occupation.html">onet_task_to_occupation</a></span><span class="op">(</span></span>
 <span>  <span class="va">measure</span>,</span>
 <span>  task_ratings <span class="op">=</span> <span class="va">ratings</span>,</span>
@@ -177,23 +262,66 @@ using O*NET task ratings.</p>
 <span>  include_supplemental <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">core_only</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 5</span></span></span>
-<span><span class="co">#&gt;   onet_soc_code n_tasks total_task_weight measure_score soc_code</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00          1                95           0.8 15-1252 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00          1                98           0.2 29-1141</span></span>
-<span><span class="va">core_plus_supplemental</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 5</span></span></span>
-<span><span class="co">#&gt;   onet_soc_code n_tasks total_task_weight measure_score soc_code</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00          2               140         0.671 15-1252 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00          1                98         0.2   29-1141</span></span></code></pre></div>
+<span><span class="va">core_only</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">n_tasks</th>
+<th align="left">total_task_weight</th>
+<th align="left">measure_score</th>
+<th align="left">soc_code</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">1</td>
+<td align="left">95</td>
+<td align="left">0.8</td>
+<td align="left">15-1252</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141.00</td>
+<td align="left">1</td>
+<td align="left">98</td>
+<td align="left">0.2</td>
+<td align="left">29-1141</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">core_plus_supplemental</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">n_tasks</th>
+<th align="left">total_task_weight</th>
+<th align="left">measure_score</th>
+<th align="left">soc_code</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">2</td>
+<td align="left">140</td>
+<td align="left">0.671</td>
+<td align="left">15-1252</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141.00</td>
+<td align="left">1</td>
+<td align="left">98</td>
+<td align="left">0.200</td>
+<td align="left">29-1141</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="interpret-the-plumbing-choice">Interpret the Plumbing Choice<a class="anchor" aria-label="anchor" href="#interpret-the-plumbing-choice"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu">bind_rows</span><span class="op">(</span></span>
 <span>  <span class="va">core_only</span> <span class="op">|&gt;</span> <span class="fu">mutate</span><span class="op">(</span>rule <span class="op">=</span> <span class="st">"Core tasks only"</span><span class="op">)</span>,</span>
 <span>  <span class="va">core_plus_supplemental</span> <span class="op">|&gt;</span> <span class="fu">mutate</span><span class="op">(</span>rule <span class="op">=</span> <span class="st">"Core plus Supplemental"</span><span class="op">)</span></span>
@@ -201,25 +329,80 @@ using O*NET task ratings.</p>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">rule</span>, <span class="va">onet_soc_code</span>, <span class="va">n_tasks</span>, <span class="va">total_task_weight</span>, <span class="va">measure_score</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">comparison</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 5</span></span></span>
-<span><span class="co">#&gt;   rule                   onet_soc_code n_tasks total_task_weight measure_score</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Core tasks only        15-1252.00          1                95         0.8  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Core tasks only        29-1141.00          1                98         0.2  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Core plus Supplemental 15-1252.00          2               140         0.671</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Core plus Supplemental 29-1141.00          1                98         0.2</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">onet_soc_code</span>, <span class="va">comparison</span><span class="op">$</span><span class="va">rule</span>, sep <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
-<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">measure_score</span>, <span class="va">labels</span><span class="op">)</span>,</span>
-<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#0f766e"</span>, <span class="st">"#14b8a6"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Occupation score"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Task Handling Can Change Occupation Scores"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="from-tasks-to-occupations_files/figure-html/task-chart-1.png" class="r-plt" alt="Bar chart of occupation scores under core-only and core-plus-supplemental task rules." width="672"></p>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="29%">
+<col width="18%">
+<col width="10%">
+<col width="23%">
+<col width="18%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">rule</th>
+<th align="left">onet_soc_code</th>
+<th align="left">n_tasks</th>
+<th align="left">total_task_weight</th>
+<th align="left">measure_score</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Core tasks only</td>
+<td align="left">15-1252.00</td>
+<td align="left">1</td>
+<td align="left">95</td>
+<td align="left">0.800</td>
+</tr>
+<tr class="even">
+<td align="left">Core tasks only</td>
+<td align="left">29-1141.00</td>
+<td align="left">1</td>
+<td align="left">98</td>
+<td align="left">0.200</td>
+</tr>
+<tr class="odd">
+<td align="left">Core plus Supplemental</td>
+<td align="left">15-1252.00</td>
+<td align="left">2</td>
+<td align="left">140</td>
+<td align="left">0.671</td>
+</tr>
+<tr class="even">
+<td align="left">Core plus Supplemental</td>
+<td align="left">29-1141.00</td>
+<td align="left">1</td>
+<td align="left">98</td>
+<td align="left">0.200</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">measure_score</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">onet_soc_code</span>,</span>
+<span>  color <span class="op">=</span> <span class="va">rule</span></span>
+<span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="va">rule</span><span class="op">)</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>    position <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.45</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Task Handling Can Change Occupation Scores"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"The task score is fixed; the rollup rule changes."</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Occupation score"</span>,</span>
+<span>    y <span class="op">=</span> <span class="st">"O*NET-SOC code"</span>,</span>
+<span>    color <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    shape <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Core tasks only"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>      <span class="st">"Core plus Supplemental"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"amber"</span><span class="op">]</span><span class="op">]</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="from-tasks-to-occupations_files/figure-html/task-chart-1.png" class="r-plt" alt="Grouped dot chart of occupation scores under core-only and core-plus-supplemental task rules." width="672"></p>
 <p>The task score did not change. The rollup rule changed. That
 distinction matters because a transparent article should separate
 substantive scoring from package plumbing.</p>

@@ -26,7 +26,6 @@ Or add it to your `.Renviron` file for persistence.
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
-onet_api_key()
-}
+nzchar(Sys.getenv("ONET_API_KEY", unset = ""))
+#> [1] FALSE
 ```

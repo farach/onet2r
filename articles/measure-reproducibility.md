@@ -31,19 +31,14 @@ task_ratings <- onet_archive_read(
 tasks |>
   select(onet_soc_code, task_id, task_type, task) |>
   head() |>
-  print(width = Inf)
-#> # A tibble: 3 × 4
-#>   onet_soc_code task_id task_type   
-#>   <chr>         <chr>   <chr>       
-#> 1 15-1252.00    1001    Core        
-#> 2 15-1252.00    1002    Supplemental
-#> 3 29-1141.00    2001    Core        
-#>   task                                         
-#>   <chr>                                        
-#> 1 Analyze user needs and software requirements.
-#> 2 Prepare reports on software testing status.  
-#> 3 Monitor patient health and record signs.
+  onet_kable()
 ```
+
+| onet_soc_code | task_id | task_type    | task                                          |
+|:--------------|:--------|:-------------|:----------------------------------------------|
+| 15-1252.00    | 1001    | Core         | Analyze user needs and software requirements. |
+| 15-1252.00    | 1002    | Supplemental | Prepare reports on software testing status.   |
+| 29-1141.00    | 2001    | Core         | Monitor patient health and record signs.      |
 
 `Task Statements` carries task ids and Core or Supplemental labels.
 `Task Ratings` carries relevance and importance ratings used to
@@ -53,16 +48,16 @@ aggregate task-level scores.
 task_ratings |>
   select(onet_soc_code, task_id, scale_id, scale_name, data_value, recommend_suppress) |>
   head() |>
-  print(width = Inf)
-#> # A tibble: 5 × 6
-#>   onet_soc_code task_id scale_id scale_name        data_value recommend_suppress
-#>   <chr>         <chr>   <fct>    <chr>                  <dbl> <chr>             
-#> 1 15-1252.00    1001    RT       Relevance of Task       95   N                 
-#> 2 15-1252.00    1001    IM       Importance               4.5 N                 
-#> 3 15-1252.00    1002    RT       Relevance of Task       45   N                 
-#> 4 29-1141.00    2001    RT       Relevance of Task       98   N                 
-#> 5 29-1141.00    2001    IM       Importance               4.8 N
+  onet_kable()
 ```
+
+| onet_soc_code | task_id | scale_id | scale_name        | data_value | recommend_suppress |
+|:--------------|:--------|:---------|:------------------|:-----------|:-------------------|
+| 15-1252.00    | 1001    | RT       | Relevance of Task | 95.0       | N                  |
+| 15-1252.00    | 1001    | IM       | Importance        | 4.5        | N                  |
+| 15-1252.00    | 1002    | RT       | Relevance of Task | 45.0       | N                  |
+| 29-1141.00    | 2001    | RT       | Relevance of Task | 98.0       | N                  |
+| 29-1141.00    | 2001    | IM       | Importance        | 4.8        | N                  |
 
 ## Validate a User-Supplied Measure
 
@@ -87,26 +82,30 @@ measure <- onet_measure(
   release_version = "30.3"
 )
 
-onet_coverage(measure)
-#> # A tibble: 1 × 6
-#>   key_type n_input n_universe n_matched coverage_share employment_coverage_share
-#>   <chr>      <int>      <int>     <int>          <dbl>                     <dbl>
-#> 1 task           3          3         3              1                        NA
+onet_coverage(measure) |>
+  onet_kable()
 ```
+
+| key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
+|:---------|:--------|:-----------|:----------|:---------------|:--------------------------|
+| task     | 3       | 3          | 3         | 1              | NA                        |
 
 The object also stores unmatched keys explicitly.
 
 ``` r
-if (nrow(measure$unmatched) == 0) {
+unmatched <- if (nrow(measure$unmatched) == 0) {
   tibble::tibble(status = "No unmatched task ids")
 } else {
   measure$unmatched
 }
-#> # A tibble: 1 × 1
-#>   status               
-#>   <chr>                
-#> 1 No unmatched task ids
+
+unmatched |>
+  onet_kable()
 ```
+
+| status                |
+|:----------------------|
+| No unmatched task ids |
 
 ## Roll Tasks to Occupations
 
@@ -122,13 +121,14 @@ occupation_scores <- onet_task_to_occupation(
   include_supplemental = FALSE
 )
 
-occupation_scores
-#> # A tibble: 2 × 5
-#>   onet_soc_code n_tasks total_task_weight measure_score soc_code
-#>   <chr>           <int>             <dbl>         <dbl> <chr>   
-#> 1 15-1252.00          1                95           0.8 15-1252 
-#> 2 29-1141.00          1                98           0.2 29-1141
+occupation_scores |>
+  onet_kable()
 ```
+
+| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
+|:--------------|:--------|:------------------|:--------------|:---------|
+| 15-1252.00    | 1       | 95                | 0.8           | 15-1252  |
+| 29-1141.00    | 1       | 98                | 0.2           | 29-1141  |
 
 Changing the Core-only rule is a plumbing choice, not a change to the
 user’s score. It belongs in provenance and sensitivity checks.
@@ -142,13 +142,14 @@ occupation_scores_all <- onet_task_to_occupation(
   include_supplemental = TRUE
 )
 
-occupation_scores_all
-#> # A tibble: 2 × 5
-#>   onet_soc_code n_tasks total_task_weight measure_score soc_code
-#>   <chr>           <int>             <dbl>         <dbl> <chr>   
-#> 1 15-1252.00          2               140         0.671 15-1252 
-#> 2 29-1141.00          1                98         0.2   29-1141
+occupation_scores_all |>
+  onet_kable()
 ```
+
+| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
+|:--------------|:--------|:------------------|:--------------|:---------|
+| 15-1252.00    | 2       | 140               | 0.671         | 15-1252  |
+| 29-1141.00    | 1       | 98                | 0.200         | 29-1141  |
 
 ## Add Employment Weights
 
@@ -163,19 +164,14 @@ oews_sample <- onet_oews_national(
 weights <- onet_weight_panel_oews(oews_sample, year = 2024)
 
 weights |>
-  print(width = Inf)
-#> # A tibble: 3 × 7
-#>   reference_soc_code  year employment weight_share source source_taxonomy
-#>   <chr>              <int>      <dbl>        <dbl> <chr>  <chr>          
-#> 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC       
-#> 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC       
-#> 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC       
-#>   reference_taxonomy
-#>   <chr>             
-#> 1 2018 SOC          
-#> 2 2018 SOC          
-#> 3 2018 SOC
+  onet_kable()
 ```
+
+| reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
+|:-------------------|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
+| 11-1011            | 2024 | 211230     | 0.040        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | 2024 | 1847900    | 0.353        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | 2024 | 3175400    | 0.607        | OEWS   | 2018 SOC        | 2018 SOC           |
 
 ## Aggregate and Inspect Provenance
 
@@ -188,22 +184,22 @@ national <- onet_measure_aggregate(
 
 national |>
   select(-coverage, -provenance) |>
-  print(width = Inf)
-#> # A tibble: 1 × 7
-#>   measure_id          aggregate total_employment covered_employment
-#>   <chr>                   <dbl>            <dbl>              <dbl>
-#> 1 stylized_task_score     0.421          5234530            5023300
-#>   employment_coverage_share n_occupations n_reference_soc
-#>                       <dbl>         <int>           <int>
-#> 1                     0.960             2               2
-
-onet_provenance(national)
-#> # A tibble: 1 × 7
-#>   measure_id        weight_source weight_year source_taxonomy reference_taxonomy
-#>   <chr>             <chr>               <int> <chr>           <chr>             
-#> 1 stylized_task_sc… OEWS                 2024 2018 SOC        2018 SOC          
-#> # ℹ 2 more variables: bridge_used <lgl>, crosswalk_path <chr>
+  onet_kable()
 ```
+
+| measure_id          | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
+|:--------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
+| stylized_task_score | 0.421     | 5234530          | 5023300            | 0.96                      | 2             | 2               |
+
+``` r
+
+onet_provenance(national) |>
+  onet_kable()
+```
+
+| measure_id          | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
+|:--------------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
+| stylized_task_score | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
 ## Check Sensitivity to Plumbing Choices
 
@@ -218,30 +214,41 @@ diagnostic <- onet_measure_sensitivity(
 
 diagnostic |>
   select(scenario, aggregate, employment_coverage_share, movement, movement_percent) |>
-  print(width = Inf)
-#> # A tibble: 2 × 5
-#>   scenario                                                       aggregate
-#>   <chr>                                                              <dbl>
-#> 1 RT_core / task_release / weights / no_bridge                       0.421
-#> 2 RT_core_plus_supplemental / task_release / weights / no_bridge     0.373
-#>   employment_coverage_share movement movement_percent
-#>                       <dbl>    <dbl>            <dbl>
-#> 1                     0.960   0                 0    
-#> 2                     0.960  -0.0473           -0.112
+  onet_kable()
 ```
+
+| scenario                                                       | aggregate | employment_coverage_share | movement | movement_percent |
+|:---------------------------------------------------------------|:----------|:--------------------------|:---------|:-----------------|
+| RT_core / task_release / weights / no_bridge                   | 0.421     | 0.96                      | 0.000    | 0.000            |
+| RT_core_plus_supplemental / task_release / weights / no_bridge | 0.373     | 0.96                      | -0.047   | -0.112           |
 
 ``` r
-barplot(
-  height = setNames(diagnostic$aggregate, diagnostic$scenario),
-  col = c("#0f766e", "#14b8a6"),
-  border = NA,
-  las = 2,
-  ylab = "Aggregate score",
-  main = "Plumbing Choices Move the Headline Number"
-)
+ggplot2::ggplot(diagnostic, ggplot2::aes(
+  x = aggregate,
+  y = stats::reorder(scenario, aggregate)
+)) +
+  ggplot2::geom_vline(
+    xintercept = diagnostic$baseline_aggregate[[1]],
+    color = onet2r_colors[["slate"]],
+    linetype = "dashed"
+  ) +
+  ggplot2::geom_segment(
+    ggplot2::aes(x = 0, xend = aggregate, yend = scenario),
+    color = onet2r_colors[["light_gray"]],
+    linewidth = 1
+  ) +
+  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 3.3) +
+  ggplot2::labs(
+    title = "Plumbing Choices Move the Headline Number",
+    subtitle = "Dashed line marks the baseline scenario.",
+    x = "Aggregate score",
+    y = NULL
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart comparing core-only and core-plus-supplemental stylized task
+![Horizontal dot chart comparing core-only and core-plus-supplemental
+stylized task
 aggregates.](measure-reproducibility_files/figure-html/robustness-chart-1.png)
 
 The diagnostic does not say which task score is right. It shows how much

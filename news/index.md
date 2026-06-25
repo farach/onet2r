@@ -1,5 +1,22 @@
 # Changelog
 
+## onet2r 0.4.1
+
+- Rebuilt README and article figures with a shared ggplot2 style so
+  pkgdown examples render readable, dark-mode-safe output instead of
+  base graphics.
+- Replaced broad console table dumps in README and vignettes with
+  bounded [`knitr::kable()`](https://rdrr.io/pkg/knitr/man/kable.html)
+  tables from actual `onet2r` function results.
+- Expanded the longitudinal archive, OEWS, sensitivity, and
+  decomposition articles with practical cross-vintage examples using
+  packaged fixtures.
+- Added pkgdown callouts, branded favicon colors, citation metadata,
+  lifecycle badge documentation, and release notes for the v0.4.1 polish
+  pass.
+- Strengthened fixture tests for task rating scale handling and
+  multi-cell aggregation guards.
+
 ## onet2r 0.4.0
 
 - [`onet_coverage()`](https://farach.github.io/onet2r/reference/onet_coverage.md)

@@ -8,22 +8,34 @@ non-substantive choices change.
 ## Build the Measure from Task Files
 
 ``` r
-tasks <- onet_archive_read(
-  "30.3",
+tasks_243 <- onet_archive_read(
+  "24.3",
   "Task Statements",
-  path = archive_dir,
-  release_date = "2026-05-01"
+  path = archive_path("24.3"),
+  release_date = "2020-08-01"
 )
-ratings <- onet_archive_read(
-  "30.3",
+ratings_243 <- onet_archive_read(
+  "24.3",
   "Task Ratings",
-  path = archive_dir,
-  release_date = "2026-05-01"
+  path = archive_path("24.3"),
+  release_date = "2020-08-01"
+)
+tasks_251 <- onet_archive_read(
+  "25.1",
+  "Task Statements",
+  path = archive_path("25.1"),
+  release_date = "2020-11-01"
+)
+ratings_251 <- onet_archive_read(
+  "25.1",
+  "Task Ratings",
+  path = archive_path("25.1"),
+  release_date = "2020-11-01"
 )
 
 task_scores <- tibble::tibble(
-  task_id = c("1001", "1002", "2001"),
-  score = c(0.80, 0.40, 0.20)
+  task_id = c("1101", "1201", "1202", "2101"),
+  score = c(0.75, 0.80, 0.55, 0.25)
 )
 
 measure <- onet_measure(
@@ -31,17 +43,18 @@ measure <- onet_measure(
   key = "task_id",
   score = "score",
   key_type = "task",
-  universe = tasks$task_id,
+  universe = unique(c(tasks_243$task_id, tasks_251$task_id)),
   measure_id = "stylized_exposure",
-  release_version = "30.3"
+  release_version = "multi_release_fixture"
 )
 
-onet_coverage(measure)
-#> # A tibble: 1 × 6
-#>   key_type n_input n_universe n_matched coverage_share employment_coverage_share
-#>   <chr>      <int>      <int>     <int>          <dbl>                     <dbl>
-#> 1 task           3          3         3              1                        NA
+onet_coverage(measure) |>
+  onet_kable()
 ```
+
+| key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
+|:---------|:--------|:-----------|:----------|:---------------|:--------------------------|
+| task     | 4       | 4          | 4         | 1              | NA                        |
 
 ## Create Alternative Weight Panels
 
@@ -52,90 +65,153 @@ oews_weights <- onet_weight_panel_oews(
 )
 
 pums <- tibble::tibble(
-  SOCP = c("151252", "151252", "291141", "291141"),
+  SOCP = c("151252", "151253", "291141", "291141"),
   PWGTP = c(80, 120, 200, 80)
 )
 pums_weights <- onet_weight_panel_pums(pums, year = 2022)
 
-oews_weights
-#> # A tibble: 3 × 7
-#>   reference_soc_code  year employment weight_share source source_taxonomy
-#>   <chr>              <int>      <dbl>        <dbl> <chr>  <chr>          
-#> 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC       
-#> 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC       
-#> 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC       
-#> # ℹ 1 more variable: reference_taxonomy <chr>
-pums_weights
-#> # A tibble: 2 × 7
-#>   reference_soc_code  year employment weight_share source source_taxonomy
-#>   <chr>              <int>      <dbl>        <dbl> <chr>  <chr>          
-#> 1 15-1252             2022        200        0.417 PUMS   2018 SOC       
-#> 2 29-1141             2022        280        0.583 PUMS   2018 SOC       
-#> # ℹ 1 more variable: reference_taxonomy <chr>
+oews_weights |>
+  onet_kable()
 ```
+
+| reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
+|:-------------------|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
+| 11-1011            | 2024 | 211230     | 0.040        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | 2024 | 1847900    | 0.353        | OEWS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | 2024 | 3175400    | 0.607        | OEWS   | 2018 SOC        | 2018 SOC           |
+
+``` r
+pums_weights |>
+  onet_kable()
+```
+
+| reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
+|:-------------------|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
+| 15-1252            | 2022 | 80         | 0.167        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 15-1253            | 2022 | 120        | 0.250        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | 2022 | 280        | 0.583        | PUMS   | 2018 SOC        | 2018 SOC           |
 
 ## Run the Sensitivity Grid
 
 ``` r
+bridge_2010_2019 <- tibble::tibble(
+  from_vintage = "mixed_fixture",
+  to_vintage = "2018 SOC",
+  from_onet_soc_code = c(
+    "15-1132.00",
+    "15-1132.00",
+    "15-1252.00",
+    "15-1253.00",
+    "29-1141.00"
+  ),
+  to_onet_soc_code = c(
+    "15-1252.00",
+    "15-1253.00",
+    "15-1252.00",
+    "15-1253.00",
+    "29-1141.00"
+  ),
+  map_type = c("split", "split", "one_to_one", "one_to_one", "one_to_one"),
+  crosswalk_weight = c(0.5, 0.5, 1, 1, 1)
+)
+
 sensitivity <- onet_measure_sensitivity(
   measure,
   weight_panels = list(oews = oews_weights, pums = pums_weights),
-  task_ratings = ratings,
-  task_metadata = tasks,
+  bridges = list(reference_bridge = bridge_2010_2019),
+  task_ratings = list(`2010-vintage 24.3` = ratings_243, `2019-vintage 25.1` = ratings_251),
+  task_metadata = list(`2010-vintage 24.3` = tasks_243, `2019-vintage 25.1` = tasks_251),
   include_supplemental = c(FALSE, TRUE)
 )
 
 sensitivity |>
   select(
     scenario,
+    task_release,
+    soc_vintage,
+    weight_panel,
+    include_supplemental,
     aggregate,
     employment_coverage_share,
     movement,
     movement_percent
   ) |>
-  print(width = Inf)
-#> # A tibble: 4 × 5
-#>   scenario                                                    aggregate
-#>   <chr>                                                           <dbl>
-#> 1 RT_core / task_release / oews / no_bridge                       0.421
-#> 2 RT_core / task_release / pums / no_bridge                       0.45 
-#> 3 RT_core_plus_supplemental / task_release / oews / no_bridge     0.373
-#> 4 RT_core_plus_supplemental / task_release / pums / no_bridge     0.396
-#>   employment_coverage_share movement movement_percent
-#>                       <dbl>    <dbl>            <dbl>
-#> 1                     0.960   0                0     
-#> 2                     1       0.0293           0.0696
-#> 3                     0.960  -0.0473          -0.112 
-#> 4                     1      -0.0243          -0.0577
+  onet_kable()
 ```
+
+| scenario                                                                | task_release | soc_vintage | weight_panel | include_supplemental | aggregate | employment_coverage_share | movement | movement_percent |
+|:------------------------------------------------------------------------|:-------------|:------------|:-------------|:---------------------|:----------|:--------------------------|:---------|:-----------------|
+| RT_core / 2010-vintage 24.3 / oews / reference_bridge                   | 24.3         | 2010        | oews         | FALSE                | 0.363     | 0.783                     | 0.000    | 0.000            |
+| RT_core / 2010-vintage 24.3 / pums / reference_bridge                   | 24.3         | 2010        | pums         | FALSE                | 0.382     | 0.792                     | 0.019    | 0.052            |
+| RT_core_plus_supplemental / 2010-vintage 24.3 / oews / reference_bridge | 24.3         | 2010        | oews         | TRUE                 | 0.363     | 0.783                     | 0.000    | 0.000            |
+| RT_core_plus_supplemental / 2010-vintage 24.3 / pums / reference_bridge | 24.3         | 2010        | pums         | TRUE                 | 0.382     | 0.792                     | 0.019    | 0.052            |
+| RT_core / 2019-vintage 25.1 / oews / reference_bridge                   | 25.1         | 2019        | oews         | FALSE                | 0.452     | 0.960                     | 0.090    | 0.247            |
+| RT_core / 2019-vintage 25.1 / pums / reference_bridge                   | 25.1         | 2019        | pums         | FALSE                | 0.417     | 1.000                     | 0.054    | 0.149            |
+| RT_core_plus_supplemental / 2019-vintage 25.1 / oews / reference_bridge | 25.1         | 2019        | oews         | TRUE                 | 0.452     | 0.960                     | 0.090    | 0.247            |
+| RT_core_plus_supplemental / 2019-vintage 25.1 / pums / reference_bridge | 25.1         | 2019        | pums         | TRUE                 | 0.417     | 1.000                     | 0.054    | 0.149            |
 
 ``` r
-barplot(
-  height = setNames(sensitivity$aggregate, sensitivity$scenario),
-  col = c("#0f766e", "#14b8a6", "#64748b", "#94a3b8"),
-  border = NA,
-  las = 2,
-  ylab = "Aggregate score",
-  main = "Sensitivity to Weight and Task Choices"
-)
+plot_sensitivity <- sensitivity |>
+  mutate(
+    task_rule = if_else(include_supplemental, "core + supplemental", "core only"),
+    plot_label = paste(task_release, weight_panel, task_rule, sep = " / ")
+  )
+
+ggplot2::ggplot(plot_sensitivity, ggplot2::aes(
+  x = aggregate,
+  y = stats::reorder(plot_label, aggregate),
+  color = weight_panel,
+  shape = task_rule
+)) +
+  ggplot2::geom_vline(
+    xintercept = plot_sensitivity$baseline_aggregate[[1]],
+    color = onet2r_colors[["slate"]],
+    linetype = "dashed"
+  ) +
+  ggplot2::geom_point(size = 3.1) +
+  ggplot2::geom_text(
+    ggplot2::aes(label = sprintf("%+.3f", movement)),
+    hjust = -0.15,
+    size = 3,
+    show.legend = FALSE
+  ) +
+  ggplot2::scale_color_manual(
+    values = c(oews = onet2r_colors[["teal"]], pums = onet2r_colors[["amber"]])
+  ) +
+  ggplot2::labs(
+    title = "Sensitivity to Task Release, Weights, and Task Handling",
+    subtitle = "Dashed line marks the first scenario in the grid.",
+    x = "Aggregate score",
+    y = NULL,
+    color = "Weight source",
+    shape = "Task rule"
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart of stylized exposure aggregates across task and weight
+![Horizontal dot chart of stylized exposure aggregates across task
+release, weight source, and task handling
 choices.](stress-testing-exposure-measure_files/figure-html/sensitivity-chart-1.png)
 
 ## Inspect Provenance
 
 ``` r
-onet_provenance(sensitivity)
-#> # A tibble: 4 × 7
-#>   measure_id        weight_source weight_year source_taxonomy reference_taxonomy
-#>   <chr>             <chr>               <int> <chr>           <chr>             
-#> 1 stylized_exposure OEWS                 2024 2018 SOC        2018 SOC          
-#> 2 stylized_exposure PUMS                 2022 2018 SOC        2018 SOC          
-#> 3 stylized_exposure OEWS                 2024 2018 SOC        2018 SOC          
-#> 4 stylized_exposure PUMS                 2022 2018 SOC        2018 SOC          
-#> # ℹ 2 more variables: bridge_used <lgl>, crosswalk_path <chr>
+onet_provenance(sensitivity) |>
+  select(any_of(c("weight_source", "weight_year", "bridge", "measure_id"))) |>
+  head(8) |>
+  onet_kable()
 ```
+
+| weight_source | weight_year | measure_id        |
+|:--------------|:------------|:------------------|
+| OEWS          | 2024        | stylized_exposure |
+| PUMS          | 2022        | stylized_exposure |
+| OEWS          | 2024        | stylized_exposure |
+| PUMS          | 2022        | stylized_exposure |
+| OEWS          | 2024        | stylized_exposure |
+| PUMS          | 2022        | stylized_exposure |
+| OEWS          | 2024        | stylized_exposure |
+| PUMS          | 2022        | stylized_exposure |
 
 If the sign, rank, or interpretation of a result depends on one plumbing
 choice, that belongs in the write-up. The function does not make the

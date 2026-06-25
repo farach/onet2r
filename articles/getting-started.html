@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,12 +98,24 @@ functions.</p>
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  setting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ONET_API_KEY configured"</span>, <span class="st">"live vignette API calls enabled"</span><span class="op">)</span>,</span>
 <span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">has_onet_key</span>, <span class="va">run_live</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 2</span></span>
-<span><span class="co">#&gt;   setting                         value</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                           &lt;lgl&gt;</span></span>
-<span><span class="co">#&gt; 1 ONET_API_KEY configured         FALSE</span></span>
-<span><span class="co">#&gt; 2 live vignette API calls enabled FALSE</span></span></code></pre></div>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">setting</th>
+<th align="left">value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">ONET_API_KEY configured</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">live vignette API calls enabled</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
 <div class="section level2">
 <h2 id="search-the-current-onet-api">Search the Current O*NET API<a class="anchor" aria-label="anchor" href="#search-the-current-onet-api"></a>
 </h2>
@@ -112,30 +124,56 @@ functions.</p>
 <code><a href="../reference/onet_skills.html">onet_skills()</a></code> or <code><a href="../reference/onet_abilities.html">onet_abilities()</a></code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"software developer"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/onet_search.html">onet_search</a></span><span class="op">(</span><span class="st">"software developer"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    live_api_example <span class="op">=</span> <span class="st">"skipped"</span>,</span>
 <span>    reason <span class="op">=</span> <span class="st">"Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search()."</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 2</span></span>
-<span><span class="co">#&gt;   live_api_example reason                                                       </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;            &lt;chr&gt;                                                        </span></span>
-<span><span class="co">#&gt; 1 skipped          Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run o…</span></span></code></pre></div>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="18%">
+<col width="81%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">live_api_example</th>
+<th align="left">reason</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">skipped</td>
+<td align="left">Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to
+run onet_search().</td>
+</tr></tbody>
+</table>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">run_live</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/onet_skills.html">onet_skills</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    live_api_example <span class="op">=</span> <span class="st">"skipped"</span>,</span>
 <span>    reason <span class="op">=</span> <span class="st">"Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills()."</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 2</span></span>
-<span><span class="co">#&gt;   live_api_example reason                                                       </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;            &lt;chr&gt;                                                        </span></span>
-<span><span class="co">#&gt; 1 skipped          Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run o…</span></span></code></pre></div>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="18%">
+<col width="81%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">live_api_example</th>
+<th align="left">reason</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">skipped</td>
+<td align="left">Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to
+run onet_skills().</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="read-an-archived-onet-table">Read an Archived O*NET Table<a class="anchor" aria-label="anchor" href="#read-an-archived-onet-table"></a>
@@ -163,26 +201,101 @@ normalizes those archive files into tibbles with stable columns.</p>
 <span>    <span class="va">domain_source</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 7 × 8</span></span>
-<span><span class="co">#&gt;   release_version onet_soc_code soc_code element_id element_name       </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;           &lt;chr&gt;         &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;              </span></span>
-<span><span class="co">#&gt; 1 30.3            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; 2 30.3            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; 3 30.3            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; 4 30.3            29-1141.00    29-1141  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; 5 30.3            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; 6 30.3            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; 7 30.3            41-1011.00    41-1011  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt;   data_value source_date domain_source</span></span>
-<span><span class="co">#&gt;        &lt;dbl&gt; &lt;date&gt;      &lt;fct&gt;        </span></span>
-<span><span class="co">#&gt; 1       4.35 2025-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; 2       4.5  2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; 3       4.71 2025-08-01  Incumbent    </span></span>
-<span><span class="co">#&gt; 4       4.9  2024-08-01  Incumbent    </span></span>
-<span><span class="co">#&gt; 5       4.5  2025-07-01  Incumbent    </span></span>
-<span><span class="co">#&gt; 6       4.22 2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; 7       4.15 2025-06-01  Analyst</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="14%">
+<col width="13%">
+<col width="8%">
+<col width="10%">
+<col width="18%">
+<col width="10%">
+<col width="11%">
+<col width="13%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">release_version</th>
+<th align="left">onet_soc_code</th>
+<th align="left">soc_code</th>
+<th align="left">element_id</th>
+<th align="left">element_name</th>
+<th align="left">data_value</th>
+<th align="left">source_date</th>
+<th align="left">domain_source</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">15-1252.00</td>
+<td align="left">15-1252</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.35</td>
+<td align="left">2025-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">15-1252.00</td>
+<td align="left">15-1252</td>
+<td align="left">1.A.1.b.1</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.50</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">29-1141.00</td>
+<td align="left">29-1141</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.71</td>
+<td align="left">2025-08-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">29-1141.00</td>
+<td align="left">29-1141</td>
+<td align="left">1.A.1.b.1</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.90</td>
+<td align="left">2024-08-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">11-1011.00</td>
+<td align="left">11-1011</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.50</td>
+<td align="left">2025-07-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">11-1011.00</td>
+<td align="left">11-1011</td>
+<td align="left">1.A.1.b.1</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.22</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">41-1011.00</td>
+<td align="left">41-1011</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.15</td>
+<td align="left">2025-06-01</td>
+<td align="left">Analyst</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="add-labor-market-context">Add Labor-Market Context<a class="anchor" aria-label="anchor" href="#add-labor-market-context"></a>
@@ -195,18 +308,56 @@ panel.</p>
 <span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">weights</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 7</span></span>
-<span><span class="co">#&gt;   reference_soc_code  year employment weight_share source source_taxonomy</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;              &lt;int&gt;      &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          </span></span>
-<span><span class="co">#&gt; 1 11-1011             2024     211230       0.0404 OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; 2 15-1252             2024    1847900       0.353  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; 3 29-1141             2024    3175400       0.607  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt;   reference_taxonomy</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;             </span></span>
-<span><span class="co">#&gt; 1 2018 SOC          </span></span>
-<span><span class="co">#&gt; 2 2018 SOC          </span></span>
-<span><span class="co">#&gt; 3 2018 SOC</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="21%">
+<col width="5%">
+<col width="12%">
+<col width="14%">
+<col width="7%">
+<col width="17%">
+<col width="21%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">reference_soc_code</th>
+<th align="left">year</th>
+<th align="left">employment</th>
+<th align="left">weight_share</th>
+<th align="left">source</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">2024</td>
+<td align="left">211230</td>
+<td align="left">0.040</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252</td>
+<td align="left">2024</td>
+<td align="left">1847900</td>
+<td align="left">0.353</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">2024</td>
+<td align="left">3175400</td>
+<td align="left">0.607</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+</tbody>
+</table>
 <p>To answer a concrete question, take one ability, treat the O*NET
 values as the user-supplied occupation score, and aggregate with OEWS
 employment.</p>
@@ -223,28 +374,76 @@ employment.</p>
 <span></span>
 <span><span class="va">oral_aggregate</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
-<span><span class="co">#&gt;   measure_id                 aggregate total_employment covered_employment</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                          &lt;dbl&gt;            &lt;dbl&gt;              &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 oral_comprehension_fixture      4.57          5234530            5234530</span></span>
-<span><span class="co">#&gt;   employment_coverage_share n_occupations n_reference_soc</span></span>
-<span><span class="co">#&gt;                       &lt;dbl&gt;         &lt;int&gt;           &lt;int&gt;</span></span>
-<span><span class="co">#&gt; 1                         1             4               4</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">oral_aggregate</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
-<span><span class="co">#&gt;   measure_id        weight_source weight_year source_taxonomy reference_taxonomy</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;             &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;             </span></span>
-<span><span class="co">#&gt; 1 oral_comprehensi… OEWS                 2024 2018 SOC        2018 SOC          </span></span>
-<span><span class="co">#&gt; # ℹ 2 more variables: bridge_used &lt;lgl&gt;, crosswalk_path &lt;chr&gt;</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="7%">
+<col width="13%">
+<col width="14%">
+<col width="20%">
+<col width="10%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">aggregate</th>
+<th align="left">total_employment</th>
+<th align="left">covered_employment</th>
+<th align="left">employment_coverage_share</th>
+<th align="left">n_occupations</th>
+<th align="left">n_reference_soc</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">oral_comprehension_fixture</td>
+<td align="left">4.574</td>
+<td align="left">5234530</td>
+<td align="left">5234530</td>
+<td align="left">1</td>
+<td align="left">4</td>
+<td align="left">4</td>
+</tr></tbody>
+</table>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">oral_aggregate</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="22%">
+<col width="11%">
+<col width="9%">
+<col width="13%">
+<col width="15%">
+<col width="9%">
+<col width="17%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">weight_source</th>
+<th align="left">weight_year</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+<th align="left">bridge_used</th>
+<th align="left">crosswalk_path</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">oral_comprehension_fixture</td>
+<td align="left">OEWS</td>
+<td align="left">2024</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+<td align="left">FALSE</td>
+<td align="left">2018 SOC -&gt; 2018 SOC</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="compare-two-archive-releases">Compare Two Archive Releases<a class="anchor" aria-label="anchor" href="#compare-two-archive-releases"></a>
 </h2>
 <p>For historical analysis, build a panel, reconcile adjacent releases,
 and inspect comparability flags before interpreting changes.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Abilities"</span>,</span>
 <span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"30.2"</span>, <span class="st">"30.3"</span><span class="op">)</span>,</span>
@@ -270,40 +469,113 @@ and inspect comparability flags before interpreting changes.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 7 × 7</span></span>
-<span><span class="co">#&gt;   to_soc_code element_name        from_value to_value value_change</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;                    &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 29-1141     Problem Sensitivity       4.6      4.9         0.300</span></span>
-<span><span class="co">#&gt; 2 15-1252     Oral Comprehension        4.12     4.35        0.230</span></span>
-<span><span class="co">#&gt; 3 41-1011     Oral Comprehension        4        4.15        0.150</span></span>
-<span><span class="co">#&gt; 4 11-1011     Oral Comprehension        4.38     4.5         0.120</span></span>
-<span><span class="co">#&gt; 5 15-1252     Problem Sensitivity       4.5      4.5         0    </span></span>
-<span><span class="co">#&gt; 6 29-1141     Oral Comprehension        4.71     4.71        0    </span></span>
-<span><span class="co">#&gt; 7 11-1011     Problem Sensitivity       4.22     4.22        0    </span></span>
-<span><span class="co">#&gt;   change_type           safely_comparable</span></span>
-<span><span class="co">#&gt;   &lt;fct&gt;                 &lt;lgl&gt;            </span></span>
-<span><span class="co">#&gt; 1 recode_or_recalc_flag FALSE            </span></span>
-<span><span class="co">#&gt; 2 real_update           TRUE             </span></span>
-<span><span class="co">#&gt; 3 real_update           TRUE             </span></span>
-<span><span class="co">#&gt; 4 real_update           FALSE            </span></span>
-<span><span class="co">#&gt; 5 stale_carryforward    TRUE             </span></span>
-<span><span class="co">#&gt; 6 resampled_stable      TRUE             </span></span>
-<span><span class="co">#&gt; 7 stale_carryforward    TRUE</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="11%">
+<col width="19%">
+<col width="10%">
+<col width="8%">
+<col width="12%">
+<col width="20%">
+<col width="17%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">to_soc_code</th>
+<th align="left">element_name</th>
+<th align="left">from_value</th>
+<th align="left">to_value</th>
+<th align="left">value_change</th>
+<th align="left">change_type</th>
+<th align="left">safely_comparable</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.60</td>
+<td align="left">4.90</td>
+<td align="left">0.30</td>
+<td align="left">recode_or_recalc_flag</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.12</td>
+<td align="left">4.35</td>
+<td align="left">0.23</td>
+<td align="left">real_update</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">41-1011</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.00</td>
+<td align="left">4.15</td>
+<td align="left">0.15</td>
+<td align="left">real_update</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">11-1011</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.38</td>
+<td align="left">4.50</td>
+<td align="left">0.12</td>
+<td align="left">real_update</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">15-1252</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.50</td>
+<td align="left">4.50</td>
+<td align="left">0.00</td>
+<td align="left">stale_carryforward</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.71</td>
+<td align="left">4.71</td>
+<td align="left">0.00</td>
+<td align="left">resampled_stable</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.22</td>
+<td align="left">4.22</td>
+<td align="left">0.00</td>
+<td align="left">stale_carryforward</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">changes</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">count</span><span class="op">(</span><span class="va">change_type</span>, name <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">rows</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
-<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">rows</span>, <span class="va">plot_data</span><span class="op">$</span><span class="va">change_type</span><span class="op">)</span>,</span>
-<span>  col <span class="op">=</span> <span class="st">"#0f766e"</span>,</span>
-<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Rows"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"What Kind of Change Was Observed?"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="getting-started_files/figure-html/getting-started-chart-1.png" class="r-plt" alt="Bar chart of change classifications in the getting started example." width="672"></p>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">change_type</span>, <span class="va">rows</span><span class="op">)</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">rows</span>,</span>
+<span>  fill <span class="op">=</span> <span class="va">change_type</span></span>
+<span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.65</span>, show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_discrete_fill</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"What Kind of Change Was Observed?"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Interpret the classification before the numeric change."</span>,</span>
+<span>    x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    y <span class="op">=</span> <span class="st">"Rows"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="getting-started_files/figure-html/getting-started-chart-1.png" class="r-plt" alt="Horizontal bar chart of change classifications in the getting started example." width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>

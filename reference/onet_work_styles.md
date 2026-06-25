@@ -29,7 +29,7 @@ A tibble of work style elements.
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 onet_work_styles("15-1252.00", end = 5)
 }
 ```

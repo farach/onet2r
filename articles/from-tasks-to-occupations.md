@@ -24,32 +24,30 @@ ratings <- onet_archive_read(
 
 tasks |>
   select(onet_soc_code, task_id, task_type, task) |>
-  print(width = Inf)
-#> # A tibble: 3 × 4
-#>   onet_soc_code task_id task_type   
-#>   <chr>         <chr>   <chr>       
-#> 1 15-1252.00    1001    Core        
-#> 2 15-1252.00    1002    Supplemental
-#> 3 29-1141.00    2001    Core        
-#>   task                                         
-#>   <chr>                                        
-#> 1 Analyze user needs and software requirements.
-#> 2 Prepare reports on software testing status.  
-#> 3 Monitor patient health and record signs.
+  onet_kable()
+```
+
+| onet_soc_code | task_id | task_type    | task                                          |
+|:--------------|:--------|:-------------|:----------------------------------------------|
+| 15-1252.00    | 1001    | Core         | Analyze user needs and software requirements. |
+| 15-1252.00    | 1002    | Supplemental | Prepare reports on software testing status.   |
+| 29-1141.00    | 2001    | Core         | Monitor patient health and record signs.      |
+
+``` r
 
 ratings |>
   select(onet_soc_code, task_id, scale_id, scale_name, data_value) |>
   head(8) |>
-  print(width = Inf)
-#> # A tibble: 5 × 5
-#>   onet_soc_code task_id scale_id scale_name        data_value
-#>   <chr>         <chr>   <fct>    <chr>                  <dbl>
-#> 1 15-1252.00    1001    RT       Relevance of Task       95  
-#> 2 15-1252.00    1001    IM       Importance               4.5
-#> 3 15-1252.00    1002    RT       Relevance of Task       45  
-#> 4 29-1141.00    2001    RT       Relevance of Task       98  
-#> 5 29-1141.00    2001    IM       Importance               4.8
+  onet_kable()
 ```
+
+| onet_soc_code | task_id | scale_id | scale_name        | data_value |
+|:--------------|:--------|:---------|:------------------|:-----------|
+| 15-1252.00    | 1001    | RT       | Relevance of Task | 95.0       |
+| 15-1252.00    | 1001    | IM       | Importance        | 4.5        |
+| 15-1252.00    | 1002    | RT       | Relevance of Task | 45.0       |
+| 29-1141.00    | 2001    | RT       | Relevance of Task | 98.0       |
+| 29-1141.00    | 2001    | IM       | Importance        | 4.8        |
 
 ## Validate Task Scores
 
@@ -68,12 +66,13 @@ measure <- onet_measure(
   measure_id = "stylized_task_score"
 )
 
-onet_coverage(measure)
-#> # A tibble: 1 × 6
-#>   key_type n_input n_universe n_matched coverage_share employment_coverage_share
-#>   <chr>      <int>      <int>     <int>          <dbl>                     <dbl>
-#> 1 task           3          3         3              1                        NA
+onet_coverage(measure) |>
+  onet_kable()
 ```
+
+| key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
+|:---------|:--------|:-----------|:----------|:---------------|:--------------------------|
+| task     | 3       | 3          | 3         | 1              | NA                        |
 
 ## Roll Up with Relevance Weights
 
@@ -94,19 +93,24 @@ core_plus_supplemental <- onet_task_to_occupation(
   include_supplemental = TRUE
 )
 
-core_only
-#> # A tibble: 2 × 5
-#>   onet_soc_code n_tasks total_task_weight measure_score soc_code
-#>   <chr>           <int>             <dbl>         <dbl> <chr>   
-#> 1 15-1252.00          1                95           0.8 15-1252 
-#> 2 29-1141.00          1                98           0.2 29-1141
-core_plus_supplemental
-#> # A tibble: 2 × 5
-#>   onet_soc_code n_tasks total_task_weight measure_score soc_code
-#>   <chr>           <int>             <dbl>         <dbl> <chr>   
-#> 1 15-1252.00          2               140         0.671 15-1252 
-#> 2 29-1141.00          1                98         0.2   29-1141
+core_only |>
+  onet_kable()
 ```
+
+| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
+|:--------------|:--------|:------------------|:--------------|:---------|
+| 15-1252.00    | 1       | 95                | 0.8           | 15-1252  |
+| 29-1141.00    | 1       | 98                | 0.2           | 29-1141  |
+
+``` r
+core_plus_supplemental |>
+  onet_kable()
+```
+
+| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
+|:--------------|:--------|:------------------|:--------------|:---------|
+| 15-1252.00    | 2       | 140               | 0.671         | 15-1252  |
+| 29-1141.00    | 1       | 98                | 0.200         | 29-1141  |
 
 ## Interpret the Plumbing Choice
 
@@ -118,29 +122,45 @@ comparison <- bind_rows(
   select(rule, onet_soc_code, n_tasks, total_task_weight, measure_score)
 
 comparison |>
-  print(width = Inf)
-#> # A tibble: 4 × 5
-#>   rule                   onet_soc_code n_tasks total_task_weight measure_score
-#>   <chr>                  <chr>           <int>             <dbl>         <dbl>
-#> 1 Core tasks only        15-1252.00          1                95         0.8  
-#> 2 Core tasks only        29-1141.00          1                98         0.2  
-#> 3 Core plus Supplemental 15-1252.00          2               140         0.671
-#> 4 Core plus Supplemental 29-1141.00          1                98         0.2
+  onet_kable()
 ```
+
+| rule                   | onet_soc_code | n_tasks | total_task_weight | measure_score |
+|:-----------------------|:--------------|:--------|:------------------|:--------------|
+| Core tasks only        | 15-1252.00    | 1       | 95                | 0.800         |
+| Core tasks only        | 29-1141.00    | 1       | 98                | 0.200         |
+| Core plus Supplemental | 15-1252.00    | 2       | 140               | 0.671         |
+| Core plus Supplemental | 29-1141.00    | 1       | 98                | 0.200         |
 
 ``` r
-labels <- paste(comparison$onet_soc_code, comparison$rule, sep = "\n")
-barplot(
-  height = setNames(comparison$measure_score, labels),
-  col = rep(c("#0f766e", "#14b8a6"), each = 2),
-  border = NA,
-  las = 2,
-  ylab = "Occupation score",
-  main = "Task Handling Can Change Occupation Scores"
-)
+ggplot2::ggplot(comparison, ggplot2::aes(
+  x = measure_score,
+  y = onet_soc_code,
+  color = rule
+)) +
+  ggplot2::geom_point(
+    ggplot2::aes(shape = rule),
+    size = 3,
+    position = ggplot2::position_dodge(width = 0.45)
+  ) +
+  ggplot2::labs(
+    title = "Task Handling Can Change Occupation Scores",
+    subtitle = "The task score is fixed; the rollup rule changes.",
+    x = "Occupation score",
+    y = "O*NET-SOC code",
+    color = NULL,
+    shape = NULL
+  ) +
+  ggplot2::scale_color_manual(
+    values = c(
+      "Core tasks only" = onet2r_colors[["teal"]],
+      "Core plus Supplemental" = onet2r_colors[["amber"]]
+    )
+  ) +
+  onet2r_theme()
 ```
 
-![Bar chart of occupation scores under core-only and
+![Grouped dot chart of occupation scores under core-only and
 core-plus-supplemental task
 rules.](from-tasks-to-occupations_files/figure-html/task-chart-1.png)
 

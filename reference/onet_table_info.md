@@ -46,7 +46,7 @@ A tibble with column metadata including:
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 info <- onet_table_info("occupation_data")
 }
 ```

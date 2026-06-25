@@ -23,7 +23,7 @@ A list (faithful to API response).
 ## Examples
 
 ``` r
-if (FALSE) { # nzchar(Sys.getenv("ONET_API_KEY"))
+if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 onet_job_zone("15-1252.00")
 }
 ```

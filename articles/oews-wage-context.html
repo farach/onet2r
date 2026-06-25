@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,13 +103,39 @@ numeric values.</p>
 <span></span>
 <span><span class="va">oews</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">occ_code</span>, <span class="va">occ_title</span>, <span class="va">tot_emp</span>, <span class="va">a_median</span>, <span class="va">h_median</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 5</span></span></span>
-<span><span class="co">#&gt;   occ_code occ_title           tot_emp a_median h_median</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252  Software Developers 1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080     64.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141  Registered Nurses   3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070     44.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 11-1011  Chief Executives     <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680     99.4</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">occ_code</th>
+<th align="left">occ_title</th>
+<th align="left">tot_emp</th>
+<th align="left">a_median</th>
+<th align="left">h_median</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252</td>
+<td align="left">Software Developers</td>
+<td align="left">1847900</td>
+<td align="left">133080</td>
+<td align="left">63.98</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141</td>
+<td align="left">Registered Nurses</td>
+<td align="left">3175400</td>
+<td align="left">93070</td>
+<td align="left">44.75</td>
+</tr>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">Chief Executives</td>
+<td align="left">211230</td>
+<td align="left">206680</td>
+<td align="left">99.37</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="build-a-reference-soc-weight-panel">Build a Reference-SOC Weight Panel<a class="anchor" aria-label="anchor" href="#build-a-reference-soc-weight-panel"></a>
@@ -121,18 +147,56 @@ reference taxonomy so the join is auditable.</p>
 <code class="sourceCode R"><span><span class="va">oews_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">oews_weights</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 7</span></span></span>
-<span><span class="co">#&gt;   reference_soc_code  year employment weight_share source source_taxonomy</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 11-1011             <span style="text-decoration: underline;">2</span>024     <span style="text-decoration: underline;">211</span>230       0.040<span style="text-decoration: underline;">4</span> OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252             <span style="text-decoration: underline;">2</span>024    1<span style="text-decoration: underline;">847</span>900       0.353  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 29-1141             <span style="text-decoration: underline;">2</span>024    3<span style="text-decoration: underline;">175</span>400       0.607  OEWS   2018 SOC       </span></span>
-<span><span class="co">#&gt;   reference_taxonomy</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2018 SOC</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="21%">
+<col width="5%">
+<col width="12%">
+<col width="14%">
+<col width="7%">
+<col width="17%">
+<col width="21%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">reference_soc_code</th>
+<th align="left">year</th>
+<th align="left">employment</th>
+<th align="left">weight_share</th>
+<th align="left">source</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">2024</td>
+<td align="left">211230</td>
+<td align="left">0.040</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252</td>
+<td align="left">2024</td>
+<td align="left">1847900</td>
+<td align="left">0.353</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">2024</td>
+<td align="left">3175400</td>
+<td align="left">0.607</td>
+<td align="left">OEWS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="get-onet-occupation-scores-from-an-archive">Get O*NET Occupation Scores from an Archive<a class="anchor" aria-label="anchor" href="#get-onet-occupation-scores-from-an-archive"></a>
@@ -158,14 +222,41 @@ the bundled fixture.</p>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">oral_scores</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
-<span><span class="co">#&gt;   onet_soc_code title                                          measure_score</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00    Software Developers                                     4.35</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00    Registered Nurses                                       4.71</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 11-1011.00    Chief Executives                                        4.5 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011.00    First-Line Supervisors of Retail Sales Workers          4.15</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="18%">
+<col width="62%">
+<col width="18%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">onet_soc_code</th>
+<th align="left">title</th>
+<th align="left">measure_score</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1252.00</td>
+<td align="left">Software Developers</td>
+<td align="left">4.35</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141.00</td>
+<td align="left">Registered Nurses</td>
+<td align="left">4.71</td>
+</tr>
+<tr class="odd">
+<td align="left">11-1011.00</td>
+<td align="left">Chief Executives</td>
+<td align="left">4.50</td>
+</tr>
+<tr class="even">
+<td align="left">41-1011.00</td>
+<td align="left">First-Line Supervisors of Retail Sales Workers</td>
+<td align="left">4.15</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="aggregate-with-oews-employment">Aggregate with OEWS Employment<a class="anchor" aria-label="anchor" href="#aggregate-with-oews-employment"></a>
@@ -179,37 +270,106 @@ the bundled fixture.</p>
 <span></span>
 <span><span class="va">oral_oews</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
-<span><span class="co">#&gt;   measure_id                 aggregate total_employment covered_employment</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> oral_comprehension_fixture      4.57          5<span style="text-decoration: underline;">234</span>530            5<span style="text-decoration: underline;">234</span>530</span></span>
-<span><span class="co">#&gt;   employment_coverage_share n_occupations n_reference_soc</span></span>
-<span><span class="co">#&gt;                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                         1             4               4</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">oral_oews</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
-<span><span class="co">#&gt;   measure_id        weight_source weight_year source_taxonomy reference_taxonomy</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> oral_comprehensi… OEWS                 <span style="text-decoration: underline;">2</span>024 2018 SOC        2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: bridge_used &lt;lgl&gt;, crosswalk_path &lt;chr&gt;</span></span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="7%">
+<col width="13%">
+<col width="14%">
+<col width="20%">
+<col width="10%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">aggregate</th>
+<th align="left">total_employment</th>
+<th align="left">covered_employment</th>
+<th align="left">employment_coverage_share</th>
+<th align="left">n_occupations</th>
+<th align="left">n_reference_soc</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">oral_comprehension_fixture</td>
+<td align="left">4.574</td>
+<td align="left">5234530</td>
+<td align="left">5234530</td>
+<td align="left">1</td>
+<td align="left">4</td>
+<td align="left">4</td>
+</tr></tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">oral_oews</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="22%">
+<col width="11%">
+<col width="9%">
+<col width="13%">
+<col width="15%">
+<col width="9%">
+<col width="17%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">weight_source</th>
+<th align="left">weight_year</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+<th align="left">bridge_used</th>
+<th align="left">crosswalk_path</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">oral_comprehension_fixture</td>
+<td align="left">OEWS</td>
+<td align="left">2024</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+<td align="left">FALSE</td>
+<td align="left">2018 SOC -&gt; 2018 SOC</td>
+</tr></tbody>
+</table>
 <p>The aggregate is the employment-weighted score for occupations
 covered by both the O*NET fixture and the OEWS sample. Coverage tells
 you how much of the weight panel was included.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">oral_oews</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
-<span><span class="co">#&gt;   measure_id          total_employment covered_employment employment_coverage_…¹</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> oral_comprehension…          5<span style="text-decoration: underline;">234</span>530            5<span style="text-decoration: underline;">234</span>530                      1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​employment_coverage_share</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: n_occupations &lt;int&gt;, n_reference_soc &lt;int&gt;</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">oral_oews</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="22%">
+<col width="14%">
+<col width="15%">
+<col width="21%">
+<col width="11%">
+<col width="13%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">measure_id</th>
+<th align="left">total_employment</th>
+<th align="left">covered_employment</th>
+<th align="left">employment_coverage_share</th>
+<th align="left">n_occupations</th>
+<th align="left">n_reference_soc</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">oral_comprehension_fixture</td>
+<td align="left">5234530</td>
+<td align="left">5234530</td>
+<td align="left">1</td>
+<td align="left">4</td>
+<td align="left">4</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="inspect-occupation-contributions">Inspect Occupation Contributions<a class="anchor" aria-label="anchor" href="#inspect-occupation-contributions"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">contributions</span> <span class="op">&lt;-</span> <span class="va">oral_scores</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"\\.\\d{2}$"</span>, <span class="st">""</span>, <span class="va">onet_soc_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">inner_join</span><span class="op">(</span><span class="va">oews_weights</span>, by <span class="op">=</span> <span class="fu">join_by</span><span class="op">(</span><span class="va">reference_soc_code</span><span class="op">)</span>, relationship <span class="op">=</span> <span class="st">"many-to-one"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -218,28 +378,65 @@ you how much of the weight panel was included.</p>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">title</span>, <span class="va">reference_soc_code</span>, <span class="va">measure_score</span>, <span class="va">employment</span>, <span class="va">weight_share</span>, <span class="va">weighted_score</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">contributions</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 6</span></span></span>
-<span><span class="co">#&gt;   title               reference_soc_code measure_score employment weight_share</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Registered Nurses   29-1141                     4.71    3<span style="text-decoration: underline;">175</span>400       0.607 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Software Developers 15-1252                     4.35    1<span style="text-decoration: underline;">847</span>900       0.353 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Chief Executives    11-1011                     4.5      <span style="text-decoration: underline;">211</span>230       0.040<span style="text-decoration: underline;">4</span></span></span>
-<span><span class="co">#&gt;   weighted_score</span></span>
-<span><span class="co">#&gt;            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>       14<span style="text-decoration: underline;">956</span>134</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>        8<span style="text-decoration: underline;">038</span>365</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>         <span style="text-decoration: underline;">950</span>535</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
-<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">contributions</span><span class="op">$</span><span class="va">weighted_score</span>, <span class="va">contributions</span><span class="op">$</span><span class="va">title</span><span class="op">)</span>,</span>
-<span>  col <span class="op">=</span> <span class="st">"#0f766e"</span>,</span>
-<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Score times employment"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Which Occupations Drive the Weighted Score?"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="oews-wage-context_files/figure-html/contribution-chart-1.png" class="r-plt" alt="Bar chart showing employment-weighted ability contributions by occupation." width="672"></p>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="21%">
+<col width="20%">
+<col width="15%">
+<col width="11%">
+<col width="14%">
+<col width="16%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">title</th>
+<th align="left">reference_soc_code</th>
+<th align="left">measure_score</th>
+<th align="left">employment</th>
+<th align="left">weight_share</th>
+<th align="left">weighted_score</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Registered Nurses</td>
+<td align="left">29-1141</td>
+<td align="left">4.71</td>
+<td align="left">3175400</td>
+<td align="left">0.607</td>
+<td align="left">14956134</td>
+</tr>
+<tr class="even">
+<td align="left">Software Developers</td>
+<td align="left">15-1252</td>
+<td align="left">4.35</td>
+<td align="left">1847900</td>
+<td align="left">0.353</td>
+<td align="left">8038365</td>
+</tr>
+<tr class="odd">
+<td align="left">Chief Executives</td>
+<td align="left">11-1011</td>
+<td align="left">4.50</td>
+<td align="left">211230</td>
+<td align="left">0.040</td>
+<td align="left">950535</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">contributions</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">weighted_score</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">title</span>, <span class="va">weighted_score</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>, width <span class="op">=</span> <span class="fl">0.65</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"Which Occupations Drive the Weighted Score?"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Contribution is the occupation score times employment."</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Score times employment"</span>,</span>
+<span>    y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="oews-wage-context_files/figure-html/contribution-chart-1.png" class="r-plt" alt="Horizontal bar chart showing employment-weighted ability contributions by occupation." width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="compare-oews-with-a-pums-style-weight-panel">Compare OEWS with a PUMS-Style Weight Panel<a class="anchor" aria-label="anchor" href="#compare-oews-with-a-pums-style-weight-panel"></a>
@@ -247,7 +444,7 @@ you how much of the weight panel was included.</p>
 <p>OEWS is the right default for official occupation employment and wage
 context. PUMS-derived weights are useful when the target population is a
 custom sample, geography, or demographic cell.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  SOCP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"151252"</span>, <span class="st">"151252"</span>, <span class="st">"291141"</span>, <span class="st">"291141"</span>, <span class="st">"111011"</span><span class="op">)</span>,</span>
 <span>  PWGTP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">80</span>, <span class="fl">90</span>, <span class="fl">110</span>, <span class="fl">20</span><span class="op">)</span>,</span>
@@ -261,25 +458,84 @@ custom sample, geography, or demographic cell.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pums_weights</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 8</span></span></span>
-<span><span class="co">#&gt;   reference_soc_code sex    year employment weight_share source source_taxonomy</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 11-1011            F      <span style="text-decoration: underline;">2</span>022         20       0.047<span style="text-decoration: underline;">6</span> PUMS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252            F      <span style="text-decoration: underline;">2</span>022        120       0.286  PUMS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-1252            M      <span style="text-decoration: underline;">2</span>022         80       0.190  PUMS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 29-1141            F      <span style="text-decoration: underline;">2</span>022         90       0.214  PUMS   2018 SOC       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 29-1141            M      <span style="text-decoration: underline;">2</span>022        110       0.262  PUMS   2018 SOC       </span></span>
-<span><span class="co">#&gt;   reference_taxonomy</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2018 SOC          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2018 SOC</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="4%">
+<col width="5%">
+<col width="11%">
+<col width="13%">
+<col width="7%">
+<col width="17%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">reference_soc_code</th>
+<th align="left">sex</th>
+<th align="left">year</th>
+<th align="left">employment</th>
+<th align="left">weight_share</th>
+<th align="left">source</th>
+<th align="left">source_taxonomy</th>
+<th align="left">reference_taxonomy</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">F</td>
+<td align="left">2022</td>
+<td align="left">20</td>
+<td align="left">0.048</td>
+<td align="left">PUMS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252</td>
+<td align="left">F</td>
+<td align="left">2022</td>
+<td align="left">120</td>
+<td align="left">0.286</td>
+<td align="left">PUMS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="odd">
+<td align="left">15-1252</td>
+<td align="left">M</td>
+<td align="left">2022</td>
+<td align="left">80</td>
+<td align="left">0.190</td>
+<td align="left">PUMS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141</td>
+<td align="left">F</td>
+<td align="left">2022</td>
+<td align="left">90</td>
+<td align="left">0.214</td>
+<td align="left">PUMS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">M</td>
+<td align="left">2022</td>
+<td align="left">110</td>
+<td align="left">0.262</td>
+<td align="left">PUMS</td>
+<td align="left">2018 SOC</td>
+<td align="left">2018 SOC</td>
+</tr>
+</tbody>
+</table>
 <p>Because this PUMS-style panel has cells, pick one cell before
 aggregating.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oral_pums_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
 <span>  <span class="va">oral_scores</span>,</span>
 <span>  <span class="va">pums_weights</span>,</span>
@@ -294,12 +550,27 @@ aggregating.</p>
 <span>    <span class="va">oral_oews</span><span class="op">$</span><span class="va">employment_coverage_share</span>,</span>
 <span>    <span class="va">oral_pums_f</span><span class="op">$</span><span class="va">employment_coverage_share</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
-<span><span class="co">#&gt;   weight_source     aggregate coverage</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> OEWS national          4.57        1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> PUMS-style F cell      4.50        1</span></span></code></pre></div>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">weight_source</th>
+<th align="left">aggregate</th>
+<th align="left">coverage</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">OEWS national</td>
+<td align="left">4.574</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">PUMS-style F cell</td>
+<td align="left">4.504</td>
+<td align="left">1</td>
+</tr>
+</tbody>
+</table>
 <p>The point is not that one source is always better. OEWS gives
 official labor market estimates. PUMS gives custom cells. The package
 makes the weight source, year, taxonomy, and coverage explicit so

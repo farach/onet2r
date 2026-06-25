@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,26 +127,101 @@ and normalizes it into one panel schema.</p>
 <span>    <span class="va">domain_source</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 8</span></span></span>
-<span><span class="co">#&gt;   release_version onet_soc_code soc_code element_id element_name       </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30.3            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30.3            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30.3            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30.3            29-1141.00    29-1141  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 30.3            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 30.3            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 30.3            41-1011.00    41-1011  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt;   data_value source_date domain_source</span></span>
-<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>       4.35 2025-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>       4.5  2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>       4.71 2025-08-01  Incumbent    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>       4.9  2024-08-01  Incumbent    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>       4.5  2025-07-01  Incumbent    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>       4.22 2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span>       4.15 2025-06-01  Analyst</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="14%">
+<col width="13%">
+<col width="8%">
+<col width="10%">
+<col width="18%">
+<col width="10%">
+<col width="11%">
+<col width="13%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">release_version</th>
+<th align="left">onet_soc_code</th>
+<th align="left">soc_code</th>
+<th align="left">element_id</th>
+<th align="left">element_name</th>
+<th align="left">data_value</th>
+<th align="left">source_date</th>
+<th align="left">domain_source</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">15-1252.00</td>
+<td align="left">15-1252</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.35</td>
+<td align="left">2025-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">15-1252.00</td>
+<td align="left">15-1252</td>
+<td align="left">1.A.1.b.1</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.50</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">29-1141.00</td>
+<td align="left">29-1141</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.71</td>
+<td align="left">2025-08-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">29-1141.00</td>
+<td align="left">29-1141</td>
+<td align="left">1.A.1.b.1</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.90</td>
+<td align="left">2024-08-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">11-1011.00</td>
+<td align="left">11-1011</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.50</td>
+<td align="left">2025-07-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">11-1011.00</td>
+<td align="left">11-1011</td>
+<td align="left">1.A.1.b.1</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.22</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="odd">
+<td align="left">30.3</td>
+<td align="left">41-1011.00</td>
+<td align="left">41-1011</td>
+<td align="left">1.A.1.a.1</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.15</td>
+<td align="left">2025-06-01</td>
+<td align="left">Analyst</td>
+</tr>
+</tbody>
+</table>
 <p>The output has one row per occupation, element, scale, and release.
 The important longitudinal fields are <code>release_version</code>,
 <code>soc_vintage</code>, <code>onet_soc_code</code>,
@@ -184,21 +259,107 @@ row-binds the normalized outputs.</p>
 <span>    <span class="va">domain_source</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 6</span></span></span>
-<span><span class="co">#&gt;   release_version onet_soc_code element_name        data_value source_date</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30.2            11-1011.00    Oral Comprehension        4.38 2024-07-01 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30.3            11-1011.00    Oral Comprehension        4.5  2025-07-01 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30.2            11-1011.00    Problem Sensitivity       4.22 2024-07-01 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30.3            11-1011.00    Problem Sensitivity       4.22 2024-07-01 </span></span>
-<span><span class="co">#&gt;   domain_source</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Incumbent    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more rows</span></span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="18%">
+<col width="16%">
+<col width="22%">
+<col width="12%">
+<col width="13%">
+<col width="16%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">release_version</th>
+<th align="left">onet_soc_code</th>
+<th align="left">element_name</th>
+<th align="left">data_value</th>
+<th align="left">source_date</th>
+<th align="left">domain_source</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">30.2</td>
+<td align="left">11-1011.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.38</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">11-1011.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.50</td>
+<td align="left">2025-07-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="odd">
+<td align="left">30.2</td>
+<td align="left">11-1011.00</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.22</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">11-1011.00</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.22</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="odd">
+<td align="left">30.2</td>
+<td align="left">15-1252.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.12</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">15-1252.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.35</td>
+<td align="left">2025-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="odd">
+<td align="left">30.2</td>
+<td align="left">15-1252.00</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.50</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">15-1252.00</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.50</td>
+<td align="left">2024-07-01</td>
+<td align="left">Analyst</td>
+</tr>
+<tr class="odd">
+<td align="left">30.2</td>
+<td align="left">29-1141.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.71</td>
+<td align="left">2024-08-01</td>
+<td align="left">Incumbent</td>
+</tr>
+<tr class="even">
+<td align="left">30.3</td>
+<td align="left">29-1141.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.71</td>
+<td align="left">2025-08-01</td>
+<td align="left">Incumbent</td>
+</tr>
+</tbody>
+</table>
 <p>This is the table you would save as your audit trail before doing any
 modeling. It records the exact versions, values, and source dates used
 in the comparison.</p>
@@ -227,35 +388,128 @@ classifies each matched occupation-element-scale pair.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 11</span></span></span>
-<span><span class="co">#&gt;   from_soc_code to_soc_code element_name        from_value to_value value_change</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 29-1141       29-1141     Problem Sensitivity       4.6      4.9         0.300</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252       15-1252     Oral Comprehension        4.12     4.35        0.230</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 41-1011       41-1011     Oral Comprehension        4        4.15        0.150</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 11-1011       11-1011     Oral Comprehension        4.38     4.5         0.120</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 15-1252       15-1252     Problem Sensitivity       4.5      4.5         0    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 29-1141       29-1141     Oral Comprehension        4.71     4.71        0    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 11-1011       11-1011     Problem Sensitivity       4.22     4.22        0    </span></span>
-<span><span class="co">#&gt;   from_source_date to_source_date change_type           method_break</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2024-08-01       2024-08-01     recode_or_recalc_flag FALSE       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2024-07-01       2025-07-01     real_update           FALSE       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2024-06-01       2025-06-01     real_update           FALSE       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2024-07-01       2025-07-01     real_update           TRUE        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2024-07-01       2024-07-01     stale_carryforward    FALSE       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 2024-08-01       2025-08-01     resampled_stable      FALSE       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> 2024-07-01       2024-07-01     stale_carryforward    FALSE       </span></span>
-<span><span class="co">#&gt;   safely_comparable</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> FALSE            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> TRUE             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> TRUE             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> FALSE            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> TRUE             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> TRUE             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> TRUE</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="8%">
+<col width="7%">
+<col width="12%">
+<col width="6%">
+<col width="5%">
+<col width="7%">
+<col width="10%">
+<col width="9%">
+<col width="13%">
+<col width="7%">
+<col width="10%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">from_soc_code</th>
+<th align="left">to_soc_code</th>
+<th align="left">element_name</th>
+<th align="left">from_value</th>
+<th align="left">to_value</th>
+<th align="left">value_change</th>
+<th align="left">from_source_date</th>
+<th align="left">to_source_date</th>
+<th align="left">change_type</th>
+<th align="left">method_break</th>
+<th align="left">safely_comparable</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">29-1141</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.60</td>
+<td align="left">4.90</td>
+<td align="left">0.30</td>
+<td align="left">2024-08-01</td>
+<td align="left">2024-08-01</td>
+<td align="left">recode_or_recalc_flag</td>
+<td align="left">FALSE</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">15-1252</td>
+<td align="left">15-1252</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.12</td>
+<td align="left">4.35</td>
+<td align="left">0.23</td>
+<td align="left">2024-07-01</td>
+<td align="left">2025-07-01</td>
+<td align="left">real_update</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">41-1011</td>
+<td align="left">41-1011</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.00</td>
+<td align="left">4.15</td>
+<td align="left">0.15</td>
+<td align="left">2024-06-01</td>
+<td align="left">2025-06-01</td>
+<td align="left">real_update</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">11-1011</td>
+<td align="left">11-1011</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.38</td>
+<td align="left">4.50</td>
+<td align="left">0.12</td>
+<td align="left">2024-07-01</td>
+<td align="left">2025-07-01</td>
+<td align="left">real_update</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">15-1252</td>
+<td align="left">15-1252</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.50</td>
+<td align="left">4.50</td>
+<td align="left">0.00</td>
+<td align="left">2024-07-01</td>
+<td align="left">2024-07-01</td>
+<td align="left">stale_carryforward</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">29-1141</td>
+<td align="left">29-1141</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.71</td>
+<td align="left">4.71</td>
+<td align="left">0.00</td>
+<td align="left">2024-08-01</td>
+<td align="left">2025-08-01</td>
+<td align="left">resampled_stable</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">11-1011</td>
+<td align="left">11-1011</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.22</td>
+<td align="left">4.22</td>
+<td align="left">0.00</td>
+<td align="left">2024-07-01</td>
+<td align="left">2024-07-01</td>
+<td align="left">stale_carryforward</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
 <p>Read <code>change_type</code> before interpreting
 <code>value_change</code>.</p>
 <table class="table">
@@ -314,20 +568,71 @@ date.</td>
 <span>    <span class="va">method_break</span>,</span>
 <span>    <span class="va">safely_comparable</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 8</span></span></span>
-<span><span class="co">#&gt;   to_soc_code element_name        from_value to_value value_change</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 29-1141     Problem Sensitivity       4.6      4.9         0.300</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 11-1011     Oral Comprehension        4.38     4.5         0.120</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 15-1252     Oral Comprehension        4.12     4.35        0.230</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011     Oral Comprehension        4        4.15        0.150</span></span>
-<span><span class="co">#&gt;   change_type           method_break safely_comparable</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> recode_or_recalc_flag FALSE        FALSE            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> real_update           TRUE         FALSE            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> real_update           FALSE        TRUE             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> real_update           FALSE        TRUE</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="10%">
+<col width="16%">
+<col width="9%">
+<col width="7%">
+<col width="11%">
+<col width="18%">
+<col width="11%">
+<col width="15%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">to_soc_code</th>
+<th align="left">element_name</th>
+<th align="left">from_value</th>
+<th align="left">to_value</th>
+<th align="left">value_change</th>
+<th align="left">change_type</th>
+<th align="left">method_break</th>
+<th align="left">safely_comparable</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">29-1141</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">4.60</td>
+<td align="left">4.90</td>
+<td align="left">0.30</td>
+<td align="left">recode_or_recalc_flag</td>
+<td align="left">FALSE</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">11-1011</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.38</td>
+<td align="left">4.50</td>
+<td align="left">0.12</td>
+<td align="left">real_update</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">15-1252</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.12</td>
+<td align="left">4.35</td>
+<td align="left">0.23</td>
+<td align="left">real_update</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">41-1011</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">4.00</td>
+<td align="left">4.15</td>
+<td align="left">0.15</td>
+<td align="left">real_update</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="cross-a-taxonomy-seam">Cross a Taxonomy Seam<a class="anchor" aria-label="anchor" href="#cross-a-taxonomy-seam"></a>
@@ -372,36 +677,110 @@ split into more than one 2019 occupation.</p>
 <span>    <span class="va">transition_data</span>,</span>
 <span>    <span class="va">safely_comparable</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 7</span></span></span>
-<span><span class="co">#&gt;   from_onet_soc_code to_onet_soc_code element_name        change_type    </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1132.00         15-1252.00       Oral Comprehension  transition_data</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1132.00         15-1253.00       Oral Comprehension  transition_data</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 29-1141.00         29-1141.00       Oral Comprehension  real_update    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 15-1132.00         15-1252.00       Problem Sensitivity dropped        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 15-1132.00         15-1253.00       Problem Sensitivity dropped        </span></span>
-<span><span class="co">#&gt;   crosswalk_uncertain transition_data safely_comparable</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> TRUE                TRUE            FALSE            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> TRUE                TRUE            FALSE            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> FALSE               FALSE           TRUE             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> TRUE                FALSE           FALSE            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> TRUE                FALSE           FALSE</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="15%">
+<col width="13%">
+<col width="15%">
+<col width="12%">
+<col width="15%">
+<col width="12%">
+<col width="14%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">from_onet_soc_code</th>
+<th align="left">to_onet_soc_code</th>
+<th align="left">element_name</th>
+<th align="left">change_type</th>
+<th align="left">crosswalk_uncertain</th>
+<th align="left">transition_data</th>
+<th align="left">safely_comparable</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">15-1132.00</td>
+<td align="left">15-1252.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">transition_data</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">15-1132.00</td>
+<td align="left">15-1253.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">transition_data</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">29-1141.00</td>
+<td align="left">29-1141.00</td>
+<td align="left">Oral Comprehension</td>
+<td align="left">real_update</td>
+<td align="left">FALSE</td>
+<td align="left">FALSE</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">15-1132.00</td>
+<td align="left">15-1252.00</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">dropped</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">15-1132.00</td>
+<td align="left">15-1253.00</td>
+<td align="left">Problem Sensitivity</td>
+<td align="left">dropped</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">summary_counts</span> <span class="op">&lt;-</span> <span class="va">changes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">count</span><span class="op">(</span><span class="va">change_type</span>, name <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">rows</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">plot_changes</span> <span class="op">&lt;-</span> <span class="va">cross_changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">from_value</span><span class="op">)</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">to_value</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span></span>
+<span>    comparison <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">to_onet_soc_code</span>, <span class="va">element_name</span>, sep <span class="op">=</span> <span class="st">": "</span><span class="op">)</span>,</span>
+<span>    comparability <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">safely_comparable</span>, <span class="st">"Safe"</span>, <span class="st">"Not safe"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
-<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">summary_counts</span><span class="op">$</span><span class="va">rows</span>, <span class="va">summary_counts</span><span class="op">$</span><span class="va">change_type</span><span class="op">)</span>,</span>
-<span>  col <span class="op">=</span> <span class="st">"#0f766e"</span>,</span>
-<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  ylab <span class="op">=</span> <span class="st">"Rows"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"Change Classification Comes Before Interpretation"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="longitudinal-archives_files/figure-html/summary-chart-1.png" class="r-plt" alt="Bar chart of same-vintage change classifications." width="672"></p>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_changes</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">comparison</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html" class="external-link">geom_segment</a></span><span class="op">(</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="va">from_value</span>,</span>
+<span>      xend <span class="op">=</span> <span class="va">to_value</span>,</span>
+<span>      yend <span class="op">=</span> <span class="va">comparison</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">comparability</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    linewidth <span class="op">=</span> <span class="fl">1.1</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">from_value</span><span class="op">)</span>,</span>
+<span>    color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"slate"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">2.8</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
+<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">to_value</span>, color <span class="op">=</span> <span class="va">comparability</span><span class="op">)</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">3.2</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_discrete_color</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Comparability"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="st">"A Cross-Vintage Difference Is Not Automatically Comparable"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Start and end points come from the bundled archive fixtures."</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Importance rating"</span>,</span>
+<span>    y <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="longitudinal-archives_files/figure-html/summary-chart-1.png" class="r-plt" alt="Dumbbell chart of cross-vintage ability changes, with safe comparisons separated from unsafe comparisons." width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="summarize-the-panel">Summarize the Panel<a class="anchor" aria-label="anchor" href="#summarize-the-panel"></a>
@@ -411,29 +790,95 @@ reconciliation result. The job-family view is useful for spotting
 whether one part of the SOC taxonomy is driving the apparent change.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_change_summary.html">onet_change_summary</a></span><span class="op">(</span><span class="va">changes</span>, by <span class="op">=</span> <span class="st">"job_family"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 10</span></span></span>
-<span><span class="co">#&gt;   summary_level job_family change_type        n_pairs share_pairs</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> overall       <span style="color: #BB0000;">NA</span>         real_update              7       1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> job_family    11         stale_carryforward       2       0.286</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> job_family    15         stale_carryforward       2       0.286</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> job_family    29         resampled_stable         2       0.286</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> job_family    41         real_update              1       0.143</span></span>
-<span><span class="co">#&gt;   mean_value_change median_abs_value_change share_safely_comparable</span></span>
-<span><span class="co">#&gt;               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            0.114                   0.120                    0.714</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>            0.060<span style="text-decoration: underline;">0</span>                  0.060<span style="text-decoration: underline;">0</span>                   0.5  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>            0.115                   0.115                    1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>            0.150                   0.150                    0.5  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>            0.150                   0.150                    1    </span></span>
-<span><span class="co">#&gt;   share_method_break share_crosswalk_uncertain</span></span>
-<span><span class="co">#&gt;                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>              0.143                         0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>              0.5                           0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>              0                             0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>              0                             0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>              0                             0</span></span></code></pre></div>
+<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="8%">
+<col width="6%">
+<col width="10%">
+<col width="4%">
+<col width="6%">
+<col width="10%">
+<col width="13%">
+<col width="13%">
+<col width="10%">
+<col width="14%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">summary_level</th>
+<th align="left">job_family</th>
+<th align="left">change_type</th>
+<th align="left">n_pairs</th>
+<th align="left">share_pairs</th>
+<th align="left">mean_value_change</th>
+<th align="left">median_abs_value_change</th>
+<th align="left">share_safely_comparable</th>
+<th align="left">share_method_break</th>
+<th align="left">share_crosswalk_uncertain</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">overall</td>
+<td align="left">NA</td>
+<td align="left">real_update</td>
+<td align="left">7</td>
+<td align="left">1.000</td>
+<td align="left">0.114</td>
+<td align="left">0.120</td>
+<td align="left">0.714</td>
+<td align="left">0.143</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left">job_family</td>
+<td align="left">11</td>
+<td align="left">stale_carryforward</td>
+<td align="left">2</td>
+<td align="left">0.286</td>
+<td align="left">0.060</td>
+<td align="left">0.060</td>
+<td align="left">0.500</td>
+<td align="left">0.500</td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left">job_family</td>
+<td align="left">15</td>
+<td align="left">stale_carryforward</td>
+<td align="left">2</td>
+<td align="left">0.286</td>
+<td align="left">0.115</td>
+<td align="left">0.115</td>
+<td align="left">1.000</td>
+<td align="left">0.000</td>
+<td align="left">0</td>
+</tr>
+<tr class="even">
+<td align="left">job_family</td>
+<td align="left">29</td>
+<td align="left">resampled_stable</td>
+<td align="left">2</td>
+<td align="left">0.286</td>
+<td align="left">0.150</td>
+<td align="left">0.150</td>
+<td align="left">0.500</td>
+<td align="left">0.000</td>
+<td align="left">0</td>
+</tr>
+<tr class="odd">
+<td align="left">job_family</td>
+<td align="left">41</td>
+<td align="left">real_update</td>
+<td align="left">1</td>
+<td align="left">0.143</td>
+<td align="left">0.150</td>
+<td align="left">0.150</td>
+<td align="left">1.000</td>
+<td align="left">0.000</td>
+<td align="left">0</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="recommended-workflow-for-real-archive-work">Recommended Workflow for Real Archive Work<a class="anchor" aria-label="anchor" href="#recommended-workflow-for-real-archive-work"></a>
