@@ -11,9 +11,9 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -23,11 +23,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,19 +37,27 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+<li><h6 class="dropdown-header" data-toc-skip>Start Here</h6></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
-    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
+    <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
+    <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
+    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Change and Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -69,36 +77,12 @@
       <img src="../logo.png" class="logo" alt=""><h1>Validating onet2r Outputs</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/output-validation.Rmd" class="external-link"><code>vignettes/output-validation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/main/vignettes/output-validation.Rmd" class="external-link"><code>vignettes/output-validation.Rmd</code></a></small>
       <div class="d-none name"><code>output-validation.Rmd</code></div>
     </div>
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
-<span></span>
-<span><span class="va">sample_oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata"</span>,</span>
-<span>  <span class="st">"oews-national-sample.csv"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">archive_303</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata"</span>,</span>
-<span>  <span class="st">"onet-mini"</span>,</span>
-<span>  <span class="st">"db_30_3_text"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
 <p>The package test suite checks implementation details with mocked
 responses and small deterministic files. For real projects, it is also
 useful to inspect output shape: Are expected columns present? Are rows
@@ -108,9 +92,9 @@ users need?</p>
 maintainers can run from the source tree with
 <code>Rscript inst/examples/validate-outputs.R</code>. From an installed
 package, source the file returned by:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"examples"</span>, <span class="st">"validate-outputs.R"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "C:/Users/alexfarach/AppData/Local/R/win-library/4.5/onet2r/examples/validate-outputs.R"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "/home/runner/work/_temp/Library/onet2r/examples/validate-outputs.R"</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="what-the-script-checks">What the Script Checks<a class="anchor" aria-label="anchor" href="#what-the-script-checks"></a>
 </h2>
@@ -118,8 +102,8 @@ package, source the file returned by:</p>
 <ul>
 <li>reading bundled OEWS sample data;</li>
 <li>reading a local O*NET archive-format table;</li>
-<li>joining O*NET occupation codes to OEWS estimates;</li>
-<li>computing employment- and wage-weighted O*NET summaries;</li>
+<li>creating a reference-SOC OEWS weight panel;</li>
+<li>aggregating an occupation score with coverage and provenance;</li>
 <li>configuring cache and rate-limit settings.</li>
 </ul>
 <p>When <code>ONET_API_KEY</code> is available, it also performs live
@@ -132,8 +116,9 @@ columns.</p>
 </h2>
 <p>The local validation below uses package functions rather than copied
 output.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
+<span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">abilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
 <span>  <span class="st">"30.3"</span>,</span>
@@ -142,67 +127,66 @@ output.</p>
 <span>  release_date <span class="op">=</span> <span class="st">"2026-05-01"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">occupations</span> <span class="op">&lt;-</span> <span class="va">abilities</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span>code <span class="op">=</span> <span class="va">onet_soc_code</span>, <span class="va">title</span><span class="op">)</span></span>
+<span><span class="va">oral_scores</span> <span class="op">&lt;-</span> <span class="va">abilities</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">element_id</span> <span class="op">==</span> <span class="st">"1.A.1.a.1"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">transmute</span><span class="op">(</span><span class="va">onet_soc_code</span>, measure_score <span class="op">=</span> <span class="va">data_value</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">joined</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_join_oews.html">onet_join_oews</a></span><span class="op">(</span><span class="va">occupations</span>, oews <span class="op">=</span> <span class="va">oews</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">weighted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weighted_summary.html">onet_weighted_summary</a></span><span class="op">(</span></span>
-<span>  <span class="va">abilities</span>,</span>
-<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"element_id"</span>, <span class="st">"element_name"</span><span class="op">)</span>,</span>
-<span>  value <span class="op">=</span> <span class="st">"data_value"</span>,</span>
-<span>  occupation_code <span class="op">=</span> <span class="st">"onet_soc_code"</span>,</span>
-<span>  oews <span class="op">=</span> <span class="va">oews</span></span>
+<span><span class="va">aggregate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
+<span>  <span class="va">oral_scores</span>,</span>
+<span>  <span class="va">weights</span>,</span>
+<span>  measure_id <span class="op">=</span> <span class="st">"oral_comprehension_fixture"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  check <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"OEWS output is a tibble"</span>,</span>
 <span>    <span class="st">"archive output has source dates"</span>,</span>
-<span>    <span class="st">"join adds normalized SOC code"</span>,</span>
-<span>    <span class="st">"weighted summary has employment weights"</span></span>
+<span>    <span class="st">"weight panel has reference SOC codes"</span>,</span>
+<span>    <span class="st">"aggregate has provenance"</span>,</span>
+<span>    <span class="st">"aggregate has coverage"</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  passed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">oews</span>, <span class="st">"tbl_df"</span><span class="op">)</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"source_date"</span>, <span class="st">"data_value"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">abilities</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"soc_code"</span>, <span class="st">"tot_emp"</span>, <span class="st">"a_median"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">joined</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"total_weight"</span>, <span class="st">"weighted_mean"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">weighted</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reference_soc_code"</span>, <span class="st">"employment"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">weights</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">aggregate</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">aggregate</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 2</span></span></span>
-<span><span class="co">#&gt;   check                                   passed</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> OEWS output is a tibble                 TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> archive output has source dates         TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> join adds normalized SOC code           TRUE  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> weighted summary has employment weights TRUE</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 2</span></span></span>
+<span><span class="co">#&gt;   check                                passed</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> OEWS output is a tibble              TRUE  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> archive output has source dates      TRUE  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> weight panel has reference SOC codes TRUE  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> aggregate has provenance             TRUE  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> aggregate has coverage               TRUE</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">joined</span>, <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">weights</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 9</span></span></span>
-<span><span class="co">#&gt;   code       title                                          soc_code  year</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1252.00 Software Developers                            15-1252   <span style="text-decoration: underline;">2</span>024</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 29-1141.00 Registered Nurses                              29-1141   <span style="text-decoration: underline;">2</span>024</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 11-1011.00 Chief Executives                               11-1011   <span style="text-decoration: underline;">2</span>024</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 41-1011.00 First-Line Supervisors of Retail Sales Workers 41-1011     <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt;   oews_type occ_title           tot_emp a_median h_median</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> national  Software Developers 1<span style="text-decoration: underline;">847</span>900   <span style="text-decoration: underline;">133</span>080     64.0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> national  Registered Nurses   3<span style="text-decoration: underline;">175</span>400    <span style="text-decoration: underline;">93</span>070     44.8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> national  Chief Executives     <span style="text-decoration: underline;">211</span>230   <span style="text-decoration: underline;">206</span>680     99.4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>                       <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">weighted</span>, <span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 7</span></span></span>
+<span><span class="co">#&gt;   reference_soc_code  year employment weight_share source source_taxonomy</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 11-1011             <span style="text-decoration: underline;">2</span>024     <span style="text-decoration: underline;">211</span>230       0.040<span style="text-decoration: underline;">4</span> OEWS   2018 SOC       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1252             <span style="text-decoration: underline;">2</span>024    1<span style="text-decoration: underline;">847</span>900       0.353  OEWS   2018 SOC       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 29-1141             <span style="text-decoration: underline;">2</span>024    3<span style="text-decoration: underline;">175</span>400       0.607  OEWS   2018 SOC       </span></span>
+<span><span class="co">#&gt;   reference_taxonomy</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2018 SOC          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2018 SOC          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2018 SOC</span></span>
+<span></span>
+<span><span class="va">aggregate</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 7</span></span></span>
-<span><span class="co">#&gt;   element_id element_name        n_records n_occupations total_weight</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1.A.1.a.1  Oral Comprehension          3             3      5<span style="text-decoration: underline;">234</span>530</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 1.A.1.b.1  Problem Sensitivity         3             3      5<span style="text-decoration: underline;">234</span>530</span></span>
-<span><span class="co">#&gt;   weighted_mean wage_weighted_mean</span></span>
-<span><span class="co">#&gt;           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>          4.57               4.54</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>          4.73               4.68</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
+<span><span class="co">#&gt;   measure_id                 aggregate total_employment covered_employment</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> oral_comprehension_fixture      4.57          5<span style="text-decoration: underline;">234</span>530            5<span style="text-decoration: underline;">234</span>530</span></span>
+<span><span class="co">#&gt;   employment_coverage_share n_occupations n_reference_soc</span></span>
+<span><span class="co">#&gt;                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                         1             4               4</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example-live-validation-status">Example: Live Validation Status<a class="anchor" aria-label="anchor" href="#example-live-validation-status"></a>
@@ -210,7 +194,7 @@ output.</p>
 <p>Live validation only runs when a user supplies an API key. The site
 still executes this chunk and reports whether live checks are available
 in the current environment.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  check <span class="op">=</span> <span class="st">"ONET_API_KEY available for live API validation"</span>,</span>
 <span>  passed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html" class="external-link">nzchar</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"ONET_API_KEY"</span><span class="op">)</span><span class="op">)</span></span>
@@ -218,7 +202,7 @@ in the current environment.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
 <span><span class="co">#&gt;   check                                          passed</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                          <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ONET_API_KEY available for live API validation TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> ONET_API_KEY available for live API validation FALSE</span></span></code></pre></div>
 <p>The goal is not to replace unit tests. It is to give maintainers and
 users a repeatable, practical way to confirm that live API outputs still
 match the shapes used in examples, vignettes, and downstream
@@ -235,7 +219,7 @@ analyses.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

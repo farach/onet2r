@@ -11,9 +11,9 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -23,11 +23,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,19 +37,27 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+<li><h6 class="dropdown-header" data-toc-skip>Start Here</h6></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
-    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
+    <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
+    <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
+    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Change and Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -69,37 +77,12 @@
       <img src="../logo.png" class="logo" alt=""><h1>Why Longitudinal O*NET Analysis Is Hard</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/longitudinal-onet-background.Rmd" class="external-link"><code>vignettes/longitudinal-onet-background.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/main/vignettes/longitudinal-onet-background.Rmd" class="external-link"><code>vignettes/longitudinal-onet-background.Rmd</code></a></small>
       <div class="d-none name"><code>longitudinal-onet-background.Rmd</code></div>
     </div>
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
-<span></span>
-<span><span class="va">archive_302</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata"</span>,</span>
-<span>  <span class="st">"onet-mini"</span>,</span>
-<span>  <span class="st">"db_30_2_text"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">archive_303</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata"</span>,</span>
-<span>  <span class="st">"onet-mini"</span>,</span>
-<span>  <span class="st">"db_30_3_text"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
 <p>O*NET is one of the most useful public sources for occupation-level
 skills, tasks, abilities, work activities, and work contexts. It is also
 easy to misuse as a time series. The most important fact is simple:
@@ -112,7 +95,7 @@ bridge, and reconciliation helpers. They do not make the historical data
 automatically causal or comparable. They make the assumptions
 visible.</p>
 <div class="section level2">
-<h2 id="the-three-problems-users-must-handle">The Three Problems Users Must Handle<a class="anchor" aria-label="anchor" href="#the-three-problems-users-must-handle"></a>
+<h2 id="the-3-problems-users-must-handle">The 3 Problems Users Must Handle<a class="anchor" aria-label="anchor" href="#the-3-problems-users-must-handle"></a>
 </h2>
 <div class="section level3">
 <h3 id="the-api-is-current-release-first">1. The API Is Current-Release First<a class="anchor" aria-label="anchor" href="#the-api-is-current-release-first"></a>
@@ -121,7 +104,7 @@ visible.</p>
 Longitudinal work asks “what changed between release A and release B?”
 Those are different questions. For panels, use archive releases rather
 than the current-release API.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Abilities"</span>,</span>
 <span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"30.2"</span>, <span class="st">"30.3"</span><span class="op">)</span>,</span>
@@ -131,7 +114,7 @@ than the current-release API.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">panel</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">release_version</span>, <span class="va">release_date</span>, <span class="va">soc_vintage</span>, <span class="va">domain</span><span class="op">)</span></span>
+<span>  <span class="fu">count</span><span class="op">(</span><span class="va">release_version</span>, <span class="va">release_date</span>, <span class="va">soc_vintage</span>, <span class="va">domain</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 5</span></span></span>
 <span><span class="co">#&gt;   release_version release_date soc_vintage domain        n</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
@@ -148,30 +131,55 @@ package vignette, local archive paths keep the output reproducible.</p>
 split, merge, appear, and disappear. Hosseinioun et al. <span class="citation">(<a href="#ref-hosseinioun2025skill">2025</a>)</span>
 handle this by composing adjacent official O*NET-SOC crosswalks, which
 is the same strategy used by <code><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge()</a></code>.</p>
-<p>The local example uses one SOC vintage, so the bridge is empty and
-reconciliation falls back to same-code comparisons. For cross-vintage
-studies, inspect <code>map_type</code>, <code>crosswalk_weight</code>,
-and <code>crosswalk_uncertain</code> before making claims about
-occupational change.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span></span>
-<span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  column <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bridge</span><span class="op">)</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">bridge</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<p>The synthetic fixture below spans the 2010-to-2019 O*NET-SOC seam.
+One 2010 software occupation maps to 2 2019 occupations, so the bridge
+is uncertain for within-occupation comparison.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cross_panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Abilities"</span>,</span>
+<span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"24.3"</span>, <span class="st">"25.1"</span><span class="op">)</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"IM"</span>,</span>
+<span>  archives <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`24.3` <span class="op">=</span> <span class="va">archive_243</span>, `25.1` <span class="op">=</span> <span class="va">archive_251</span><span class="op">)</span>,</span>
+<span>  release_dates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`24.3` <span class="op">=</span> <span class="st">"2020-08-01"</span>, `25.1` <span class="op">=</span> <span class="st">"2020-11-01"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bridge_2010_2019</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  from_vintage <span class="op">=</span> <span class="st">"2010"</span>,</span>
+<span>  to_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
+<span>  from_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1132.00"</span>, <span class="st">"15-1132.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>,</span>
+<span>  to_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"15-1253.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>,</span>
+<span>  map_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"split"</span>, <span class="st">"split"</span>, <span class="st">"one_to_one"</span><span class="op">)</span>,</span>
+<span>  crosswalk_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cross_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">cross_panel</span>, <span class="va">bridge_2010_2019</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cross_changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
+<span>    <span class="va">from_onet_soc_code</span>,</span>
+<span>    <span class="va">to_onet_soc_code</span>,</span>
+<span>    <span class="va">element_name</span>,</span>
+<span>    <span class="va">change_type</span>,</span>
+<span>    <span class="va">crosswalk_uncertain</span>,</span>
+<span>    <span class="va">transition_data</span>,</span>
+<span>    <span class="va">safely_comparable</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 2</span></span></span>
-<span><span class="co">#&gt;   column           type     </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> from_vintage     factor   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> to_vintage       factor   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> from_soc_code    character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> to_soc_code      character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> from_title       character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> to_title         character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> step_count       integer  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> map_type         factor   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span> crosswalk_weight numeric</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 7</span></span></span>
+<span><span class="co">#&gt;   from_onet_soc_code to_onet_soc_code element_name        change_type    </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1132.00         15-1252.00       Oral Comprehension  transition_data</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1132.00         15-1253.00       Oral Comprehension  transition_data</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 29-1141.00         29-1141.00       Oral Comprehension  real_update    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 15-1132.00         15-1252.00       Problem Sensitivity dropped        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 15-1132.00         15-1253.00       Problem Sensitivity dropped        </span></span>
+<span><span class="co">#&gt;   crosswalk_uncertain transition_data safely_comparable</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> TRUE                TRUE            FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> TRUE                TRUE            FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> FALSE               FALSE           TRUE             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> TRUE                FALSE           FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> TRUE                FALSE           FALSE</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="a-release-to-release-change-may-not-be-a-true-content-change">3. A Release-to-Release “Change” May Not Be a True Content
@@ -183,15 +191,15 @@ the occupation was not re-surveyed, or a value can change without a
 source-date change because of a recode or recalculation. Handel <span class="citation">(<a href="#ref-handel2016onet">2016</a>)</span> is a
 useful entry point for the broader measurement and comparability
 cautions.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span></span>
 <span>  <span class="va">panel</span>,</span>
 <span>  bridge <span class="op">=</span> <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">changes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">value_changed</span>, <span class="va">date_changed</span>, <span class="va">change_type</span>, <span class="va">safely_comparable</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">change_type</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">distinct</span><span class="op">(</span><span class="va">value_changed</span>, <span class="va">date_changed</span>, <span class="va">change_type</span>, <span class="va">safely_comparable</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="va">change_type</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
 <span><span class="co">#&gt;   value_changed date_changed change_type           safely_comparable</span></span>
@@ -201,10 +209,22 @@ cautions.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> TRUE          TRUE         real_update           FALSE            </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> FALSE         TRUE         resampled_stable      TRUE             </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> TRUE          FALSE        recode_or_recalc_flag FALSE</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">comparison_counts</span> <span class="op">&lt;-</span> <span class="va">cross_changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">count</span><span class="op">(</span><span class="va">safely_comparable</span>, name <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
+<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">comparison_counts</span><span class="op">$</span><span class="va">rows</span>, <span class="va">comparison_counts</span><span class="op">$</span><span class="va">safely_comparable</span><span class="op">)</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#64748b"</span>, <span class="st">"#0f766e"</span><span class="op">)</span>,</span>
+<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Rows"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"How Many Rows Are Safe to Compare?"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="longitudinal-onet-background_files/figure-html/comparable-chart-1.png" class="r-plt" alt="Bar chart showing safely comparable and not safely comparable rows in the cross-vintage example." width="672"></p>
 <p>Those rows are not a hand-built truth table. They are the observed
-classifications from the example archive panel. The four patterns are
-the minimum checks users should make before interpreting any
-cross-release difference.</p>
+classifications from the example archive panels. The patterns are the
+minimum checks users should make before interpreting any cross-release
+difference.</p>
 </div>
 </div>
 <div class="section level2">
@@ -264,7 +284,7 @@ occupational reclassification.</li>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-autor2013task" class="csl-entry">
 Autor, David H. 2013. <span>“The <span>‘Task Approach’</span> to Labor
 Markets: An Overview.”</span> <em>Journal for Labour Market
@@ -304,7 +324,7 @@ Hosseinioun, Moh, Frank Neffke, Letian Zhang, and Hyejin Youn. 2025.
 </div>
 <div id="ref-onet_dictionary" class="csl-entry">
 National Center for O*NET Development. n.d.a. <span>“<span>O*NET</span>
-Data Dictionary.”</span> O*NET Resource Center. <a href="https://www.onetcenter.org/dictionary.html" class="external-link">https://www.onetcenter.org/dictionary.html</a>.
+Data Dictionary.”</span> O*NET Resource Center. <a href="https://www.onetcenter.org/dictionary/30.3/excel/" class="external-link">https://www.onetcenter.org/dictionary/30.3/excel/</a>.
 </div>
 <div id="ref-onet_archive" class="csl-entry">
 ———. n.d.b. <span>“<span>O*NET</span> Database Releases Archive.”</span>
@@ -317,7 +337,7 @@ Files.”</span> O*NET Resource Center. <a href="https://www.onetcenter.org/taxo
 <div id="ref-bls2021mapping" class="csl-entry">
 U.S. Bureau of Labor Statistics. 2021. <span>“Mapping Employment
 Projections and <span>O*NET</span> Data: A Methodological
-Overview.”</span> <em>Monthly Labor Review</em>. <a href="https://www.bls.gov/opub/mlr/2021/article/mapping-employment-projections-and-onet-data.htm" class="external-link">https://www.bls.gov/opub/mlr/2021/article/mapping-employment-projections-and-onet-data.htm</a>.
+Overview.”</span> <em>Monthly Labor Review</em>.
 </div>
 </div>
 </div>
@@ -332,7 +352,7 @@ Overview.”</span> <em>Monthly Labor Review</em>. <a href="https://www.bls.gov/
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

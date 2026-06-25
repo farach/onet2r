@@ -5,29 +5,29 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Reproducible user measures • onet2r</title>
+<title>Reproducible User Measures • onet2r</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reproducible user measures">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Reproducible User Measures">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,19 +37,27 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+<li><h6 class="dropdown-header" data-toc-skip>Start Here</h6></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
-    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
+    <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
+    <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
+    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Change and Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -66,55 +74,31 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Reproducible user measures</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Reproducible User Measures</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/measure-reproducibility.Rmd" class="external-link"><code>vignettes/measure-reproducibility.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/main/vignettes/measure-reproducibility.Rmd" class="external-link"><code>vignettes/measure-reproducibility.Rmd</code></a></small>
       <div class="d-none name"><code>measure-reproducibility.Rmd</code></div>
     </div>
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span></code></pre></div>
-<p>O*NET users often arrive with their own score: an AI exposure
-measure, a task classification, a skill index, or a hand-coded
-construct. <code>onet2r</code> does not try to decide which score is
-correct. It helps with the parts around the score: checking keys, using
-versioned O*NET files, aggregating tasks to occupations, adding
-employment weights, and recording enough provenance for someone else to
-reproduce the number.</p>
+<p>O*NET users often arrive with their own score: an exposure measure, a
+task classification, a skill index, or a hand-coded construct.
+<code>onet2r</code> does not try to decide which score is correct. It
+helps with the parts around the score: checking keys, using versioned
+O*NET files, aggregating tasks to occupations, adding employment
+weights, and recording enough provenance for someone else to reproduce
+the number.</p>
 <p>This article uses the small archive fixtures shipped with the
-package. The numbers are stylized, but every table below is produced by
-package functions.</p>
+package. The task score is stylized and should not be interpreted as a
+real exposure measure. Every displayed table is produced by package
+functions.</p>
 <div class="section level2">
-<h2 id="read-task-files-from-a-pinned-release">Read task files from a pinned release<a class="anchor" aria-label="anchor" href="#read-task-files-from-a-pinned-release"></a>
+<h2 id="read-task-files-from-a-pinned-release">Read Task Files from a Pinned Release<a class="anchor" aria-label="anchor" href="#read-task-files-from-a-pinned-release"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">archive_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>  <span class="st">"extdata"</span>,</span>
-<span>  <span class="st">"onet-mini"</span>,</span>
-<span>  <span class="st">"db_30_3_text"</span>,</span>
-<span>  package <span class="op">=</span> <span class="st">"onet2r"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">source_archive_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="st">"onet-mini"</span>, <span class="st">"db_30_3_text"</span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span></span>
-<span>  <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">archive_dir</span>, <span class="st">"task_statements.txt"</span><span class="op">)</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="va">source_archive_dir</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">archive_dir</span> <span class="op">&lt;-</span> <span class="va">source_archive_dir</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
 <span>  <span class="st">"30.3"</span>,</span>
 <span>  <span class="st">"Task Statements"</span>,</span>
 <span>  path <span class="op">=</span> <span class="va">archive_dir</span>,</span>
@@ -128,7 +112,7 @@ package functions.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">tasks</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">task_type</span>, <span class="va">task</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">task_type</span>, <span class="va">task</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 3 × 4</span></span>
@@ -143,30 +127,29 @@ package functions.</p>
 <span><span class="co">#&gt; 2 Prepare reports on software testing status.  </span></span>
 <span><span class="co">#&gt; 3 Monitor patient health and record signs.</span></span></code></pre></div>
 <p><code>Task Statements</code> carries task ids and Core or
-Supplemental labels. <code>Task Ratings</code> carries the relevance,
-importance, and frequency ratings used to aggregate task-level
-scores.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+Supplemental labels. <code>Task Ratings</code> carries relevance and
+importance ratings used to aggregate task-level scores.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">task_ratings</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">scale_id</span>, <span class="va">data_value</span>, <span class="va">recommend_suppress</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">scale_id</span>, <span class="va">scale_name</span>, <span class="va">data_value</span>, <span class="va">recommend_suppress</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 5 × 5</span></span>
-<span><span class="co">#&gt;   onet_soc_code task_id scale_id data_value recommend_suppress</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;         &lt;chr&gt;   &lt;fct&gt;         &lt;dbl&gt; &lt;chr&gt;             </span></span>
-<span><span class="co">#&gt; 1 15-1252.00    1001    RT             95   N                 </span></span>
-<span><span class="co">#&gt; 2 15-1252.00    1001    IM              4.5 N                 </span></span>
-<span><span class="co">#&gt; 3 15-1252.00    1002    RT             45   N                 </span></span>
-<span><span class="co">#&gt; 4 29-1141.00    2001    RT             98   N                 </span></span>
-<span><span class="co">#&gt; 5 29-1141.00    2001    IM              4.8 N</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 5 × 6</span></span>
+<span><span class="co">#&gt;   onet_soc_code task_id scale_id scale_name        data_value recommend_suppress</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;         &lt;chr&gt;   &lt;fct&gt;    &lt;chr&gt;                  &lt;dbl&gt; &lt;chr&gt;             </span></span>
+<span><span class="co">#&gt; 1 15-1252.00    1001    RT       Relevance of Task       95   N                 </span></span>
+<span><span class="co">#&gt; 2 15-1252.00    1001    IM       Importance               4.5 N                 </span></span>
+<span><span class="co">#&gt; 3 15-1252.00    1002    RT       Relevance of Task       45   N                 </span></span>
+<span><span class="co">#&gt; 4 29-1141.00    2001    RT       Relevance of Task       98   N                 </span></span>
+<span><span class="co">#&gt; 5 29-1141.00    2001    IM       Importance               4.8 N</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="validate-a-user-supplied-measure">Validate a user-supplied measure<a class="anchor" aria-label="anchor" href="#validate-a-user-supplied-measure"></a>
+<h2 id="validate-a-user-supplied-measure">Validate a User-Supplied Measure<a class="anchor" aria-label="anchor" href="#validate-a-user-supplied-measure"></a>
 </h2>
-<p>Here the user brings a three-task score. It could come from a model,
-a survey, or manual coding. The constructor checks that the task ids
-match the selected O*NET release universe.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>Here the user brings a 3-task score. It could come from a model, a
+survey, or manual coding. The constructor checks that the task ids match
+the selected O*NET release universe.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">task_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  task_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1001"</span>, <span class="st">"1002"</span>, <span class="st">"2001"</span><span class="op">)</span>,</span>
 <span>  score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.80</span>, <span class="fl">0.40</span>, <span class="fl">0.20</span><span class="op">)</span></span>
@@ -183,13 +166,13 @@ match the selected O*NET release universe.</p>
 <span>  release_version <span class="op">=</span> <span class="st">"30.3"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/onet_measure_coverage.html">onet_measure_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 6</span></span>
 <span><span class="co">#&gt;   key_type n_input n_universe n_matched coverage_share employment_coverage_share</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;      &lt;int&gt;      &lt;int&gt;     &lt;int&gt;          &lt;dbl&gt;                     &lt;dbl&gt;</span></span>
 <span><span class="co">#&gt; 1 task           3          3         3              1                        NA</span></span></code></pre></div>
 <p>The object also stores unmatched keys explicitly.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">measure</span><span class="op">$</span><span class="va">unmatched</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>status <span class="op">=</span> <span class="st">"No unmatched task ids"</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
@@ -201,11 +184,11 @@ match the selected O*NET release universe.</p>
 <span><span class="co">#&gt; 1 No unmatched task ids</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="roll-tasks-to-occupations">Roll tasks to occupations<a class="anchor" aria-label="anchor" href="#roll-tasks-to-occupations"></a>
+<h2 id="roll-tasks-to-occupations">Roll Tasks to Occupations<a class="anchor" aria-label="anchor" href="#roll-tasks-to-occupations"></a>
 </h2>
 <p>The next step is mechanical. We use O*NET task relevance ratings as
 weights and restrict the calculation to Core tasks.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">occupation_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_task_to_occupation.html">onet_task_to_occupation</a></span><span class="op">(</span></span>
 <span>  <span class="va">measure</span>,</span>
 <span>  task_ratings <span class="op">=</span> <span class="va">task_ratings</span>,</span>
@@ -221,8 +204,8 @@ weights and restrict the calculation to Core tasks.</p>
 <span><span class="co">#&gt; 1 15-1252.00          1                95           0.8 15-1252 </span></span>
 <span><span class="co">#&gt; 2 29-1141.00          1                98           0.2 29-1141</span></span></code></pre></div>
 <p>Changing the Core-only rule is a plumbing choice, not a change to the
-user’s score. It belongs in provenance and robustness checks.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+user’s score. It belongs in provenance and sensitivity checks.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">occupation_scores_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_task_to_occupation.html">onet_task_to_occupation</a></span><span class="op">(</span></span>
 <span>  <span class="va">measure</span>,</span>
 <span>  task_ratings <span class="op">=</span> <span class="va">task_ratings</span>,</span>
@@ -239,11 +222,11 @@ user’s score. It belongs in provenance and robustness checks.</p>
 <span><span class="co">#&gt; 2 29-1141.00          1                98         0.2   29-1141</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="add-employment-weights">Add employment weights<a class="anchor" aria-label="anchor" href="#add-employment-weights"></a>
+<h2 id="add-employment-weights">Add Employment Weights<a class="anchor" aria-label="anchor" href="#add-employment-weights"></a>
 </h2>
 <p>OEWS files are SOC-level. The weight helper makes the source vintage
 explicit and returns a single shape used downstream.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews_sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"oews-national-sample.csv"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -265,9 +248,9 @@ explicit and returns a single shape used downstream.</p>
 <span><span class="co">#&gt; 3 2018 SOC</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="aggregate-and-inspect-provenance">Aggregate and inspect provenance<a class="anchor" aria-label="anchor" href="#aggregate-and-inspect-provenance"></a>
+<h2 id="aggregate-and-inspect-provenance">Aggregate and Inspect Provenance<a class="anchor" aria-label="anchor" href="#aggregate-and-inspect-provenance"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">national</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
 <span>  <span class="va">occupation_scores</span>,</span>
 <span>  <span class="va">weights</span>,</span>
@@ -275,6 +258,7 @@ explicit and returns a single shape used downstream.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">national</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
 <span><span class="co">#&gt;   measure_id          aggregate total_employment covered_employment</span></span>
@@ -283,55 +267,50 @@ explicit and returns a single shape used downstream.</p>
 <span><span class="co">#&gt;   employment_coverage_share n_occupations n_reference_soc</span></span>
 <span><span class="co">#&gt;                       &lt;dbl&gt;         &lt;int&gt;           &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1                     0.960             2               2</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">national</span>, <span class="st">"provenance"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $measure_id</span></span>
-<span><span class="co">#&gt; [1] "stylized_task_score"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $weight_source</span></span>
-<span><span class="co">#&gt; [1] "OEWS"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $weight_year</span></span>
-<span><span class="co">#&gt; [1] 2024</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $source_taxonomy</span></span>
-<span><span class="co">#&gt; [1] "2018 SOC"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $reference_taxonomy</span></span>
-<span><span class="co">#&gt; [1] "2018 SOC"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $bridge_used</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span></span>
+<span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">national</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span><span class="co">#&gt;   measure_id        weight_source weight_year source_taxonomy reference_taxonomy</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;             &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;             </span></span>
+<span><span class="co">#&gt; 1 stylized_task_sc… OEWS                 2024 2018 SOC        2018 SOC          </span></span>
+<span><span class="co">#&gt; # ℹ 2 more variables: bridge_used &lt;lgl&gt;, crosswalk_path &lt;chr&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="check-sensitivity-to-plumbing-choices">Check sensitivity to plumbing choices<a class="anchor" aria-label="anchor" href="#check-sensitivity-to-plumbing-choices"></a>
+<h2 id="check-sensitivity-to-plumbing-choices">Check Sensitivity to Plumbing Choices<a class="anchor" aria-label="anchor" href="#check-sensitivity-to-plumbing-choices"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">national_all_tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
-<span>  <span class="va">occupation_scores_all</span>,</span>
-<span>  <span class="va">weights</span>,</span>
-<span>  measure_id <span class="op">=</span> <span class="st">"stylized_task_score"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">diagnostic</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_robustness_diagnostic.html">onet_robustness_diagnostic</a></span><span class="op">(</span></span>
-<span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>    scenario <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"core_tasks"</span>, <span class="st">"core_plus_supplemental"</span><span class="op">)</span>,</span>
-<span>    aggregate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">national</span><span class="op">$</span><span class="va">aggregate</span>, <span class="va">national_all_tasks</span><span class="op">$</span><span class="va">aggregate</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">diagnostic</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_sensitivity.html">onet_measure_sensitivity</a></span><span class="op">(</span></span>
+<span>  <span class="va">measure</span>,</span>
+<span>  weight_panels <span class="op">=</span> <span class="va">weights</span>,</span>
+<span>  task_ratings <span class="op">=</span> <span class="va">task_ratings</span>,</span>
+<span>  task_metadata <span class="op">=</span> <span class="va">tasks</span>,</span>
+<span>  include_supplemental <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">diagnostic</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">scenario</span>, <span class="va">aggregate</span>, <span class="va">employment_coverage_share</span>, <span class="va">movement</span>, <span class="va">movement_percent</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 6</span></span>
-<span><span class="co">#&gt;   scenario               aggregate baseline_scenario baseline_aggregate movement</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                      &lt;dbl&gt; &lt;chr&gt;                          &lt;dbl&gt;    &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 core_tasks                 0.421 core_tasks                     0.421   0     </span></span>
-<span><span class="co">#&gt; 2 core_plus_supplemental     0.373 core_tasks                     0.421  -0.0473</span></span>
-<span><span class="co">#&gt;   movement_percent</span></span>
-<span><span class="co">#&gt;              &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1            0    </span></span>
-<span><span class="co">#&gt; 2           -0.112</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span><span class="co">#&gt;   scenario                                                       aggregate</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                                                              &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 RT_core / task_release / weights / no_bridge                       0.421</span></span>
+<span><span class="co">#&gt; 2 RT_core_plus_supplemental / task_release / weights / no_bridge     0.373</span></span>
+<span><span class="co">#&gt;   employment_coverage_share movement movement_percent</span></span>
+<span><span class="co">#&gt;                       &lt;dbl&gt;    &lt;dbl&gt;            &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1                     0.960   0                 0    </span></span>
+<span><span class="co">#&gt; 2                     0.960  -0.0473           -0.112</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
+<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">diagnostic</span><span class="op">$</span><span class="va">aggregate</span>, <span class="va">diagnostic</span><span class="op">$</span><span class="va">scenario</span><span class="op">)</span>,</span>
+<span>  col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#0f766e"</span>, <span class="st">"#14b8a6"</span><span class="op">)</span>,</span>
+<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Aggregate score"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Plumbing Choices Move the Headline Number"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="measure-reproducibility_files/figure-html/robustness-chart-1.png" class="r-plt" alt="Bar chart comparing core-only and core-plus-supplemental stylized task aggregates." width="672"></p>
 <p>The diagnostic does not say which task score is right. It shows how
-much the headline number moves when the non-substantive plumbing
+much the headline number moves when non-substantive plumbing
 changes.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -345,7 +324,7 @@ changes.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

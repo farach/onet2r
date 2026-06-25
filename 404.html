@@ -11,9 +11,9 @@
 <link rel="apple-touch-icon" sizes="180x180" href="https://farach.github.io/onet2r/apple-touch-icon.png">
 <link rel="icon" sizes="any" href="https://farach.github.io/onet2r/favicon.ico">
 <link rel="manifest" href="https://farach.github.io/onet2r/site.webmanifest">
-<script src="https://farach.github.io/onet2r/deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="https://farach.github.io/onet2r/deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="https://farach.github.io/onet2r/deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="https://farach.github.io/onet2r/deps/Inter-0.4.10/font.css" rel="stylesheet">
+<script src="https://farach.github.io/onet2r/lightswitch.js"></script><script src="https://farach.github.io/onet2r/deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="https://farach.github.io/onet2r/deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="https://farach.github.io/onet2r/deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="https://farach.github.io/onet2r/deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="https://farach.github.io/onet2r/deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="https://farach.github.io/onet2r/deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="https://farach.github.io/onet2r/deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -24,11 +24,11 @@
     <a href="https://farach.github.io/onet2r/#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="https://farach.github.io/onet2r/index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,19 +38,27 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="https://farach.github.io/onet2r/articles/getting-started.html">Get Started</a></li>
-<li class="nav-item"><a class="nav-link" href="https://farach.github.io/onet2r/reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/getting-started.html">Getting Started</a></li>
+<li><h6 class="dropdown-header" data-toc-skip>Start Here</h6></li>
+    <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/getting-started.html">Getting Started</a></li>
     <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/longitudinal-archives.html">Longitudinal Archives</a></li>
-    <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
+    <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
+    <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
+    <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Change and Validation</h6></li>
     <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="https://farach.github.io/onet2r/articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="https://farach.github.io/onet2r/reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="https://farach.github.io/onet2r/news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -78,7 +86,7 @@ Content not found. Please use links in the navbar.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

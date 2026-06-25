@@ -11,9 +11,9 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -23,11 +23,11 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,19 +37,27 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get Started</a></li>
-<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
+<li><h6 class="dropdown-header" data-toc-skip>Start Here</h6></li>
+    <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-onet-background.html">Why Longitudinal O*NET Is Hard</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
-    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
+    <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
+    <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
+    <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Change and Validation</h6></li>
     <li><a class="dropdown-item" href="../articles/within-between-decomposition.html">Change Decomposition</a></li>
     <li><a class="dropdown-item" href="../articles/output-validation.html">Output Validation</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -69,84 +77,46 @@
       <img src="../logo.png" class="logo" alt=""><h1>Longitudinal O*NET Archive Analysis</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/HEAD/vignettes/longitudinal-archives.Rmd" class="external-link"><code>vignettes/longitudinal-archives.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/farach/onet2r/blob/main/vignettes/longitudinal-archives.Rmd" class="external-link"><code>vignettes/longitudinal-archives.Rmd</code></a></small>
       <div class="d-none name"><code>longitudinal-archives.Rmd</code></div>
     </div>
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://farach.github.io/onet2r/">onet2r</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span></code></pre></div>
 <p>Read
 <code><a href="../articles/longitudinal-onet-background.html">vignette("longitudinal-onet-background", package = "onet2r")</a></code>
 before interpreting changes. O*NET was not designed as a longitudinal
 panel, so the practical job is not only to compute differences. It is to
 separate real descriptor updates from carryforwards, re-surveys with
-stable values, recodes, and taxonomy seams.</p>
+stable values, recodes, transition rows, and taxonomy seams.</p>
 <p>This walkthrough uses packaged archive-format text files so every
 displayed table comes from <code>onet2r</code> functions while the
-vignette remains CRAN-safe and does not require network access. In a
-real project, replace the local paths with downloaded O*NET archive
-versions.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">example_archive</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">version</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
-<span>    <span class="st">"extdata"</span>,</span>
-<span>    <span class="st">"onet-mini"</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"db_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"."</span>, <span class="st">"_"</span>, <span class="va">version</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="st">"_text"</span><span class="op">)</span>,</span>
-<span>    package <span class="op">=</span> <span class="st">"onet2r"</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">archives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  `30.2` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.2"</span><span class="op">)</span>,</span>
-<span>  `30.3` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.3"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">release_dates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`30.2` <span class="op">=</span> <span class="st">"2026-02-01"</span>, `30.3` <span class="op">=</span> <span class="st">"2026-05-01"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">archives</span></span>
-<span><span class="co">#&gt;                                                                                        30.2 </span></span>
-<span><span class="co">#&gt; "C:/Users/alexfarach/AppData/Local/R/win-library/4.5/onet2r/extdata/onet-mini/db_30_2_text" </span></span>
-<span><span class="co">#&gt;                                                                                        30.3 </span></span>
-<span><span class="co">#&gt; "C:/Users/alexfarach/AppData/Local/R/win-library/4.5/onet2r/extdata/onet-mini/db_30_3_text"</span></span></code></pre></div>
+vignette remains CRAN-safe and does not require network access.</p>
 <div class="section level2">
 <h2 id="a-practical-question">A Practical Question<a class="anchor" aria-label="anchor" href="#a-practical-question"></a>
 </h2>
 <p>Suppose you want to know whether selected cognitive ability ratings
-changed between two O*NET releases for occupations that matter in
-workforce planning: software developers, registered nurses, chief
-executives, and retail supervisors. A naive <code>new - old</code>
-difference is not enough, because unchanged values may be carryforwards
-and changed values may reflect a recode rather than a fresh survey
-update.</p>
+changed between O*NET releases for occupations that matter in workforce
+planning: software developers, registered nurses, chief executives, and
+retail supervisors. A naive <code>new - old</code> difference is not
+enough, because unchanged values may be carryforwards and changed values
+may reflect a recode rather than a fresh survey update.</p>
 </div>
 <div class="section level2">
 <h2 id="read-one-archive-table">Read One Archive Table<a class="anchor" aria-label="anchor" href="#read-one-archive-table"></a>
 </h2>
 <p><code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code> reads an O*NET text archive table
-and normalizes it into one panel schema. The local <code>path</code>
-argument is useful when you have downloaded archives manually or when
-you want a reproducible, offline workflow.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+and normalizes it into one panel schema.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">abilities_303</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
 <span>  <span class="st">"30.3"</span>,</span>
 <span>  <span class="st">"Abilities"</span>,</span>
-<span>  path <span class="op">=</span> <span class="va">archives</span><span class="op">[[</span><span class="st">"30.3"</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>  release_date <span class="op">=</span> <span class="va">release_dates</span><span class="op">[[</span><span class="st">"30.3"</span><span class="op">]</span><span class="op">]</span></span>
+<span>  path <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.3"</span><span class="op">)</span>,</span>
+<span>  release_date <span class="op">=</span> <span class="st">"2026-05-01"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">abilities_303</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
 <span>    <span class="va">release_version</span>,</span>
 <span>    <span class="va">onet_soc_code</span>,</span>
 <span>    <span class="va">soc_code</span>,</span>
@@ -178,42 +148,36 @@ you want a reproducible, offline workflow.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>       4.22 2024-07-01  Analyst      </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span>       4.15 2025-06-01  Analyst</span></span></code></pre></div>
 <p>The output has one row per occupation, element, scale, and release.
-The important longitudinal fields are:</p>
-<ul>
-<li>
-<code>release_version</code> and <code>release_date</code>, which
-identify the archive release;</li>
-<li>
-<code>soc_vintage</code>, <code>onet_soc_code</code>, and
-<code>soc_code</code>, which identify the taxonomy;</li>
-<li>
-<code>data_value</code>, the descriptor score;</li>
-<li>
-<code>source_date</code> and <code>domain_source</code>, which help
-distinguish fresh updates from carryforwards or method changes.</li>
-</ul>
+The important longitudinal fields are <code>release_version</code>,
+<code>soc_vintage</code>, <code>onet_soc_code</code>,
+<code>data_value</code>, <code>source_date</code>, and
+<code>domain_source</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="assemble-a-two-release-panel">Assemble a Two-Release Panel<a class="anchor" aria-label="anchor" href="#assemble-a-two-release-panel"></a>
+<h2 id="assemble-a-same-vintage-panel">Assemble a Same-Vintage Panel<a class="anchor" aria-label="anchor" href="#assemble-a-same-vintage-panel"></a>
 </h2>
 <p><code><a href="../reference/onet_panel.html">onet_panel()</a></code> applies the same reader across releases and
 row-binds the normalized outputs.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">same_vintage_archives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  `30.2` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.2"</span><span class="op">)</span>,</span>
+<span>  `30.3` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.3"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">same_vintage_dates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`30.2` <span class="op">=</span> <span class="st">"2026-02-01"</span>, `30.3` <span class="op">=</span> <span class="st">"2026-05-01"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Abilities"</span>,</span>
 <span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"30.2"</span>, <span class="st">"30.3"</span><span class="op">)</span>,</span>
 <span>  scale <span class="op">=</span> <span class="st">"IM"</span>,</span>
-<span>  archives <span class="op">=</span> <span class="va">archives</span>,</span>
-<span>  release_dates <span class="op">=</span> <span class="va">release_dates</span></span>
+<span>  archives <span class="op">=</span> <span class="va">same_vintage_archives</span>,</span>
+<span>  release_dates <span class="op">=</span> <span class="va">same_vintage_dates</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">panel</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">element_id</span>, <span class="va">release_version</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">element_id</span>, <span class="va">release_version</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
 <span>    <span class="va">release_version</span>,</span>
 <span>    <span class="va">onet_soc_code</span>,</span>
-<span>    <span class="va">soc_code</span>,</span>
-<span>    <span class="va">element_id</span>,</span>
 <span>    <span class="va">element_name</span>,</span>
 <span>    <span class="va">data_value</span>,</span>
 <span>    <span class="va">source_date</span>,</span>
@@ -221,76 +185,34 @@ row-binds the normalized outputs.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 8</span></span></span>
-<span><span class="co">#&gt;    release_version onet_soc_code soc_code element_id element_name       </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 30.2            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 30.3            11-1011.00    11-1011  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 30.2            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 30.3            11-1011.00    11-1011  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 30.2            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 30.3            15-1252.00    15-1252  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 30.2            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 30.3            15-1252.00    15-1252  1.A.1.b.1  Problem Sensitivity</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 30.2            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 30.3            29-1141.00    29-1141  1.A.1.a.1  Oral Comprehension </span></span>
-<span><span class="co">#&gt;    data_value source_date domain_source</span></span>
-<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>       4.38 2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>       4.5  2025-07-01  Incumbent    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>       4.22 2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>       4.22 2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>       4.12 2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>       4.35 2025-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>       4.5  2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>       4.5  2024-07-01  Analyst      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>       4.71 2024-08-01  Incumbent    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>       4.71 2025-08-01  Incumbent</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 6</span></span></span>
+<span><span class="co">#&gt;   release_version onet_soc_code element_name        data_value source_date</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30.2            11-1011.00    Oral Comprehension        4.38 2024-07-01 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30.3            11-1011.00    Oral Comprehension        4.5  2025-07-01 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30.2            11-1011.00    Problem Sensitivity       4.22 2024-07-01 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30.3            11-1011.00    Problem Sensitivity       4.22 2024-07-01 </span></span>
+<span><span class="co">#&gt;   domain_source</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Incumbent    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Analyst      </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more rows</span></span></span></code></pre></div>
 <p>This is the table you would save as your audit trail before doing any
 modeling. It records the exact versions, values, and source dates used
 in the comparison.</p>
-</div>
-<div class="section level2">
-<h2 id="bridge-taxonomy-vintages">Bridge Taxonomy Vintages<a class="anchor" aria-label="anchor" href="#bridge-taxonomy-vintages"></a>
-</h2>
-<p>The example releases both use the 2019 O*NET-SOC vintage, so no
-crosswalk is needed. Calling
-<code>onet_crosswalk_bridge("2019", "2019")</code> returns the empty
-bridge schema that <code><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code> can use for
-same-vintage comparisons. For real cross-vintage work, use
-<code><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge()</a></code> to compose official adjacent
-O*NET-SOC crosswalks.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span></span>
-<span><span class="va">bridge_schema</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  column <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bridge</span><span class="op">)</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">bridge</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">bridge_schema</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 2</span></span></span>
-<span><span class="co">#&gt;   column           type     </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> from_vintage     factor   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> to_vintage       factor   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> from_soc_code    character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> to_soc_code      character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> from_title       character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> to_title         character</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> step_count       integer  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> map_type         factor   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span> crosswalk_weight numeric</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reconcile-adjacent-releases">Reconcile Adjacent Releases<a class="anchor" aria-label="anchor" href="#reconcile-adjacent-releases"></a>
 </h2>
 <p><code><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code> compares adjacent releases and
 classifies each matched occupation-element-scale pair.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">panel</span>, <span class="va">bridge</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">panel</span>, <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">changes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
 <span>    <span class="va">from_soc_code</span>,</span>
 <span>    <span class="va">to_soc_code</span>,</span>
 <span>    <span class="va">element_name</span>,</span>
@@ -303,7 +225,7 @@ classifies each matched occupation-element-scale pair.</p>
 <span>    <span class="va">method_break</span>,</span>
 <span>    <span class="va">safely_comparable</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 11</span></span></span>
@@ -334,8 +256,8 @@ classifies each matched occupation-element-scale pair.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> TRUE             </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> TRUE             </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> TRUE</span></span></code></pre></div>
-<p>Read the <code>change_type</code> column before interpreting
-<code>value_change</code>:</p>
+<p>Read <code>change_type</code> before interpreting
+<code>value_change</code>.</p>
 <table class="table">
 <colgroup>
 <col width="25%">
@@ -372,27 +294,17 @@ classifies each matched occupation-element-scale pair.</p>
 <td>yes</td>
 <td>no</td>
 <td><code>recode_or_recalc_flag</code></td>
-<td>Treat cautiously; the value changed without a new source date.</td>
+<td>Treat cautiously because the value changed without a new source
+date.</td>
 </tr>
 </tbody>
 </table>
-<p><code>method_break</code> and <code>crosswalk_uncertain</code> are
-additional overrides. A row is <code>safely_comparable</code> only when
-the truth-table result is comparable and neither override is
-present.</p>
-</div>
-<div class="section level2">
-<h2 id="answer-the-practical-question">Answer the Practical Question<a class="anchor" aria-label="anchor" href="#answer-the-practical-question"></a>
-</h2>
-<p>For this small example, the most useful review table is not every
-pair. It is the subset where values changed, sorted by whether the
-change is safe to compare.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">changes</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">value_changed</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>abs_change <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">safely_comparable</span>, <span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">abs_change</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">value_changed</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>abs_change <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="va">safely_comparable</span>, <span class="fu">desc</span><span class="op">(</span><span class="va">abs_change</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
 <span>    <span class="va">to_soc_code</span>,</span>
 <span>    <span class="va">element_name</span>,</span>
 <span>    <span class="va">from_value</span>,</span>
@@ -416,10 +328,80 @@ change is safe to compare.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> real_update           TRUE         FALSE            </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> real_update           FALSE        TRUE             </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> real_update           FALSE        TRUE</span></span></code></pre></div>
-<p>This is the table a researcher should inspect before making a claim
-such as “software developers require more oral comprehension than in the
-prior release.” The comparison is strongest when the value changed, the
-source date changed, and no method or taxonomy warning is present.</p>
+</div>
+<div class="section level2">
+<h2 id="cross-a-taxonomy-seam">Cross a Taxonomy Seam<a class="anchor" aria-label="anchor" href="#cross-a-taxonomy-seam"></a>
+</h2>
+<p>Same-vintage comparisons are the easy case. The next example uses the
+bundled 2010-vintage and 2019-vintage fixtures. The bridge is
+intentionally tiny, but it shows the real problem: a 2010 occupation can
+split into more than one 2019 occupation.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cross_archives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  `24.3` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"24.3"</span><span class="op">)</span>,</span>
+<span>  `25.1` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"25.1"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cross_dates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`24.3` <span class="op">=</span> <span class="st">"2020-08-01"</span>, `25.1` <span class="op">=</span> <span class="st">"2020-11-01"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cross_panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel.html">onet_panel</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Abilities"</span>,</span>
+<span>  versions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"24.3"</span>, <span class="st">"25.1"</span><span class="op">)</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"IM"</span>,</span>
+<span>  archives <span class="op">=</span> <span class="va">cross_archives</span>,</span>
+<span>  release_dates <span class="op">=</span> <span class="va">cross_dates</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bridge_2010_2019</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  from_vintage <span class="op">=</span> <span class="st">"2010"</span>,</span>
+<span>  to_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
+<span>  from_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1132.00"</span>, <span class="st">"15-1132.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>,</span>
+<span>  to_onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"15-1253.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>,</span>
+<span>  map_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"split"</span>, <span class="st">"split"</span>, <span class="st">"one_to_one"</span><span class="op">)</span>,</span>
+<span>  crosswalk_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cross_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">cross_panel</span>, <span class="va">bridge_2010_2019</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cross_changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span></span>
+<span>    <span class="va">from_onet_soc_code</span>,</span>
+<span>    <span class="va">to_onet_soc_code</span>,</span>
+<span>    <span class="va">element_name</span>,</span>
+<span>    <span class="va">change_type</span>,</span>
+<span>    <span class="va">crosswalk_uncertain</span>,</span>
+<span>    <span class="va">transition_data</span>,</span>
+<span>    <span class="va">safely_comparable</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 7</span></span></span>
+<span><span class="co">#&gt;   from_onet_soc_code to_onet_soc_code element_name        change_type    </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 15-1132.00         15-1252.00       Oral Comprehension  transition_data</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 15-1132.00         15-1253.00       Oral Comprehension  transition_data</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 29-1141.00         29-1141.00       Oral Comprehension  real_update    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 15-1132.00         15-1252.00       Problem Sensitivity dropped        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 15-1132.00         15-1253.00       Problem Sensitivity dropped        </span></span>
+<span><span class="co">#&gt;   crosswalk_uncertain transition_data safely_comparable</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> TRUE                TRUE            FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> TRUE                TRUE            FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> FALSE               FALSE           TRUE             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> TRUE                FALSE           FALSE            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> TRUE                FALSE           FALSE</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">summary_counts</span> <span class="op">&lt;-</span> <span class="va">changes</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">count</span><span class="op">(</span><span class="va">change_type</span>, name <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">rows</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span></span>
+<span>  height <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">summary_counts</span><span class="op">$</span><span class="va">rows</span>, <span class="va">summary_counts</span><span class="op">$</span><span class="va">change_type</span><span class="op">)</span>,</span>
+<span>  col <span class="op">=</span> <span class="st">"#0f766e"</span>,</span>
+<span>  border <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  las <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Rows"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"Change Classification Comes Before Interpretation"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="longitudinal-archives_files/figure-html/summary-chart-1.png" class="r-plt" alt="Bar chart of same-vintage change classifications." width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="summarize-the-panel">Summarize the Panel<a class="anchor" aria-label="anchor" href="#summarize-the-panel"></a>
@@ -427,7 +409,7 @@ source date changed, and no method or taxonomy warning is present.</p>
 <p><code><a href="../reference/onet_change_summary.html">onet_change_summary()</a></code> gives a compact audit of the
 reconciliation result. The job-family view is useful for spotting
 whether one part of the SOC taxonomy is driving the apparent change.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_change_summary.html">onet_change_summary</a></span><span class="op">(</span><span class="va">changes</span>, by <span class="op">=</span> <span class="st">"job_family"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>width <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 10</span></span></span>
@@ -482,7 +464,7 @@ releases use different O*NET-SOC vintages.</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
