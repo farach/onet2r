@@ -86,10 +86,9 @@
 <p>O*NET tells you what occupations do: their tasks, abilities, skills,
 knowledge, and work contexts. The Bureau of Labor Statistics
 Occupational Employment and Wage Statistics (OEWS) program tells you how
-large those occupations are in the labor market and what they pay. O*NET
-describes the job; OEWS reminds you how many people would notice if it
-changed. Joining the two lets you move from an occupation-level
-descriptor table to a labor-market-weighted question.</p>
+large those occupations are in the labor market and what they pay.
+Joining the two lets you move from an occupation-level descriptor table
+to a labor-market-weighted question.</p>
 <p>This walkthrough asks: among occupations in a small O*NET ability
 panel, what does a national employment-weighted ability score look like,
 and what changes if we use a custom PUMS-style population instead?</p>
@@ -430,6 +429,10 @@ you how much of the weight panel was included.</p>
 <span>  y <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">title</span>, <span class="va">weighted_score</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>, width <span class="op">=</span> <span class="fl">0.65</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span></span>
+<span>    labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/label_number.html" class="external-link">label_number</a></span><span class="op">(</span>scale_cut <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/number.html" class="external-link">cut_short_scale</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    expand <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/expansion.html" class="external-link">expansion</a></span><span class="op">(</span>mult <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>    title <span class="op">=</span> <span class="st">"Which Occupations Drive the Weighted Score?"</span>,</span>
 <span>    subtitle <span class="op">=</span> <span class="st">"Contribution is the occupation score times employment."</span>,</span>

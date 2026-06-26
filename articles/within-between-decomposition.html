@@ -85,10 +85,9 @@
     
 <p>Aggregate changes can come from two places. Occupations can change
 internally, or employment can shift toward occupations that already had
-different scores. The honest answer is usually “both, a little,” which
-is exactly what a decomposition is for. With O*NET, the within term
-needs an extra gate: only rows that survive the comparability checks
-should be counted as safely comparable within-occupation change.</p>
+different scores. With O*NET, the within term needs an extra gate: only
+rows that survive the comparability checks should be counted as safely
+comparable within-occupation change.</p>
 <div class="section level2">
 <h2 id="a-fixture-derived-example">A Fixture-Derived Example<a class="anchor" aria-label="anchor" href="#a-fixture-derived-example"></a>
 </h2>
@@ -257,36 +256,40 @@ accounting but do not get treated as clean within-occupation change.</p>
 <code class="sourceCode R"><span><span class="va">components</span> <span class="op">&lt;-</span> <span class="va">decomp</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">component</span> <span class="op">!=</span> <span class="st">"total_change"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span></span>
-<span>    component <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">component</span>, levels <span class="op">=</span> <span class="va">component</span><span class="op">)</span>,</span>
-<span>    start <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span>, default <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
-<span>    end <span class="op">=</span> <span class="va">start</span> <span class="op">+</span> <span class="va">value</span>,</span>
-<span>    direction <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">value</span> <span class="op">&gt;=</span> <span class="fl">0</span>, <span class="st">"Positive"</span>, <span class="st">"Negative"</span><span class="op">)</span></span>
+<span>    label <span class="op">=</span> <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/toTitleCase.html" class="external-link">toTitleCase</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"_"</span>, <span class="st">" "</span>, <span class="va">component</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">label</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">label</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    direction <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">value</span> <span class="op">&gt;=</span> <span class="fl">0</span>, <span class="st">"Raises the aggregate"</span>, <span class="st">"Lowers the aggregate"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">components</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">component</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_rect</a></span><span class="op">(</span></span>
+<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">components</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">value</span>, y <span class="op">=</span> <span class="va">label</span>, fill <span class="op">=</span> <span class="va">direction</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.62</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"slate"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span></span>
 <span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
-<span>      xmin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">component</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.35</span>,</span>
-<span>      xmax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">component</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.35</span>,</span>
-<span>      ymin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">start</span>, <span class="va">end</span><span class="op">)</span>,</span>
-<span>      ymax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="va">start</span>, <span class="va">end</span><span class="op">)</span>,</span>
-<span>      fill <span class="op">=</span> <span class="va">direction</span></span>
+<span>      label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%+.3f"</span>, <span class="va">value</span><span class="op">)</span>,</span>
+<span>      hjust <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">value</span> <span class="op">&gt;=</span> <span class="fl">0</span>, <span class="op">-</span><span class="fl">0.15</span>, <span class="fl">1.15</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">3.5</span>,</span>
+<span>    color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"ink"</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Raises the aggregate"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>      <span class="st">"Lowers the aggregate"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"rose"</span><span class="op">]</span><span class="op">]</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, color <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"slate"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"_"</span>, <span class="st">" "</span>, <span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span></span>
-<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Positive <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>, Negative <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"rose"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span></span>
+<span>    expand <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/expansion.html" class="external-link">expansion</a></span><span class="op">(</span>mult <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.16</span>, <span class="fl">0.16</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Where Did the Aggregate Change Come From?"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"Unsafe within movement is isolated in the unclassifiable bucket."</span>,</span>
-<span>    x <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    y <span class="op">=</span> <span class="st">"Contribution to change"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Where did the aggregate change come from?"</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="st">"Each piece's contribution to the total change."</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Contribution to total change"</span>,</span>
+<span>    y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    fill <span class="op">=</span> <span class="cn">NULL</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="within-between-decomposition_files/figure-html/decomposition-chart-1.png" class="r-plt" alt="Waterfall chart showing within, between, interaction, and unclassifiable decomposition components." width="672"></p>
+<p><img src="within-between-decomposition_files/figure-html/decomposition-chart-1.png" class="r-plt" alt="Horizontal bar chart showing the within, between, interaction, and unclassifiable contributions to the aggregate change, with value labels." width="672"></p>
 <p>The component rows other than <code>total_change</code> sum to the
 total change.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">

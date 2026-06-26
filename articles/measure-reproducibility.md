@@ -2,11 +2,10 @@
 
 O\*NET users often arrive with their own score: an exposure measure, a
 task classification, a skill index, or a hand-coded construct. `onet2r`
-does not try to decide which score is correct (that debate is between
-you and Reviewer 2). It helps with the parts around the score: checking
-keys, using versioned O\*NET files, aggregating tasks to occupations,
-adding employment weights, and recording enough provenance for someone
-else to reproduce the number.
+does not try to decide which score is correct. It helps with the parts
+around the score: checking keys, using versioned O\*NET files,
+aggregating tasks to occupations, adding employment weights, and
+recording enough provenance for someone else to reproduce the number.
 
 This article uses the small archive fixtures shipped with the package.
 The task score is stylized and should not be interpreted as a real
@@ -224,24 +223,42 @@ diagnostic |>
 | RT_core_plus_supplemental / task_release / weights / no_bridge | 0.373     | 0.96                      | -0.047   | -0.112           |
 
 ``` r
-ggplot2::ggplot(diagnostic, ggplot2::aes(
+plot_diagnostic <- diagnostic |>
+  mutate(
+    rule = if_else(
+      include_supplemental,
+      "Core + supplemental tasks",
+      "Core tasks only"
+    )
+  )
+
+ggplot2::ggplot(plot_diagnostic, ggplot2::aes(
   x = aggregate,
-  y = stats::reorder(scenario, aggregate)
+  y = stats::reorder(rule, aggregate)
 )) +
   ggplot2::geom_vline(
-    xintercept = diagnostic$baseline_aggregate[[1]],
+    xintercept = plot_diagnostic$baseline_aggregate[[1]],
     color = onet2r_colors[["slate"]],
     linetype = "dashed"
   ) +
   ggplot2::geom_segment(
-    ggplot2::aes(x = 0, xend = aggregate, yend = scenario),
+    ggplot2::aes(x = 0, xend = aggregate, yend = rule),
     color = onet2r_colors[["light_gray"]],
-    linewidth = 1
+    linewidth = 1.1
   ) +
-  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 3.3) +
+  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 4) +
+  ggplot2::geom_text(
+    ggplot2::aes(label = sprintf("%.3f", aggregate)),
+    hjust = -0.3,
+    size = 3.5,
+    color = onet2r_colors[["ink"]]
+  ) +
+  ggplot2::scale_x_continuous(
+    expand = ggplot2::expansion(mult = c(0, 0.18))
+  ) +
   ggplot2::labs(
-    title = "Plumbing Choices Move the Headline Number",
-    subtitle = "Dashed line marks the baseline scenario.",
+    title = "Task handling moves the headline number",
+    subtitle = "Same task score, two rollup rules. The dashed line is the baseline.",
     x = "Aggregate score",
     y = NULL
   ) +

@@ -84,10 +84,8 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"onet2r"</span><span class="op">)</span></span></code></pre></div>
 <p>You can install the development version from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"farach/onet2r"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -95,14 +93,14 @@
 <h2 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a>
 </h2>
 <p>Live O*NET API calls require a free API key from <a href="https://services.onetcenter.org/developer/" class="external-link uri">https://services.onetcenter.org/developer/</a>. Store it in <code>.Renviron</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ONET_API_KEY</span><span class="op">=</span><span class="va">your</span><span class="op">-</span><span class="va">api</span><span class="op">-</span><span class="va">key</span><span class="op">-</span><span class="va">here</span></span></code></pre></div>
 <p>The archive, OEWS, and measure examples below run without a key.</p>
 </div>
 <div class="section level2">
 <h2 id="read-archived-releases">Read Archived Releases<a class="anchor" aria-label="anchor" href="#read-archived-releases"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">archive_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"onet-mini"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
 <span><span class="va">archives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  `24.3` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">archive_base</span>, <span class="st">"db_24_3_text"</span><span class="op">)</span>,</span>
@@ -187,7 +185,7 @@
 <div class="section level2">
 <h2 id="reconcile-historical-change">Reconcile Historical Change<a class="anchor" aria-label="anchor" href="#reconcile-historical-change"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bridge_2010_2019</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  from_vintage <span class="op">=</span> <span class="st">"2010"</span>,</span>
 <span>  to_vintage <span class="op">=</span> <span class="st">"2019"</span>,</span>
@@ -290,7 +288,7 @@
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">change_counts</span> <span class="op">&lt;-</span> <span class="va">changes</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">count</span><span class="op">(</span><span class="va">change_type</span>, name <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">rows</span><span class="op">)</span><span class="op">)</span></span>
@@ -317,7 +315,7 @@
 <h2 id="bring-your-own-measure">Bring Your Own Measure<a class="anchor" aria-label="anchor" href="#bring-your-own-measure"></a>
 </h2>
 <p>The package does not ship an AI exposure score or any other substantive measure. You supply a score, and <code>onet2r</code> validates keys, performs mechanical rollups, adds weights, and records provenance.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
 <span>  <span class="st">"30.3"</span>,</span>
 <span>  <span class="st">"Task Statements"</span>,</span>
@@ -373,7 +371,7 @@
 <td align="left">NA</td>
 </tr></tbody>
 </table>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">occupation_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_task_to_occupation.html">onet_task_to_occupation</a></span><span class="op">(</span></span>
 <span>  <span class="va">measure</span>,</span>
 <span>  task_ratings <span class="op">=</span> <span class="va">task_ratings</span>,</span>
@@ -419,7 +417,7 @@
 <div class="section level2">
 <h2 id="add-employment-weights">Add Employment Weights<a class="anchor" aria-label="anchor" href="#add-employment-weights"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews_sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"oews-national-sample.csv"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -477,7 +475,7 @@
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aggregate</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
 <span>  <span class="va">occupation_scores</span>,</span>
 <span>  <span class="va">weights</span>,</span>
@@ -516,7 +514,7 @@
 <td align="left">2</td>
 </tr></tbody>
 </table>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">aggregate</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -553,7 +551,7 @@
 <div class="section level2">
 <h2 id="stress-test-the-plumbing">Stress Test the Plumbing<a class="anchor" aria-label="anchor" href="#stress-test-the-plumbing"></a>
 </h2>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pums_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_weight_panel_pums.html">onet_weight_panel_pums</a></span><span class="op">(</span></span>
 <span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    SOCP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"151252"</span>, <span class="st">"151252"</span>, <span class="st">"291141"</span>, <span class="st">"291141"</span><span class="op">)</span>,</span>
@@ -629,7 +627,7 @@
 <div class="section level2">
 <h2 id="decompose-aggregate-change">Decompose Aggregate Change<a class="anchor" aria-label="anchor" href="#decompose-aggregate-change"></a>
 </h2>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">from_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252"</span>, <span class="st">"29-1141"</span><span class="op">)</span>,</span>
 <span>  measure_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">2.0</span><span class="op">)</span>,</span>
@@ -682,7 +680,7 @@
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">decomp</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>

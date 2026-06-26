@@ -4,9 +4,8 @@ O\*NET tells you what occupations do: their tasks, abilities, skills,
 knowledge, and work contexts. The Bureau of Labor Statistics
 Occupational Employment and Wage Statistics (OEWS) program tells you how
 large those occupations are in the labor market and what they pay.
-O\*NET describes the job; OEWS reminds you how many people would notice
-if it changed. Joining the two lets you move from an occupation-level
-descriptor table to a labor-market-weighted question.
+Joining the two lets you move from an occupation-level descriptor table
+to a labor-market-weighted question.
 
 This walkthrough asks: among occupations in a small O\*NET ability
 panel, what does a national employment-weighted ability score look like,
@@ -152,6 +151,10 @@ ggplot2::ggplot(contributions, ggplot2::aes(
   y = stats::reorder(title, weighted_score)
 )) +
   ggplot2::geom_col(fill = onet2r_colors[["teal"]], width = 0.65) +
+  ggplot2::scale_x_continuous(
+    labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+    expand = ggplot2::expansion(mult = c(0, 0.05))
+  ) +
   ggplot2::labs(
     title = "Which Occupations Drive the Weighted Score?",
     subtitle = "Contribution is the occupation score times employment.",
