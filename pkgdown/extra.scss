@@ -122,6 +122,8 @@ div.sourceCode {
   border: 1px solid rgba(15, 118, 110, 0.14);
   border-radius: 1rem;
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 code {
@@ -132,10 +134,23 @@ table {
   font-variant-numeric: tabular-nums;
 }
 
-.table,
-table {
+// Keep wide tables, figures, and code inside the body column. Tables wider
+// than the content area scroll horizontally instead of being clipped or
+// spilling past the page; narrow tables keep their natural width.
+.contents table,
+.template-home table {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
   border-radius: 0.9rem;
-  overflow: hidden;
+}
+
+.contents img,
+.contents .figure img,
+.template-home img {
+  max-width: 100%;
+  height: auto;
 }
 
 blockquote {
@@ -152,7 +167,12 @@ blockquote {
   padding: 1rem 1.25rem;
   margin: 1.25rem 0;
   background: #fbfdfc;
+  color: #1f2937;
   box-shadow: 0 16px 38px rgba(15, 23, 42, 0.06);
+}
+
+.onet-callout p {
+  color: #1f2937;
 }
 
 .onet-callout strong {

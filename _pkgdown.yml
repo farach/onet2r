@@ -7,7 +7,6 @@ development:
 template:
   bootstrap: 5
   bootswatch: flatly
-  light-switch: true
   bslib:
     primary: "#0f766e"
     secondary: "#334155"
