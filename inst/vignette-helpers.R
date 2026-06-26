@@ -29,6 +29,8 @@ onet2r_theme <- function(base_size = 12) {
         linewidth = 0.3
       ),
       panel.grid.major.y = ggplot2::element_blank(),
+      plot.title.position = "plot",
+      plot.caption.position = "plot",
       plot.title = ggplot2::element_text(
         color = onet2r_colors[["ink"]],
         face = "bold",
@@ -45,6 +47,16 @@ onet2r_theme <- function(base_size = 12) {
       legend.text = ggplot2::element_text(color = onet2r_colors[["ink"]]),
       plot.margin = ggplot2::margin(14, 16, 14, 16)
     )
+}
+
+# Wrap long discrete axis labels so they do not push the panel sideways.
+onet2r_wrap <- function(width = 22) {
+  function(x) vapply(
+    strwrap(x, width = width, simplify = FALSE),
+    paste,
+    character(1),
+    collapse = "\n"
+  )
 }
 
 onet2r_discrete_fill <- function(...) {

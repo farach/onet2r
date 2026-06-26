@@ -33,10 +33,8 @@ archive_dir <- system.file("extdata", "onet-mini", "db_30_3_text", package = "on
 
 Many user measures start at the task level: a researcher labels tasks, a model
 scores task text, or a team codes task exposure manually. Occupation-level
-analysis needs one score per occupation, which means someone has to do the
-unglamorous work of weighting and averaging tasks. `onet_task_to_occupation()`
-performs that mechanical rollup using O&#42;NET task ratings, and never once
-complains about it.
+analysis needs one score per occupation. `onet_task_to_occupation()` performs
+that mechanical rollup using O&#42;NET task ratings.
 
 ## Read Task Statements and Ratings
 

@@ -36,10 +36,9 @@ source(helper_path)
 ```
 
 Aggregate changes can come from two places. Occupations can change internally,
-or employment can shift toward occupations that already had different scores. The
-honest answer is usually "both, a little," which is exactly what a decomposition
-is for. With O&#42;NET, the within term needs an extra gate: only rows that survive
-the comparability checks should be counted as safely comparable within-occupation
+or employment can shift toward occupations that already had different scores.
+With O&#42;NET, the within term needs an extra gate: only rows that survive the
+comparability checks should be counted as safely comparable within-occupation
 change.
 
 ## A Fixture-Derived Example
@@ -119,36 +118,40 @@ onet_coverage(decomp) |>
   onet_kable()
 ```
 
-```{r decomposition-chart, fig.alt = "Waterfall chart showing within, between, interaction, and unclassifiable decomposition components."}
+```{r decomposition-chart, fig.alt = "Horizontal bar chart showing the within, between, interaction, and unclassifiable contributions to the aggregate change, with value labels."}
 components <- decomp |>
   filter(component != "total_change") |>
   mutate(
-    component = factor(component, levels = component),
-    start = dplyr::lag(cumsum(value), default = 0),
-    end = start + value,
-    direction = if_else(value >= 0, "Positive", "Negative")
+    label = tools::toTitleCase(gsub("_", " ", component)),
+    label = factor(label, levels = rev(label)),
+    direction = if_else(value >= 0, "Raises the aggregate", "Lowers the aggregate")
   )
 
-ggplot2::ggplot(components, ggplot2::aes(x = component)) +
-  ggplot2::geom_rect(
+ggplot2::ggplot(components, ggplot2::aes(x = value, y = label, fill = direction)) +
+  ggplot2::geom_col(width = 0.62) +
+  ggplot2::geom_vline(xintercept = 0, color = onet2r_colors[["slate"]]) +
+  ggplot2::geom_text(
     ggplot2::aes(
-      xmin = as.numeric(component) - 0.35,
-      xmax = as.numeric(component) + 0.35,
-      ymin = pmin(start, end),
-      ymax = pmax(start, end),
-      fill = direction
+      label = sprintf("%+.3f", value),
+      hjust = if_else(value >= 0, -0.15, 1.15)
+    ),
+    size = 3.5,
+    color = onet2r_colors[["ink"]]
+  ) +
+  ggplot2::scale_fill_manual(
+    values = c(
+      "Raises the aggregate" = onet2r_colors[["teal"]],
+      "Lowers the aggregate" = onet2r_colors[["rose"]]
     )
   ) +
-  ggplot2::geom_hline(yintercept = 0, color = onet2r_colors[["slate"]]) +
-  ggplot2::scale_x_discrete(labels = function(x) gsub("_", " ", x)) +
-  ggplot2::scale_fill_manual(
-    values = c(Positive = onet2r_colors[["teal"]], Negative = onet2r_colors[["rose"]])
+  ggplot2::scale_x_continuous(
+    expand = ggplot2::expansion(mult = c(0.16, 0.16))
   ) +
   ggplot2::labs(
-    title = "Where Did the Aggregate Change Come From?",
-    subtitle = "Unsafe within movement is isolated in the unclassifiable bucket.",
-    x = NULL,
-    y = "Contribution to change",
+    title = "Where did the aggregate change come from?",
+    subtitle = "Each piece's contribution to the total change.",
+    x = "Contribution to total change",
+    y = NULL,
     fill = NULL
   ) +
   onet2r_theme()

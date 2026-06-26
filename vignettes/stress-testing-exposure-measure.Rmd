@@ -41,9 +41,7 @@ oews_path <- system.file("extdata", "oews-national-sample.csv", package = "onet2
 
 This article uses a stylized task score to show the sensitivity workflow. The
 score is not a package-endorsed exposure measure. The package's job is to show
-how much the headline number moves when non-substantive choices change. A result
-that only survives one specific set of choices is not a finding. It is a
-coincidence with good lighting.
+how much the headline number moves when non-substantive choices change.
 
 ## Build the Measure from Task Files
 
@@ -164,7 +162,7 @@ sensitivity |>
 plot_sensitivity <- sensitivity |>
   mutate(
     task_rule = if_else(include_supplemental, "core + supplemental", "core only"),
-    plot_label = paste(task_release, weight_panel, task_rule, sep = " / ")
+    plot_label = paste0(task_release, "  |  ", weight_panel, "  |  ", task_rule)
   )
 
 ggplot2::ggplot(plot_sensitivity, ggplot2::aes(
@@ -178,25 +176,26 @@ ggplot2::ggplot(plot_sensitivity, ggplot2::aes(
     color = onet2r_colors[["slate"]],
     linetype = "dashed"
   ) +
-  ggplot2::geom_point(size = 3.1) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = sprintf("%+.3f", movement)),
-    hjust = -0.15,
-    size = 3,
-    show.legend = FALSE
-  ) +
+  ggplot2::geom_point(size = 3.6) +
   ggplot2::scale_color_manual(
-    values = c(oews = onet2r_colors[["teal"]], pums = onet2r_colors[["amber"]])
+    values = c(oews = onet2r_colors[["teal"]], pums = onet2r_colors[["amber"]]),
+    name = "Weight source"
+  ) +
+  ggplot2::scale_shape_manual(
+    values = c("core only" = 16, "core + supplemental" = 17),
+    name = "Task rule"
+  ) +
+  ggplot2::scale_x_continuous(
+    expand = ggplot2::expansion(mult = c(0.08, 0.12))
   ) +
   ggplot2::labs(
-    title = "Sensitivity to Task Release, Weights, and Task Handling",
+    title = "Sensitivity to task release, weights, and task handling",
     subtitle = "Dashed line marks the first scenario in the grid.",
     x = "Aggregate score",
-    y = NULL,
-    color = "Weight source",
-    shape = "Task rule"
+    y = NULL
   ) +
-  onet2r_theme()
+  onet2r_theme() +
+  ggplot2::theme(legend.box = "vertical", legend.margin = ggplot2::margin())
 ```
 
 ## Inspect Provenance

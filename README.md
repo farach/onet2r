@@ -13,10 +13,6 @@ employment weights, coverage, and provenance.
 
 ## Installation
 
-``` r
-install.packages("onet2r")
-```
-
 You can install the development version from GitHub:
 
 ``` r
