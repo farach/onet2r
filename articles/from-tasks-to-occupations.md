@@ -164,6 +164,5 @@ ggplot2::ggplot(comparison, ggplot2::aes(
 core-plus-supplemental task
 rules.](from-tasks-to-occupations_files/figure-html/task-chart-1.png)
 
-The task score did not change. The rollup rule changed. That distinction
-matters because a transparent article should separate substantive
-scoring from package plumbing.
+The task score did not change; only the rollup rule did. A clear
+write-up keeps the scoring choice separate from the package mechanics.

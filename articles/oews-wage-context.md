@@ -226,7 +226,6 @@ tibble::tibble(
 | OEWS national     | 4.574     | 1        |
 | PUMS-style F cell | 4.504     | 1        |
 
-The point is not that one source is always better. OEWS gives official
-labor market estimates. PUMS gives custom cells. The package makes the
-weight source, year, taxonomy, and coverage explicit so readers can see
-what changed.
+Neither source is always better. OEWS gives official labor market
+estimates; PUMS gives custom cells. The package records the weight
+source, year, taxonomy, and coverage so a reader can see what changed.

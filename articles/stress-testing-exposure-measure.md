@@ -215,5 +215,5 @@ onet_provenance(sensitivity) |>
 | PUMS          | 2022        | stylized_exposure |
 
 If the sign, rank, or interpretation of a result depends on one plumbing
-choice, that belongs in the write-up. The function does not make the
-result more true. It makes the fragility visible.
+choice, say so in the write-up. Running the grid does not make a result
+more trustworthy; it just shows where that result is fragile.

@@ -269,5 +269,5 @@ ggplot2::ggplot(plot_diagnostic, ggplot2::aes(
 stylized task
 aggregates.](measure-reproducibility_files/figure-html/robustness-chart-1.png)
 
-The diagnostic does not say which task score is right. It shows how much
-the headline number moves when non-substantive plumbing changes.
+The diagnostic will not tell you which task score is right. It reports
+how far the headline number moves when non-substantive plumbing changes.

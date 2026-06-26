@@ -124,6 +124,6 @@ tibble::tibble(
 |:-----------------------------------------------|:-------|
 | ONET_API_KEY available for live API validation | FALSE  |
 
-The goal is not to replace unit tests. It is to give maintainers and
-users a repeatable, practical way to confirm that live API outputs still
-match the shapes used in examples, vignettes, and downstream analyses.
+This does not replace unit tests. It gives maintainers and users a
+repeatable way to confirm that live API outputs still match the shapes
+used in examples, vignettes, and downstream analyses.
