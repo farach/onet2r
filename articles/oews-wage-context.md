@@ -4,8 +4,9 @@ O\*NET tells you what occupations do: their tasks, abilities, skills,
 knowledge, and work contexts. The Bureau of Labor Statistics
 Occupational Employment and Wage Statistics (OEWS) program tells you how
 large those occupations are in the labor market and what they pay.
-Joining the two lets you move from an occupation-level descriptor table
-to a labor-market-weighted question.
+O\*NET describes the job; OEWS reminds you how many people would notice
+if it changed. Joining the two lets you move from an occupation-level
+descriptor table to a labor-market-weighted question.
 
 This walkthrough asks: among occupations in a small O\*NET ability
 panel, what does a national employment-weighted ability score look like,

@@ -2,9 +2,10 @@
 
 Aggregate changes can come from two places. Occupations can change
 internally, or employment can shift toward occupations that already had
-different scores. With O\*NET, the within term needs an extra gate: only
-rows that survive the comparability checks should be counted as safely
-comparable within-occupation change.
+different scores. The honest answer is usually “both, a little,” which
+is exactly what a decomposition is for. With O\*NET, the within term
+needs an extra gate: only rows that survive the comparability checks
+should be counted as safely comparable within-occupation change.
 
 ## A Fixture-Derived Example
 

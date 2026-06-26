@@ -1,5 +1,9 @@
 # How to Fool Yourself with O\*NET over Time
 
+The fastest way to find a dramatic trend in O\*NET is to compare two
+releases and skip the fine print. The second fastest way is to present
+that trend before anyone asks about source dates.
+
 A common mistake is to treat every release-to-release difference as a
 fresh within-occupation change. O\*NET archives contain source dates,
 domain sources, suppression flags, and taxonomy vintages. Ignoring those

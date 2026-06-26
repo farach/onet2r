@@ -1,8 +1,10 @@
 # Choosing Employment Weights: OEWS versus PUMS
 
-Weights answer a population question. OEWS is usually the best choice
-when the target is official occupation employment and wage context. PUMS
-is useful when the target is a custom sample or demographic cell.
+Weights answer a population question, and picking the wrong one quietly
+answers a different question than the one you asked. OEWS is usually the
+best choice when the target is official occupation employment and wage
+context. PUMS is useful when the target is a custom sample or
+demographic cell.
 
 ## Start with the Same O\*NET Score
 

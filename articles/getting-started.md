@@ -10,7 +10,9 @@ contain secrets.
 
 The live Web Services examples are opt-in for package builds because
 CRAN and CI should not depend on an external API. Everything else in
-this article uses local files through actual `onet2r` functions.
+this article uses local files through actual `onet2r` functions, so you
+can follow along on a plane with no signal and strong opinions about
+occupations.
 
 ``` r
 tibble::tibble(

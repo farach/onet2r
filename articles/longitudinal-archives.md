@@ -113,7 +113,8 @@ panel |>
 
 This is the table you would save as your audit trail before doing any
 modeling. It records the exact versions, values, and source dates used
-in the comparison.
+in the comparison, and it is the table you will be very glad to have
+when someone asks where a number came from six months later.
 
 ## Reconcile Adjacent Releases
 

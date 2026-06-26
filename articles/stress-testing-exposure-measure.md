@@ -3,7 +3,8 @@
 This article uses a stylized task score to show the sensitivity
 workflow. The score is not a package-endorsed exposure measure. The
 package’s job is to show how much the headline number moves when
-non-substantive choices change.
+non-substantive choices change. A result that only survives one specific
+set of choices is not a finding. It is a coincidence with good lighting.
 
 ## Build the Measure from Task Files
 

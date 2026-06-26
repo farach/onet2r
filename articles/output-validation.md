@@ -1,10 +1,12 @@
 # Validating onet2r Outputs
 
 The package test suite checks implementation details with mocked
-responses and small deterministic files. For real projects, it is also
-useful to inspect output shape: Are expected columns present? Are rows
-non-empty where they should be? Are list endpoints returning the fields
-users need?
+responses and small deterministic files. Passing tests confirm the code
+runs. This article is about the slightly paranoid follow-up question:
+did it run and also return something that makes sense? For real
+projects, it is useful to inspect output shape: Are expected columns
+present? Are rows non-empty where they should be? Are list endpoints
+returning the fields users need?
 
 `onet2r` includes a practical validation script that maintainers can run
 from the source tree with `Rscript inst/examples/validate-outputs.R`.

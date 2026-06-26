@@ -10,7 +10,9 @@ Center for O\*NET Development, n.d.b](#ref-onet_archive)).
 
 That reconstruction is why `onet2r` includes archive, bridge, and
 reconciliation helpers. They do not make the historical data
-automatically causal or comparable. They make the assumptions visible.
+automatically causal or comparable. They make the assumptions visible,
+which is the difference between a finding and a referee report waiting
+to happen.
 
 ## The 3 Problems Users Must Handle
 

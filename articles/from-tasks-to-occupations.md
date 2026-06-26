@@ -2,9 +2,11 @@
 
 Many user measures start at the task level: a researcher labels tasks, a
 model scores task text, or a team codes task exposure manually.
-Occupation-level analysis needs one score per occupation.
+Occupation-level analysis needs one score per occupation, which means
+someone has to do the unglamorous work of weighting and averaging tasks.
 [`onet_task_to_occupation()`](https://farach.github.io/onet2r/reference/onet_task_to_occupation.md)
-performs that mechanical rollup using O\*NET task ratings.
+performs that mechanical rollup using O\*NET task ratings, and never
+once complains about it.
 
 ## Read Task Statements and Ratings
 

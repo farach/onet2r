@@ -2,10 +2,11 @@
 
 O\*NET users often arrive with their own score: an exposure measure, a
 task classification, a skill index, or a hand-coded construct. `onet2r`
-does not try to decide which score is correct. It helps with the parts
-around the score: checking keys, using versioned O\*NET files,
-aggregating tasks to occupations, adding employment weights, and
-recording enough provenance for someone else to reproduce the number.
+does not try to decide which score is correct (that debate is between
+you and Reviewer 2). It helps with the parts around the score: checking
+keys, using versioned O\*NET files, aggregating tasks to occupations,
+adding employment weights, and recording enough provenance for someone
+else to reproduce the number.
 
 This article uses the small archive fixtures shipped with the package.
 The task score is stylized and should not be interpreted as a real
