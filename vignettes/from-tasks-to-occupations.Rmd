@@ -149,6 +149,5 @@ ggplot2::ggplot(comparison, ggplot2::aes(
   onet2r_theme()
 ```
 
-The task score did not change. The rollup rule changed. That distinction matters
-because a transparent article should separate substantive scoring from package
-plumbing.
+The task score did not change; only the rollup rule did. A clear write-up keeps
+the scoring choice separate from the package mechanics.

@@ -252,5 +252,5 @@ ggplot2::ggplot(plot_diagnostic, ggplot2::aes(
   onet2r_theme()
 ```
 
-The diagnostic does not say which task score is right. It shows how much the
-headline number moves when non-substantive plumbing changes.
+The diagnostic will not tell you which task score is right. It reports how far
+the headline number moves when non-substantive plumbing changes.
