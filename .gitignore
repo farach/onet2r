@@ -21,3 +21,6 @@ Thumbs.db
 /_pkgdown/
 /vignettes/*.R
 /vignettes/*.html
+
+# Local planning notes (not part of the package)
+/ROLLOUT.md

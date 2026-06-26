@@ -42,6 +42,68 @@ button:focus-visible,
   background-color: rgba(255, 255, 255, 0.16);
 }
 
+// Articles dropdown: make section labels read as labels and
+// articles read as clickable links. The default theme rendered the
+// two with near-identical weight, so categories looked clickable and
+// the real links looked disabled.
+.navbar .dropdown-menu {
+  --bs-dropdown-bg: #14302e;
+  --bs-dropdown-border-color: rgba(148, 163, 184, 0.20);
+  --bs-dropdown-link-color: #e8eef2;
+  --bs-dropdown-link-hover-color: #ffffff;
+  --bs-dropdown-link-hover-bg: rgba(20, 184, 166, 0.22);
+  --bs-dropdown-link-active-color: #ffffff;
+  --bs-dropdown-link-active-bg: rgba(20, 184, 166, 0.34);
+  padding-block: 0.45rem;
+  border-radius: 1rem;
+  box-shadow: 0 22px 52px rgba(15, 23, 42, 0.32);
+}
+
+.navbar .dropdown-header {
+  margin-top: 0.45rem;
+  padding: 0.45rem 1.15rem 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #5eead4;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.navbar .dropdown-header:first-child {
+  margin-top: 0;
+  border-top: 0;
+}
+
+.navbar .dropdown-item {
+  position: relative;
+  width: auto;
+  margin-inline: 0.4rem;
+  padding: 0.42rem 0.85rem 0.42rem 1.55rem;
+  border-radius: 0.55rem;
+  font-weight: 500;
+}
+
+.navbar .dropdown-item::before {
+  content: "";
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #2dd4bf;
+  opacity: 0.55;
+  transform: translateY(-50%);
+  transition: opacity 140ms ease;
+}
+
+.navbar .dropdown-item:hover::before,
+.navbar .dropdown-item:focus-visible::before,
+.navbar .dropdown-item.active::before {
+  opacity: 1;
+}
+
 .template-home .page-header {
   border-radius: 1.5rem;
   padding: 2.5rem;

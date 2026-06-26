@@ -45,7 +45,8 @@ archive_303 <- system.file(
 O&#42;NET tells you what occupations do: their tasks, abilities, skills, knowledge,
 and work contexts. The Bureau of Labor Statistics Occupational Employment and
 Wage Statistics (OEWS) program tells you how large those occupations are in the
-labor market and what they pay. Joining the two lets you move from an
+labor market and what they pay. O&#42;NET describes the job; OEWS reminds you how
+many people would notice if it changed. Joining the two lets you move from an
 occupation-level descriptor table to a labor-market-weighted question.
 
 This walkthrough asks: among occupations in a small O&#42;NET ability panel, what
