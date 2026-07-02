@@ -44,6 +44,14 @@ tasks |>
 `Task Ratings` carries relevance and importance ratings used to
 aggregate task-level scores.
 
+A practical note on choosing between the Importance (1-5) and Level
+(0-7) scales: they are empirically near-redundant. Handel ([Handel
+2016](#ref-handel2016onet)) reports a mean within-descriptor correlation
+of 0.92 across 130,249 ratings, with roughly 19% of correlations at 0.98
+or above. A measure built from IM and one built from LV will usually
+rank occupations almost identically, so treat an IM-vs-LV sensitivity
+check as cheap insurance, not as two independent measures.
+
 ``` r
 task_ratings |>
   select(onet_soc_code, task_id, scale_id, scale_name, data_value, recommend_suppress) |>
@@ -274,3 +282,7 @@ aggregates.](measure-reproducibility_files/figure-html/robustness-chart-1.png)
 
 The diagnostic will not tell you which task score is right. It reports
 how far the headline number moves when non-substantive plumbing changes.
+
+Handel, Michael J. 2016. “The O\*NET Content Model: Strengths and
+Limitations.” *Journal for Labour Market Research* 49 (2): 157–76.
+<https://doi.org/10.1007/s12651-016-0199-8>.

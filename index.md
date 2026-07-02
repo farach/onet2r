@@ -359,3 +359,17 @@ onet_coverage(decomp) |>
   [`onet_provenance()`](https://farach.github.io/onet2r/reference/onet_provenance.md),
   [`onet_coverage()`](https://farach.github.io/onet2r/reference/onet_coverage.md),
   [`onet_decompose_change()`](https://farach.github.io/onet2r/reference/onet_decompose_change.md).
+
+## Related tools
+
+- **ONETr** (CRAN) wraps the retired O\*NET Web Services v1 XML API with
+  username/password auth; it predates the v2 API this package targets.
+- **blscrapeR / blsAPI** wrap the BLS time-series API, which does not
+  serve the OEWS research flat files onet2r ingests; they are
+  complementary, not overlapping.
+- **tidycensus / ipumsr** are the right tools for fetching ACS PUMS
+  microdata; onet2r deliberately has no Census fetcher and consumes
+  their output for employment weights.
+- No other R or Python tool assembles longitudinal panels from
+  historical O\*NET database releases; that machinery is unique to
+  onet2r.

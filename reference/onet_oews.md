@@ -26,8 +26,10 @@ onet_oews(
 
 - year:
 
-  Integer estimate year. Defaults to the latest year expected to be
-  available from the BLS public OEWS downloads.
+  Integer estimate year. Defaults to the most recent May estimates
+  assumed available (previous calendar year from April onward, two years
+  back before April). If BLS has not yet published that release, the
+  download fails - pass the prior year explicitly.
 
 - path:
 
@@ -52,6 +54,18 @@ A tibble of OEWS estimates with `year`, `oews_type`, and snake_case OEWS
 columns. Special OEWS markers are preserved as indicator columns when
 present: `#` as top-coded, `*` as wage suppressed, `**` as employment
 suppressed, and `~` as less than 0.5 percent.
+
+## Details
+
+### Wage-field semantics
+
+OEWS publishes both hourly (`h_*`) and annual (`a_*`) wage fields. Some
+occupations are annual-only (`annual = TRUE`; e.g., teachers) or
+hourly-only (`hourly = TRUE`; e.g., actors) - their missing counterpart
+fields are structural, not suppressed. Suppression and top-coding are
+flagged separately (see the `*_topcoded` and suppression indicator
+columns). `*_prse` columns are percent relative standard errors of the
+corresponding estimates.
 
 ## Examples
 

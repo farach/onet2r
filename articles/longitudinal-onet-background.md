@@ -161,6 +161,21 @@ classifications from the example archive panels. The patterns are the
 minimum checks users should make before interpreting any cross-release
 difference.
 
+### Re-ratings are not independent
+
+Two facts sharpen the carry-forward caution. First, the Skills domain
+moved from incumbent to trained-analyst ratings around 2008, a
+documented comparability break ([Handel 2016](#ref-handel2016onet)).
+Second, for occupations rated a second time, O\*NET’s analyst procedures
+explicitly provide prior ratings to the analysts ([Fleisher and
+Tsacoumis 2012](#ref-onet_aoskills_update)). Modern release-over-release
+changes in analyst-rated domains are therefore not independent
+re-measurements; treat small movements as measurement persistence, not
+signal. The official [Longitudinal Data Updates
+record](https://www.onetcenter.org/dataUpdates.html) (see
+[`onet_data_updates()`](https://farach.github.io/onet2r/reference/onet_data_updates.md))
+tells you which occupations were actually re-rated in each cycle.
+
 ## How This Differs from the Standard Task Approach
 
 The canonical task-framework literature often avoids O\*NET’s
@@ -233,6 +248,11 @@ Consoli, Davide, Giovanni Marin, Francesco Rentocchini, and Francesco
 Vona. 2023. “Routinization, Within-Occupation Task Changes and Long-Run
 Employment Dynamics.” *Research Policy* 52 (1): 104658.
 <https://doi.org/10.1016/j.respol.2022.104658>.
+
+Fleisher, Matthew S., and Suzanne Tsacoumis. 2012. “O\*NET Analyst
+Occupational Skills Ratings: Procedures Update.” Human Resources
+Research Organization.
+<https://www.onetcenter.org/dl_files/AOSkills_ProcUpdate.pdf>.
 
 Handel, Michael J. 2016. “The O\*NET Content Model: Strengths and
 Limitations.” *Journal for Labour Market Research* 49 (2): 157–76.

@@ -18,7 +18,8 @@ onet_occupation_details(code)
 
 ## Value
 
-A list containing the available occupation details sections.
+A tibble with columns `title` and `href`, one row per available details
+section. Zero rows when the occupation has no details sections.
 
 ## Examples
 

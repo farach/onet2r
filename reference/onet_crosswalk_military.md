@@ -35,6 +35,12 @@ A tibble with matching civilian occupations:
 
   Civilian occupation title
 
+## Details
+
+The O\*NET military crosswalk is a keyword search over military titles
+and codes. It can return zero rows for valid-looking military codes or
+titles when the keyword does not match the Web Services index.
+
 ## Examples
 
 ``` r

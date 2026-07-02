@@ -11,7 +11,7 @@ term is restricted to rows marked comparable."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,6 +114,13 @@ marking rows safe for within-change attribution.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble with decomposition components and coverage list-column
 metadata readable with <code><a href="onet_coverage.html">onet_coverage()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>When the caller has reconciled a panel with stale carry-forward values,
+this decomposition treats those carried values as observed values. The
+resulting contribution is arithmetic, not proof that the underlying source
+measure was refreshed in that release.</p>
     </div>
 
     <div class="section level2">

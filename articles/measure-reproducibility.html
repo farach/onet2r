@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,6 +152,13 @@ functions.</p>
 <p><code>Task Statements</code> carries task ids and Core or
 Supplemental labels. <code>Task Ratings</code> carries relevance and
 importance ratings used to aggregate task-level scores.</p>
+<p>A practical note on choosing between the Importance (1-5) and Level
+(0-7) scales: they are empirically near-redundant. Handel <span class="citation">(<a href="#ref-handel2016onet">Handel 2016</a>)</span>
+reports a mean within-descriptor correlation of 0.92 across 130,249
+ratings, with roughly 19% of correlations at 0.98 or above. A measure
+built from IM and one built from LV will usually rank occupations almost
+identically, so treat an IM-vs-LV sensitivity check as cheap insurance,
+not as two independent measures.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">task_ratings</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">scale_id</span>, <span class="va">scale_name</span>, <span class="va">data_value</span>, <span class="va">recommend_suppress</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -607,6 +614,13 @@ no_bridge</td>
 <p>The diagnostic will not tell you which task score is right. It
 reports how far the headline number moves when non-substantive plumbing
 changes.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-handel2016onet" class="csl-entry">
+Handel, Michael J. 2016. <span>“The <span>O*NET</span> Content Model:
+Strengths and Limitations.”</span> <em>Journal for Labour Market
+Research</em> 49 (2): 157–76. <a href="https://doi.org/10.1007/s12651-016-0199-8" class="external-link">https://doi.org/10.1007/s12651-016-0199-8</a>.
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

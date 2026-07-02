@@ -11,7 +11,7 @@ release_date uses the first day of each stated month."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,12 +61,30 @@ archives. The release archive states release months, not days, so
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">onet_releases</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">onet_releases</span><span class="op">(</span>refresh <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+
+
+<dl><dt id="arg-refresh">refresh<a class="anchor" aria-label="anchor" href="#arg-refresh"></a></dt>
+<dd><p>Set <code>TRUE</code> to re-scrape the releases page instead of using
+the per-session cache.</p></dd>
+
+</dl></div>
+    <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble with release metadata and text archive URLs.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Text archives (<code>format = "text"</code>) exist for releases 20.1 (October 2015)
+onward. Earlier releases (5.0-20.0) are published as legacy ZIPs
+(<code>format = "legacy_zip"</code>); onet2r can download them, but their internal
+file layouts vary and parsing is verified only for 20.1+. The O*NET
+production archive begins at 5.0 (April 2003), the first release of the
+Data Collection Program - no survey-based data exists before that.</p>
     </div>
 
     <div class="section level2">

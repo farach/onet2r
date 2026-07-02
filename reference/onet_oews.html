@@ -13,7 +13,7 @@ Occupational Classification (SOC) code."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,8 +84,10 @@ Occupational Classification (SOC) code.</p>
 
 
 <dt id="arg-year">year<a class="anchor" aria-label="anchor" href="#arg-year"></a></dt>
-<dd><p>Integer estimate year. Defaults to the latest year expected to be
-available from the BLS public OEWS downloads.</p></dd>
+<dd><p>Integer estimate year. Defaults to the most recent May estimates
+assumed available (previous calendar year from April onward, two years
+back before April). If BLS has not yet published that release, the
+download fails - pass the prior year explicitly.</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
@@ -111,6 +113,23 @@ Excel file. If supplied, no download is attempted.</p></dd>
 OEWS columns. Special OEWS markers are preserved as indicator columns when
 present: <code>#</code> as top-coded, <code>*</code> as wage suppressed, <code>**</code> as employment
 suppressed, and <code>~</code> as less than 0.5 percent.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+
+<div class="section">
+<h3 id="wage-field-semantics">Wage-field semantics<a class="anchor" aria-label="anchor" href="#wage-field-semantics"></a></h3>
+
+
+<p>OEWS publishes both hourly (<code>h_*</code>) and annual (<code>a_*</code>) wage fields. Some
+occupations are annual-only (<code>annual = TRUE</code>; e.g., teachers) or
+hourly-only (<code>hourly = TRUE</code>; e.g., actors) - their missing counterpart
+fields are structural, not suppressed. Suppression and top-coding are
+flagged separately (see the <code>*_topcoded</code> and suppression indicator
+columns). <code>*_prse</code> columns are percent relative standard errors of the
+corresponding estimates.</p>
+</div>
+
     </div>
 
     <div class="section level2">

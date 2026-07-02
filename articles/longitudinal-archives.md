@@ -294,19 +294,19 @@ onet_change_summary(changes, by = "job_family") |>
   onet_kable()
 ```
 
-| summary_level | job_family | n_group | share_group | mean_value_change | median_abs_value_change | share_safely_comparable | share_method_break | share_crosswalk_uncertain | change_type           | n   | share |
-|:--------------|:-----------|:--------|:------------|:------------------|:------------------------|:------------------------|:-------------------|:--------------------------|:----------------------|:----|:------|
-| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | real_update           | 3   | 0.429 |
-| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | recode_or_recalc_flag | 1   | 0.143 |
-| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | resampled_stable      | 1   | 0.143 |
-| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | stale_carryforward    | 2   | 0.286 |
-| job_family    | 11         | 2       | 0.286       | 0.060             | 0.060                   | 0.500                   | 0.500              | 0                         | real_update           | 1   | 0.500 |
-| job_family    | 11         | 2       | 0.286       | 0.060             | 0.060                   | 0.500                   | 0.500              | 0                         | stale_carryforward    | 1   | 0.500 |
-| job_family    | 15         | 2       | 0.286       | 0.115             | 0.115                   | 1.000                   | 0.000              | 0                         | real_update           | 1   | 0.500 |
-| job_family    | 15         | 2       | 0.286       | 0.115             | 0.115                   | 1.000                   | 0.000              | 0                         | stale_carryforward    | 1   | 0.500 |
-| job_family    | 29         | 2       | 0.286       | 0.150             | 0.150                   | 0.500                   | 0.000              | 0                         | recode_or_recalc_flag | 1   | 0.500 |
-| job_family    | 29         | 2       | 0.286       | 0.150             | 0.150                   | 0.500                   | 0.000              | 0                         | resampled_stable      | 1   | 0.500 |
-| job_family    | 41         | 1       | 0.143       | 0.150             | 0.150                   | 1.000                   | 0.000              | 0                         | real_update           | 1   | 1.000 |
+| summary_level | job_family | n_group | share_group | mean_value_change | median_abs_value_change | share_safely_comparable | share_method_break | share_crosswalk_uncertain | change_type           | n   | n_weighted | share | share_weighted |
+|:--------------|:-----------|:--------|:------------|:------------------|:------------------------|:------------------------|:-------------------|:--------------------------|:----------------------|:----|:-----------|:------|:---------------|
+| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | real_update           | 3   | 3          | 0.429 | 0.429          |
+| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | recode_or_recalc_flag | 1   | 1          | 0.143 | 0.143          |
+| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | resampled_stable      | 1   | 1          | 0.143 | 0.143          |
+| overall       | NA         | 7       | 1.000       | 0.114             | 0.120                   | 0.714                   | 0.143              | 0                         | stale_carryforward    | 2   | 2          | 0.286 | 0.286          |
+| job_family    | 11         | 2       | 0.286       | 0.060             | 0.060                   | 0.500                   | 0.500              | 0                         | real_update           | 1   | 1          | 0.500 | 0.500          |
+| job_family    | 11         | 2       | 0.286       | 0.060             | 0.060                   | 0.500                   | 0.500              | 0                         | stale_carryforward    | 1   | 1          | 0.500 | 0.500          |
+| job_family    | 15         | 2       | 0.286       | 0.115             | 0.115                   | 1.000                   | 0.000              | 0                         | real_update           | 1   | 1          | 0.500 | 0.500          |
+| job_family    | 15         | 2       | 0.286       | 0.115             | 0.115                   | 1.000                   | 0.000              | 0                         | stale_carryforward    | 1   | 1          | 0.500 | 0.500          |
+| job_family    | 29         | 2       | 0.286       | 0.150             | 0.150                   | 0.500                   | 0.000              | 0                         | recode_or_recalc_flag | 1   | 1          | 0.500 | 0.500          |
+| job_family    | 29         | 2       | 0.286       | 0.150             | 0.150                   | 0.500                   | 0.000              | 0                         | resampled_stable      | 1   | 1          | 0.500 | 0.500          |
+| job_family    | 41         | 1       | 0.143       | 0.150             | 0.150                   | 1.000                   | 0.000              | 0                         | real_update           | 1   | 1          | 1.000 | 1.000          |
 
 ## Recommended Workflow for Real Archive Work
 

@@ -69,7 +69,9 @@ When multiple O\*NET detail occupations map to the same reference SOC,
 `onet_measure_aggregate()` first averages those detail scores within the
 SOC. Employment coverage is then counted once per reference SOC, so
 coverage shares cannot exceed 100 percent because of detail-code
-duplication.
+duplication. If more than 5 percent of filtered weight-panel employment
+has no matching measure score, the function reports the largest
+unmatched reference SOCs.
 
 ## Examples
 

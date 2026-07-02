@@ -84,12 +84,12 @@ oral_scores |>
   onet_kable()
 ```
 
-| onet_soc_code | title                                          | measure_score |
-|:--------------|:-----------------------------------------------|:--------------|
-| 15-1252.00    | Software Developers                            | 4.35          |
-| 29-1141.00    | Registered Nurses                              | 4.71          |
-| 11-1011.00    | Chief Executives                               | 4.50          |
-| 41-1011.00    | First-Line Supervisors of Retail Sales Workers | 4.15          |
+| onet_soc_code | title | measure_score |
+|:--------------|:------|:--------------|
+| 15-1252.00    | NA    | 4.35          |
+| 29-1141.00    | NA    | 4.71          |
+| 11-1011.00    | NA    | 4.50          |
+| 41-1011.00    | NA    | 4.15          |
 
 ## Aggregate with OEWS Employment
 
@@ -151,11 +151,11 @@ contributions |>
   onet_kable()
 ```
 
-| title               | reference_soc_code | measure_score | employment | weight_share | weighted_score |
-|:--------------------|:-------------------|:--------------|:-----------|:-------------|:---------------|
-| Registered Nurses   | 29-1141            | 4.71          | 3175400    | 0.607        | 14956134       |
-| Software Developers | 15-1252            | 4.35          | 1847900    | 0.353        | 8038365        |
-| Chief Executives    | 11-1011            | 4.50          | 211230     | 0.040        | 950535         |
+| title | reference_soc_code | measure_score | employment | weight_share | weighted_score |
+|:------|:-------------------|:--------------|:-----------|:-------------|:---------------|
+|       | 29-1141            | 4.71          | 3175400    | 0.607        | 14956134       |
+|       | 15-1252            | 4.35          | 1847900    | 0.353        | 8038365        |
+|       | 11-1011            | 4.50          | 211230     | 0.040        | 950535         |
 
 ``` r
 ggplot2::ggplot(contributions, ggplot2::aes(

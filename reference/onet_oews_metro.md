@@ -18,8 +18,10 @@ onet_oews_metro(
 
 - year:
 
-  Integer estimate year. Defaults to the latest year expected to be
-  available from the BLS public OEWS downloads.
+  Integer estimate year. Defaults to the most recent May estimates
+  assumed available (previous calendar year from April onward, two years
+  back before April). If BLS has not yet published that release, the
+  download fails - pass the prior year explicitly.
 
 - path:
 

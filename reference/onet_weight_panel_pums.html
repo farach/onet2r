@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,6 +128,10 @@ to valid reference SOC codes.</p>
 <p>Replicate-weight standard errors use <code>sqrt((4 / R) * sum((theta_r - theta)^2))</code>. For ACS PUMS, pass the full 80 <code>PWGTP1</code> through <code>PWGTP80</code>
 columns. Passing a smaller subset produces a warning because the resulting
 standard error is not survey-valid.</p>
+<p>The <code>year</code> argument means the 1-year ACS PUMS data year. 5-year PUMS files
+pool responses across vintages and can mix SOCP code versions within one
+file; SOC-vintage labeling is not reliable for them. Prefer 1-year files
+for weight panels, or resolve codes explicitly with a crosswalk.</p>
     </div>
 
     <div class="section level2">

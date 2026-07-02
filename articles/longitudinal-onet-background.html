@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -342,6 +342,20 @@ classifications from the example archive panels. The patterns are the
 minimum checks users should make before interpreting any cross-release
 difference.</p>
 </div>
+<div class="section level3">
+<h3 id="re-ratings-are-not-independent">Re-ratings are not independent<a class="anchor" aria-label="anchor" href="#re-ratings-are-not-independent"></a>
+</h3>
+<p>Two facts sharpen the carry-forward caution. First, the Skills domain
+moved from incumbent to trained-analyst ratings around 2008, a
+documented comparability break <span class="citation">(<a href="#ref-handel2016onet">Handel 2016</a>)</span>. Second, for
+occupations rated a second time, O*NET’s analyst procedures explicitly
+provide prior ratings to the analysts <span class="citation">(<a href="#ref-onet_aoskills_update">Fleisher and Tsacoumis
+2012</a>)</span>. Modern release-over-release changes in analyst-rated
+domains are therefore not independent re-measurements; treat small
+movements as measurement persistence, not signal. The official <a href="https://www.onetcenter.org/dataUpdates.html" class="external-link">Longitudinal Data
+Updates record</a> (see <code><a href="../reference/onet_data_updates.html">onet_data_updates()</a></code>) tells you
+which occupations were actually re-rated in each cycle.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="how-this-differs-from-the-standard-task-approach">How This Differs from the Standard Task Approach<a class="anchor" aria-label="anchor" href="#how-this-differs-from-the-standard-task-approach"></a>
@@ -427,6 +441,11 @@ Consoli, Davide, Giovanni Marin, Francesco Rentocchini, and Francesco
 Vona. 2023. <span>“Routinization, Within-Occupation Task Changes and
 Long-Run Employment Dynamics.”</span> <em>Research Policy</em> 52 (1):
 104658. <a href="https://doi.org/10.1016/j.respol.2022.104658" class="external-link">https://doi.org/10.1016/j.respol.2022.104658</a>.
+</div>
+<div id="ref-onet_aoskills_update" class="csl-entry">
+Fleisher, Matthew S., and Suzanne Tsacoumis. 2012.
+<span>“<span>O*NET</span> Analyst Occupational Skills Ratings:
+Procedures Update.”</span> Human Resources Research Organization. <a href="https://www.onetcenter.org/dl_files/AOSkills_ProcUpdate.pdf" class="external-link">https://www.onetcenter.org/dl_files/AOSkills_ProcUpdate.pdf</a>.
 </div>
 <div id="ref-handel2016onet" class="csl-entry">
 Handel, Michael J. 2016. <span>“The <span>O*NET</span> Content Model:

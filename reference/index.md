@@ -103,6 +103,8 @@
   : Reconcile O\*NET Panel Changes
 - [`onet_change_summary()`](https://farach.github.io/onet2r/reference/onet_change_summary.md)
   : Summarise O\*NET Panel Change Types
+- [`onet_data_updates()`](https://farach.github.io/onet2r/reference/onet_data_updates.md)
+  : Get the O\*NET Longitudinal Data Updates Record
 
 ## BLS OEWS and PUMS weight panels
 

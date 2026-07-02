@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,34 @@
       <small>Source: <a href="https://github.com/farach/onet2r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.2" id="onet2r-042">onet2r 0.4.2<a class="anchor" aria-label="anchor" href="#onet2r-042"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-0-4-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-2"></a></h3>
+<ul><li>Fixed a regression that broke <code><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge()</a></code> downloads (<code>download_crosswalk_file()</code> was not defined at package level).</li>
+<li>
+<code><a href="../reference/onet_occupation_details.html">onet_occupation_details()</a></code> now returns a tibble of section titles and URLs instead of an unnamed list.</li>
+<li>
+<code><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code> aborts when release dates are missing instead of silently mis-ordering comparisons.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-0-4-2">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-4-2"></a></h3>
+<ul><li>Archive tables with unrecognized layouts now abort instead of returning all-NA panels.</li>
+<li>OEWS <code>annual</code>/<code>hourly</code> flags are parsed as logicals and wage-field semantics are documented.</li>
+<li>
+<code><a href="../reference/onet_change_summary.html">onet_change_summary()</a></code> gains crosswalk-weighted counts (<code>n_weighted</code>, <code>share_weighted</code>).</li>
+<li>
+<code><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code> reports large unmatched weight-panel employment shares.</li>
+<li>
+<code><a href="../reference/onet_releases.html">onet_releases()</a></code> is memoised per session, reports archive <code>format</code>, and documents the text-archive floor (20.1, October 2015).</li>
+<li>Reconciliation now reports occupations missing from the crosswalk bridge (<code>coverage_status</code> values <code>"unmapped_source"</code> / <code>"unmapped_target"</code>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-0-4-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-2"></a></h3>
+<ul><li>
+<code><a href="../reference/onet_data_updates.html">onet_data_updates()</a></code> downloads the official O*NET Longitudinal Data Updates record, ground truth for which occupations were re-rated in each cycle.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.1" id="onet2r-041">onet2r 0.4.1<a class="anchor" aria-label="anchor" href="#onet2r-041"></a></h2>
 <ul><li>Rebuilt README and article figures with a shared ggplot2 style so pkgdown examples render readable, dark-mode-safe output instead of base graphics.</li>
