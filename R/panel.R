@@ -6,20 +6,38 @@ onet_release_archive_url <- "https://www.onetcenter.org/db_releases.html"
 onet_resource_url <- "https://www.onetcenter.org"
 onet_vintage_levels <- c("2000", "2006", "2009", "2010", "2019")
 
+.onet2r_release_cache <- new.env(parent = emptyenv())
+
+clear_release_cache <- function() {
+  rm(list = ls(.onet2r_release_cache), envir = .onet2r_release_cache)
+}
+
 #' List O&#42;NET Archive Releases
 #'
 #' Parses the O&#42;NET database releases archive and returns downloadable text
 #' archives. The release archive states release months, not days, so
 #' `release_date` uses the first day of each stated month.
 #'
+#' @param refresh Set `TRUE` to re-scrape the releases page instead of using
+#'   the per-session cache.
 #' @return A tibble with release metadata and text archive URLs.
+#' @details
+#' Text archives (`format = "text"`) exist for releases 20.1 (October 2015)
+#' onward. Earlier releases (5.0-20.0) are published as legacy ZIPs
+#' (`format = "legacy_zip"`); onet2r can download them, but their internal
+#' file layouts vary and parsing is verified only for 20.1+. The O&#42;NET
+#' production archive begins at 5.0 (April 2003), the first release of the
+#' Data Collection Program - no survey-based data exists before that.
 #' @export
 #'
 #' @examples
 #' if (interactive()) {
 #'   onet_releases()
 #' }
-onet_releases <- function() {
+onet_releases <- function(refresh = FALSE) {
+  if (!isTRUE(refresh) && !is.null(.onet2r_release_cache$releases)) {
+    return(.onet2r_release_cache$releases)
+  }
   html <- paste(onet_read_lines(onet_release_archive_url), collapse = "\n")
   links <- onet_extract_links(html)
 
@@ -31,7 +49,7 @@ onet_releases <- function() {
 
   headings <- onet_release_headings(html)
 
-  purrr::map(seq_along(versions), \(i) {
+  out <- purrr::map(seq_along(versions), \(i) {
     version <- versions[[i]]
     heading <- headings[headings$version == version, , drop = FALSE]
     release_date <- if (nrow(heading) > 0) heading$release_date[[1]] else NA
@@ -43,6 +61,7 @@ onet_releases <- function() {
       year = parse_onet_integer(year),
       month = month,
       soc_vintage = onet_soc_vintage(version),
+      format = if (grepl("_text\\.zip$", text_links[[i]])) "text" else "legacy_zip",
       text_url = onet_absolute_url(text_links[[i]]),
       dictionary_url = onet_dictionary_url(version, links)
     )
@@ -50,6 +69,9 @@ onet_releases <- function() {
     purrr::list_rbind() |>
     dplyr::distinct(.data$version, .keep_all = TRUE) |>
     dplyr::arrange(dplyr::desc(.data$release_date), dplyr::desc(.data$version))
+
+  .onet2r_release_cache$releases <- out
+  out
 }
 
 archive_version_from_link <- function(link) {
@@ -725,6 +747,13 @@ archive_table_keys <- function(x) {
 onet_standardize_archive_table <- function(data, version, table, release_date) {
   n_rows <- nrow(data)
   onet_soc_code <- as.character(col_or_na(data, "O*NET-SOC Code", n_rows))
+  if (n_rows > 0 && all(is.na(onet_soc_code))) {
+    cli::cli_abort(c(
+      "Archive table {.val {table}} (version {.val {version}}) has no {.val O*NET-SOC Code} column.",
+      "i" = "Columns found: {.val {names(data)}}.",
+      "i" = "This release's file layout is not supported for panel assembly."
+    ))
+  }
   task_id <- as.character(col_or_na(data, "Task ID", n_rows))
   task <- as.character(col_or_na(data, "Task", n_rows))
   dwa_element_id <- as.character(col_or_na(

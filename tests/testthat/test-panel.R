@@ -39,6 +39,7 @@ tiny_archive_zip <- function() {
 }
 
 test_that("onet_releases parses archive rows into stable fields", {
+  onet2r:::clear_release_cache()
   html <- paste(
     '<a href="/dl_files/database/db_30_3_text.zip">30.3 text</a>',
     '<a href="/dictionary/30.3/excel/">30.3 dictionary</a>',
@@ -61,7 +62,7 @@ test_that("onet_releases parses archive rows into stable fields", {
     result,
     c(
       "version", "release_date", "year", "month", "soc_vintage",
-      "text_url", "dictionary_url"
+      "format", "text_url", "dictionary_url"
     )
   )
   expect_equal(result$version, c("30.3", "30.2", "15.1"))
@@ -70,9 +71,31 @@ test_that("onet_releases parses archive rows into stable fields", {
     as.Date(c("2026-05-01", "2026-02-01", "2010-07-01"))
   )
   expect_equal(as.character(result$soc_vintage), c("2019", "2019", "2010"))
+  expect_equal(result$format, c("text", "text", "legacy_zip"))
   expect_match(result$text_url[1], "db_30_3_text\\.zip$")
   expect_match(result$text_url[3], "db_15_1\\.zip$")
   expect_match(result$dictionary_url[1], "/dictionary/30.3/excel/", fixed = TRUE)
+})
+
+test_that("onet_releases memoises the release page per session", {
+  calls <- 0L
+  local_mocked_bindings(
+    onet_read_lines = function(url) {
+      calls <<- calls + 1L
+      '<a href="/dl_files/database/db_30_3_text.zip">x</a>'
+    },
+    .package = "onet2r"
+  )
+  onet2r:::clear_release_cache()
+
+  r1 <- onet_releases()
+  r2 <- onet_releases()
+  r3 <- onet_releases(refresh = TRUE)
+
+  expect_equal(calls, 2L)
+  expect_equal(r1, r2)
+  expect_equal(r1$format, "text")
+  expect_equal(r3$format, "text")
 })
 
 test_that("onet_archive_read normalizes descriptor archive tables", {
@@ -118,6 +141,20 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
   expect_equal(result$domain, c("Abilities", "Abilities"))
   expect_equal(result$source_date, as.Date(c("2025-07-01", "2025-08-01")))
   expect_equal(result$data_value, c(4.12, 4.71))
+})
+
+test_that("archive tables with no SOC column abort loudly", {
+  bad <- data.frame(`Wrong Header` = c("a", "b"), check.names = FALSE)
+
+  expect_error(
+    onet2r:::onet_standardize_archive_table(
+      bad,
+      "9.0",
+      "Abilities",
+      as.Date("2006-01-01")
+    ),
+    "O\\*NET-SOC Code"
+  )
 })
 
 test_that("onet_archive_read preserves task and DWA native fields", {
