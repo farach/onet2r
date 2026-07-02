@@ -1,3 +1,24 @@
+# onet2r 0.4.2
+
+## Bug fixes
+
+* Fixed a regression that broke `onet_crosswalk_bridge()` downloads (`download_crosswalk_file()` was not defined at package level).
+* `onet_occupation_details()` now returns a tibble of section titles and URLs instead of an unnamed list.
+* `onet_panel_reconcile()` aborts when release dates are missing instead of silently mis-ordering comparisons.
+
+## Improvements
+
+* Archive tables with unrecognized layouts now abort instead of returning all-NA panels.
+* OEWS `annual`/`hourly` flags are parsed as logicals and wage-field semantics are documented.
+* `onet_change_summary()` gains crosswalk-weighted counts (`n_weighted`, `share_weighted`).
+* `onet_measure_aggregate()` reports large unmatched weight-panel employment shares.
+* `onet_releases()` is memoised per session, reports archive `format`, and documents the text-archive floor (20.1, October 2015).
+* Reconciliation now reports occupations missing from the crosswalk bridge (`coverage_status` values `"unmapped_source"` / `"unmapped_target"`).
+
+## New features
+
+* `onet_data_updates()` downloads the official O&#42;NET Longitudinal Data Updates record, ground truth for which occupations were re-rated in each cycle.
+
 # onet2r 0.4.1
 
 * Rebuilt README and article figures with a shared ggplot2 style so pkgdown examples render readable, dark-mode-safe output instead of base graphics.

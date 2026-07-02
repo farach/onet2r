@@ -1,6 +1,8 @@
 ## Test environments
 
-* local Windows 11 x64, R 4.5.2
+* local Windows 11 x64, R 4.5.2 (`devtools::test()` and `rcmdcheck::rcmdcheck(args = "--as-cran")`)
+* GitHub Actions R-CMD-check matrix, R release on ubuntu-latest, macos-latest, and windows-latest (latest main run 28592118304 succeeded on 2026-07-02)
+* win-builder R-devel submitted with `devtools::check_win_devel()` on 2026-07-02; a repeat visible upload returned FTP 550 after the quiet submission completed locally
 
 ## R CMD check results
 

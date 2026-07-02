@@ -1,6 +1,6 @@
 Package: onet2r
 Title: Work with 'O*NET' Web Services, Archives, and Weights
-Version: 0.4.1
+Version: 0.4.2
 Authors@R:
     person("Alex", "Farach", email = "alexfarach@microsoft.com", role = c("aut", "cre", "cph"))
 Description: Access the 'O*NET' Web Services Application Programming Interface
