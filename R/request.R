@@ -134,6 +134,12 @@ onet_perform <- function(req) {
 #' @param cache_dir Directory where cached API responses should be stored.
 #'
 #' @return Invisibly returns a list with the active cache settings.
+#'
+#' @details
+#' Cached Web Services responses are reused until the caller disables caching
+#' or clears them with [onet_cache_clear()]. The package does not attach a
+#' time-to-live, so enable caching only when stale O&#42;NET API responses are
+#' acceptable for the analysis.
 #' @export
 #'
 #' @examples

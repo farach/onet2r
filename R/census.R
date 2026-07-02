@@ -4,10 +4,12 @@
 
 #' Create SOC Employment Weights from PUMS Microdata
 #'
-#' Converts American Community Survey (ACS), Current Population Survey (CPS), or
-#' similar microdata with occupation codes into SOC-level employment weights.
-#' Use this after downloading PUMS data with packages such as `tidycensus` or
-#' `ipumsr`.
+#' Converts American Community Survey (ACS) PUMS microdata with occupation
+#' codes into SOC-level employment weights. (CPS microdata uses different
+#' weights and reference periods; see [onet_weight_panel_pums()] for the
+#' replicate-weight-aware successor when supplying appropriate occupation and
+#' weight columns.) Use this after downloading PUMS data with packages such as
+#' `tidycensus` or `ipumsr`.
 #'
 #' `r lifecycle::badge("deprecated")`
 #'

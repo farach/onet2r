@@ -23,6 +23,11 @@ A tibble with matching civilian occupations:
 \description{
 Searches for civilian occupations that match military job titles or codes.
 }
+\details{
+The O*NET military crosswalk is a keyword search over military titles and
+codes. It can return zero rows for valid-looking military codes or titles
+when the keyword does not match the Web Services index.
+}
 \examples{
 \dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
 onet_crosswalk_military("infantry")

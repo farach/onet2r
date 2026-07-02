@@ -19,10 +19,12 @@ receives weight 1. ACS PUMS commonly uses \code{"PWGTP"}.}
 A tibble with \code{soc_code}, \code{employment}, and \code{records}.
 }
 \description{
-Converts American Community Survey (ACS), Current Population Survey (CPS), or
-similar microdata with occupation codes into SOC-level employment weights.
-Use this after downloading PUMS data with packages such as \code{tidycensus} or
-\code{ipumsr}.
+Converts American Community Survey (ACS) PUMS microdata with occupation
+codes into SOC-level employment weights. (CPS microdata uses different
+weights and reference periods; see \code{\link[=onet_weight_panel_pums]{onet_weight_panel_pums()}} for the
+replicate-weight-aware successor when supplying appropriate occupation and
+weight columns.) Use this after downloading PUMS data with packages such as
+\code{tidycensus} or \code{ipumsr}.
 }
 \details{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

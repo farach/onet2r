@@ -12,6 +12,11 @@
 #'     \item{title}{Civilian occupation title}
 #'   }
 #'
+#' @details
+#' The O&#42;NET military crosswalk is a keyword search over military titles and
+#' codes. It can return zero rows for valid-looking military codes or titles
+#' when the keyword does not match the Web Services index.
+#'
 #' @export
 #' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_crosswalk_military("infantry")
@@ -19,6 +24,7 @@
 #' onet_crosswalk_military("11B")
 onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
   validate_single_string(keyword, "keyword")
+  validate_range(start, end)
 
   resp <- onet_request("online/crosswalks/military",
     .query = list(keyword = keyword, start = start, end = end)

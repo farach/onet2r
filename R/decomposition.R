@@ -20,6 +20,12 @@
 #'
 #' @return A tibble with decomposition components and coverage list-column
 #'   metadata readable with [onet_coverage()].
+#'
+#' @details
+#' When the caller has reconciled a panel with stale carry-forward values,
+#' this decomposition treats those carried values as observed values. The
+#' resulting contribution is arithmetic, not proof that the underlying source
+#' measure was refreshed in that release.
 #' @export
 #'
 #' @examples

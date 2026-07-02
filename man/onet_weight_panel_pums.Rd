@@ -58,6 +58,11 @@ to valid reference SOC codes.
 Replicate-weight standard errors use \code{sqrt((4 / R) * sum((theta_r - theta)^2))}. For ACS PUMS, pass the full 80 \code{PWGTP1} through \code{PWGTP80}
 columns. Passing a smaller subset produces a warning because the resulting
 standard error is not survey-valid.
+
+The \code{year} argument means the 1-year ACS PUMS data year. 5-year PUMS files
+pool responses across vintages and can mix SOCP code versions within one
+file; SOC-vintage labeling is not reliable for them. Prefer 1-year files
+for weight panels, or resolve codes explicitly with a crosswalk.
 }
 \examples{
 pums <- tibble::tibble(

@@ -22,6 +22,12 @@ Enables or disables local caching for O*NET API responses. Caching is off by
 default because API results may change over time, but it is useful when
 developing analyses that repeatedly request the same endpoints.
 }
+\details{
+Cached Web Services responses are reused until the caller disables caching
+or clears them with \code{\link[=onet_cache_clear]{onet_cache_clear()}}. The package does not attach a
+time-to-live, so enable caching only when stale O*NET API responses are
+acceptable for the analysis.
+}
 \examples{
 onet_cache_use(enabled = FALSE)
 }

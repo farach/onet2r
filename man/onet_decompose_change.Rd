@@ -42,6 +42,12 @@ Decomposes aggregate change between two periods into within-occupation,
 between-occupation, interaction, and unclassifiable components. The within
 term is restricted to rows marked comparable.
 }
+\details{
+When the caller has reconciled a panel with stale carry-forward values,
+this decomposition treats those carried values as observed values. The
+resulting contribution is arithmetic, not proof that the underlying source
+measure was refreshed in that release.
+}
 \examples{
 from_scores <- tibble::tibble(
   reference_soc_code = c("15-1252", "29-1141"),
