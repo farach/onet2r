@@ -10,7 +10,8 @@ onet_occupation_details(code)
 \item{code}{An O*NET-SOC occupation code (e.g., "15-1252.00").}
 }
 \value{
-A list containing the available occupation details sections.
+A tibble with columns \code{title} and \code{href}, one row per available
+details section. Zero rows when the occupation has no details sections.
 }
 \description{
 Retrieves the details index for a specific occupation. The response includes

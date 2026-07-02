@@ -104,8 +104,9 @@ test_that("onet_occupation_details returns details index from overview", {
 
   result <- onet_occupation_details("15-1252.00")
 
-  expect_type(result, "list")
-  expect_equal(result[[1]]$title, "Skills")
+  expect_s3_class(result, "tbl_df")
+  expect_equal(result$title, "Skills")
+  expect_equal(result$href, "https://example.test/skills")
 })
 
 test_that("onet_occupation_details handles missing details index", {
@@ -118,7 +119,9 @@ test_that("onet_occupation_details handles missing details index", {
 
   result <- onet_occupation_details("15-1252.00")
 
-  expect_equal(result, list())
+  expect_s3_class(result, "tbl_df")
+  expect_equal(names(result), c("title", "href"))
+  expect_equal(nrow(result), 0L)
 })
 
 test_that("all-page detail helpers paginate the expected sections", {

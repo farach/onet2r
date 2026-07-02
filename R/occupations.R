@@ -113,7 +113,8 @@ onet_occupation <- function(code) {
 #' links to available detailed sections from the occupation overview.
 #'
 #' @param code An O&#42;NET-SOC occupation code (e.g., "15-1252.00").
-#' @return A list containing the available occupation details sections.
+#' @return A tibble with columns `title` and `href`, one row per available
+#' details section. Zero rows when the occupation has no details sections.
 #'
 #' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
 #' onet_occupation_details("15-1252.00")
@@ -123,11 +124,18 @@ onet_occupation_details <- function(code) {
   validate_onet_code(code)
 
   details <- onet_occupation(code)$details_contents
-  if (is.null(details)) {
-    return(list())
+  schema <- tibble::tibble(title = character(), href = character())
+  if (is.null(details) || length(details) == 0) {
+    return(schema)
   }
 
-  details
+  purrr::map(details, \(x) {
+    tibble::tibble(
+      title = as.character(x$title %||% NA_character_),
+      href = as.character(x$href %||% NA_character_)
+    )
+  }) |>
+    purrr::list_rbind()
 }
 
 # ---- Details: element-based sections (resp$element) ---------------------------
