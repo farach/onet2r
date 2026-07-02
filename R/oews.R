@@ -11,8 +11,10 @@
 #'
 #' @param type OEWS file type: `"national"`, `"state"`, `"metro"`, or
 #'   `"industry"`.
-#' @param year Integer estimate year. Defaults to the latest year expected to be
-#'   available from the BLS public OEWS downloads.
+#' @param year Integer estimate year. Defaults to the most recent May estimates
+#'   assumed available (previous calendar year from April onward, two years
+#'   back before April). If BLS has not yet published that release, the
+#'   download fails - pass the prior year explicitly.
 #' @param path Optional path to a manually downloaded OEWS ZIP, CSV, TXT, DAT, or
 #'   Excel file. If supplied, no download is attempted.
 #' @param cache_dir Directory used to cache the downloaded BLS ZIP file.
@@ -290,9 +292,10 @@ validate_oews_year <- function(year) {
 
   year <- as.integer(year)
   if (year < 2003 || year > latest_oews_year() + 1) {
-    cli::cli_abort(
-      "{.arg year} must be a supported May OEWS estimate year, 2003 or later."
-    )
+    cli::cli_abort(c(
+      "{.arg year} must be a supported May OEWS estimate year, 2003 or later.",
+      "i" = "The default assumes BLS publishes May estimates by early April of the following year; if the newest release is not out yet, pass an earlier {.arg year} explicitly."
+    ))
   }
 
   year

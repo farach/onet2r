@@ -13,8 +13,10 @@ onet_oews_state(
 )
 }
 \arguments{
-\item{year}{Integer estimate year. Defaults to the latest year expected to be
-available from the BLS public OEWS downloads.}
+\item{year}{Integer estimate year. Defaults to the most recent May estimates
+assumed available (previous calendar year from April onward, two years
+back before April). If BLS has not yet published that release, the
+download fails - pass the prior year explicitly.}
 
 \item{path}{Optional path to a manually downloaded OEWS ZIP, CSV, TXT, DAT, or
 Excel file. If supplied, no download is attempted.}
