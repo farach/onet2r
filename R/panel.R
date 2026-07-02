@@ -342,7 +342,10 @@ onet_crosswalk_bridge <- function(
 #' @param weight Weighting method. Only `"equal"` is implemented.
 #'
 #' @return A tibble of adjacent-release comparisons with change and coverage
-#'   flags.
+#'   flags. Rows with coverage_status `"unmapped_source"` or
+#'   `"unmapped_target"` mark occupations absent from the supplied bridge; they
+#'   are never safely_comparable. An incomplete hand-built bridge produces many
+#'   of these, so inspect them before interpreting change shares.
 #' @export
 #'
 #' @examples
@@ -1118,12 +1121,14 @@ change_type_levels <- function() {
     "transition_data",
     "suppressed_change",
     "new",
-    "dropped"
+    "dropped",
+    "unmapped_source",
+    "unmapped_target"
   )
 }
 
 coverage_status_levels <- function() {
-  c("matched", "new", "dropped")
+  c("matched", "new", "dropped", "unmapped_source", "unmapped_target")
 }
 
 validate_columns_present <- function(data, columns, arg) {
@@ -1162,6 +1167,15 @@ reconcile_coverage_rows <- function(
       .data$scale_id
     )
 
+  unmapped_source <- from_panel |>
+    dplyr::anti_join(
+      pair_bridge,
+      by = dplyr::join_by(
+        onet_soc_code == from_onet_soc_code,
+        soc_vintage == from_vintage
+      )
+    )
+
   dropped <- mapped_from |>
     dplyr::anti_join(
       to_panel,
@@ -1188,7 +1202,8 @@ reconcile_coverage_rows <- function(
 
   dplyr::bind_rows(
     dropped_coverage_rows(dropped, from_release, to_release, to_panel),
-    new_coverage_rows(new, from_release, to_release, from_panel)
+    new_coverage_rows(new, from_release, to_release, from_panel, pair_bridge),
+    unmapped_source_rows(unmapped_source, from_release, to_release, to_panel)
   )
 }
 
@@ -1239,10 +1254,62 @@ dropped_coverage_rows <- function(dropped, from_release, to_release, to_panel) {
   )
 }
 
-new_coverage_rows <- function(new, from_release, to_release, from_panel) {
+unmapped_source_rows <- function(unmapped, from_release, to_release, to_panel) {
+  if (nrow(unmapped) == 0) {
+    return(empty_reconciled_panel())
+  }
+
+  tibble::tibble(
+    from_release = from_release,
+    to_release = to_release,
+    from_release_date = unmapped$release_date,
+    to_release_date = single_date(to_panel$release_date),
+    from_onet_soc_code = unmapped$onet_soc_code,
+    to_onet_soc_code = NA_character_,
+    from_soc_code = standardize_soc_code(unmapped$onet_soc_code),
+    to_soc_code = NA_character_,
+    soc_vintage_from = unmapped$soc_vintage,
+    soc_vintage_to = single_vintage(to_panel$soc_vintage),
+    domain = unmapped$domain,
+    element_id = unmapped$element_id,
+    element_name = unmapped$element_name,
+    scale_id = unmapped$scale_id,
+    from_value = unmapped$data_value,
+    to_value = NA_real_,
+    value_change = NA_real_,
+    value_percent_change = NA_real_,
+    from_source_date = unmapped$source_date,
+    to_source_date = as.Date(NA),
+    from_domain_source = as.character(unmapped$domain_source),
+    to_domain_source = NA_character_,
+    from_recommend_suppress = as.character(unmapped$recommend_suppress),
+    to_recommend_suppress = NA_character_,
+    from_not_relevant = as.character(col_or_na(unmapped, "not_relevant", nrow(unmapped))),
+    to_not_relevant = NA_character_,
+    date_changed = NA,
+    value_changed = NA,
+    transition_data = is_transition_source(unmapped$domain_source),
+    suppressed_change = is_suppressed_estimate(unmapped$recommend_suppress),
+    change_type = factor("unmapped_source", levels = change_type_levels()),
+    coverage_status = factor("unmapped_source", levels = coverage_status_levels()),
+    method_break = FALSE,
+    crosswalk_uncertain = TRUE,
+    safely_comparable = FALSE,
+    map_type = factor(NA_character_, levels = map_type_levels()),
+    crosswalk_weight = NA_real_
+  )
+}
+
+new_coverage_rows <- function(new, from_release, to_release, from_panel, pair_bridge) {
   if (nrow(new) == 0) {
     return(empty_reconciled_panel())
   }
+
+  status <- dplyr::if_else(
+    new$onet_soc_code %in% pair_bridge$to_onet_soc_code,
+    "new",
+    "unmapped_target"
+  )
 
   tibble::tibble(
     from_release = from_release,
@@ -1275,12 +1342,15 @@ new_coverage_rows <- function(new, from_release, to_release, from_panel) {
     value_changed = NA,
     transition_data = is_transition_source(new$domain_source),
     suppressed_change = is_suppressed_estimate(new$recommend_suppress),
-    change_type = factor("new", levels = change_type_levels()),
-    coverage_status = factor("new", levels = coverage_status_levels()),
+    change_type = factor(status, levels = change_type_levels()),
+    coverage_status = factor(status, levels = coverage_status_levels()),
     method_break = FALSE,
     crosswalk_uncertain = FALSE,
     safely_comparable = FALSE,
-    map_type = factor("new", levels = map_type_levels()),
+    map_type = factor(
+      dplyr::if_else(status == "new", "new", NA_character_),
+      levels = map_type_levels()
+    ),
     crosswalk_weight = 1
   )
 }

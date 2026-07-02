@@ -15,7 +15,10 @@ onet_panel_reconcile(panel, bridge, weight = "equal")
 }
 \value{
 A tibble of adjacent-release comparisons with change and coverage
-flags.
+flags. Rows with coverage_status \code{"unmapped_source"} or
+\code{"unmapped_target"} mark occupations absent from the supplied bridge; they
+are never safely_comparable. An incomplete hand-built bridge produces many
+of these, so inspect them before interpreting change shares.
 }
 \description{
 Compares adjacent releases in a panel and classifies changes using the value

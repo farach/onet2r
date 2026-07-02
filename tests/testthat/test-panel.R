@@ -489,6 +489,44 @@ test_that("onet_panel_reconcile reports new and dropped content rows", {
   expect_equal(result$safely_comparable, c(FALSE, FALSE))
 })
 
+test_that("reconcile reports occupations missing from the bridge", {
+  panel <- tibble::tibble(
+    release_version = c("20.1", "20.1", "25.1", "25.1"),
+    release_date = as.Date(c("2015-10-01", "2015-10-01", "2020-11-01", "2020-11-01")),
+    soc_vintage = factor(c("2010", "2010", "2019", "2019"),
+      levels = onet2r:::onet_vintage_levels
+    ),
+    domain = "Abilities",
+    onet_soc_code = c("11-1011.00", "13-1199.00", "11-1011.00", "13-1198.00"),
+    soc_code = c("11-1011", "13-1199", "11-1011", "13-1198"),
+    element_id = "1.A.1.a.1",
+    element_name = "Oral Comprehension",
+    scale_id = factor("IM"),
+    data_value = c(4.5, 3.9, 4.6, 4.0),
+    source_date = as.Date(c("2014-07-01", "2014-07-01", "2019-07-01", "2019-07-01")),
+    domain_source = factor("Analyst")
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2010",
+    to_vintage = "2019",
+    from_onet_soc_code = "11-1011.00",
+    to_onet_soc_code = "11-1011.00",
+    map_type = "one_to_one",
+    crosswalk_weight = 1
+  )
+
+  out <- onet_panel_reconcile(panel, bridge)
+
+  unmapped_src <- out[out$coverage_status == "unmapped_source", ]
+  expect_equal(unmapped_src$from_onet_soc_code, "13-1199.00")
+  expect_equal(unmapped_src$safely_comparable, FALSE)
+
+  unmapped_tgt <- out[out$coverage_status == "unmapped_target", ]
+  expect_equal(unmapped_tgt$to_onet_soc_code, "13-1198.00")
+  expect_equal(unmapped_tgt$safely_comparable, FALSE)
+  expect_equal(nrow(out[out$coverage_status == "matched", ]), 1L)
+})
+
 test_that("onet_panel_reconcile uses native O*NET-SOC codes across vintages", {
   panel <- tibble::tibble(
     release_version = c("1.0", "2.0", "2.0"),
