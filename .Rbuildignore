@@ -5,6 +5,7 @@
 ^README\.md$
 ^README\.html$
 ^\.git$
+^\.mailmap$
 ^cran-comments\.md$
 ^_pkgdown\.yml$
 ^_pkgdown$
