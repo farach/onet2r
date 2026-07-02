@@ -19,11 +19,36 @@ test_that("clean_oews_data normalizes names and numeric columns", {
 
   expect_named(
     result,
-    c("occ_code", "occ_title", "tot_emp", "a_median", "h_mean")
+    c("occ_code", "occ_title", "tot_emp", "a_median", "h_mean", "h_mean_wage_suppressed")
   )
   expect_equal(result$tot_emp, 1847900)
   expect_equal(result$a_median, 133080)
   expect_equal(result$h_mean, NA_real_)
+  expect_equal(result$h_mean_wage_suppressed, TRUE)
+})
+
+test_that("clean_oews_data preserves OEWS special value semantics", {
+  raw <- tibble::tibble(
+    OCC_CODE = c("11-1011", "29-1141"),
+    TOT_EMP = c("**", "300"),
+    A_MEDIAN = c("#", "$93,070"),
+    PCT_TOTAL = c("~", "1.0")
+  )
+
+  result <- onet2r:::clean_oews_data(raw)
+
+  expect_equal(result$tot_emp, c(NA_real_, 300))
+  expect_equal(result$a_median, c(NA_real_, 93070))
+  expect_equal(result$pct_total, c(NA_real_, 1))
+  expect_equal(result$tot_emp_employment_suppressed, c(TRUE, FALSE))
+  expect_equal(result$a_median_topcoded, c(TRUE, FALSE))
+  expect_equal(result$pct_total_less_than_half, c(TRUE, FALSE))
+})
+
+test_that("oews_url uses current BLS file slugs", {
+  expect_match(onet2r:::oews_url("national", 2023), "oesm23nat\\.zip$")
+  expect_match(onet2r:::oews_url("metro", 2023), "oesm23ma\\.zip$")
+  expect_match(onet2r:::oews_url("industry", 2023), "oesm23in4\\.zip$")
 })
 
 test_that("onet_oews reads local extracted files", {

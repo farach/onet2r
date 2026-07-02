@@ -23,13 +23,11 @@ onet_releases <- function() {
   html <- paste(onet_read_lines(onet_release_archive_url), collapse = "\n")
   links <- onet_extract_links(html)
 
-  text_links <- links[grepl("/dl_files/database/db_[0-9_]+_text\\.zip$", links)]
-  versions <- sub(
-    ".*/db_([0-9_]+)_text\\.zip$",
-    "\\1",
-    text_links
-  )
-  versions <- gsub("_", ".", versions, fixed = TRUE)
+  text_links <- links[
+    grepl("/dl_files/database/db_[0-9_]+_text\\.zip$", links) |
+      grepl("/dl_files/db_[0-9_]+\\.zip$", links)
+  ]
+  versions <- purrr::map_chr(text_links, archive_version_from_link)
 
   headings <- onet_release_headings(html)
 
@@ -54,6 +52,14 @@ onet_releases <- function() {
     dplyr::arrange(dplyr::desc(.data$release_date), dplyr::desc(.data$version))
 }
 
+archive_version_from_link <- function(link) {
+  raw <- sub(".*/db_([0-9_]+)(_text)?\\.zip$", "\\1", link)
+  if (!grepl("_", raw) && nchar(raw) == 2) {
+    return(paste0(substr(raw, 1, 1), ".", substr(raw, 2, 2)))
+  }
+  gsub("_", ".", raw, fixed = TRUE)
+}
+
 #' Download an O&#42;NET Archive
 #'
 #' Downloads and caches one O&#42;NET text archive. Existing non-empty cached files
@@ -61,8 +67,14 @@ onet_releases <- function() {
 #'
 #' @param version O&#42;NET database version, for example `"30.3"`.
 #' @param dir Cache directory.
+#' @param force Logical; if `TRUE`, re-download even when a cached archive exists.
 #'
 #' @return The path to the cached ZIP file.
+#'
+#' @details
+#' Downloaded archives are cached under `tools::R_user_dir("onet2r", "cache")`
+#' in the `archives` section. Use `onet_cache_clear(what = "archives")` or
+#' `onet_cache_clear(what = "all")` to remove them.
 #' @export
 #'
 #' @examples
@@ -70,7 +82,7 @@ onet_releases <- function() {
 #'   path <- onet_archive_download("30.3")
 #'   basename(path)
 #' }
-onet_archive_download <- function(version, dir = onet_cache_dir()) {
+onet_archive_download <- function(version, dir = onet_cache_dir(), force = FALSE) {
   validate_single_string(version, "version")
   validate_single_string(dir, "dir")
 
@@ -84,14 +96,17 @@ onet_archive_download <- function(version, dir = onet_cache_dir()) {
   dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
   dest <- file.path(archive_dir, basename(release$text_url[[1]]))
 
-  if (file.exists(dest) && file.info(dest)$size > 0) {
+  if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
+    validate_archive_zip(dest)
     return(dest)
   }
 
-  tryCatch(
+  tmp <- tempfile("onet-archive-", tmpdir = archive_dir, fileext = ".zip")
+  on.exit(unlink(tmp, force = TRUE), add = TRUE)
+  status <- tryCatch(
     utils::download.file(
       url = release$text_url[[1]],
-      destfile = dest,
+      destfile = tmp,
       mode = "wb",
       quiet = TRUE
     ),
@@ -105,14 +120,19 @@ onet_archive_download <- function(version, dir = onet_cache_dir()) {
       )
     }
   )
+  if (!identical(status, 0L)) {
+    cli::cli_abort(
+      c(
+        "Failed to download O*NET archive.",
+        "i" = "URL: {.url {release$text_url[[1]]}}"
+      )
+    )
+  }
 
-  tryCatch(
-    utils::unzip(dest, list = TRUE),
-    error = function(cnd) {
-      unlink(dest, force = TRUE)
-      cli::cli_abort("Downloaded archive is not a readable ZIP file.", parent = cnd)
-    }
-  )
+  validate_archive_zip(tmp)
+  if (!file.rename(tmp, dest)) {
+    cli::cli_abort("Failed to move downloaded O*NET archive into the cache.")
+  }
 
   dest
 }
@@ -157,7 +177,14 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
     utils::unzip(archive, files = member, exdir = tmpdir)
     file.path(tmpdir, member)
   }
-  data <- utils::read.delim(member_path, check.names = FALSE, stringsAsFactors = FALSE)
+  data <- utils::read.delim(
+    member_path,
+    check.names = FALSE,
+    stringsAsFactors = FALSE,
+    quote = "",
+    fileEncoding = "UTF-8",
+    na.strings = c("NA", "n/a", "N/A")
+  )
 
   release_date <- resolve_archive_release_date(version, path, release_date)
 
@@ -384,8 +411,9 @@ onet_panel_reconcile <- function(panel, bridge, weight = "equal") {
 #'   `"job_family"` returns the overall row plus one row per two-digit SOC
 #'   family.
 #'
-#' @return A tibble with `job_family`, `change_type`, `safely_comparable`,
-#'   `n`, and `share`.
+#' @return A tibble with one row per summary group and change type. The `n`
+#'   column counts rows of that change type within the group, and `share` is
+#'   the within-group share.
 #' @export
 #'
 #' @examples
@@ -444,29 +472,31 @@ onet_change_summary <- function(reconciled, by = c("overall", "job_family")) {
 
 summarize_change_group <- function(data, summary_level, job_family, total_pairs) {
   n_pairs <- nrow(data)
-  change_type <- if (n_pairs == 0) {
-    NA_character_
-  } else {
-    data |>
-      dplyr::summarise(n = dplyr::n(), .by = "change_type") |>
-      dplyr::arrange(dplyr::desc(.data$n), .data$change_type) |>
-      dplyr::pull(.data$change_type) |>
-      as.character() |>
-      utils::head(1)
-  }
-
-  tibble::tibble(
+  group_stats <- tibble::tibble(
     summary_level = summary_level,
     job_family = job_family,
-    change_type = change_type,
-    n_pairs = n_pairs,
-    share_pairs = n_pairs / total_pairs,
+    n_group = n_pairs,
+    share_group = n_pairs / total_pairs,
     mean_value_change = safe_mean(data$value_change),
     median_abs_value_change = safe_median(abs(data$value_change)),
     share_safely_comparable = safe_mean(data$safely_comparable),
     share_method_break = safe_mean(data$method_break),
     share_crosswalk_uncertain = safe_mean(data$crosswalk_uncertain)
   )
+  if (n_pairs == 0) {
+    return(dplyr::bind_cols(
+      group_stats,
+      tibble::tibble(change_type = NA_character_, n = 0L, share = NA_real_)
+    ))
+  }
+  distribution <- data |>
+    dplyr::summarise(n = dplyr::n(), .by = "change_type") |>
+    dplyr::mutate(
+      change_type = as.character(.data$change_type),
+      share = .data$n / n_pairs
+    ) |>
+    dplyr::arrange(.data$change_type)
+  dplyr::bind_cols(group_stats[rep(1, nrow(distribution)), ], distribution)
 }
 
 safe_mean <- function(x) {
@@ -488,7 +518,23 @@ onet_cache_dir <- function() {
 }
 
 onet_read_lines <- function(url) {
-  readLines(url, warn = FALSE)
+  old_options <- options(
+    HTTPUserAgent = "onet2r (https://github.com/farach/onet2r)",
+    timeout = max(300, getOption("timeout"))
+  )
+  on.exit(options(old_options), add = TRUE)
+  tryCatch(
+    readLines(url, warn = FALSE),
+    error = function(cnd) {
+      cli::cli_abort(
+        c(
+          "Failed to read the O*NET releases page.",
+          "i" = "URL: {.url {url}}"
+        ),
+        parent = cnd
+      )
+    }
+  )
 }
 
 onet_extract_links <- function(html) {
@@ -571,7 +617,26 @@ onet_archive_member <- function(archive, table) {
   if (length(match) == 0) {
     cli::cli_abort("Archive table {.val {table}} was not found.")
   }
+  if (length(match) > 1) {
+    cli::cli_abort(
+      c(
+        "Archive table {.val {table}} matched multiple files.",
+        "i" = "Candidates: {.path {match}}"
+      )
+    )
+  }
   match[[1]]
+}
+
+validate_archive_zip <- function(path) {
+  tryCatch(
+    utils::unzip(path, list = TRUE),
+    error = function(cnd) {
+      unlink(path, force = TRUE)
+      cli::cli_abort("Downloaded archive is not a readable ZIP file.", parent = cnd)
+    }
+  )
+  invisible(path)
 }
 
 resolve_archive_release_date <- function(version, path, release_date) {
@@ -707,6 +772,7 @@ onet_standardize_archive_table <- function(data, version, table, release_date) {
     lower_ci_bound = parse_onet_number(col_or_na(data, "Lower CI Bound", n_rows, NA_real_)),
     upper_ci_bound = parse_onet_number(col_or_na(data, "Upper CI Bound", n_rows, NA_real_)),
     recommend_suppress = as.character(col_or_na(data, "Recommend Suppress", n_rows)),
+    not_relevant = as.character(col_or_na(data, "Not Relevant", n_rows)),
     source_date = parse_onet_month(col_or_na(data, "Date", n_rows)),
     domain_source = factor(as.character(col_or_na(data, "Domain Source", n_rows)))
   )
@@ -739,17 +805,18 @@ parse_onet_month <- function(x) {
 }
 
 onet_soc_vintage <- function(version) {
-  version_num <- suppressWarnings(as.numeric(version))
-  if (is.na(version_num)) {
+  version <- as.character(version)[[1]]
+  valid <- !is.na(version) && grepl("^[0-9]+(\\.[0-9]+)?$", version)
+  if (!valid) {
     return(NA_character_)
   }
-  if (version_num >= 25.1) {
+  if (utils::compareVersion(version, "25.1") >= 0) {
     "2019"
-  } else if (version_num >= 15.1) {
+  } else if (utils::compareVersion(version, "15.1") >= 0) {
     "2010"
-  } else if (version_num >= 14.0) {
+  } else if (utils::compareVersion(version, "14.0") >= 0) {
     "2009"
-  } else if (version_num >= 10.0) {
+  } else if (utils::compareVersion(version, "10.0") >= 0) {
     "2006"
   } else {
     "2000"
@@ -760,6 +827,8 @@ empty_crosswalk_bridge <- function() {
   tibble::tibble(
     from_vintage = factor(character(), levels = onet_vintage_levels),
     to_vintage = factor(character(), levels = onet_vintage_levels),
+    from_onet_soc_code = character(),
+    to_onet_soc_code = character(),
     from_soc_code = character(),
     to_soc_code = character(),
     from_title = character(),
@@ -797,7 +866,8 @@ read_adjacent_crosswalk <- function(from_vintage, to_vintage) {
   low <- if (reverse) to_vintage else from_vintage
   high <- if (reverse) from_vintage else to_vintage
   url <- adjacent_crosswalk_url(low, high)
-  data <- utils::read.csv(url, check.names = FALSE, stringsAsFactors = FALSE)
+  path <- download_crosswalk_file(url)
+  data <- utils::read.csv(path, check.names = FALSE, stringsAsFactors = FALSE)
 
   from_col <- grep(paste0("O\\*NET-SOC ", low, " Code"), names(data), value = TRUE)
   to_col <- grep(paste0("O\\*NET-SOC ", high, " Code"), names(data), value = TRUE)
@@ -805,6 +875,49 @@ read_adjacent_crosswalk <- function(from_vintage, to_vintage) {
   to_title_col <- grep(paste0("O\\*NET-SOC ", high, " Title"), names(data), value = TRUE)
   if (length(from_col) != 1 || length(to_col) != 1) {
     cli::cli_abort("Unexpected crosswalk columns from {.url {url}}.")
+  }
+
+  download_crosswalk_file <- function(url, cache_dir = onet_cache_dir()) {
+    crosswalk_dir <- file.path(cache_dir, "crosswalks")
+    dir.create(crosswalk_dir, recursive = TRUE, showWarnings = FALSE)
+    dest <- file.path(crosswalk_dir, basename(url))
+    if (file.exists(dest) && file.info(dest)$size > 0) {
+      return(dest)
+    }
+    tmp <- tempfile("onet-crosswalk-", tmpdir = crosswalk_dir, fileext = ".csv")
+    on.exit(unlink(tmp, force = TRUE), add = TRUE)
+    old_options <- options(
+      HTTPUserAgent = "onet2r (https://github.com/farach/onet2r)",
+      timeout = max(300, getOption("timeout"))
+    )
+    on.exit(options(old_options), add = TRUE)
+    status <- tryCatch(
+      utils::download.file(url = url, destfile = tmp, mode = "wb", quiet = TRUE),
+      error = function(cnd) {
+        cli::cli_abort(
+          c(
+            "Failed to download O*NET crosswalk.",
+            "i" = "URL: {.url {url}}"
+          ),
+          parent = cnd
+        )
+      }
+    )
+    if (!identical(status, 0L)) {
+      cli::cli_abort(
+        c(
+          "Failed to download O*NET crosswalk.",
+          "i" = "URL: {.url {url}}"
+        )
+      )
+    }
+    if (file.info(tmp)$size <= 0) {
+      cli::cli_abort("Downloaded O*NET crosswalk was empty.")
+    }
+    if (!file.rename(tmp, dest)) {
+      cli::cli_abort("Failed to move downloaded O*NET crosswalk into the cache.")
+    }
+    dest
   }
 
   out <- tibble::tibble(
@@ -1001,6 +1114,7 @@ change_type_levels <- function() {
     "real_update",
     "resampled_stable",
     "recode_or_recalc_flag",
+    "source_date_missing",
     "transition_data",
     "suppressed_change",
     "new",
@@ -1109,6 +1223,8 @@ dropped_coverage_rows <- function(dropped, from_release, to_release, to_panel) {
     to_domain_source = NA_character_,
     from_recommend_suppress = as.character(dropped$recommend_suppress),
     to_recommend_suppress = NA_character_,
+    from_not_relevant = as.character(col_or_na(dropped, "not_relevant", nrow(dropped))),
+    to_not_relevant = NA_character_,
     date_changed = NA,
     value_changed = NA,
     transition_data = is_transition_source(dropped$domain_source),
@@ -1153,6 +1269,8 @@ new_coverage_rows <- function(new, from_release, to_release, from_panel) {
     to_domain_source = as.character(new$domain_source),
     from_recommend_suppress = NA_character_,
     to_recommend_suppress = as.character(new$recommend_suppress),
+    from_not_relevant = NA_character_,
+    to_not_relevant = as.character(col_or_na(new, "not_relevant", nrow(new))),
     date_changed = NA,
     value_changed = NA,
     transition_data = is_transition_source(new$domain_source),
@@ -1223,6 +1341,8 @@ empty_reconciled_panel <- function() {
     to_domain_source = character(),
     from_recommend_suppress = character(),
     to_recommend_suppress = character(),
+    from_not_relevant = character(),
+    to_not_relevant = character(),
     date_changed = logical(),
     value_changed = logical(),
     transition_data = logical(),
@@ -1312,8 +1432,9 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
   }
 
   value_changed <- !same_number(joined$data_value_from, joined$data_value_to)
+  date_missing <- is.na(joined$source_date_from) | is.na(joined$source_date_to)
   date_changed <- joined$source_date_from != joined$source_date_to
-  date_changed[is.na(date_changed)] <- FALSE
+  date_changed[date_missing] <- NA
   transition_data <- is_transition_source(joined$domain_source_from) |
     is_transition_source(joined$domain_source_to)
   suppressed_change <- is_suppressed_estimate(joined$recommend_suppress_from) |
@@ -1322,6 +1443,7 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
   change_type <- dplyr::case_when(
     transition_data ~ "transition_data",
     suppressed_change ~ "suppressed_change",
+    date_missing ~ "source_date_missing",
     !value_changed & !date_changed ~ "stale_carryforward",
     value_changed & date_changed ~ "real_update",
     !value_changed & date_changed ~ "resampled_stable",
@@ -1363,6 +1485,8 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
     to_domain_source = as.character(joined$domain_source_to),
     from_recommend_suppress = as.character(joined$recommend_suppress_from),
     to_recommend_suppress = as.character(joined$recommend_suppress_to),
+    from_not_relevant = as.character(col_or_na(joined, "not_relevant_from", nrow(joined))),
+    to_not_relevant = as.character(col_or_na(joined, "not_relevant_to", nrow(joined))),
     date_changed = date_changed,
     value_changed = value_changed,
     transition_data = transition_data,

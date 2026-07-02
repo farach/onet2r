@@ -16,3 +16,16 @@
 ^docs$
 ^\.github$
 ^rollout$
+^\.RData$
+^\.Rhistory$
+^\.gitignore$
+^\.copilot(/|$)
+^\.history(/|$)
+^\.memory(/|$)
+^\.pinboard(/|$)
+^plan\.md$
+^PLAN\.md$
+^(PINBOARD|pinboard)(\.md)?$
+^(HISTORY|history)(\.md)?$
+^(MEMORY|memory)(\.md)?$
+^(CLAUDE|claude)\.md$

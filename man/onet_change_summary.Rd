@@ -14,8 +14,9 @@ onet_change_summary(reconciled, by = c("overall", "job_family"))
 family.}
 }
 \value{
-A tibble with \code{job_family}, \code{change_type}, \code{safely_comparable},
-\code{n}, and \code{share}.
+A tibble with one row per summary group and change type. The \code{n}
+column counts rows of that change type within the group, and \code{share} is
+the within-group share.
 }
 \description{
 Counts reconciliation change types overall and by two-digit job family.

@@ -24,3 +24,25 @@ Thumbs.db
 
 # Local planning notes (not part of the package)
 /rollout/
+
+# Local agent/session notes
+/.copilot/
+/.history/
+/.memory/
+/.pinboard/
+/plan.md
+/PLAN.md
+/PINBOARD
+/PINBOARD.md
+/pinboard
+/pinboard.md
+/HISTORY
+/HISTORY.md
+/history
+/history.md
+/MEMORY
+/MEMORY.md
+/memory
+/memory.md
+/CLAUDE.md
+/claude.md

@@ -95,3 +95,21 @@ onet_kable <- function(x, digits = 3, caption = NULL) {
     align = "l"
   )
 }
+
+onet2r_inst_path <- function(...) {
+  pieces <- c(...)
+  source_path <- do.call(file.path, as.list(c("inst", pieces)))
+  parent_source_path <- do.call(file.path, as.list(c("..", "inst", pieces)))
+  package_path <- system.file(..., package = "onet2r")
+  candidates <- c(
+    source_path,
+    parent_source_path,
+    package_path
+  )
+  candidates <- candidates[nzchar(candidates) & file.exists(candidates)]
+  if (length(candidates) == 0) {
+    label <- do.call(file.path, as.list(pieces))
+    stop("Could not find package fixture: ", label, call. = FALSE)
+  }
+  candidates[[1]]
+}

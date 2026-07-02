@@ -45,7 +45,9 @@ test_that("onet_releases parses archive rows into stable fields", {
     "<td>O*NET 30.3 Database</td><td>May 2026</td>",
     '<a href="/dl_files/database/db_30_2_text.zip">30.2 text</a>',
     '<a href="/dictionary/30.2/excel/">30.2 dictionary</a>',
-    "<td>O*NET 30.2 Database</td><td>February 2026</td>"
+    "<td>O*NET 30.2 Database</td><td>February 2026</td>",
+    '<a href="/dl_files/db_15_1.zip">15.1 text</a>',
+    "<td>O*NET 15.1 Database</td><td>July 2010</td>"
   )
 
   local_mocked_bindings(
@@ -62,10 +64,14 @@ test_that("onet_releases parses archive rows into stable fields", {
       "text_url", "dictionary_url"
     )
   )
-  expect_equal(result$version, c("30.3", "30.2"))
-  expect_equal(result$release_date, as.Date(c("2026-05-01", "2026-02-01")))
-  expect_equal(as.character(result$soc_vintage), c("2019", "2019"))
+  expect_equal(result$version, c("30.3", "30.2", "15.1"))
+  expect_equal(
+    result$release_date,
+    as.Date(c("2026-05-01", "2026-02-01", "2010-07-01"))
+  )
+  expect_equal(as.character(result$soc_vintage), c("2019", "2019", "2010"))
   expect_match(result$text_url[1], "db_30_3_text\\.zip$")
+  expect_match(result$text_url[3], "db_15_1\\.zip$")
   expect_match(result$dictionary_url[1], "/dictionary/30.3/excel/", fixed = TRUE)
 })
 
@@ -102,7 +108,8 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
       "iwa_element_id", "iwa_element_name", "gwa_element_id",
       "gwa_element_name", "element_id", "element_name", "scale_id",
       "scale_name", "category", "data_value", "n", "standard_error", "lower_ci_bound",
-      "upper_ci_bound", "recommend_suppress", "source_date", "domain_source"
+      "upper_ci_bound", "recommend_suppress", "not_relevant", "source_date",
+      "domain_source"
     )
   )
   expect_equal(nrow(result), 2L)
@@ -165,6 +172,7 @@ test_that("onet_archive_read accepts a local extracted archive directory", {
   expect_equal(nrow(result), 7L)
   expect_equal(unique(result$release_version), "30.3")
   expect_equal(unique(result$release_date), as.Date("2026-05-01"))
+  expect_equal(unique(result$not_relevant), "N")
   expect_equal(
     result[result$onet_soc_code == "15-1252.00", "data_value", drop = TRUE][[1]],
     4.35
@@ -569,9 +577,10 @@ test_that("onet_panel_reconcile returns a stable empty schema", {
       "domain", "element_id", "element_name", "scale_id", "from_value",
       "to_value", "value_change", "value_percent_change", "from_source_date",
       "to_source_date", "from_domain_source", "to_domain_source",
-      "from_recommend_suppress", "to_recommend_suppress", "date_changed",
-      "value_changed", "transition_data", "suppressed_change", "change_type",
-      "coverage_status", "method_break", "crosswalk_uncertain",
+      "from_recommend_suppress", "to_recommend_suppress", "from_not_relevant",
+      "to_not_relevant", "date_changed", "value_changed", "transition_data",
+      "suppressed_change", "change_type", "coverage_status", "method_break",
+      "crosswalk_uncertain",
       "safely_comparable", "map_type", "crosswalk_weight"
     )
   )
@@ -612,14 +621,62 @@ test_that("onet_change_summary reports overall and job-family shares", {
   expect_named(
     result,
     c(
-      "summary_level", "job_family", "change_type", "n_pairs",
-      "share_pairs", "mean_value_change", "median_abs_value_change",
+      "summary_level", "job_family", "n_group", "share_group",
+      "mean_value_change", "median_abs_value_change",
       "share_safely_comparable", "share_method_break",
-      "share_crosswalk_uncertain"
+      "share_crosswalk_uncertain", "change_type", "n", "share"
     )
   )
-  expect_equal(result$summary_level, c("overall", "job_family", "job_family"))
-  expect_equal(result$job_family, c(NA_character_, "15", "29"))
-  expect_equal(result$n_pairs, c(3L, 2L, 1L))
-  expect_equal(result$share_pairs, c(1, 2 / 3, 1 / 3))
+  expect_equal(
+    result$summary_level,
+    c("overall", "overall", "job_family", "job_family", "job_family")
+  )
+  expect_equal(result$job_family, c(NA_character_, NA_character_, "15", "15", "29"))
+  expect_equal(result$n_group, c(3L, 3L, 2L, 2L, 1L))
+  expect_equal(result$share_group, c(1, 1, 2 / 3, 2 / 3, 1 / 3))
+  expect_equal(
+    result$change_type,
+    c("real_update", "stale_carryforward", "real_update", "stale_carryforward", "real_update")
+  )
+  expect_equal(result$n, c(2L, 1L, 1L, 1L, 1L))
+  expect_equal(result$share, c(2 / 3, 1 / 3, 1 / 2, 1 / 2, 1))
+})
+
+test_that("onet_panel_reconcile marks missing source dates as unknown", {
+  panel <- tibble::tibble(
+    release_version = rep(c("1.0", "2.0"), each = 1),
+    release_date = as.Date(c("2020-01-01", "2021-01-01")),
+    soc_vintage = "2019",
+    domain = "Abilities",
+    onet_soc_code = "15-1252.00",
+    soc_code = "15-1252",
+    title = "Software Developers",
+    element_id = "1.A.1.a.1",
+    element_name = "Oral Comprehension",
+    scale_id = "IM",
+    data_value = c(4, 4),
+    n = NA_integer_,
+    standard_error = NA_real_,
+    lower_ci_bound = NA_real_,
+    upper_ci_bound = NA_real_,
+    recommend_suppress = "N",
+    not_relevant = "N",
+    source_date = as.Date(c(NA, "2021-01-01")),
+    domain_source = "Analyst"
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2019",
+    to_vintage = "2019",
+    from_onet_soc_code = "15-1252.00",
+    to_onet_soc_code = "15-1252.00",
+    map_type = "one_to_one",
+    crosswalk_weight = 1
+  )
+
+  result <- onet_panel_reconcile(panel, bridge)
+
+  expect_equal(as.character(result$change_type), "source_date_missing")
+  expect_equal(result$safely_comparable, FALSE)
+  expect_equal(result$from_not_relevant, "N")
+  expect_equal(result$to_not_relevant, "N")
 })

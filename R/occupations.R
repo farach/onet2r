@@ -26,7 +26,15 @@
 #'
 #' @export
 onet_occupations <- function(start = 1, end = 1000) {
-  onet_occupations_page(start = start, end = end)$data
+  page <- onet_occupations_page(start = start, end = end)
+  out <- page$data
+  attr(out, "total") <- page$total
+  if (!is.na(page$total) && page$end < page$total) {
+    cli::cli_inform(
+      "Returned rows {page$start} to {page$end} of {page$total}; use {.fun onet_occupations_all} for all occupations."
+    )
+  }
+  out
 }
 
 #' List All O&#42;NET Occupations with Auto-Pagination
@@ -62,17 +70,19 @@ onet_occupations_all <- function(page_size = 2000, show_progress = TRUE) {
 }
 
 onet_occupations_page <- function(start = 1, end = 1000) {
+  validate_range(start, end)
   resp <- onet_request(
     "online/occupations",
     .query = list(start = start, end = end)
   ) |>
     onet_perform()
 
+  data <- occupation_records_to_tbl(resp$occupation)
   list(
-    data = occupation_records_to_tbl(resp$occupation),
+    data = data,
     start = resp$start %||% start,
-    end = resp$end %||% 0,
-    total = resp$total %||% 0
+    end = resp$end %||% if (nrow(data) > 0) start + nrow(data) - 1L else start - 1L,
+    total = resp$total %||% NA_integer_
   )
 }
 
@@ -296,6 +306,7 @@ onet_work_activities_all <- function(code, page_size = 2000, show_progress = TRU
 #' @export
 onet_tasks <- function(code, start = 1, end = 20) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -304,7 +315,7 @@ onet_tasks <- function(code, start = 1, end = 20) {
   ) |>
     onet_perform()
 
-  onet_list_to_tbl(resp$task)
+  onet_list_to_tbl(resp$task, task_detail_schema())
 }
 
 # ---- Details: detailed work activities (resp$activity) ------------------------
@@ -322,6 +333,7 @@ onet_tasks <- function(code, start = 1, end = 20) {
 #' @export
 onet_detailed_work_activities <- function(code, start = 1, end = 20) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -330,7 +342,7 @@ onet_detailed_work_activities <- function(code, start = 1, end = 20) {
   ) |>
     onet_perform()
 
-  onet_list_to_tbl(resp$activity)
+  onet_list_to_tbl(resp$activity, activity_detail_schema())
 }
 
 # ---- Details: related occupations (resp$occupation) ---------------------------
@@ -345,6 +357,7 @@ onet_detailed_work_activities <- function(code, start = 1, end = 20) {
 #' @export
 onet_related_occupations <- function(code, start = 1, end = 20) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -353,7 +366,7 @@ onet_related_occupations <- function(code, start = 1, end = 20) {
   ) |>
     onet_perform()
 
-  onet_list_to_tbl(resp$occupation)
+  onet_list_to_tbl(resp$occupation, occupation_schema())
 }
 
 # ---- Details: professional associations (resp$source) -------------------------
@@ -368,6 +381,7 @@ onet_related_occupations <- function(code, start = 1, end = 20) {
 #' @export
 onet_professional_associations <- function(code, start = 1, end = 20) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -376,7 +390,7 @@ onet_professional_associations <- function(code, start = 1, end = 20) {
   ) |>
     onet_perform()
 
-  onet_list_to_tbl(resp$source)
+  onet_list_to_tbl(resp$source, source_detail_schema())
 }
 
 # ---- Details: apprenticeship (resp$example_title) -----------------------------
@@ -395,6 +409,7 @@ onet_professional_associations <- function(code, start = 1, end = 20) {
 #' @export
 onet_apprenticeship <- function(code, start = 1, end = 20) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -454,6 +469,7 @@ onet_job_zone <- function(code) {
 #' @export
 onet_education <- function(code, start = 1, end = 20) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -462,17 +478,13 @@ onet_education <- function(code, start = 1, end = 20) {
   ) |>
     onet_perform()
 
-  schema <- tibble::tibble(
-    code = integer(),
-    title = character(),
-    percentage_of_respondents = numeric()
-  )
+  schema <- education_schema()
 
   if (is.null(resp$response) || length(resp$response) == 0) {
     return(schema)
   }
 
-  onet_list_to_tbl(resp$response)
+  enforce_schema(onet_list_to_tbl(resp$response), schema, select = TRUE)
 }
 
 # ---- Hot technology endpoint (/hot_technology) --------------------------------
@@ -500,6 +512,7 @@ onet_education <- function(code, start = 1, end = 20) {
 #' @export
 onet_hot_technology <- function(code, start = 1, end = 20) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -508,13 +521,7 @@ onet_hot_technology <- function(code, start = 1, end = 20) {
   ) |>
     onet_perform()
 
-  schema <- tibble::tibble(
-    title = character(),
-    href = character(),
-    hot_technology = logical(),
-    in_demand = logical(),
-    percentage = numeric()
-  )
+  schema <- hot_technology_schema()
 
   if (is.null(resp$example) || length(resp$example) == 0) {
     return(schema)
@@ -522,13 +529,7 @@ onet_hot_technology <- function(code, start = 1, end = 20) {
 
   out <- onet_list_to_tbl(resp$example)
 
-  # Enforce stable columns (API objects can be heterogeneous)
-  for (nm in names(schema)) {
-    if (!nm %in% names(out)) out[[nm]] <- NA
-  }
-
-  out |>
-    dplyr::select(title, href, hot_technology, in_demand, percentage)
+  enforce_schema(out, schema, select = TRUE)
 }
 
 #' Get O&#42;NET Technology (alias of hot technologies)
@@ -558,6 +559,7 @@ onet_technology <- function(code, start = 1, end = 20) {
 #' @export
 onet_technology_skills <- function(code, start = 1, end = 20, include_more = FALSE) {
   validate_onet_code(code)
+  validate_range(start, end)
 
   resp <- onet_request(
     "online/occupations",
@@ -568,7 +570,7 @@ onet_technology_skills <- function(code, start = 1, end = 20, include_more = FAL
 
   cats <- resp$category
   if (is.null(cats) || length(cats) == 0) {
-    return(tibble::tibble())
+    return(technology_skill_schema())
   }
 
   purrr::map(cats, \(cat) {
@@ -624,7 +626,7 @@ onet_in_demand_skills <- function(code, start = 1, end = 20) {
   }
 
   out |>
-    dplyr::filter(isTRUE(.data$in_demand) | .data$in_demand %in% TRUE)
+    dplyr::filter(.data$in_demand %in% TRUE)
 }
 
 # ---- Internal helpers ---------------------------------------------------------
@@ -659,6 +661,7 @@ onet_details_element_all <- function(code, section, page_size = 2000, show_progr
 }
 
 onet_details_element_page <- function(code, section, start = 1, end = 20) {
+  validate_range(start, end)
   resp <- onet_request(
     "online/occupations",
     .path_segments = c(code, "details", section),
@@ -666,11 +669,12 @@ onet_details_element_page <- function(code, section, start = 1, end = 20) {
   ) |>
     onet_perform()
 
+  data <- onet_list_to_tbl(resp$element, element_detail_schema())
   list(
-    data = onet_list_to_tbl(resp$element),
+    data = data,
     start = resp$start %||% start,
-    end = resp$end %||% 0,
-    total = resp$total %||% 0
+    end = resp$end %||% if (nrow(data) > 0) start + nrow(data) - 1L else start - 1L,
+    total = resp$total %||% NA_integer_
   )
 }
 
@@ -684,12 +688,61 @@ validate_page_size <- function(page_size) {
 }
 
 # Internal: convert list of objects -> tibble with snake_case names
-onet_list_to_tbl <- function(x) {
+onet_list_to_tbl <- function(x, schema = NULL) {
   if (is.null(x) || length(x) == 0) {
-    return(tibble::tibble())
+    return(schema %||% tibble::tibble())
   }
-  purrr::map(x, as_onet_tibble) |>
+  out <- purrr::map(x, as_onet_tibble) |>
     purrr::list_rbind()
+  if (!is.null(schema)) {
+    out <- enforce_schema(out, schema)
+  }
+  out
+}
+
+element_detail_schema <- function() {
+  empty_tibble(id = character(), name = character(), description = character())
+}
+
+task_detail_schema <- function() {
+  empty_tibble(id = character(), title = character(), description = character())
+}
+
+activity_detail_schema <- function() {
+  empty_tibble(id = character(), title = character(), description = character())
+}
+
+source_detail_schema <- function() {
+  empty_tibble(name = character(), href = character())
+}
+
+education_schema <- function() {
+  empty_tibble(
+    code = integer(),
+    title = character(),
+    percentage_of_respondents = numeric()
+  )
+}
+
+hot_technology_schema <- function() {
+  empty_tibble(
+    title = character(),
+    href = character(),
+    hot_technology = logical(),
+    in_demand = logical(),
+    percentage = numeric()
+  )
+}
+
+technology_skill_schema <- function() {
+  empty_tibble(
+    category_code = integer(),
+    category_title = character(),
+    category_related = character(),
+    title = character(),
+    href = character(),
+    example_source = character()
+  )
 }
 
 # Internal: pick the first key in a response that looks like a list of records

@@ -31,7 +31,6 @@ by setting \code{show_progress = FALSE}.
 }
 \examples{
 \dontshow{if (interactive() && nzchar(Sys.getenv("ONET_API_KEY"))) withAutoprint(\{ # examplesIf}
-# Get occupation data without progress messages.
 occ_data <- onet_table("occupation_data", show_progress = FALSE)
 \dontshow{\}) # examplesIf}
 }

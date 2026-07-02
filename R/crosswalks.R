@@ -14,10 +14,8 @@
 #'
 #' @export
 #' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
-#' # Search by military job title
 #' onet_crosswalk_military("infantry")
 #'
-#' # Search by military code
 #' onet_crosswalk_military("11B")
 onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
   validate_single_string(keyword, "keyword")
@@ -52,20 +50,22 @@ onet_crosswalk_military <- function(keyword, start = 1, end = 20) {
 #'
 #' @export
 #' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
-#' # Map from active O*NET-SOC to 2010 SOC
 #' onet_taxonomy_map("15-1252.00", from = "active", to = "2010")
 #'
-#' # Map from 2010 SOC to active O*NET-SOC
 #' onet_taxonomy_map("15-1131.00", from = "2010", to = "active")
-onet_taxonomy_map <- function(code, from = c("active", "2010"), to = c("2010", "active")) {
+onet_taxonomy_map <- function(code, from = c("active", "2010"), to = NULL) {
   from <- match.arg(from)
-  to <- match.arg(to)
-
-  if (from == to) {
-    cli_abort("{.arg from} and {.arg to} must be different taxonomies.")
+  to <- if (is.null(to)) {
+    if (from == "active") "2010" else "active"
+  } else {
+    match.arg(to, c("2010", "active"))
   }
 
-  validate_single_string(code, "code")
+  if (from == to) {
+    cli::cli_abort("{.arg from} and {.arg to} must be different taxonomies.")
+  }
+
+  validate_onet_code(code)
 
   # Build the endpoint path based on direction
   if (from == "active") {

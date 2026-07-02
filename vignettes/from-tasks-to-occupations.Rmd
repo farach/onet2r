@@ -21,14 +21,18 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 library(onet2r)
 library(dplyr)
 helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
   "inst/vignette-helpers.R",
-  "vignette-helpers.R",
-  system.file("vignette-helpers.R", package = "onet2r")
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
 )
-helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)][[1]]
-source(helper_path)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
 
-archive_dir <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
+archive_dir <- onet2r_inst_path("extdata", "onet-mini", "db_30_3_text")
 ```
 
 Many user measures start at the task level: a researcher labels tasks, a model
@@ -76,7 +80,8 @@ measure <- onet_measure(
   score = "score",
   key_type = "task",
   universe = tasks$task_id,
-  measure_id = "stylized_task_score"
+  measure_id = "stylized_task_score",
+  release_version = "30.3"
 )
 
 onet_coverage(measure) |>
@@ -103,8 +108,10 @@ core_plus_supplemental <- onet_task_to_occupation(
 )
 
 core_only |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 core_plus_supplemental |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 

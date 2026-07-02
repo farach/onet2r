@@ -8,8 +8,9 @@ Description: Access the 'O*NET' Web Services Application Programming Interface
     skills, knowledge, abilities, tasks, and work activities, access database
     tables, perform taxonomy crosswalks, join wage and employment context,
     assemble longitudinal archive panels, and validate user-supplied
-    occupational measures. Results are returned as tibbles for easy integration
-    with tidyverse workflows.
+    occupational measures. Use archived releases, source dates, and taxonomy
+    bridges to make longitudinal comparisons easier to audit. Results are
+    returned as tibbles for easy integration with tidyverse workflows.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -23,12 +24,16 @@ Imports:
     lifecycle,
     purrr,
     rlang,
-    tibble
+    stats,
+    tibble,
+    tools,
+    utils
 Suggests:
     ggplot2,
     knitr,
     readxl,
     rmarkdown,
+    scales,
     testthat (>= 3.0.0),
     withr
 Config/testthat/edition: 3

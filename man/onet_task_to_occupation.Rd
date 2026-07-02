@@ -40,7 +40,8 @@ default.}
 \item{include_supplemental}{If \code{TRUE}, include Supplemental tasks.}
 }
 \value{
-A tibble with occupation-level measure scores.
+A tibble with occupation-level measure scores, task-count metadata,
+and measure provenance columns.
 }
 \description{
 Rolls a task-level measure up to occupations using O*NET task relevance,

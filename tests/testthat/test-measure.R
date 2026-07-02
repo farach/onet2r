@@ -30,6 +30,18 @@ test_that("onet_measure validates keys and reports coverage", {
   expect_equal(coverage$employment_coverage_share, 0.8)
 })
 
+test_that("onet_measure rejects duplicate measure keys", {
+  scores <- tibble::tibble(
+    onet_soc_code = c("15-1252.00", "15-1252.00"),
+    score = c(0.7, 0.8)
+  )
+
+  expect_error(
+    onet_measure(scores, "onet_soc_code", "score"),
+    "duplicate keys"
+  )
+})
+
 test_that("onet_task_to_occupation rolls task measures to occupations", {
   archive_dir <- system.file(
     "extdata",
@@ -58,7 +70,9 @@ test_that("onet_task_to_occupation rolls task measures to occupations", {
     key = "task_id",
     score = "score",
     key_type = "task",
-    universe = tasks$task_id
+    universe = tasks$task_id,
+    measure_id = "task_score",
+    release_version = "30.3"
   )
 
   result <- onet_task_to_occupation(
@@ -71,6 +85,30 @@ test_that("onet_task_to_occupation rolls task measures to occupations", {
   expect_equal(result$onet_soc_code, c("15-1252.00", "29-1141.00"))
   expect_equal(result$measure_score, c(0.8, 0.2))
   expect_equal(result$n_tasks, c(1L, 1L))
+  expect_equal(result$measure_id, c("task_score", "task_score"))
+  expect_equal(result$measure_release, c("30.3", "30.3"))
+})
+
+test_that("onet_task_to_occupation rejects unsupported task scales", {
+  measure <- onet_measure(
+    tibble::tibble(task_id = "1001", score = 0.8),
+    key = "task_id",
+    score = "score",
+    key_type = "task"
+  )
+  ratings <- tibble::tibble(
+    onet_soc_code = "15-1252.00",
+    task_id = "1001",
+    scale_id = "FT",
+    category = 1L,
+    data_value = 80,
+    task_type = "Core"
+  )
+
+  expect_error(
+    onet_task_to_occupation(measure, ratings, weight_scale = "FT"),
+    "RT"
+  )
 })
 
 test_that("onet_measure_aggregate computes weighted aggregates with provenance", {
@@ -96,6 +134,59 @@ test_that("onet_measure_aggregate computes weighted aggregates with provenance",
   expect_equal(result$covered_employment, 400)
   expect_equal(onet_provenance(result)$measure_id, "m1")
   expect_equal(onet_coverage(result)$covered_employment, 400)
+})
+
+test_that("onet_measure_aggregate collapses detail codes before weighting", {
+  scores <- tibble::tibble(
+    onet_soc_code = c("15-1299.01", "15-1299.02", "29-1141.00"),
+    score = c(0, 1, 0.2)
+  )
+  weights <- tibble::tibble(
+    reference_soc_code = c("15-1299", "29-1141"),
+    year = 2024L,
+    employment = c(100, 300),
+    weight_share = c(0.25, 0.75),
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+  measure <- onet_measure(
+    scores,
+    "onet_soc_code",
+    "score",
+    measure_id = "detail_test",
+    release_version = "30.3"
+  )
+
+  result <- onet_measure_aggregate(measure, weights)
+
+  expect_equal(result$aggregate, 0.275)
+  expect_equal(result$covered_employment, 400)
+  expect_equal(result$employment_coverage_share, 1)
+  expect_equal(onet_provenance(result)$measure_release, "30.3")
+})
+
+test_that("onet_measure_aggregate keeps provenance from rollup data frames", {
+  scores <- tibble::tibble(
+    onet_soc_code = c("15-1252.00", "29-1141.00"),
+    measure_score = c(0.7, 0.2),
+    measure_id = c("task_score", "task_score"),
+    measure_release = c("30.3", "30.3")
+  )
+  weights <- tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141"),
+    year = 2024L,
+    employment = c(100, 300),
+    weight_share = c(0.25, 0.75),
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+
+  result <- onet_measure_aggregate(scores, weights)
+
+  expect_equal(result$measure_id, "task_score")
+  expect_equal(onet_provenance(result)$measure_release, "30.3")
 })
 
 test_that("onet_measure_aggregate requires a single weight period and cell", {

@@ -1,6 +1,6 @@
 # onet2r 0.4.1 build report
 
-Date: 2026-06-25
+Date: 2026-07-02
 
 ## Environment
 
@@ -12,20 +12,23 @@ Date: 2026-06-25
 
 - `devtools::document()`: completed after roxygen changes.
 - `devtools::build_readme()`: completed after README source changes.
-- `devtools::test()`: 297 passing tests with local environment; 294 passing and 2 live smoke tests skipped when `ONET_API_KEY` was unset.
-- `Rscript inst/examples/validate-outputs.R`: completed with `ONET_API_KEY` unset, exercising bundled OEWS, archive, measure, aggregation, sensitivity, decomposition, cache, and rate-limit outputs.
+- `devtools::test()`: 342 passing tests.
+- Bundled-output smoke checks were rerun against local OEWS, PUMS, archive, measure, aggregation, reconciliation, and change-summary fixtures.
 - `urlchecker::url_check()`: all URLs correct.
-- `lintr::lint_package()`: 203 remaining default line-length findings; no remaining non-line-length lints.
 - `pkgdown::check_pkgdown()`: no problems found.
-- `pkgdown::build_site(new_process = FALSE)`: completed successfully.
-- Generated pkgdown HTML scan: no malformed O&#42;NET rendering, no `# A tibble` console dumps in article output, no base `barplot()` remnants, and no instruction leakage.
-- `rcmdcheck::rcmdcheck(args = "--as-cran")`: 0 errors, 0 warnings, 1 note.
+- `pkgdown::build_site()`: completed successfully.
+- All vignettes rendered locally with evaluated code chunks.
+- `rcmdcheck::rcmdcheck(args = "--as-cran")`: 0 errors, 0 warnings, 2 notes.
 
 ## R CMD check note
 
 1. New submission.
+2. Unable to verify current time.
 
-The final R CMD check was run with `ONET_API_KEY` unset so examples could not make live Web Services calls or expose local credentials. `LC_CTYPE` was also unset to avoid a local Windows startup warning unrelated to the package.
+The final R CMD check was run with `ONET_API_KEY` unset so examples could not
+make live Web Services calls or expose local credentials. `LC_CTYPE` was also
+unset to avoid a local Windows startup warning unrelated to the package. The
+future-timestamp note appears to be local to the Windows check environment.
 
 ## Optional checks
 

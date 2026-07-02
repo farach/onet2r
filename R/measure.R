@@ -61,6 +61,12 @@ onet_measure <- function(
   if (any(is.na(out$measure_score))) {
     cli::cli_abort("{.arg score} must contain numeric values.")
   }
+  duplicate_keys <- out$measure_key[duplicated(out$measure_key)]
+  if (length(duplicate_keys) > 0) {
+    cli::cli_abort(
+      "{.arg key} must uniquely identify measure rows; duplicate keys include {.val {unique(duplicate_keys)}}."
+    )
+  }
 
   universe_keys <- measure_universe_keys(universe, key)
   matched <- if (is.null(universe_keys)) {
@@ -217,7 +223,8 @@ onet_provenance <- function(x) {
 #'   default.
 #' @param include_supplemental If `TRUE`, include Supplemental tasks.
 #'
-#' @return A tibble with occupation-level measure scores.
+#' @return A tibble with occupation-level measure scores, task-count metadata,
+#'   and measure provenance columns.
 #' @export
 #'
 #' @examples
@@ -249,6 +256,9 @@ onet_task_to_occupation <- function(
   validate_onet_measure(measure)
   if (measure$metadata$key_type != "task") {
     cli::cli_abort("{.arg measure} must have {.code key_type = \"task\"}.")
+  }
+  if (!is.character(weight_scale) || length(weight_scale) != 1 || !weight_scale %in% c("RT", "IM")) {
+    cli::cli_abort("{.arg weight_scale} must be either {.val RT} or {.val IM}.")
   }
   if (!is.data.frame(task_ratings)) {
     cli::cli_abort("{.arg task_ratings} must be a data frame.")
@@ -282,9 +292,26 @@ onet_task_to_occupation <- function(
       relationship = "many-to-one"
     )
   }
+  task_type_values <- tolower(trimws(as.character(ratings[[task_type]])))
+  missing_task_type <- is.na(task_type_values) | task_type_values %in% c("", "n/a")
+  if (any(missing_task_type)) {
+    cli::cli_inform(
+      "Excluded {sum(missing_task_type)} task rating row{?s} with missing task type."
+    )
+    ratings <- ratings[!missing_task_type, , drop = FALSE]
+  }
 
   ratings <- ratings |>
     dplyr::filter(as.character(.data[[scale_id]]) == weight_scale)
+  category_col <- intersect(c("category", "Category"), names(ratings))
+  if (length(category_col) == 1) {
+    has_category <- !is.na(ratings[[category_col]]) & nzchar(as.character(ratings[[category_col]]))
+    if (any(has_category)) {
+      cli::cli_abort(
+        "{.arg weight_scale} must refer to a task-level RT or IM row, not category rows."
+      )
+    }
+  }
   if (!include_supplemental) {
     ratings <- ratings |>
       dplyr::filter(tolower(as.character(.data[[task_type]])) == "core")
@@ -301,6 +328,8 @@ onet_task_to_occupation <- function(
 
   scored |>
     dplyr::summarise(
+      measure_id = measure$metadata$measure_id,
+      measure_release = measure$metadata$release_version,
       n_tasks = dplyr::n_distinct(.data[[task_id]]),
       total_task_weight = sum(.data$.task_weight, na.rm = TRUE),
       measure_score = weighted_mean_na(.data$measure_score, .data$.task_weight),
@@ -327,6 +356,12 @@ onet_task_to_occupation <- function(
 #'
 #' @return A one-row tibble with the aggregate, coverage fields, and list-column
 #'   metadata readable with [onet_provenance()] and [onet_coverage()].
+#'
+#' @details
+#' When multiple O&#42;NET detail occupations map to the same reference SOC,
+#' `onet_measure_aggregate()` first averages those detail scores within the SOC.
+#' Employment coverage is then counted once per reference SOC, so coverage shares
+#' cannot exceed 100 percent because of detail-code duplication.
 #' @export
 #'
 #' @examples
@@ -360,16 +395,20 @@ onet_measure_aggregate <- function(
   weights <- filter_aggregate_weight_panel(weight_panel, year = year, cell = cell)
 
   mapped <- map_occupation_scores(scores, bridge)
+  collapsed <- collapse_mapped_scores(mapped)
   joined <- dplyr::left_join(
-    mapped,
+    collapsed,
     weights,
     by = "reference_soc_code",
-    relationship = "many-to-many"
+    relationship = "many-to-one"
   )
-  joined$.effective_weight <- joined$employment * joined$crosswalk_weight
+  joined$.effective_weight <- joined$employment * joined$coverage_weight
   aggregate <- weighted_mean_na(joined$measure_score, joined$.effective_weight)
   total_employment <- sum(weights$employment, na.rm = TRUE)
-  covered_employment <- sum(joined$.effective_weight, na.rm = TRUE)
+  covered_employment <- joined |>
+    dplyr::filter(!is.na(.data$measure_score), !is.na(.data$employment)) |>
+    dplyr::summarise(total = sum(.data$.effective_weight, na.rm = TRUE)) |>
+    dplyr::pull("total")
 
   result <- tibble::tibble(
     measure_id = scores$measure_id[[1]],
@@ -381,7 +420,7 @@ onet_measure_aggregate <- function(
     } else {
       NA_real_
     },
-    n_occupations = dplyr::n_distinct(joined$measure_key),
+    n_occupations = dplyr::n_distinct(mapped$measure_key),
     n_reference_soc = dplyr::n_distinct(joined$reference_soc_code)
   )
   new_onet_aggregate(
@@ -625,7 +664,8 @@ occupation_scores_table <- function(measure, occupation_code, score, measure_id)
     return(tibble::tibble(
       measure_id = measure$metadata$measure_id,
       measure_key = measure$data$measure_key,
-      measure_score = measure$data$measure_score
+      measure_score = measure$data$measure_score,
+      measure_release = measure$metadata$release_version
     ))
   }
   if (!is.data.frame(measure)) {
@@ -633,10 +673,21 @@ occupation_scores_table <- function(measure, occupation_code, score, measure_id)
   }
   validate_single_column(measure, occupation_code, "occupation_code")
   validate_single_column(measure, score, "score")
+  measure_id_values <- if ("measure_id" %in% names(measure)) {
+    as.character(measure$measure_id)
+  } else {
+    rep(measure_id, nrow(measure))
+  }
+  measure_release_values <- if ("measure_release" %in% names(measure)) {
+    as.character(measure$measure_release)
+  } else {
+    rep(NA_character_, nrow(measure))
+  }
   tibble::tibble(
-    measure_id = measure_id,
+    measure_id = measure_id_values,
     measure_key = as.character(measure[[occupation_code]]),
-    measure_score = parse_onet_number(measure[[score]])
+    measure_score = parse_onet_number(measure[[score]]),
+    measure_release = measure_release_values
   )
 }
 
@@ -646,6 +697,7 @@ map_occupation_scores <- function(scores, bridge) {
       measure_id = scores$measure_id,
       measure_key = scores$measure_key,
       measure_score = scores$measure_score,
+      measure_release = scores$measure_release,
       reference_soc_code = standardize_soc_code(scores$measure_key),
       crosswalk_weight = 1
     ))
@@ -657,6 +709,18 @@ map_occupation_scores <- function(scores, bridge) {
     by = dplyr::join_by(measure_key == from_onet_soc_code),
     relationship = "many-to-many"
   )
+}
+
+collapse_mapped_scores <- function(mapped) {
+  mapped |>
+    dplyr::summarise(
+      measure_id = dplyr::first(.data$measure_id),
+      measure_score = weighted_mean_na(.data$measure_score, .data$crosswalk_weight),
+      measure_release = collapse_unique(.data$measure_release),
+      n_measure_keys = dplyr::n_distinct(.data$measure_key),
+      coverage_weight = min(sum(.data$crosswalk_weight, na.rm = TRUE), 1),
+      .by = "reference_soc_code"
+    )
 }
 
 normalize_measure_bridge <- function(bridge) {
@@ -675,6 +739,7 @@ normalize_measure_bridge <- function(bridge) {
 aggregation_provenance <- function(scores, weights, bridge) {
   tibble::tibble(
     measure_id = scores$measure_id[[1]],
+    measure_release = collapse_unique(scores$measure_release),
     weight_source = collapse_unique(weights$source),
     weight_year = unique(stats::na.omit(as.integer(weights$year)))[[1]],
     source_taxonomy = collapse_unique(weights$source_taxonomy),

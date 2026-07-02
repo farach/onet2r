@@ -27,12 +27,16 @@ options(
 library(onet2r)
 library(dplyr)
 helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
   "inst/vignette-helpers.R",
-  "vignette-helpers.R",
-  system.file("vignette-helpers.R", package = "onet2r")
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
 )
-helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)][[1]]
-source(helper_path)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
 ```
 
 Aggregate changes can come from two places. Occupations can change internally,
@@ -44,7 +48,7 @@ change.
 ## A Fixture-Derived Example
 
 ```{r inputs}
-archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+archive_base <- onet2r_inst_path("extdata", "onet-mini")
 cross_panel <- onet_panel(
   "Abilities",
   versions = c("24.3", "25.1"),

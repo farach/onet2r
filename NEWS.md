@@ -5,6 +5,14 @@
 * Expanded the longitudinal archive, OEWS, sensitivity, and decomposition articles with practical cross-vintage examples using packaged fixtures.
 * Added pkgdown callouts, branded favicon colors, citation metadata, lifecycle badge documentation, and release notes for the v0.4.1 polish pass.
 * Strengthened fixture tests for task rating scale handling and multi-cell aggregation guards.
+* `onet_cache_clear()` can clear API responses, O&#42;NET archives, O&#42;NET crosswalks, OEWS downloads, or the full package cache.
+* `onet_change_summary()` now reports the full change-type distribution within each summary group instead of only the modal change type.
+* `onet_decompose_change()` now honors comparability flags supplied on either period and treats missing comparability as not safe for within-change attribution.
+* `onet_measure_aggregate()` now collapses multiple O&#42;NET detail occupations within a reference SOC before applying employment weights, preventing inflated aggregates and coverage shares above 100 percent.
+* `onet_task_to_occupation()` now carries measure id and release metadata into occupation-level rollups so `onet_measure_aggregate()` provenance remains intact.
+* `onet_oews()` now uses corrected BLS metro and industry file slugs, writes OEWS downloads atomically, preserves top-coded and suppressed wage flags, and documents OEWS special value markers.
+* `onet_weight_panel_oews()` now filters OEWS hierarchy rows to detailed occupations before computing weight shares.
+* `onet_weight_panel_pums()` now warns about unfiltered ACS employment universes, drops unweightable SOCP aggregate codes, warns on missing person weights, and warns when replicate standard errors are requested without a full replicate set.
 
 # onet2r 0.4.0
 

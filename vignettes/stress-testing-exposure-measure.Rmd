@@ -21,22 +21,21 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 library(onet2r)
 library(dplyr)
 helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
   "inst/vignette-helpers.R",
-  "vignette-helpers.R",
-  system.file("vignette-helpers.R", package = "onet2r")
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
 )
-helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)][[1]]
-source(helper_path)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
 
 archive_path <- function(version) {
-  system.file(
-    "extdata",
-    "onet-mini",
-    paste0("db_", gsub(".", "_", version, fixed = TRUE), "_text"),
-    package = "onet2r"
-  )
+  onet2r_inst_path("extdata", "onet-mini", paste0("db_", gsub(".", "_", version, fixed = TRUE), "_text"))
 }
-oews_path <- system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+oews_path <- onet2r_inst_path("extdata", "oews-national-sample.csv")
 ```
 
 This article uses a stylized task score to show the sensitivity workflow. The

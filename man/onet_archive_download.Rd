@@ -4,12 +4,14 @@
 \alias{onet_archive_download}
 \title{Download an O*NET Archive}
 \usage{
-onet_archive_download(version, dir = onet_cache_dir())
+onet_archive_download(version, dir = onet_cache_dir(), force = FALSE)
 }
 \arguments{
 \item{version}{O*NET database version, for example \code{"30.3"}.}
 
 \item{dir}{Cache directory.}
+
+\item{force}{Logical; if \code{TRUE}, re-download even when a cached archive exists.}
 }
 \value{
 The path to the cached ZIP file.
@@ -17,6 +19,11 @@ The path to the cached ZIP file.
 \description{
 Downloads and caches one O*NET text archive. Existing non-empty cached files
 are reused.
+}
+\details{
+Downloaded archives are cached under \code{tools::R_user_dir("onet2r", "cache")}
+in the \code{archives} section. Use \code{onet_cache_clear(what = "archives")} or
+\code{onet_cache_clear(what = "all")} to remove them.
 }
 \examples{
 if (interactive()) {

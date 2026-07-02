@@ -19,25 +19,20 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 library(onet2r)
 library(dplyr)
 helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
   "inst/vignette-helpers.R",
-  "vignette-helpers.R",
-  system.file("vignette-helpers.R", package = "onet2r")
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
 )
-helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)][[1]]
-source(helper_path)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
 
-sample_oews <- system.file(
-  "extdata",
-  "oews-national-sample.csv",
-  package = "onet2r"
-)
+sample_oews <- onet2r_inst_path("extdata", "oews-national-sample.csv")
 
-archive_303 <- system.file(
-  "extdata",
-  "onet-mini",
-  "db_30_3_text",
-  package = "onet2r"
-)
+archive_303 <- onet2r_inst_path("extdata", "onet-mini", "db_30_3_text")
 ```
 
 The package test suite checks implementation details with mocked responses and
@@ -50,7 +45,7 @@ the source tree with `Rscript inst/examples/validate-outputs.R`. From an
 installed package, source the file returned by:
 
 ```{r script-path}
-system.file("examples", "validate-outputs.R", package = "onet2r")
+onet2r_inst_path("examples", "validate-outputs.R")
 ```
 
 ## What the Script Checks

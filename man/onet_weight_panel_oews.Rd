@@ -9,6 +9,7 @@ onet_weight_panel_oews(
   year,
   code = "occ_code",
   employment = "tot_emp",
+  o_group = "o_group",
   reference_taxonomy = "2018 SOC",
   source_taxonomy = NULL,
   crosswalk = NULL
@@ -23,6 +24,9 @@ onet_weight_panel_oews(
 
 \item{employment}{Employment column.}
 
+\item{o_group}{Optional OEWS aggregation-level column. When present, rows are
+filtered to detailed occupations by default.}
+
 \item{reference_taxonomy}{Reference SOC label.}
 
 \item{source_taxonomy}{Optional source taxonomy label.}
@@ -34,6 +38,13 @@ A normalized employment-weight panel.
 }
 \description{
 Create an OEWS Weight Panel
+}
+\details{
+Real OEWS files include total, major, minor, broad, and detailed occupation
+rows. When \code{o_group} is present, this function keeps detailed rows before
+computing employment shares. If \code{o_group} is absent, obvious aggregate SOC
+rows such as \code{00-0000} and codes ending in \code{-0000} are dropped with a
+warning. \code{weight_share} is computed within the returned panel.
 }
 \examples{
 oews <- tibble::tibble(

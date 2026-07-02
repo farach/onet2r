@@ -14,13 +14,12 @@
 #'
 #' @export
 #' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
-#' # Search by keyword
 #' onet_search("software developer")
 #'
-#' # Search by SOC code
 #' onet_search("15-1252")
 onet_search <- function(keyword, start = 1, end = 20) {
   validate_single_string(keyword, "keyword")
+  validate_range(start, end)
 
   resp <- onet_request("online/search", .query = list(keyword = keyword, start = start, end = end)) |>
     onet_perform()

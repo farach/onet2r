@@ -68,8 +68,10 @@ OEWS and PUMS weights are normalized to one shape:
 - `source`, `source_taxonomy`, `reference_taxonomy`;
 - optional `employment_se` when replicate weights are available.
 
-Raw PUMS microdata is never cached by the package. Only aggregated weights may
-be cached under `tools::R_user_dir("onet2r", "cache")`.
+Raw PUMS microdata is never cached by the package. O&#42;NET archive ZIPs, O&#42;NET
+crosswalk CSVs, OEWS source ZIPs, API responses, and aggregated weights may be
+cached under `tools::R_user_dir("onet2r", "cache")`; `onet_cache_clear()` removes
+the package-managed cache sections.
 
 `onet_measure_aggregate()` accepts exactly one weight period and one optional
 cell at a time. If a panel contains more than one `year`, callers must pass

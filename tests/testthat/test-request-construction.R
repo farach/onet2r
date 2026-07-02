@@ -56,15 +56,17 @@ test_that("onet_request builds URL correctly with both path segments and query p
   expect_match(req$url, "end=100")
 })
 
-test_that("onet_request includes API key header", {
+test_that("onet_request redacts the API key header", {
   old_key <- Sys.getenv("ONET_API_KEY")
   on.exit(Sys.setenv(ONET_API_KEY = old_key))
   test_key <- "test-api-key-123"
   Sys.setenv(ONET_API_KEY = test_key)
 
   req <- onet2r:::onet_request("database")
+  headers <- paste(capture.output(str(req$headers)), collapse = "\n")
 
-  expect_equal(req$headers[["X-API-Key"]], test_key)
+  expect_match(headers, "X-API-Key: <REDACTED>", fixed = TRUE)
+  expect_no_match(headers, test_key, fixed = TRUE)
 })
 
 test_that("cache and rate-limit configuration return expected settings", {

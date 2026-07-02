@@ -106,7 +106,6 @@ onet_table_info <- function(table_id) {
 #'
 #' @export
 #' @examplesIf interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
-#' # Get occupation data without progress messages.
 #' occ_data <- onet_table("occupation_data", show_progress = FALSE)
 onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {
   validate_single_string(table_id, "table_id")
@@ -132,6 +131,7 @@ onet_table <- function(table_id, page_size = 2000, show_progress = TRUE) {
 #' @keywords internal
 #' @noRd
 onet_table_page <- function(table_id, start = 1, end = 2000) {
+  validate_range(start, end)
   resp <- onet_request("database/rows", .path_segments = table_id, .query = list(start = start, end = end)) |>
     onet_perform()
 
@@ -144,7 +144,7 @@ onet_table_page <- function(table_id, start = 1, end = 2000) {
   list(
     data = data,
     start = resp$start %||% start,
-    end = resp$end %||% 0,
-    total = resp$total %||% 0
+    end = resp$end %||% if (nrow(data) > 0) start + nrow(data) - 1L else start - 1L,
+    total = resp$total %||% NA_integer_
   )
 }

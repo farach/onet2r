@@ -4,10 +4,15 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 2 notes
 
 * checking CRAN incoming feasibility ... NOTE
   New submission
+
+* checking for future file timestamps ... NOTE
+  unable to verify current time
+
+  This appears to be local to the Windows check environment.
 
 ## Downstream API behavior
 

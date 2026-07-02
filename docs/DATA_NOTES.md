@@ -72,8 +72,14 @@ Verified from BLS archived pages and Census API variable metadata:
   the first full 2010 SOC release.
 - ACS PUMS `SOCP` uses 2010 SOC in data years 2012 through 2017 and 2018 SOC
   from data year 2018 onward.
+- ACS PUMS `SOCP` can include aggregate Census codes with trailing `X`
+  characters. These are not six-digit SOC codes and require an external
+  allocation crosswalk before they can be matched to O&#42;NET or OEWS.
 - ACS PUMS `PWGTP` is the person weight. Person replicate weights are
   `PWGTP1` through `PWGTP80`.
+- ACS PUMS employment weights should be built on an employment universe, not on
+  raw person records. A common ACS filter is employed civilians,
+  `ESR %in% c(1, 2)`, often with age 16 or older.
 - ACS PUMS `OCCP` is a Census occupation recode and should not be treated as a
   six-digit SOC code without a separate Census crosswalk.
 
@@ -82,6 +88,7 @@ Sources:
 - https://web.archive.org/web/20230528035801/https://www.bls.gov/soc/2018/crosswalks.htm
 - https://web.archive.org/web/20230922061615/https://www.bls.gov/soc/socimp.htm
 - https://api.census.gov/data/2022/acs/acs1/pums/variables/SOCP.json
+- https://api.census.gov/data/2022/acs/acs1/pums/variables/ESR.json
 - https://api.census.gov/data/2022/acs/acs1/pums/variables/OCCP.json
 - https://api.census.gov/data/2022/acs/acs1/pums/variables/PWGTP.json
 

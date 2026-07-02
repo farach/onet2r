@@ -1,4 +1,6 @@
-OCC_CODE,OCC_TITLE,TOT_EMP,A_MEDIAN,H_MEDIAN
-15-1252,Software Developers,"1,847,900","$133,080","$63.98"
-29-1141,Registered Nurses,"3,175,400","$93,070","$44.75"
-11-1011,Chief Executives,"211,230","$206,680","$99.37"
+O_GROUP,OCC_CODE,OCC_TITLE,TOT_EMP,A_MEDIAN,H_MEDIAN
+total,00-0000,All Occupations,"151,853,870","$48,060","$23.11"
+major,15-0000,Computer and Mathematical Occupations,"5,199,210","$104,420","$50.20"
+detailed,15-1252,Software Developers,"1,847,900","$133,080","$63.98"
+detailed,29-1141,Registered Nurses,"3,175,400","$93,070","$44.75"
+detailed,11-1011,Chief Executives,"211,230","#","#"

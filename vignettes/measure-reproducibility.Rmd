@@ -27,19 +27,18 @@ options(
 library(onet2r)
 library(dplyr)
 helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
   "inst/vignette-helpers.R",
-  "vignette-helpers.R",
-  system.file("vignette-helpers.R", package = "onet2r")
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
 )
-helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)][[1]]
-source(helper_path)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
 
-archive_dir <- system.file(
-  "extdata",
-  "onet-mini",
-  "db_30_3_text",
-  package = "onet2r"
-)
+archive_dir <- onet2r_inst_path("extdata", "onet-mini", "db_30_3_text")
 ```
 
 O&#42;NET users often arrive with their own score: an exposure measure, a task
@@ -141,6 +140,7 @@ occupation_scores <- onet_task_to_occupation(
 )
 
 occupation_scores |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
@@ -157,6 +157,7 @@ occupation_scores_all <- onet_task_to_occupation(
 )
 
 occupation_scores_all |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
@@ -167,7 +168,7 @@ and returns a single shape used downstream.
 
 ```{r weights}
 oews_sample <- onet_oews_national(
-  path = system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+  path = onet2r_inst_path("extdata", "oews-national-sample.csv")
 )
 
 weights <- onet_weight_panel_oews(oews_sample, year = 2024)

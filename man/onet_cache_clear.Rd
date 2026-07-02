@@ -5,17 +5,22 @@
 \title{Clear Cached O*NET API Responses}
 \usage{
 onet_cache_clear(
-  cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache"))
+  cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
+  what = c("api", "archives", "crosswalks", "oews", "all")
 )
 }
 \arguments{
 \item{cache_dir}{Directory containing cached API responses.}
+
+\item{what}{Cache section to clear. Use \code{"api"} for Web Services responses,
+\code{"archives"} for O*NET database ZIPs, \code{"crosswalks"} for O*NET bridge
+CSVs, \code{"oews"} for BLS OEWS ZIPs, or \code{"all"} for every section.}
 }
 \value{
 Invisibly returns the cache directory path.
 }
 \description{
-Deletes cached O*NET API responses created by \code{onet_cache_use()}.
+Deletes cached O*NET API responses and downloaded source archives.
 }
 \examples{
 tmp <- tempfile()

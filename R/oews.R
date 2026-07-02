@@ -20,7 +20,9 @@
 #' @param quiet Logical; if `FALSE`, show download progress.
 #'
 #' @return A tibble of OEWS estimates with `year`, `oews_type`, and snake_case
-#'   OEWS columns.
+#'   OEWS columns. Special OEWS markers are preserved as indicator columns when
+#'   present: `#` as top-coded, `*` as wage suppressed, `**` as employment
+#'   suppressed, and `~` as less than 0.5 percent.
 #' @export
 #'
 #' @examplesIf interactive()
@@ -46,6 +48,7 @@ onet_oews <- function(
     )
   } else {
     validate_existing_path(path)
+    warn_oews_path_year(path, year)
   }
 
   out <- read_oews_file(path)
@@ -276,18 +279,29 @@ validate_oews_year <- function(year) {
   }
 
   year <- as.integer(year)
-  if (year < 1999 || year > latest_oews_year() + 1) {
-    cli::cli_abort("{.arg year} must be a plausible OEWS estimate year.")
+  if (year < 2003 || year > latest_oews_year() + 1) {
+    cli::cli_abort(
+      "{.arg year} must be a supported May OEWS estimate year, 2003 or later."
+    )
   }
 
   year
 }
 
 download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRUE) {
+  cache_dir <- file.path(cache_dir, "oews")
   dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 
   url <- oews_url(type = type, year = year)
   destfile <- file.path(cache_dir, basename(url))
+
+  if (file.exists(destfile) && !isTRUE(force)) {
+    validate_oews_zip(destfile)
+    return(destfile)
+  }
+
+  tmpfile <- tempfile("oews-", tmpdir = cache_dir, fileext = ".zip")
+  on.exit(unlink(tmpfile, force = TRUE), add = TRUE)
 
   if (!file.exists(destfile) || isTRUE(force)) {
     old_options <- options(
@@ -300,10 +314,10 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
     )
     on.exit(options(old_options), add = TRUE)
 
-    tryCatch(
+    status <- tryCatch(
       utils::download.file(
         url = url,
-        destfile = destfile,
+        destfile = tmpfile,
         mode = "wb",
         quiet = quiet
       ),
@@ -318,6 +332,18 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
         )
       }
     )
+    if (!identical(status, 0L)) {
+      cli::cli_abort(
+        c(
+          "Failed to download OEWS estimates from BLS.",
+          "i" = "URL: {.url {url}}"
+        )
+      )
+    }
+    validate_oews_zip(tmpfile)
+    if (!file.rename(tmpfile, destfile)) {
+      cli::cli_abort("Failed to move downloaded OEWS ZIP into the cache.")
+    }
   }
 
   destfile
@@ -332,8 +358,8 @@ oews_url <- function(type, year) {
   slug <- switch(type,
     national = "nat",
     state = "st",
-    metro = "msa",
-    industry = "in"
+    metro = "ma",
+    industry = "in4"
   )
 
   sprintf("https://www.bls.gov/oes/special.requests/oesm%02d%s.zip", yy, slug)
@@ -391,9 +417,25 @@ first_oews_data_file <- function(files) {
 
   preferred <- matches[grepl("national|_dl|data", matches, ignore.case = TRUE)]
   if (length(preferred) > 0) {
+    if (length(preferred) > 1) {
+      cli::cli_warn(
+        c(
+          "The OEWS ZIP contains multiple candidate data files; reading the first one.",
+          "i" = "Candidates: {.path {preferred}}"
+        )
+      )
+    }
     return(preferred[[1]])
   }
 
+  if (length(matches) > 1) {
+    cli::cli_warn(
+      c(
+        "The OEWS ZIP contains multiple data files; reading the first one.",
+        "i" = "Candidates: {.path {matches}}"
+      )
+    )
+  }
   matches[[1]]
 }
 
@@ -403,6 +445,7 @@ clean_oews_data <- function(data) {
 
   numeric_cols <- intersect(names(out), oews_numeric_columns())
   for (col in numeric_cols) {
+    out <- add_oews_special_flags(out, col)
     out[[col]] <- parse_oews_number(out[[col]])
   }
 
@@ -411,6 +454,24 @@ clean_oews_data <- function(data) {
   }
 
   out
+}
+
+add_oews_special_flags <- function(data, col) {
+  x <- trimws(as.character(data[[col]]))
+  flag_values <- list(
+    topcoded = "#",
+    wage_suppressed = "*",
+    employment_suppressed = "**",
+    less_than_half = "~"
+  )
+  for (suffix in names(flag_values)) {
+    marker <- flag_values[[suffix]]
+    flag <- !is.na(x) & x == marker
+    if (any(flag)) {
+      data[[paste(col, suffix, sep = "_")]] <- flag
+    }
+  }
+  data
 }
 
 clean_oews_names <- function(x) {
@@ -430,9 +491,36 @@ parse_oews_number <- function(x) {
   x <- gsub(",", "", as.character(x), fixed = TRUE)
   x <- gsub("$", "", x, fixed = TRUE)
   x <- trimws(x)
-  x[x %in% c("", "*", "#", "**", NA_character_)] <- NA_character_
+  x[x %in% c("", "*", "#", "**", "~", NA_character_)] <- NA_character_
 
   suppressWarnings(as.numeric(x))
+}
+
+validate_oews_zip <- function(path) {
+  tryCatch(
+    utils::unzip(path, list = TRUE),
+    error = function(cnd) {
+      unlink(path, force = TRUE)
+      cli::cli_abort("Cached OEWS file is not a readable ZIP archive.", parent = cnd)
+    }
+  )
+  invisible(path)
+}
+
+warn_oews_path_year <- function(path, year) {
+  file <- basename(path)
+  match <- regexec("oesm([0-9]{2})", file, ignore.case = TRUE)
+  parts <- regmatches(file, match)[[1]]
+  if (length(parts) < 2) {
+    return(invisible(NULL))
+  }
+  file_year <- 2000L + as.integer(parts[[2]])
+  if (!is.na(file_year) && file_year != as.integer(year)) {
+    cli::cli_warn(
+      "The OEWS file name looks like year {file_year}, but {.arg year} is {year}."
+    )
+  }
+  invisible(NULL)
 }
 
 oews_numeric_columns <- function() {

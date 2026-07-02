@@ -21,15 +21,19 @@ options(tibble.print_min = 4, tibble.print_max = 8)
 library(onet2r)
 library(dplyr)
 helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
   "inst/vignette-helpers.R",
-  "vignette-helpers.R",
-  system.file("vignette-helpers.R", package = "onet2r")
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
 )
-helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)][[1]]
-source(helper_path)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
 
-archive_303 <- system.file("extdata", "onet-mini", "db_30_3_text", package = "onet2r")
-oews_path <- system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+archive_303 <- onet2r_inst_path("extdata", "onet-mini", "db_30_3_text")
+oews_path <- onet2r_inst_path("extdata", "oews-national-sample.csv")
 ```
 
 Weights answer a population question. OEWS is usually the best choice when the
@@ -58,8 +62,8 @@ score |>
 
 ```{r oews-weights}
 oews_weights <- onet_weight_panel_oews(
-  onet_oews_national(2024, path = oews_path),
-  year = 2024
+  onet_oews_national(2023, path = oews_path),
+  year = 2023
 )
 
 oews_result <- onet_measure_aggregate(
@@ -81,6 +85,7 @@ oews_result |>
 pums <- tibble::tibble(
   SOCP = c("151252", "151252", "291141", "291141", "111011", "111011"),
   PWGTP = c(120, 80, 90, 110, 10, 30),
+  ESR = c("1", "1", "1", "1", "2", "2"),
   sex = c("F", "M", "F", "M", "F", "M")
 )
 
@@ -105,6 +110,19 @@ pums_m <- onet_measure_aggregate(
 
 pums_weights |>
   onet_kable()
+```
+
+Raw ACS PUMS needs a universe filter before this step. Employment weights
+usually start with employed civilians, `ESR %in% c(1, 2)`, and age 16 or older.
+Use `SOCP`; `OCCP` is a Census occupation recode, not a six-digit SOC code.
+
+```{r pums-universe-example, eval = FALSE}
+pums <- tidycensus::get_pums(
+  variables = c("SOCP", "PWGTP", "ESR", "AGEP"),
+  year = 2023,
+  survey = "acs1"
+) |>
+  filter(ESR %in% c("1", "2"), AGEP >= 16)
 ```
 
 ## Compare the Answers

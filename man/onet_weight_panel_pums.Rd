@@ -17,11 +17,12 @@ onet_weight_panel_pums(
 )
 }
 \arguments{
-\item{pums}{PUMS microdata or already-filtered person records.}
+\item{pums}{ACS PUMS microdata or already-filtered person records.}
 
-\item{year}{ACS or CPS year.}
+\item{year}{ACS PUMS data year.}
 
-\item{socp}{Occupation column, commonly \code{SOCP}.}
+\item{socp}{Occupation column, commonly \code{SOCP}. Do not pass Census \code{OCCP};
+it is not an SOC field.}
 
 \item{weight}{Person weight column, commonly \code{PWGTP}.}
 
@@ -36,10 +37,27 @@ onet_weight_panel_pums(
 \item{crosswalk}{Optional source-to-reference crosswalk.}
 }
 \value{
-A normalized employment-weight panel.
+A normalized employment-weight panel. When \code{group} is supplied,
+\code{weight_share} is computed within each group cell.
 }
 \description{
 Create a PUMS Weight Panel
+}
+\details{
+\code{onet_weight_panel_pums()} expects ACS PUMS records that have already been
+filtered to the employment universe used by the analysis. For employment
+weights, a common ACS starting point is employed civilians,
+\code{ESR \%in\% c(1, 2)}, often restricted to age 16 or older. Use \code{SOCP} as the
+occupation field. \code{OCCP} is a Census occupation recode, not an SOC field.
+
+ACS \code{SOCP} can include aggregate codes with trailing \code{X} characters. Those
+rows cannot be matched directly to O*NET or OEWS SOC codes, so they are
+dropped with a warning unless the caller supplies a crosswalk that maps them
+to valid reference SOC codes.
+
+Replicate-weight standard errors use \code{sqrt((4 / R) * sum((theta_r - theta)^2))}. For ACS PUMS, pass the full 80 \code{PWGTP1} through \code{PWGTP80}
+columns. Passing a smaller subset produces a warning because the resulting
+standard error is not survey-valid.
 }
 \examples{
 pums <- tibble::tibble(

@@ -33,16 +33,21 @@ onet_request <- function(.path, .path_segments = NULL, .query = list()) {
     req <- do.call(httr2::req_url_query, c(list(req), .query))
   }
 
-  # Default headers + retry policy
+  # Default headers plus retry and error policy
   req |>
+    httr2::req_user_agent("onet2r (https://github.com/farach/onet2r)") |>
     httr2::req_headers(
       `X-API-Key` = onet_api_key(),
-      Accept = "application/json"
+      Accept = "application/json",
+      .redact = "X-API-Key"
     ) |>
     httr2::req_retry(
       max_tries = 3,
       is_transient = is_transient_error,
       backoff = \(i) 0.2 * (2^i)
+    ) |>
+    httr2::req_error(
+      body = onet_http_error_body
     )
 }
 
@@ -60,6 +65,28 @@ is_transient_error <- function(resp) {
   status %in% c(429, 500, 502, 503, 504)
 }
 
+onet_http_error_body <- function(resp) {
+  status <- httr2::resp_status(resp)
+  body <- tryCatch(
+    httr2::resp_body_json(resp),
+    error = function(cnd) NULL
+  )
+  message <- body$error %||% body$message %||% httr2::resp_status_desc(resp)
+  guidance <- switch(as.character(status),
+    "401" = "Check ONET_API_KEY or request a key at <https://services.onetcenter.org/developer/>.",
+    "403" = "Check ONET_API_KEY and whether the endpoint is available for your account.",
+    "404" = "Check the occupation code or endpoint path.",
+    "422" = "Check the request arguments sent to the O*NET API.",
+    "429" = "The O*NET API rate limit was reached; try again later or use onet_rate_limit().",
+    NULL
+  )
+  c(
+    sprintf("O*NET API request failed with HTTP %s.", status),
+    as.character(message),
+    guidance
+  )
+}
+
 #' Perform an O&#42;NET API Request
 #'
 #' Executes a request and returns the parsed JSON body with error handling.
@@ -70,12 +97,12 @@ is_transient_error <- function(resp) {
 #' @keywords internal
 #' @noRd
 onet_perform <- function(req) {
-  onet_rate_limit_pause()
-
   cache_file <- onet_cache_file(req)
   if (!is.null(cache_file) && file.exists(cache_file)) {
     return(readRDS(cache_file))
   }
+
+  onet_rate_limit_pause()
 
   resp <- httr2::req_perform(req)
   body <- httr2::resp_body_json(resp)
@@ -129,9 +156,12 @@ onet_cache_use <- function(
 
 #' Clear Cached O&#42;NET API Responses
 #'
-#' Deletes cached O&#42;NET API responses created by `onet_cache_use()`.
+#' Deletes cached O&#42;NET API responses and downloaded source archives.
 #'
 #' @param cache_dir Directory containing cached API responses.
+#' @param what Cache section to clear. Use `"api"` for Web Services responses,
+#'   `"archives"` for O&#42;NET database ZIPs, `"crosswalks"` for O&#42;NET bridge
+#'   CSVs, `"oews"` for BLS OEWS ZIPs, or `"all"` for every section.
 #'
 #' @return Invisibly returns the cache directory path.
 #' @export
@@ -141,9 +171,12 @@ onet_cache_use <- function(
 #' onet_cache_use(cache_dir = tmp)
 #' onet_cache_clear(cache_dir = tmp)
 onet_cache_clear <- function(
-    cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache"))) {
+    cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
+    what = c("api", "archives", "crosswalks", "oews", "all")) {
   validate_single_string(cache_dir, "cache_dir")
-  unlink(file.path(cache_dir, "api"), recursive = TRUE, force = TRUE)
+  what <- match.arg(what)
+  sections <- if (what == "all") c("api", "archives", "crosswalks", "oews") else what
+  unlink(file.path(cache_dir, sections), recursive = TRUE, force = TRUE)
   invisible(cache_dir)
 }
 
@@ -206,9 +239,17 @@ as_onet_tibble <- function(x) {
     return(tibble::tibble())
   }
 
-  # Replace NULL values with NA so tibble conversion doesn't error
+  # Replace NULL and nested values so tibble conversion keeps one row per record.
   if (is.list(x) && !is.data.frame(x)) {
-    x <- lapply(x, function(col) if (is.null(col)) NA else col)
+    x <- lapply(x, function(col) {
+      if (is.null(col)) {
+        return(NA)
+      }
+      if (is.list(col) || length(col) != 1) {
+        return(list(col))
+      }
+      col
+    })
   }
 
   tbl <- tibble::as_tibble(x)
@@ -272,11 +313,27 @@ extract_list_data <- function(resp, key, schema = NULL) {
 
   result <- purrr::map(data, as_onet_tibble) |> purrr::list_rbind()
 
-  if (!is.null(schema) && nrow(result) == 0) {
-    return(schema)
+  if (!is.null(schema)) {
+    if (nrow(result) == 0) {
+      return(schema)
+    }
+    result <- enforce_schema(result, schema)
   }
 
   result
+}
+
+enforce_schema <- function(data, schema, select = FALSE) {
+  out <- tibble::as_tibble(data)
+  for (nm in names(schema)) {
+    if (!nm %in% names(out)) {
+      out[[nm]] <- schema[[nm]][NA_integer_]
+    }
+  }
+  if (isTRUE(select)) {
+    return(out[names(schema)])
+  }
+  out[c(names(schema), setdiff(names(out), names(schema)))]
 }
 
 #' Create Empty Tibble with Schema
@@ -303,6 +360,22 @@ validate_single_string <- function(x, arg) {
   }
 
   invisible(x)
+}
+
+validate_range <- function(start, end) {
+  if (!is.numeric(start) || length(start) != 1 || is.na(start) || start < 1) {
+    cli::cli_abort("{.arg start} must be a positive number.")
+  }
+  if (!is.numeric(end) || length(end) != 1 || is.na(end) || end < 1) {
+    cli::cli_abort("{.arg end} must be a positive number.")
+  }
+  if (end < start) {
+    cli::cli_abort("{.arg end} must be greater than or equal to {.arg start}.")
+  }
+  if (end - start + 1 > 2000) {
+    cli::cli_abort("O*NET API ranges must request no more than 2000 rows.")
+  }
+  invisible(NULL)
 }
 
 occupation_schema <- function() {
@@ -340,23 +413,46 @@ paginate_api <- function(fetch_page, page_size = 2000, show_progress = TRUE) {
   all_rows <- list()
   start <- 1
   total <- NULL
+  iterations <- 0L
 
   repeat {
+    iterations <- iterations + 1L
     page <- fetch_page(start = start, end = start + page_size - 1)
 
     if (is.null(total)) {
-      total <- page$total %||% 0
+      total <- page$total %||% NA_integer_
+      max_iterations <- if (is.na(total) || total <= 0) {
+        1L
+      } else {
+        ceiling(total / page_size) + 1L
+      }
     }
 
     if (!is.null(page$data) && nrow(page$data) > 0) {
       all_rows <- c(all_rows, list(page$data))
     }
 
-    if (isTRUE(page$total == 0) || isTRUE(page$end >= page$total)) {
+    if (is.na(total) || total == 0) {
       break
     }
 
-    start <- page$end + 1
+    page_end <- page$end %||% NA_integer_
+    if (is.na(page_end) || page_end < start) {
+      cli::cli_abort(
+        c(
+          "O*NET pagination did not advance.",
+          "i" = "The API returned page end {.val {page_end}} for start {.val {start}}."
+        )
+      )
+    }
+    if (page_end >= total) {
+      break
+    }
+    if (iterations > max_iterations) {
+      cli::cli_abort("O*NET pagination exceeded the expected number of pages.")
+    }
+
+    start <- page_end + 1
 
     if (isTRUE(show_progress) && total > 0) {
       cli::cli_inform("Fetching rows {start} to {min(start + page_size - 1, total)} of {total}...")
@@ -367,5 +463,11 @@ paginate_api <- function(fetch_page, page_size = 2000, show_progress = TRUE) {
     return(tibble::tibble())
   }
 
-  purrr::list_rbind(all_rows)
+  out <- purrr::list_rbind(all_rows)
+  if (!is.na(total) && nrow(out) != total) {
+    cli::cli_warn(
+      "O*NET pagination returned {nrow(out)} rows but reported {total} total rows."
+    )
+  }
+  out
 }

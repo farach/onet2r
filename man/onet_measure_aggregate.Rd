@@ -41,6 +41,12 @@ metadata readable with \code{\link[=onet_provenance]{onet_provenance()}} and \co
 \description{
 Aggregates an occupation-level measure using a normalized weight panel.
 }
+\details{
+When multiple O*NET detail occupations map to the same reference SOC,
+\code{onet_measure_aggregate()} first averages those detail scores within the SOC.
+Employment coverage is then counted once per reference SOC, so coverage shares
+cannot exceed 100 percent because of detail-code duplication.
+}
 \examples{
 measure <- onet_measure(
   tibble::tibble(onet_soc_code = c("15-1252.00", "29-1141.00"), score = c(0.7, 0.2)),

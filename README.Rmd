@@ -40,6 +40,12 @@ and provenance.
 
 ## Installation
 
+You can install `onet2r` from CRAN after release:
+
+```r
+install.packages("onet2r")
+```
+
 You can install the development version from GitHub:
 
 ```r
@@ -191,7 +197,8 @@ measure <- onet_measure(
   score = "score",
   key_type = "task",
   universe = tasks$task_id,
-  measure_id = "stylized_task_score"
+  measure_id = "stylized_task_score",
+  release_version = "30.3"
 )
 
 onet_coverage(measure) |>
@@ -207,6 +214,7 @@ occupation_scores <- onet_task_to_occupation(
 )
 
 occupation_scores |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
@@ -226,8 +234,7 @@ weights |>
 ```{r aggregate}
 aggregate <- onet_measure_aggregate(
   occupation_scores,
-  weights,
-  measure_id = "stylized_task_score"
+  weights
 )
 
 aggregate |>

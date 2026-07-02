@@ -27,23 +27,23 @@ options(
 library(onet2r)
 library(dplyr)
 helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
   "inst/vignette-helpers.R",
-  "vignette-helpers.R",
-  system.file("vignette-helpers.R", package = "onet2r")
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
 )
-helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)][[1]]
-source(helper_path)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
 
 has_onet_key <- nzchar(Sys.getenv("ONET_API_KEY"))
 run_live <- has_onet_key && identical(Sys.getenv("ONET2R_RUN_LIVE_VIGNETTES"), "true")
 
-sample_oews <- system.file(
-  "extdata",
-  "oews-national-sample.csv",
-  package = "onet2r"
-)
+sample_oews <- onet2r_inst_path("extdata", "oews-national-sample.csv")
 
-archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+archive_base <- onet2r_inst_path("extdata", "onet-mini")
 archive_302 <- file.path(archive_base, "db_30_2_text")
 archive_303 <- file.path(archive_base, "db_30_3_text")
 ```

@@ -31,7 +31,9 @@ Excel file. If supplied, no download is attempted.}
 }
 \value{
 A tibble of OEWS estimates with \code{year}, \code{oews_type}, and snake_case
-OEWS columns.
+OEWS columns. Special OEWS markers are preserved as indicator columns when
+present: \verb{#} as top-coded, \code{*} as wage suppressed, \verb{**} as employment
+suppressed, and \code{~} as less than 0.5 percent.
 }
 \description{
 Downloads Occupational Employment and Wage Statistics (OEWS) estimates from

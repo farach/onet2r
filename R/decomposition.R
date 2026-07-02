@@ -85,8 +85,8 @@ onet_decompose_change <- function(
   data$w_to <- data$weight_to / sum(data$weight_to, na.rm = TRUE)
   data$score_change <- data$score_to - data$score_from
   data$weight_change <- data$w_to - data$w_from
-  data$comparable <- data$comparable_to %||% data$comparable_from
-  data$comparable[is.na(data$comparable)] <- TRUE
+  data$comparable <- data$comparable_from & data$comparable_to
+  data$comparable[is.na(data$comparable)] <- FALSE
 
   within_all <- sum(data$w_from * data$score_change, na.rm = TRUE)
   within <- sum(data$w_from[data$comparable] * data$score_change[data$comparable], na.rm = TRUE)

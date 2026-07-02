@@ -62,6 +62,33 @@ test_that("onet_occupations_all paginates across pages", {
   )
 })
 
+test_that("paginate_api aborts on a non-advancing cursor", {
+  fetch_page <- function(start, end) {
+    list(
+      data = tibble::tibble(code = "15-1252.00"),
+      start = start,
+      end = 0,
+      total = 10
+    )
+  }
+
+  expect_error(
+    onet2r:::paginate_api(fetch_page, page_size = 2, show_progress = FALSE),
+    "did not advance"
+  )
+})
+
+test_that("as_onet_tibble keeps nested API fields as list columns", {
+  result <- onet2r:::as_onet_tibble(list(
+    id = "x",
+    related = list(list(id = "a"), list(id = "b"))
+  ))
+
+  expect_equal(result$id, "x")
+  expect_type(result$related, "list")
+  expect_equal(length(result$related[[1]]), 2L)
+})
+
 test_that("onet_occupation_details returns details index from overview", {
   local_mocked_bindings(
     onet_occupation = function(code) {
