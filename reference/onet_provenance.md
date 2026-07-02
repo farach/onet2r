@@ -41,9 +41,10 @@ weights <- tibble::tibble(
 )
 aggregate <- onet_measure_aggregate(measure, weights)
 onet_provenance(aggregate)
-#> # A tibble: 1 × 7
-#>   measure_id     weight_source weight_year source_taxonomy reference_taxonomy
-#>   <chr>          <chr>               <int> <chr>           <chr>             
-#> 1 stylized_score fixture              2024 2018 SOC        2018 SOC          
-#> # ℹ 2 more variables: bridge_used <lgl>, crosswalk_path <chr>
+#> # A tibble: 1 × 8
+#>   measure_id     measure_release weight_source weight_year source_taxonomy
+#>   <chr>          <chr>           <chr>               <int> <chr>          
+#> 1 stylized_score NA              fixture              2024 2018 SOC       
+#> # ℹ 3 more variables: reference_taxonomy <chr>, bridge_used <lgl>,
+#> #   crosswalk_path <chr>
 ```

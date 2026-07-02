@@ -11,8 +11,8 @@ from the source tree with `Rscript inst/examples/validate-outputs.R`.
 From an installed package, source the file returned by:
 
 ``` r
-system.file("examples", "validate-outputs.R", package = "onet2r")
-#> [1] "/home/runner/work/_temp/Library/onet2r/examples/validate-outputs.R"
+onet2r_inst_path("examples", "validate-outputs.R")
+#> [1] "../inst/examples/validate-outputs.R"
 ```
 
 ## What the Script Checks
@@ -37,6 +37,7 @@ output.
 ``` r
 oews <- onet_oews_national(2024, path = sample_oews)
 weights <- onet_weight_panel_oews(oews, year = 2024)
+#> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 abilities <- onet_archive_read(
   "30.3",

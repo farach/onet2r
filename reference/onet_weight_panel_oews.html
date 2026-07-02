@@ -60,6 +60,7 @@
 <span>  <span class="va">year</span>,</span>
 <span>  code <span class="op">=</span> <span class="st">"occ_code"</span>,</span>
 <span>  employment <span class="op">=</span> <span class="st">"tot_emp"</span>,</span>
+<span>  o_group <span class="op">=</span> <span class="st">"o_group"</span>,</span>
 <span>  reference_taxonomy <span class="op">=</span> <span class="st">"2018 SOC"</span>,</span>
 <span>  source_taxonomy <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  crosswalk <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -86,6 +87,11 @@
 <dd><p>Employment column.</p></dd>
 
 
+<dt id="arg-o-group">o_group<a class="anchor" aria-label="anchor" href="#arg-o-group"></a></dt>
+<dd><p>Optional OEWS aggregation-level column. When present, rows are
+filtered to detailed occupations by default.</p></dd>
+
+
 <dt id="arg-reference-taxonomy">reference_taxonomy<a class="anchor" aria-label="anchor" href="#arg-reference-taxonomy"></a></dt>
 <dd><p>Reference SOC label.</p></dd>
 
@@ -101,6 +107,14 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A normalized employment-weight panel.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Real OEWS files include total, major, minor, broad, and detailed occupation
+rows. When <code>o_group</code> is present, this function keeps detailed rows before
+computing employment shares. If <code>o_group</code> is absent, obvious aggregate SOC
+rows such as <code>00-0000</code> and codes ending in <code>-0000</code> are dropped with a
+warning. <code>weight_share</code> is computed within the returned panel.</p>
     </div>
 
     <div class="section level2">

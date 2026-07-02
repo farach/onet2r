@@ -6,7 +6,7 @@ files are reused.
 ## Usage
 
 ``` r
-onet_archive_download(version, dir = onet_cache_dir())
+onet_archive_download(version, dir = onet_cache_dir(), force = FALSE)
 ```
 
 ## Arguments
@@ -19,9 +19,20 @@ onet_archive_download(version, dir = onet_cache_dir())
 
   Cache directory.
 
+- force:
+
+  Logical; if `TRUE`, re-download even when a cached archive exists.
+
 ## Value
 
 The path to the cached ZIP file.
+
+## Details
+
+Downloaded archives are cached under
+`tools::R_user_dir("onet2r", "cache")` in the `archives` section. Use
+`onet_cache_clear(what = "archives")` or
+`onet_cache_clear(what = "all")` to remove them.
 
 ## Examples
 

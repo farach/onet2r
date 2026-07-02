@@ -12,6 +12,12 @@ employment weights, coverage, and provenance.
 
 ## Installation
 
+You can install `onet2r` from CRAN after release:
+
+``` r
+install.packages("onet2r")
+```
+
 You can install the development version from GitHub:
 
 ``` r
@@ -168,7 +174,8 @@ measure <- onet_measure(
   score = "score",
   key_type = "task",
   universe = tasks$task_id,
-  measure_id = "stylized_task_score"
+  measure_id = "stylized_task_score",
+  release_version = "30.3"
 )
 
 onet_coverage(measure) |>
@@ -188,13 +195,14 @@ occupation_scores <- onet_task_to_occupation(
 )
 
 occupation_scores |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
-| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
-|:--------------|:--------|:------------------|:--------------|:---------|
-| 15-1252.00    | 1       | 95                | 0.8           | 15-1252  |
-| 29-1141.00    | 1       | 98                | 0.2           | 29-1141  |
+| onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
+|:--------------|:---------|:--------|:------------------|:--------------|
+| 15-1252.00    | 15-1252  | 1       | 95                | 0.8           |
+| 29-1141.00    | 29-1141  | 1       | 98                | 0.2           |
 
 ## Add Employment Weights
 
@@ -204,6 +212,7 @@ oews_sample <- onet_oews_national(
 )
 
 weights <- onet_weight_panel_oews(oews_sample, year = 2024)
+#> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 weights |>
   onet_kable()
@@ -218,8 +227,7 @@ weights |>
 ``` r
 aggregate <- onet_measure_aggregate(
   occupation_scores,
-  weights,
-  measure_id = "stylized_task_score"
+  weights
 )
 
 aggregate |>
@@ -237,9 +245,9 @@ onet_provenance(aggregate) |>
   onet_kable()
 ```
 
-| measure_id          | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
-|:--------------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
-| stylized_task_score | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
+| measure_id          | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
+|:--------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
+| stylized_task_score | 30.3            | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
 ## Stress Test the Plumbing
 

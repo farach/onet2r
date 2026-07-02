@@ -117,6 +117,7 @@ panel.
 ``` r
 oews <- onet_oews_national(2024, path = sample_oews)
 weights <- onet_weight_panel_oews(oews, year = 2024)
+#> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 weights |>
   onet_kable()
@@ -158,9 +159,9 @@ onet_provenance(oral_aggregate) |>
   onet_kable()
 ```
 
-| measure_id                 | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
-|:---------------------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
-| oral_comprehension_fixture | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
+| measure_id                 | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
+|:---------------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
+| oral_comprehension_fixture | NA              | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
 ## Compare Two Archive Releases
 

@@ -55,6 +55,22 @@
 <li>Expanded the longitudinal archive, OEWS, sensitivity, and decomposition articles with practical cross-vintage examples using packaged fixtures.</li>
 <li>Added pkgdown callouts, branded favicon colors, citation metadata, lifecycle badge documentation, and release notes for the v0.4.1 polish pass.</li>
 <li>Strengthened fixture tests for task rating scale handling and multi-cell aggregation guards.</li>
+<li>
+<code><a href="../reference/onet_cache_clear.html">onet_cache_clear()</a></code> can clear API responses, O*NET archives, O*NET crosswalks, OEWS downloads, or the full package cache.</li>
+<li>
+<code><a href="../reference/onet_change_summary.html">onet_change_summary()</a></code> now reports the full change-type distribution within each summary group instead of only the modal change type.</li>
+<li>
+<code><a href="../reference/onet_decompose_change.html">onet_decompose_change()</a></code> now honors comparability flags supplied on either period and treats missing comparability as not safe for within-change attribution.</li>
+<li>
+<code><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code> now collapses multiple O*NET detail occupations within a reference SOC before applying employment weights, preventing inflated aggregates and coverage shares above 100 percent.</li>
+<li>
+<code><a href="../reference/onet_task_to_occupation.html">onet_task_to_occupation()</a></code> now carries measure id and release metadata into occupation-level rollups so <code><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code> provenance remains intact.</li>
+<li>
+<code><a href="../reference/onet_oews.html">onet_oews()</a></code> now uses corrected BLS metro and industry file slugs, writes OEWS downloads atomically, preserves top-coded and suppressed wage flags, and documents OEWS special value markers.</li>
+<li>
+<code><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews()</a></code> now filters OEWS hierarchy rows to detailed occupations before computing weight shares.</li>
+<li>
+<code><a href="../reference/onet_weight_panel_pums.html">onet_weight_panel_pums()</a></code> now warns about unfiltered ACS employment universes, drops unweightable SOCP aggregate codes, warns on missing person weights, and warns when replicate standard errors are requested without a full replicate set.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="onet2r-040">onet2r 0.4.0<a class="anchor" aria-label="anchor" href="#onet2r-040"></a></h2>

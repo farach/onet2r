@@ -5,8 +5,10 @@ version 2.0. Search occupations, retrieve occupation details such as
 skills, knowledge, abilities, tasks, and work activities, access
 database tables, perform taxonomy crosswalks, join wage and employment
 context, assemble longitudinal archive panels, and validate
-user-supplied occupational measures. Results are returned as tibbles for
-easy integration with tidyverse workflows.
+user-supplied occupational measures. Use archived releases, source
+dates, and taxonomy bridges to make longitudinal comparisons easier to
+audit. Results are returned as tibbles for easy integration with
+tidyverse workflows.
 
 ## See also
 

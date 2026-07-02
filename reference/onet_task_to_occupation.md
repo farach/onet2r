@@ -64,7 +64,8 @@ onet_task_to_occupation(
 
 ## Value
 
-A tibble with occupation-level measure scores.
+A tibble with occupation-level measure scores, task-count metadata, and
+measure provenance columns.
 
 ## Examples
 
@@ -83,8 +84,9 @@ task_ratings <- tibble::tibble(
   task_type = "Core"
 )
 onet_task_to_occupation(task_measure, task_ratings)
-#> # A tibble: 1 × 5
-#>   onet_soc_code n_tasks total_task_weight measure_score soc_code
-#>   <chr>           <int>             <dbl>         <dbl> <chr>   
-#> 1 15-1252.00          2               100          0.72 15-1252 
+#> # A tibble: 1 × 7
+#>   onet_soc_code measure_id   measure_release n_tasks total_task_weight
+#>   <chr>         <chr>        <chr>             <int>             <dbl>
+#> 1 15-1252.00    user_measure NA                    2               100
+#> # ℹ 2 more variables: measure_score <dbl>, soc_code <chr>
 ```

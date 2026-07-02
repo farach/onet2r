@@ -108,7 +108,9 @@ Excel file. If supplied, no download is attempted.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble of OEWS estimates with <code>year</code>, <code>oews_type</code>, and snake_case
-OEWS columns.</p>
+OEWS columns. Special OEWS markers are preserved as indicator columns when
+present: <code>#</code> as top-coded, <code>*</code> as wage suppressed, <code>**</code> as employment
+suppressed, and <code>~</code> as less than 0.5 percent.</p>
     </div>
 
     <div class="section level2">

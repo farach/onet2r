@@ -41,7 +41,6 @@ multiple API requests. Progress messages can be disabled by setting
 
 ``` r
 if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
-# Get occupation data without progress messages.
 occ_data <- onet_table("occupation_data", show_progress = FALSE)
 }
 ```

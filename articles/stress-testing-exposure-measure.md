@@ -63,6 +63,7 @@ oews_weights <- onet_weight_panel_oews(
   onet_oews_national(2024, path = oews_path),
   year = 2024
 )
+#> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 pums <- tibble::tibble(
   SOCP = c("151252", "151253", "291141", "291141"),

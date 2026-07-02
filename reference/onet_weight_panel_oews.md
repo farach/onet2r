@@ -10,6 +10,7 @@ onet_weight_panel_oews(
   year,
   code = "occ_code",
   employment = "tot_emp",
+  o_group = "o_group",
   reference_taxonomy = "2018 SOC",
   source_taxonomy = NULL,
   crosswalk = NULL
@@ -34,6 +35,11 @@ onet_weight_panel_oews(
 
   Employment column.
 
+- o_group:
+
+  Optional OEWS aggregation-level column. When present, rows are
+  filtered to detailed occupations by default.
+
 - reference_taxonomy:
 
   Reference SOC label.
@@ -49,6 +55,15 @@ onet_weight_panel_oews(
 ## Value
 
 A normalized employment-weight panel.
+
+## Details
+
+Real OEWS files include total, major, minor, broad, and detailed
+occupation rows. When `o_group` is present, this function keeps detailed
+rows before computing employment shares. If `o_group` is absent, obvious
+aggregate SOC rows such as `00-0000` and codes ending in `-0000` are
+dropped with a warning. `weight_share` is computed within the returned
+panel.
 
 ## Examples
 

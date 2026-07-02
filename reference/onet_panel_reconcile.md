@@ -59,12 +59,12 @@ bridge <- tibble::tibble(
   crosswalk_weight = 1
 )
 onet_panel_reconcile(panel, bridge)
-#> # A tibble: 2 × 35
+#> # A tibble: 2 × 37
 #>   from_release to_release from_release_date to_release_date from_onet_soc_code
 #>   <chr>        <chr>      <date>            <date>          <chr>             
 #> 1 29.0         30.0       2024-08-01        2025-08-01      11-1011.00        
 #> 2 29.0         30.0       2024-08-01        2025-08-01      11-1011.00        
-#> # ℹ 30 more variables: to_onet_soc_code <chr>, from_soc_code <chr>,
+#> # ℹ 32 more variables: to_onet_soc_code <chr>, from_soc_code <chr>,
 #> #   to_soc_code <chr>, soc_vintage_from <chr>, soc_vintage_to <chr>,
 #> #   domain <chr>, element_id <chr>, element_name <chr>, scale_id <chr>,
 #> #   from_value <dbl>, to_value <dbl>, value_change <dbl>,

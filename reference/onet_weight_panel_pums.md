@@ -22,15 +22,16 @@ onet_weight_panel_pums(
 
 - pums:
 
-  PUMS microdata or already-filtered person records.
+  ACS PUMS microdata or already-filtered person records.
 
 - year:
 
-  ACS or CPS year.
+  ACS PUMS data year.
 
 - socp:
 
-  Occupation column, commonly `SOCP`.
+  Occupation column, commonly `SOCP`. Do not pass Census `OCCP`; it is
+  not an SOC field.
 
 - weight:
 
@@ -58,7 +59,27 @@ onet_weight_panel_pums(
 
 ## Value
 
-A normalized employment-weight panel.
+A normalized employment-weight panel. When `group` is supplied,
+`weight_share` is computed within each group cell.
+
+## Details
+
+`onet_weight_panel_pums()` expects ACS PUMS records that have already
+been filtered to the employment universe used by the analysis. For
+employment weights, a common ACS starting point is employed civilians,
+`ESR %in% c(1, 2)`, often restricted to age 16 or older. Use `SOCP` as
+the occupation field. `OCCP` is a Census occupation recode, not an SOC
+field.
+
+ACS `SOCP` can include aggregate codes with trailing `X` characters.
+Those rows cannot be matched directly to O\*NET or OEWS SOC codes, so
+they are dropped with a warning unless the caller supplies a crosswalk
+that maps them to valid reference SOC codes.
+
+Replicate-weight standard errors use
+`sqrt((4 / R) * sum((theta_r - theta)^2))`. For ACS PUMS, pass the full
+80 `PWGTP1` through `PWGTP80` columns. Passing a smaller subset produces
+a warning because the resulting standard error is not survey-valid.
 
 ## Examples
 

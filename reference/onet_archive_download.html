@@ -58,7 +58,7 @@ are reused.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">onet_archive_download</span><span class="op">(</span><span class="va">version</span>, dir <span class="op">=</span> <span class="fu">onet_cache_dir</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">onet_archive_download</span><span class="op">(</span><span class="va">version</span>, dir <span class="op">=</span> <span class="fu">onet_cache_dir</span><span class="op">(</span><span class="op">)</span>, force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -72,10 +72,20 @@ are reused.</p>
 <dt id="arg-dir">dir<a class="anchor" aria-label="anchor" href="#arg-dir"></a></dt>
 <dd><p>Cache directory.</p></dd>
 
+
+<dt id="arg-force">force<a class="anchor" aria-label="anchor" href="#arg-force"></a></dt>
+<dd><p>Logical; if <code>TRUE</code>, re-download even when a cached archive exists.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The path to the cached ZIP file.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Downloaded archives are cached under <code>tools::R_user_dir("onet2r", "cache")</code>
+in the <code>archives</code> section. Use <code>onet_cache_clear(what = "archives")</code> or
+<code>onet_cache_clear(what = "all")</code> to remove them.</p>
     </div>
 
     <div class="section level2">

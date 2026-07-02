@@ -1,13 +1,13 @@
 # Clear Cached O\*NET API Responses
 
-Deletes cached O\*NET API responses created by
-[`onet_cache_use()`](https://farach.github.io/onet2r/reference/onet_cache_use.md).
+Deletes cached O\*NET API responses and downloaded source archives.
 
 ## Usage
 
 ``` r
 onet_cache_clear(
-  cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache"))
+  cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
+  what = c("api", "archives", "crosswalks", "oews", "all")
 )
 ```
 
@@ -16,6 +16,12 @@ onet_cache_clear(
 - cache_dir:
 
   Directory containing cached API responses.
+
+- what:
+
+  Cache section to clear. Use `"api"` for Web Services responses,
+  `"archives"` for O\*NET database ZIPs, `"crosswalks"` for O\*NET
+  bridge CSVs, `"oews"` for BLS OEWS ZIPs, or `"all"` for every section.
 
 ## Value
 

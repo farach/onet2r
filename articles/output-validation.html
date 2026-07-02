@@ -93,8 +93,8 @@ maintainers can run from the source tree with
 <code>Rscript inst/examples/validate-outputs.R</code>. From an installed
 package, source the file returned by:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"examples"</span>, <span class="st">"validate-outputs.R"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/home/runner/work/_temp/Library/onet2r/examples/validate-outputs.R"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">onet2r_inst_path</span><span class="op">(</span><span class="st">"examples"</span>, <span class="st">"validate-outputs.R"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "../inst/examples/validate-outputs.R"</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="what-the-script-checks">What the Script Checks<a class="anchor" aria-label="anchor" href="#what-the-script-checks"></a>
 </h2>
@@ -119,6 +119,7 @@ output.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
 <span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Dropped 2 OEWS aggregate rows; keeping <span style="color: #0000BB;">"detailed"</span> occupations.</span></span>
 <span></span>
 <span><span class="va">abilities</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
 <span>  <span class="st">"30.3"</span>,</span>

@@ -18,18 +18,24 @@ normalizes BLS OEWS files into snake_case columns and parses formatted
 employment and wage fields into numeric values.
 
 ``` r
-oews <- onet_oews_national(year = 2024, path = sample_oews)
+oews <- onet_oews_national(year = 2023, path = sample_oews)
 
 oews |>
-  select(occ_code, occ_title, tot_emp, a_median, h_median) |>
+  select(occ_code, occ_title, tot_emp, a_median, h_median, a_median_topcoded) |>
   onet_kable()
 ```
 
-| occ_code | occ_title           | tot_emp | a_median | h_median |
-|:---------|:--------------------|:--------|:---------|:---------|
-| 15-1252  | Software Developers | 1847900 | 133080   | 63.98    |
-| 29-1141  | Registered Nurses   | 3175400 | 93070    | 44.75    |
-| 11-1011  | Chief Executives    | 211230  | 206680   | 99.37    |
+| occ_code | occ_title                             | tot_emp   | a_median | h_median | a_median_topcoded |
+|:---------|:--------------------------------------|:----------|:---------|:---------|:------------------|
+| 00-0000  | All Occupations                       | 151853870 | 48060    | 23.11    | FALSE             |
+| 15-0000  | Computer and Mathematical Occupations | 5199210   | 104420   | 50.20    | FALSE             |
+| 15-1252  | Software Developers                   | 1847900   | 133080   | 63.98    | FALSE             |
+| 29-1141  | Registered Nurses                     | 3175400   | 93070    | 44.75    | FALSE             |
+| 11-1011  | Chief Executives                      | 211230    | NA       | NA       | TRUE              |
+
+The sample includes BLS hierarchy rows and a top-coded wage. The parser
+keeps the `o_group` column, parses numeric fields, and adds flag columns
+when a wage is top-coded or suppressed.
 
 ## Build a Reference-SOC Weight Panel
 
@@ -39,6 +45,7 @@ reference taxonomy so the join is auditable.
 
 ``` r
 oews_weights <- onet_weight_panel_oews(oews, year = 2024)
+#> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 oews_weights |>
   onet_kable()
@@ -108,9 +115,9 @@ onet_provenance(oral_oews) |>
   onet_kable()
 ```
 
-| measure_id                 | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
-|:---------------------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
-| oral_comprehension_fixture | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
+| measure_id                 | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
+|:---------------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
+| oral_comprehension_fixture | NA              | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
 The aggregate is the employment-weighted score for occupations covered
 by both the O\*NET fixture and the OEWS sample. Coverage tells you how
@@ -130,6 +137,11 @@ onet_coverage(oral_oews) |>
 ``` r
 contributions <- oral_scores |>
   mutate(reference_soc_code = sub("\\.\\d{2}$", "", onet_soc_code)) |>
+  summarise(
+    title = paste(sort(unique(title)), collapse = "; "),
+    measure_score = mean(measure_score),
+    .by = "reference_soc_code"
+  ) |>
   inner_join(oews_weights, by = join_by(reference_soc_code), relationship = "many-to-one") |>
   mutate(weighted_score = measure_score * employment) |>
   arrange(desc(weighted_score)) |>
@@ -193,14 +205,32 @@ pums_weights |>
 
 | reference_soc_code | sex | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
 |:-------------------|:----|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
-| 11-1011            | F   | 2022 | 20         | 0.048        | PUMS   | 2018 SOC        | 2018 SOC           |
-| 15-1252            | F   | 2022 | 120        | 0.286        | PUMS   | 2018 SOC        | 2018 SOC           |
-| 15-1252            | M   | 2022 | 80         | 0.190        | PUMS   | 2018 SOC        | 2018 SOC           |
-| 29-1141            | F   | 2022 | 90         | 0.214        | PUMS   | 2018 SOC        | 2018 SOC           |
-| 29-1141            | M   | 2022 | 110        | 0.262        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 11-1011            | F   | 2022 | 20         | 0.087        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | F   | 2022 | 120        | 0.522        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 15-1252            | M   | 2022 | 80         | 0.421        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | F   | 2022 | 90         | 0.391        | PUMS   | 2018 SOC        | 2018 SOC           |
+| 29-1141            | M   | 2022 | 110        | 0.579        | PUMS   | 2018 SOC        | 2018 SOC           |
 
 Because this PUMS-style panel has cells, pick one cell before
 aggregating.
+
+For real ACS PUMS, filter to the employment universe before building
+weights. The common starting point is employed civilians, often
+`ESR %in% c(1, 2)` and age 16 or older. `SOCP` is the SOC field. `OCCP`
+is a Census occupation recode and needs a separate crosswalk before it
+can be used with O\*NET or OEWS.
+
+``` r
+pums <- tidycensus::get_pums(
+  variables = c("SOCP", "PWGTP", "ESR", "AGEP"),
+  state = "WA",
+  year = 2023,
+  survey = "acs1"
+) |>
+  filter(ESR %in% c("1", "2"), AGEP >= 16)
+
+pums_weights <- onet_weight_panel_pums(pums, year = 2023)
+```
 
 ``` r
 oral_pums_f <- onet_measure_aggregate(

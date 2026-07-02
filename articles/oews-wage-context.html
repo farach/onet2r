@@ -99,26 +99,52 @@ and what changes if we use a custom PUMS-style population instead?</p>
 snake_case columns and parses formatted employment and wage fields into
 numeric values.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">2024</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">2023</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">oews</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">occ_code</span>, <span class="va">occ_title</span>, <span class="va">tot_emp</span>, <span class="va">a_median</span>, <span class="va">h_median</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">occ_code</span>, <span class="va">occ_title</span>, <span class="va">tot_emp</span>, <span class="va">a_median</span>, <span class="va">h_median</span>, <span class="va">a_median_topcoded</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
+<colgroup>
+<col width="9%">
+<col width="40%">
+<col width="10%">
+<col width="9%">
+<col width="9%">
+<col width="19%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">occ_code</th>
 <th align="left">occ_title</th>
 <th align="left">tot_emp</th>
 <th align="left">a_median</th>
 <th align="left">h_median</th>
+<th align="left">a_median_topcoded</th>
 </tr></thead>
 <tbody>
+<tr class="odd">
+<td align="left">00-0000</td>
+<td align="left">All Occupations</td>
+<td align="left">151853870</td>
+<td align="left">48060</td>
+<td align="left">23.11</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">15-0000</td>
+<td align="left">Computer and Mathematical Occupations</td>
+<td align="left">5199210</td>
+<td align="left">104420</td>
+<td align="left">50.20</td>
+<td align="left">FALSE</td>
+</tr>
 <tr class="odd">
 <td align="left">15-1252</td>
 <td align="left">Software Developers</td>
 <td align="left">1847900</td>
 <td align="left">133080</td>
 <td align="left">63.98</td>
+<td align="left">FALSE</td>
 </tr>
 <tr class="even">
 <td align="left">29-1141</td>
@@ -126,16 +152,21 @@ numeric values.</p>
 <td align="left">3175400</td>
 <td align="left">93070</td>
 <td align="left">44.75</td>
+<td align="left">FALSE</td>
 </tr>
 <tr class="odd">
 <td align="left">11-1011</td>
 <td align="left">Chief Executives</td>
 <td align="left">211230</td>
-<td align="left">206680</td>
-<td align="left">99.37</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">TRUE</td>
 </tr>
 </tbody>
 </table>
+<p>The sample includes BLS hierarchy rows and a top-coded wage. The
+parser keeps the <code>o_group</code> column, parses numeric fields, and
+adds flag columns when a wage is top-coded or suppressed.</p>
 </div>
 <div class="section level2">
 <h2 id="build-a-reference-soc-weight-panel">Build a Reference-SOC Weight Panel<a class="anchor" aria-label="anchor" href="#build-a-reference-soc-weight-panel"></a>
@@ -145,6 +176,7 @@ O*NET-SOC detail codes. The weight-panel helper records the source and
 reference taxonomy so the join is auditable.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Dropped 2 OEWS aggregate rows; keeping <span style="color: #0000BB;">"detailed"</span> occupations.</span></span>
 <span></span>
 <span><span class="va">oews_weights</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -306,16 +338,18 @@ the bundled fixture.</p>
 <span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="22%">
+<col width="19%">
 <col width="11%">
-<col width="9%">
+<col width="10%">
+<col width="8%">
+<col width="11%">
 <col width="13%">
+<col width="8%">
 <col width="15%">
-<col width="9%">
-<col width="17%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">measure_id</th>
+<th align="left">measure_release</th>
 <th align="left">weight_source</th>
 <th align="left">weight_year</th>
 <th align="left">source_taxonomy</th>
@@ -325,6 +359,7 @@ the bundled fixture.</p>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left">oral_comprehension_fixture</td>
+<td align="left">NA</td>
 <td align="left">OEWS</td>
 <td align="left">2024</td>
 <td align="left">2018 SOC</td>
@@ -372,6 +407,11 @@ you how much of the weight panel was included.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">contributions</span> <span class="op">&lt;-</span> <span class="va">oral_scores</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"\\.\\d{2}$"</span>, <span class="st">""</span>, <span class="va">onet_soc_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">title</span><span class="op">)</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"; "</span><span class="op">)</span>,</span>
+<span>    measure_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">measure_score</span><span class="op">)</span>,</span>
+<span>    .by <span class="op">=</span> <span class="st">"reference_soc_code"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">inner_join</span><span class="op">(</span><span class="va">oews_weights</span>, by <span class="op">=</span> <span class="fu">join_by</span><span class="op">(</span><span class="va">reference_soc_code</span><span class="op">)</span>, relationship <span class="op">=</span> <span class="st">"many-to-one"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>weighted_score <span class="op">=</span> <span class="va">measure_score</span> <span class="op">*</span> <span class="va">employment</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">weighted_score</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -490,7 +530,7 @@ custom sample, geography, or demographic cell.</p>
 <td align="left">F</td>
 <td align="left">2022</td>
 <td align="left">20</td>
-<td align="left">0.048</td>
+<td align="left">0.087</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -500,7 +540,7 @@ custom sample, geography, or demographic cell.</p>
 <td align="left">F</td>
 <td align="left">2022</td>
 <td align="left">120</td>
-<td align="left">0.286</td>
+<td align="left">0.522</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -510,7 +550,7 @@ custom sample, geography, or demographic cell.</p>
 <td align="left">M</td>
 <td align="left">2022</td>
 <td align="left">80</td>
-<td align="left">0.190</td>
+<td align="left">0.421</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -520,7 +560,7 @@ custom sample, geography, or demographic cell.</p>
 <td align="left">F</td>
 <td align="left">2022</td>
 <td align="left">90</td>
-<td align="left">0.214</td>
+<td align="left">0.391</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -530,7 +570,7 @@ custom sample, geography, or demographic cell.</p>
 <td align="left">M</td>
 <td align="left">2022</td>
 <td align="left">110</td>
-<td align="left">0.262</td>
+<td align="left">0.579</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -539,7 +579,22 @@ custom sample, geography, or demographic cell.</p>
 </table>
 <p>Because this PUMS-style panel has cells, pick one cell before
 aggregating.</p>
+<p>For real ACS PUMS, filter to the employment universe before building
+weights. The common starting point is employed civilians, often
+<code>ESR %in% c(1, 2)</code> and age 16 or older. <code>SOCP</code> is
+the SOC field. <code>OCCP</code> is a Census occupation recode and needs
+a separate crosswalk before it can be used with O*NET or OEWS.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tidycensus</span><span class="fu">::</span><span class="fu"><a href="https://walker-data.com/tidycensus/reference/get_pums.html" class="external-link">get_pums</a></span><span class="op">(</span></span>
+<span>  variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOCP"</span>, <span class="st">"PWGTP"</span>, <span class="st">"ESR"</span>, <span class="st">"AGEP"</span><span class="op">)</span>,</span>
+<span>  state <span class="op">=</span> <span class="st">"WA"</span>,</span>
+<span>  year <span class="op">=</span> <span class="fl">2023</span>,</span>
+<span>  survey <span class="op">=</span> <span class="st">"acs1"</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ESR</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span><span class="op">)</span>, <span class="va">AGEP</span> <span class="op">&gt;=</span> <span class="fl">16</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pums_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_pums.html">onet_weight_panel_pums</a></span><span class="op">(</span><span class="va">pums</span>, year <span class="op">=</span> <span class="fl">2023</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oral_pums_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
 <span>  <span class="va">oral_scores</span>,</span>
 <span>  <span class="va">pums_weights</span>,</span>

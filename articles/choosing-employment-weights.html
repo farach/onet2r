@@ -133,9 +133,10 @@ is useful when the target is a custom sample or demographic cell.</p>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span>, path <span class="op">=</span> <span class="va">oews_path</span><span class="op">)</span>,</span>
-<span>  year <span class="op">=</span> <span class="fl">2024</span></span>
+<span>  <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2023</span>, path <span class="op">=</span> <span class="va">oews_path</span><span class="op">)</span>,</span>
+<span>  year <span class="op">=</span> <span class="fl">2023</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Dropped 2 OEWS aggregate rows; keeping <span style="color: #0000BB;">"detailed"</span> occupations.</span></span>
 <span></span>
 <span><span class="va">oews_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
 <span>  <span class="va">score</span>,</span>
@@ -167,7 +168,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 <tbody>
 <tr class="odd">
 <td align="left">11-1011</td>
-<td align="left">2024</td>
+<td align="left">2023</td>
 <td align="left">211230</td>
 <td align="left">0.040</td>
 <td align="left">OEWS</td>
@@ -176,7 +177,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 </tr>
 <tr class="even">
 <td align="left">15-1252</td>
-<td align="left">2024</td>
+<td align="left">2023</td>
 <td align="left">1847900</td>
 <td align="left">0.353</td>
 <td align="left">OEWS</td>
@@ -185,7 +186,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 </tr>
 <tr class="odd">
 <td align="left">29-1141</td>
-<td align="left">2024</td>
+<td align="left">2023</td>
 <td align="left">3175400</td>
 <td align="left">0.607</td>
 <td align="left">OEWS</td>
@@ -235,6 +236,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 <code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  SOCP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"151252"</span>, <span class="st">"151252"</span>, <span class="st">"291141"</span>, <span class="st">"291141"</span>, <span class="st">"111011"</span>, <span class="st">"111011"</span><span class="op">)</span>,</span>
 <span>  PWGTP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">80</span>, <span class="fl">90</span>, <span class="fl">110</span>, <span class="fl">10</span>, <span class="fl">30</span><span class="op">)</span>,</span>
+<span>  ESR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"1"</span>, <span class="st">"1"</span>, <span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"2"</span><span class="op">)</span>,</span>
 <span>  sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -286,7 +288,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 <td align="left">F</td>
 <td align="left">2022</td>
 <td align="left">10</td>
-<td align="left">0.023</td>
+<td align="left">0.045</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -296,7 +298,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 <td align="left">M</td>
 <td align="left">2022</td>
 <td align="left">30</td>
-<td align="left">0.068</td>
+<td align="left">0.136</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -306,7 +308,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 <td align="left">F</td>
 <td align="left">2022</td>
 <td align="left">120</td>
-<td align="left">0.273</td>
+<td align="left">0.545</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -316,7 +318,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 <td align="left">M</td>
 <td align="left">2022</td>
 <td align="left">80</td>
-<td align="left">0.182</td>
+<td align="left">0.364</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -326,7 +328,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 <td align="left">F</td>
 <td align="left">2022</td>
 <td align="left">90</td>
-<td align="left">0.205</td>
+<td align="left">0.409</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
@@ -336,18 +338,30 @@ is useful when the target is a custom sample or demographic cell.</p>
 <td align="left">M</td>
 <td align="left">2022</td>
 <td align="left">110</td>
-<td align="left">0.250</td>
+<td align="left">0.500</td>
 <td align="left">PUMS</td>
 <td align="left">2018 SOC</td>
 <td align="left">2018 SOC</td>
 </tr>
 </tbody>
 </table>
+<p>Raw ACS PUMS needs a universe filter before this step. Employment
+weights usually start with employed civilians,
+<code>ESR %in% c(1, 2)</code>, and age 16 or older. Use
+<code>SOCP</code>; <code>OCCP</code> is a Census occupation recode, not
+a six-digit SOC code.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tidycensus</span><span class="fu">::</span><span class="fu"><a href="https://walker-data.com/tidycensus/reference/get_pums.html" class="external-link">get_pums</a></span><span class="op">(</span></span>
+<span>  variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOCP"</span>, <span class="st">"PWGTP"</span>, <span class="st">"ESR"</span>, <span class="st">"AGEP"</span><span class="op">)</span>,</span>
+<span>  year <span class="op">=</span> <span class="fl">2023</span>,</span>
+<span>  survey <span class="op">=</span> <span class="st">"acs1"</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ESR</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span><span class="op">)</span>, <span class="va">AGEP</span> <span class="op">&gt;=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="compare-the-answers">Compare the Answers<a class="anchor" aria-label="anchor" href="#compare-the-answers"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"OEWS national"</span>, <span class="st">"PUMS-style F"</span>, <span class="st">"PUMS-style M"</span><span class="op">)</span>,</span>
 <span>  aggregate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">oews_result</span><span class="op">$</span><span class="va">aggregate</span>, <span class="va">pums_f</span><span class="op">$</span><span class="va">aggregate</span>, <span class="va">pums_m</span><span class="op">$</span><span class="va">aggregate</span><span class="op">)</span>,</span>
@@ -384,7 +398,7 @@ is useful when the target is a custom sample or demographic cell.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">score_span</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">aggregate</span><span class="op">)</span></span>
 <span><span class="va">pad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">score_span</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>

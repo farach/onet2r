@@ -122,13 +122,14 @@ occupation_scores <- onet_task_to_occupation(
 )
 
 occupation_scores |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
-| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
-|:--------------|:--------|:------------------|:--------------|:---------|
-| 15-1252.00    | 1       | 95                | 0.8           | 15-1252  |
-| 29-1141.00    | 1       | 98                | 0.2           | 29-1141  |
+| onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
+|:--------------|:---------|:--------|:------------------|:--------------|
+| 15-1252.00    | 15-1252  | 1       | 95                | 0.8           |
+| 29-1141.00    | 29-1141  | 1       | 98                | 0.2           |
 
 Changing the Core-only rule is a plumbing choice, not a change to the
 user’s score. It belongs in provenance and sensitivity checks.
@@ -143,13 +144,14 @@ occupation_scores_all <- onet_task_to_occupation(
 )
 
 occupation_scores_all |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
-| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
-|:--------------|:--------|:------------------|:--------------|:---------|
-| 15-1252.00    | 2       | 140               | 0.671         | 15-1252  |
-| 29-1141.00    | 1       | 98                | 0.200         | 29-1141  |
+| onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
+|:--------------|:---------|:--------|:------------------|:--------------|
+| 15-1252.00    | 15-1252  | 2       | 140               | 0.671         |
+| 29-1141.00    | 29-1141  | 1       | 98                | 0.200         |
 
 ## Add Employment Weights
 
@@ -158,10 +160,11 @@ explicit and returns a single shape used downstream.
 
 ``` r
 oews_sample <- onet_oews_national(
-  path = system.file("extdata", "oews-national-sample.csv", package = "onet2r")
+  path = onet2r_inst_path("extdata", "oews-national-sample.csv")
 )
 
 weights <- onet_weight_panel_oews(oews_sample, year = 2024)
+#> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 weights |>
   onet_kable()
@@ -197,9 +200,9 @@ onet_provenance(national) |>
   onet_kable()
 ```
 
-| measure_id          | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
-|:--------------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
-| stylized_task_score | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
+| measure_id          | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
+|:--------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
+| stylized_task_score | 30.3            | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
 ## Check Sensitivity to Plumbing Choices
 

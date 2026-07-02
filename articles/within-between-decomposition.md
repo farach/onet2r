@@ -9,7 +9,7 @@ comparable within-occupation change.
 ## A Fixture-Derived Example
 
 ``` r
-archive_base <- system.file("extdata", "onet-mini", package = "onet2r")
+archive_base <- onet2r_inst_path("extdata", "onet-mini")
 cross_panel <- onet_panel(
   "Abilities",
   versions = c("24.3", "25.1"),

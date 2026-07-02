@@ -49,7 +49,9 @@ onet_oews(
 ## Value
 
 A tibble of OEWS estimates with `year`, `oews_type`, and snake_case OEWS
-columns.
+columns. Special OEWS markers are preserved as indicator columns when
+present: `#` as top-coded, `*` as wage suppressed, `**` as employment
+suppressed, and `~` as less than 0.5 percent.
 
 ## Examples
 

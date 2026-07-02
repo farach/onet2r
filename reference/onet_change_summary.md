@@ -23,8 +23,9 @@ onet_change_summary(reconciled, by = c("overall", "job_family"))
 
 ## Value
 
-A tibble with `job_family`, `change_type`, `safely_comparable`, `n`, and
-`share`.
+A tibble with one row per summary group and change type. The `n` column
+counts rows of that change type within the group, and `share` is the
+within-group share.
 
 ## Examples
 
@@ -35,11 +36,12 @@ reconciled <- tibble::tibble(
   safely_comparable = c(TRUE, TRUE, TRUE)
 )
 onet_change_summary(reconciled)
-#> # A tibble: 1 × 10
-#>   summary_level job_family change_type n_pairs share_pairs mean_value_change
-#>   <chr>         <chr>      <chr>         <int>       <dbl>             <dbl>
-#> 1 overall       NA         real_update       3           1                NA
-#> # ℹ 4 more variables: median_abs_value_change <dbl>,
+#> # A tibble: 2 × 12
+#>   summary_level job_family n_group share_group mean_value_change
+#>   <chr>         <chr>        <int>       <dbl>             <dbl>
+#> 1 overall       NA               3           1                NA
+#> 2 overall       NA               3           1                NA
+#> # ℹ 7 more variables: median_abs_value_change <dbl>,
 #> #   share_safely_comparable <dbl>, share_method_break <dbl>,
-#> #   share_crosswalk_uncertain <dbl>
+#> #   share_crosswalk_uncertain <dbl>, change_type <chr>, n <int>, share <dbl>
 ```

@@ -63,7 +63,8 @@ measure <- onet_measure(
   score = "score",
   key_type = "task",
   universe = tasks$task_id,
-  measure_id = "stylized_task_score"
+  measure_id = "stylized_task_score",
+  release_version = "30.3"
 )
 
 onet_coverage(measure) |>
@@ -94,23 +95,25 @@ core_plus_supplemental <- onet_task_to_occupation(
 )
 
 core_only |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
-| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
-|:--------------|:--------|:------------------|:--------------|:---------|
-| 15-1252.00    | 1       | 95                | 0.8           | 15-1252  |
-| 29-1141.00    | 1       | 98                | 0.2           | 29-1141  |
+| onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
+|:--------------|:---------|:--------|:------------------|:--------------|
+| 15-1252.00    | 15-1252  | 1       | 95                | 0.8           |
+| 29-1141.00    | 29-1141  | 1       | 98                | 0.2           |
 
 ``` r
 core_plus_supplemental |>
+  select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
   onet_kable()
 ```
 
-| onet_soc_code | n_tasks | total_task_weight | measure_score | soc_code |
-|:--------------|:--------|:------------------|:--------------|:---------|
-| 15-1252.00    | 2       | 140               | 0.671         | 15-1252  |
-| 29-1141.00    | 1       | 98                | 0.200         | 29-1141  |
+| onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
+|:--------------|:---------|:--------|:------------------|:--------------|
+| 15-1252.00    | 15-1252  | 2       | 140               | 0.671         |
+| 29-1141.00    | 29-1141  | 1       | 98                | 0.200         |
 
 ## Interpret the Plumbing Choice
 

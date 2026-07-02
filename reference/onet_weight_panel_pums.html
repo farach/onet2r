@@ -73,15 +73,16 @@
 
 
 <dl><dt id="arg-pums">pums<a class="anchor" aria-label="anchor" href="#arg-pums"></a></dt>
-<dd><p>PUMS microdata or already-filtered person records.</p></dd>
+<dd><p>ACS PUMS microdata or already-filtered person records.</p></dd>
 
 
 <dt id="arg-year">year<a class="anchor" aria-label="anchor" href="#arg-year"></a></dt>
-<dd><p>ACS or CPS year.</p></dd>
+<dd><p>ACS PUMS data year.</p></dd>
 
 
 <dt id="arg-socp">socp<a class="anchor" aria-label="anchor" href="#arg-socp"></a></dt>
-<dd><p>Occupation column, commonly <code>SOCP</code>.</p></dd>
+<dd><p>Occupation column, commonly <code>SOCP</code>. Do not pass Census <code>OCCP</code>;
+it is not an SOC field.</p></dd>
 
 
 <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
@@ -110,7 +111,23 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A normalized employment-weight panel.</p>
+    <p>A normalized employment-weight panel. When <code>group</code> is supplied,
+<code>weight_share</code> is computed within each group cell.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code>onet_weight_panel_pums()</code> expects ACS PUMS records that have already been
+filtered to the employment universe used by the analysis. For employment
+weights, a common ACS starting point is employed civilians,
+<code>ESR %in% c(1, 2)</code>, often restricted to age 16 or older. Use <code>SOCP</code> as the
+occupation field. <code>OCCP</code> is a Census occupation recode, not an SOC field.</p>
+<p>ACS <code>SOCP</code> can include aggregate codes with trailing <code>X</code> characters. Those
+rows cannot be matched directly to O*NET or OEWS SOC codes, so they are
+dropped with a warning unless the caller supplies a crosswalk that maps them
+to valid reference SOC codes.</p>
+<p>Replicate-weight standard errors use <code>sqrt((4 / R) * sum((theta_r - theta)^2))</code>. For ACS PUMS, pass the full 80 <code>PWGTP1</code> through <code>PWGTP80</code>
+columns. Passing a smaller subset produces a warning because the resulting
+standard error is not survey-valid.</p>
     </div>
 
     <div class="section level2">

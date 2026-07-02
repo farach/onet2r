@@ -16,6 +16,36 @@
   pass.
 - Strengthened fixture tests for task rating scale handling and
   multi-cell aggregation guards.
+- [`onet_cache_clear()`](https://farach.github.io/onet2r/reference/onet_cache_clear.md)
+  can clear API responses, O\*NET archives, O\*NET crosswalks, OEWS
+  downloads, or the full package cache.
+- [`onet_change_summary()`](https://farach.github.io/onet2r/reference/onet_change_summary.md)
+  now reports the full change-type distribution within each summary
+  group instead of only the modal change type.
+- [`onet_decompose_change()`](https://farach.github.io/onet2r/reference/onet_decompose_change.md)
+  now honors comparability flags supplied on either period and treats
+  missing comparability as not safe for within-change attribution.
+- [`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md)
+  now collapses multiple O\*NET detail occupations within a reference
+  SOC before applying employment weights, preventing inflated aggregates
+  and coverage shares above 100 percent.
+- [`onet_task_to_occupation()`](https://farach.github.io/onet2r/reference/onet_task_to_occupation.md)
+  now carries measure id and release metadata into occupation-level
+  rollups so
+  [`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md)
+  provenance remains intact.
+- [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)
+  now uses corrected BLS metro and industry file slugs, writes OEWS
+  downloads atomically, preserves top-coded and suppressed wage flags,
+  and documents OEWS special value markers.
+- [`onet_weight_panel_oews()`](https://farach.github.io/onet2r/reference/onet_weight_panel_oews.md)
+  now filters OEWS hierarchy rows to detailed occupations before
+  computing weight shares.
+- [`onet_weight_panel_pums()`](https://farach.github.io/onet2r/reference/onet_weight_panel_pums.md)
+  now warns about unfiltered ACS employment universes, drops
+  unweightable SOCP aggregate codes, warns on missing person weights,
+  and warns when replicate standard errors are requested without a full
+  replicate set.
 
 ## onet2r 0.4.0
 

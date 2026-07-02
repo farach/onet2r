@@ -306,6 +306,7 @@ panel.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span><span class="fl">2024</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
 <span><span class="va">weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_oews.html">onet_weight_panel_oews</a></span><span class="op">(</span><span class="va">oews</span>, year <span class="op">=</span> <span class="fl">2024</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.</span></span>
 <span></span>
 <span><span class="va">weights</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -410,16 +411,18 @@ employment.</p>
 <span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="22%">
+<col width="19%">
 <col width="11%">
-<col width="9%">
+<col width="10%">
+<col width="8%">
+<col width="11%">
 <col width="13%">
+<col width="8%">
 <col width="15%">
-<col width="9%">
-<col width="17%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">measure_id</th>
+<th align="left">measure_release</th>
 <th align="left">weight_source</th>
 <th align="left">weight_year</th>
 <th align="left">source_taxonomy</th>
@@ -429,6 +432,7 @@ employment.</p>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left">oral_comprehension_fixture</td>
+<td align="left">NA</td>
 <td align="left">OEWS</td>
 <td align="left">2024</td>
 <td align="left">2018 SOC</td>

@@ -63,6 +63,14 @@ metadata readable with
 and
 [`onet_coverage()`](https://farach.github.io/onet2r/reference/onet_coverage.md).
 
+## Details
+
+When multiple O\*NET detail occupations map to the same reference SOC,
+`onet_measure_aggregate()` first averages those detail scores within the
+SOC. Employment coverage is then counted once per reference SOC, so
+coverage shares cannot exceed 100 percent because of detail-code
+duplication.
+
 ## Examples
 
 ``` r

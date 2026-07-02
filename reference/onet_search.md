@@ -38,10 +38,8 @@ A tibble with columns:
 
 ``` r
 if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
-# Search by keyword
 onet_search("software developer")
 
-# Search by SOC code
 onet_search("15-1252")
 }
 ```

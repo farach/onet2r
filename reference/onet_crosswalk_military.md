@@ -39,10 +39,8 @@ A tibble with matching civilian occupations:
 
 ``` r
 if (FALSE) { # interactive() && nzchar(Sys.getenv("ONET_API_KEY"))
-# Search by military job title
 onet_crosswalk_military("infantry")
 
-# Search by military code
 onet_crosswalk_military("11B")
 }
 ```
