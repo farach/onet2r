@@ -29,6 +29,7 @@ Imports:
     tools,
     utils
 Suggests:
+    curl,
     ggplot2,
     knitr,
     readxl,
