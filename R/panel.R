@@ -416,7 +416,9 @@ onet_panel_reconcile <- function(panel, bridge, weight = "equal") {
 #'
 #' @return A tibble with one row per summary group and change type. The `n`
 #'   column counts rows of that change type within the group, and `share` is
-#'   the within-group share.
+#'   the within-group share. `n_weighted` and `share_weighted` down-weight
+#'   split/merge branch rows by their crosswalk_weight so a one-to-many split
+#'   counts as one occupation, not multiple branch rows.
 #' @export
 #'
 #' @examples
@@ -444,6 +446,10 @@ onet_change_summary <- function(reconciled, by = c("overall", "job_family")) {
   if (!"crosswalk_uncertain" %in% names(data)) {
     data$crosswalk_uncertain <- NA
   }
+  if (!"crosswalk_weight" %in% names(data)) {
+    data$crosswalk_weight <- 1
+  }
+  data$crosswalk_weight[is.na(data$crosswalk_weight)] <- 1
   data$job_family <- substr(data$to_soc_code, 1, 2)
   total_pairs <- nrow(data)
 
@@ -489,14 +495,26 @@ summarize_change_group <- function(data, summary_level, job_family, total_pairs)
   if (n_pairs == 0) {
     return(dplyr::bind_cols(
       group_stats,
-      tibble::tibble(change_type = NA_character_, n = 0L, share = NA_real_)
+      tibble::tibble(
+        change_type = NA_character_,
+        n = 0L,
+        n_weighted = 0,
+        share = NA_real_,
+        share_weighted = NA_real_
+      )
     ))
   }
+  total_weight <- sum(data$crosswalk_weight)
   distribution <- data |>
-    dplyr::summarise(n = dplyr::n(), .by = "change_type") |>
+    dplyr::summarise(
+      n = dplyr::n(),
+      n_weighted = sum(.data$crosswalk_weight),
+      .by = "change_type"
+    ) |>
     dplyr::mutate(
       change_type = as.character(.data$change_type),
-      share = .data$n / n_pairs
+      share = .data$n / n_pairs,
+      share_weighted = .data$n_weighted / total_weight
     ) |>
     dplyr::arrange(.data$change_type)
   dplyr::bind_cols(group_stats[rep(1, nrow(distribution)), ], distribution)

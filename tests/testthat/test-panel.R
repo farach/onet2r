@@ -697,7 +697,8 @@ test_that("onet_change_summary reports overall and job-family shares", {
       "summary_level", "job_family", "n_group", "share_group",
       "mean_value_change", "median_abs_value_change",
       "share_safely_comparable", "share_method_break",
-      "share_crosswalk_uncertain", "change_type", "n", "share"
+      "share_crosswalk_uncertain", "change_type", "n", "n_weighted",
+      "share", "share_weighted"
     )
   )
   expect_equal(
@@ -712,7 +713,25 @@ test_that("onet_change_summary reports overall and job-family shares", {
     c("real_update", "stale_carryforward", "real_update", "stale_carryforward", "real_update")
   )
   expect_equal(result$n, c(2L, 1L, 1L, 1L, 1L))
+  expect_equal(result$n_weighted, c(2, 1, 1, 1, 1))
   expect_equal(result$share, c(2 / 3, 1 / 3, 1 / 2, 1 / 2, 1))
+  expect_equal(result$share_weighted, c(2 / 3, 1 / 3, 1 / 2, 1 / 2, 1))
+})
+
+test_that("change summary weights split rows by crosswalk_weight", {
+  reconciled <- tibble::tibble(
+    to_soc_code = c("11-1011", "11-1011", "15-1252"),
+    change_type = factor(c("real_update", "real_update", "stale_carryforward")),
+    safely_comparable = TRUE,
+    crosswalk_weight = c(0.5, 0.5, 1)
+  )
+
+  out <- onet_change_summary(reconciled)
+  real <- out[out$change_type == "real_update", ]
+
+  expect_equal(real$n, 2L)
+  expect_equal(real$n_weighted, 1.0)
+  expect_equal(real$share_weighted, 0.5)
 })
 
 test_that("onet_panel_reconcile marks missing source dates as unknown", {

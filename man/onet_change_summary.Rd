@@ -16,7 +16,9 @@ family.}
 \value{
 A tibble with one row per summary group and change type. The \code{n}
 column counts rows of that change type within the group, and \code{share} is
-the within-group share.
+the within-group share. \code{n_weighted} and \code{share_weighted} down-weight
+split/merge branch rows by their crosswalk_weight so a one-to-many split
+counts as one occupation, not multiple branch rows.
 }
 \description{
 Counts reconciliation change types overall and by two-digit job family.
