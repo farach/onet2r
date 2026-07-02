@@ -734,6 +734,32 @@ test_that("change summary weights split rows by crosswalk_weight", {
   expect_equal(real$share_weighted, 0.5)
 })
 
+test_that("reconcile aborts on missing release dates", {
+  panel <- tibble::tibble(
+    release_version = c("29.0", "30.0"),
+    release_date = as.Date(c("2024-08-01", NA)),
+    soc_vintage = factor("2019", levels = onet2r:::onet_vintage_levels),
+    domain = "Abilities",
+    onet_soc_code = "11-1011.00",
+    soc_code = "11-1011",
+    element_id = "1.A.1.a.1",
+    scale_id = factor("IM"),
+    data_value = c(4.5, 4.6),
+    source_date = as.Date("2023-08-01"),
+    domain_source = factor("Analyst")
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2019",
+    to_vintage = "2019",
+    from_soc_code = "11-1011",
+    to_soc_code = "11-1011",
+    map_type = "one_to_one",
+    crosswalk_weight = 1
+  )
+
+  expect_error(onet_panel_reconcile(panel, bridge), "release_date")
+})
+
 test_that("onet_panel_reconcile marks missing source dates as unknown", {
   panel <- tibble::tibble(
     release_version = rep(c("1.0", "2.0"), each = 1),

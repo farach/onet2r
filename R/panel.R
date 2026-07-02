@@ -389,6 +389,15 @@ onet_panel_reconcile <- function(panel, bridge, weight = "equal") {
     dplyr::distinct(.data$release_version, .data$release_date) |>
     dplyr::arrange(.data$release_date, .data$release_version)
 
+  if (anyNA(releases$release_date)) {
+    missing_versions <- releases$release_version[is.na(releases$release_date)]
+    cli::cli_abort(c(
+      "Every release in {.arg panel} needs a non-missing {.var release_date} to order comparisons.",
+      "x" = "Missing for version{?s}: {.val {missing_versions}}.",
+      "i" = "For local archives, pass {.arg release_dates} to {.fun onet_panel} or {.arg release_date} to {.fun onet_archive_read}."
+    ))
+  }
+
   if (nrow(releases) < 2) {
     return(empty_reconciled_panel())
   }
