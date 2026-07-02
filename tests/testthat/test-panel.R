@@ -27,14 +27,33 @@ tiny_archive_zip <- function() {
     quote = FALSE
   )
 
-  old_dir <- setwd(tmp)
-  withr::defer(setwd(old_dir), testthat::teardown_env())
-  zipfile <- file.path(tmp, "db_30_3_text.zip")
-  utils::zip(
-    zipfile,
-    files = file.path("db_30_3_text", "Abilities.txt"),
-    flags = "-q"
+  write.table(
+    tibble::tibble(
+      `O*NET-SOC Code` = c("15-1252.00", "29-1141.00"),
+      `Task ID` = c("20461", "12013"),
+      `Scale ID` = c("IM", "IM"),
+      `Data Value` = c(4.2, 4.6),
+      `N` = c(30L, 28L),
+      Date = c("07/2025", "08/2025"),
+      `Domain Source` = c("Incumbent", "Incumbent")
+    ),
+    file = file.path(source_dir, "Task Ratings.txt"),
+    sep = "\t",
+    row.names = FALSE,
+    quote = FALSE
   )
+
+  zipfile <- file.path(tmp, "db_30_3_text.zip")
+  withr::with_dir(tmp, {
+    utils::zip(
+      "db_30_3_text.zip",
+      files = c(
+        file.path("db_30_3_text", "Abilities.txt"),
+        file.path("db_30_3_text", "Task Ratings.txt")
+      ),
+      flags = "-q"
+    )
+  })
   zipfile
 }
 
@@ -141,6 +160,20 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
   expect_equal(result$domain, c("Abilities", "Abilities"))
   expect_equal(result$source_date, as.Date(c("2025-07-01", "2025-08-01")))
   expect_equal(result$data_value, c(4.12, 4.71))
+})
+
+test_that("archive reader resolves spaced table names", {
+  zip <- tiny_archive_zip()
+
+  out <- onet_archive_read(
+    "30.3",
+    "Task Ratings",
+    path = zip,
+    release_date = as.Date("2025-08-01")
+  )
+
+  expect_s3_class(out, "tbl_df")
+  expect_true(all(!is.na(out$onet_soc_code)))
 })
 
 test_that("archive tables with no SOC column abort loudly", {

@@ -1,0 +1,21 @@
+{
+  "start": 1,
+  "end": 2,
+  "total": 2,
+  "element": [
+    {
+      "id": "2.A.1.a",
+      "related": "https://api-v2.onetcenter.org/x",
+      "name": "Reading Comprehension",
+      "description": "Understanding written sentences.",
+      "importance": 75
+    },
+    {
+      "id": "2.A.1.b",
+      "related": "https://api-v2.onetcenter.org/y",
+      "name": "Active Listening",
+      "description": "Giving full attention.",
+      "importance": 72
+    }
+  ]
+}

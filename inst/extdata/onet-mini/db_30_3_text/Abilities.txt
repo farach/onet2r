@@ -1,8 +1,8 @@
-O*NET-SOC Code	Title	Element ID	Element Name	Scale ID	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Not Relevant	Date	Domain Source
-15-1252.00	Software Developers	1.A.1.a.1	Oral Comprehension	IM	4.35	27	0.13	4.09	4.61	N	N	07/2025	Analyst
-15-1252.00	Software Developers	1.A.1.b.1	Problem Sensitivity	IM	4.50	26	0.14	4.22	4.78	N	N	07/2024	Analyst
-29-1141.00	Registered Nurses	1.A.1.a.1	Oral Comprehension	IM	4.71	30	0.10	4.51	4.91	N	N	08/2025	Incumbent
-29-1141.00	Registered Nurses	1.A.1.b.1	Problem Sensitivity	IM	4.90	29	0.12	4.66	5.00	N	N	08/2024	Incumbent
-11-1011.00	Chief Executives	1.A.1.a.1	Oral Comprehension	IM	4.50	23	0.16	4.18	4.82	N	N	07/2025	Incumbent
-11-1011.00	Chief Executives	1.A.1.b.1	Problem Sensitivity	IM	4.22	21	0.20	3.82	4.62	N	N	07/2024	Analyst
-41-1011.00	First-Line Supervisors of Retail Sales Workers	1.A.1.a.1	Oral Comprehension	IM	4.15	25	0.15	3.85	4.45	N	N	06/2025	Analyst
+O*NET-SOC Code	Element ID	Element Name	Scale ID	Data Value	N	Standard Error	Lower CI Bound	Upper CI Bound	Recommend Suppress	Not Relevant	Date	Domain Source
+15-1252.00	1.A.1.a.1	Oral Comprehension	IM	4.35	27	0.13	4.09	4.61	N	N	07/2025	Analyst
+15-1252.00	1.A.1.b.1	Problem Sensitivity	IM	4.50	26	0.14	4.22	4.78	N	N	07/2024	Analyst
+29-1141.00	1.A.1.a.1	Oral Comprehension	IM	4.71	30	0.10	4.51	4.91	N	N	08/2025	Incumbent
+29-1141.00	1.A.1.b.1	Problem Sensitivity	IM	4.90	29	0.12	4.66	5.00	N	N	08/2024	Incumbent
+11-1011.00	1.A.1.a.1	Oral Comprehension	IM	4.50	23	0.16	4.18	4.82	N	N	07/2025	Incumbent
+11-1011.00	1.A.1.b.1	Problem Sensitivity	IM	4.22	21	0.20	3.82	4.62	N	N	07/2024	Analyst
+41-1011.00	1.A.1.a.1	Oral Comprehension	IM	4.15	25	0.15	3.85	4.45	N	N	06/2025	Analyst

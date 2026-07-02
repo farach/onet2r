@@ -709,7 +709,13 @@ onet_list_to_tbl <- function(x, schema = NULL) {
 }
 
 element_detail_schema <- function() {
-  empty_tibble(id = character(), name = character(), description = character())
+  empty_tibble(
+    id = character(),
+    related = character(),
+    name = character(),
+    description = character(),
+    importance = numeric()
+  )
 }
 
 task_detail_schema <- function() {

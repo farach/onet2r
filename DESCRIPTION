@@ -31,6 +31,7 @@ Imports:
 Suggests:
     curl,
     ggplot2,
+    jsonlite,
     knitr,
     readxl,
     rmarkdown,
