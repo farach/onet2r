@@ -68,6 +68,14 @@ Verified from BLS archived pages and Census API variable metadata:
   `soc_2010_to_2018_crosswalk.xlsx`. It does not publish split weights.
 - OEWS data with reference dates May 2019 and May 2020 are hybrid 2010/2018
   SOC releases. May 2021 is the first full 2018 SOC OEWS release.
+- Beginning with the May 2021 release, OEWS publishes most but not all detailed
+  2018 SOC occupations. BLS states that to improve data quality OEWS continues
+  to aggregate some occupations to the 2018 SOC broad-occupation level or as
+  OEWS-specific combinations of detailed occupations. Weight-panel SOCs that are
+  published only as broad or combined estimates therefore cannot match a
+  detailed O&#42;NET-SOC measure, so their employment stays in the aggregation
+  denominator as unmatched. This is the ground truth behind the
+  unmatched-employment diagnostic in `onet_measure_aggregate()`.
 - OES May 2010 and May 2011 were hybrid 2000/2010 SOC releases. May 2012 is
   the first full 2010 SOC release.
 - ACS PUMS `SOCP` uses 2010 SOC in data years 2012 through 2017 and 2018 SOC
@@ -87,6 +95,7 @@ Sources:
 
 - https://web.archive.org/web/20230528035801/https://www.bls.gov/soc/2018/crosswalks.htm
 - https://web.archive.org/web/20230922061615/https://www.bls.gov/soc/socimp.htm
+- https://web.archive.org/web/20231209062841/https://www.bls.gov/oes/soc_2018.htm
 - https://api.census.gov/data/2022/acs/acs1/pums/variables/SOCP.json
 - https://api.census.gov/data/2022/acs/acs1/pums/variables/ESR.json
 - https://api.census.gov/data/2022/acs/acs1/pums/variables/OCCP.json
