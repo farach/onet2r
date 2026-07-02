@@ -45,6 +45,25 @@ test_that("clean_oews_data preserves OEWS special value semantics", {
   expect_equal(result$pct_total_less_than_half, c(TRUE, FALSE))
 })
 
+test_that("annual/hourly flags are coerced to logical", {
+  raw <- tibble::tibble(
+    OCC_CODE = c("25-2021", "27-2011"),
+    O_GROUP = "detailed",
+    TOT_EMP = c("1000", "500"),
+    A_MEDIAN = c("65000", "*"),
+    H_MEDIAN = c("*", "25.10"),
+    ANNUAL = c("TRUE", ""),
+    HOURLY = c("", "TRUE")
+  )
+
+  out <- onet2r:::clean_oews_data(raw)
+
+  expect_type(out$annual, "logical")
+  expect_type(out$hourly, "logical")
+  expect_equal(out$annual, c(TRUE, FALSE))
+  expect_equal(out$hourly, c(FALSE, TRUE))
+})
+
 test_that("oews_url uses current BLS file slugs", {
   expect_match(onet2r:::oews_url("national", 2023), "oesm23nat\\.zip$")
   expect_match(onet2r:::oews_url("metro", 2023), "oesm23ma\\.zip$")

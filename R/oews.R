@@ -23,6 +23,16 @@
 #'   OEWS columns. Special OEWS markers are preserved as indicator columns when
 #'   present: `#` as top-coded, `*` as wage suppressed, `**` as employment
 #'   suppressed, and `~` as less than 0.5 percent.
+#' @details
+#' ## Wage-field semantics
+#'
+#' OEWS publishes both hourly (`h_*`) and annual (`a_*`) wage fields. Some
+#' occupations are annual-only (`annual = TRUE`; e.g., teachers) or
+#' hourly-only (`hourly = TRUE`; e.g., actors) - their missing counterpart
+#' fields are structural, not suppressed. Suppression and top-coding are
+#' flagged separately (see the `*_topcoded` and suppression indicator
+#' columns). `*_prse` columns are percent relative standard errors of the
+#' corresponding estimates.
 #' @export
 #'
 #' @examplesIf interactive()
@@ -447,6 +457,11 @@ clean_oews_data <- function(data) {
   for (col in numeric_cols) {
     out <- add_oews_special_flags(out, col)
     out[[col]] <- parse_oews_number(out[[col]])
+  }
+
+  flag_cols <- intersect(names(out), c("annual", "hourly"))
+  for (col in flag_cols) {
+    out[[col]] <- toupper(trimws(as.character(out[[col]]))) %in% c("TRUE", "T", "YES", "Y")
   }
 
   if ("occ_code" %in% names(out)) {

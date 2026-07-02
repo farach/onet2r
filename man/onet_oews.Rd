@@ -41,6 +41,18 @@ the U.S. Bureau of Labor Statistics and returns them as a tibble. OEWS
 estimates include employment counts and wage percentiles by Standard
 Occupational Classification (SOC) code.
 }
+\details{
+\subsection{Wage-field semantics}{
+
+OEWS publishes both hourly (\verb{h_*}) and annual (\verb{a_*}) wage fields. Some
+occupations are annual-only (\code{annual = TRUE}; e.g., teachers) or
+hourly-only (\code{hourly = TRUE}; e.g., actors) - their missing counterpart
+fields are structural, not suppressed. Suppression and top-coding are
+flagged separately (see the \verb{*_topcoded} and suppression indicator
+columns). \verb{*_prse} columns are percent relative standard errors of the
+corresponding estimates.
+}
+}
 \examples{
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 oews <- onet_oews("national", 2024)
