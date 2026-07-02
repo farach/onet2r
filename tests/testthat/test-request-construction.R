@@ -85,6 +85,16 @@ test_that("cache and rate-limit configuration return expected settings", {
   onet_rate_limit(0)
 })
 
+test_that("onet_cache_clear removes reference cache files", {
+  cache_dir <- withr::local_tempdir()
+  dir.create(file.path(cache_dir, "reference"), recursive = TRUE)
+  writeLines("cached", file.path(cache_dir, "reference", "updates.xlsx"))
+
+  onet_cache_clear(cache_dir = cache_dir, what = "reference")
+
+  expect_equal(file.exists(file.path(cache_dir, "reference", "updates.xlsx")), FALSE)
+})
+
 test_that("onet_cache_file uses request URL and cache options", {
   cache_dir <- withr::local_tempdir()
   onet_cache_use(enabled = TRUE, cache_dir = cache_dir)

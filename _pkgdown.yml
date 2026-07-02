@@ -148,6 +148,7 @@ reference:
       - onet_panel
       - onet_panel_reconcile
       - onet_change_summary
+      - onet_data_updates
   - title: BLS OEWS and PUMS weight panels
     contents:
       - onet_oews

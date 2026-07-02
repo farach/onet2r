@@ -6,7 +6,7 @@
 \usage{
 onet_cache_clear(
   cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
-  what = c("api", "archives", "crosswalks", "oews", "all")
+  what = c("api", "archives", "crosswalks", "oews", "reference", "all")
 )
 }
 \arguments{
@@ -14,7 +14,8 @@ onet_cache_clear(
 
 \item{what}{Cache section to clear. Use \code{"api"} for Web Services responses,
 \code{"archives"} for O*NET database ZIPs, \code{"crosswalks"} for O*NET bridge
-CSVs, \code{"oews"} for BLS OEWS ZIPs, or \code{"all"} for every section.}
+CSVs, \code{"oews"} for BLS OEWS ZIPs, \code{"reference"} for reference workbooks,
+or \code{"all"} for every section.}
 }
 \value{
 Invisibly returns the cache directory path.

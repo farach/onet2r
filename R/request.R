@@ -167,7 +167,8 @@ onet_cache_use <- function(
 #' @param cache_dir Directory containing cached API responses.
 #' @param what Cache section to clear. Use `"api"` for Web Services responses,
 #'   `"archives"` for O&#42;NET database ZIPs, `"crosswalks"` for O&#42;NET bridge
-#'   CSVs, `"oews"` for BLS OEWS ZIPs, or `"all"` for every section.
+#'   CSVs, `"oews"` for BLS OEWS ZIPs, `"reference"` for reference workbooks,
+#'   or `"all"` for every section.
 #'
 #' @return Invisibly returns the cache directory path.
 #' @export
@@ -178,10 +179,14 @@ onet_cache_use <- function(
 #' onet_cache_clear(cache_dir = tmp)
 onet_cache_clear <- function(
     cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
-    what = c("api", "archives", "crosswalks", "oews", "all")) {
+    what = c("api", "archives", "crosswalks", "oews", "reference", "all")) {
   validate_single_string(cache_dir, "cache_dir")
   what <- match.arg(what)
-  sections <- if (what == "all") c("api", "archives", "crosswalks", "oews") else what
+  sections <- if (what == "all") {
+    c("api", "archives", "crosswalks", "oews", "reference")
+  } else {
+    what
+  }
   unlink(file.path(cache_dir, sections), recursive = TRUE, force = TRUE)
   invisible(cache_dir)
 }
