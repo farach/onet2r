@@ -753,18 +753,6 @@ technology_skill_schema <- function() {
   )
 }
 
-# Internal: pick the first key in a response that looks like a list of records
-onet_first_list_key <- function(resp, ignore = character()) {
-  keys <- setdiff(names(resp), ignore)
-  for (k in keys) {
-    v <- resp[[k]]
-    if (is.list(v) && length(v) > 0 && is.list(v[[1]])) {
-      return(k)
-    }
-  }
-  keys[[1]] %||% ""
-}
-
 # Validate O*NET-SOC code format
 validate_onet_code <- function(code) {
   validate_single_string(code, "code")

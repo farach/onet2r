@@ -271,24 +271,6 @@ to_snake_case <- function(x) {
   tolower(x)
 }
 
-#' Extract Data from Paged Response
-#'
-#' Extracts the data portion from a paged API response.
-#'
-#' @param resp A list containing the API response.
-#' @param key The key containing the data (e.g., "occupation", "rows").
-#'
-#' @return A tibble of the extracted data.
-#' @keywords internal
-#' @noRd
-extract_paged_data <- function(resp, key) {
-  data <- resp[[key]]
-  if (is.null(data) || length(data) == 0) {
-    return(tibble::tibble())
-  }
-  purrr::map(data, as_onet_tibble) |> purrr::list_rbind()
-}
-
 #' Extract List Data from API Response
 #'
 #' Standardized extraction of list-based data from API responses,
