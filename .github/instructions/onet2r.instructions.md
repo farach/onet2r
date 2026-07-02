@@ -25,3 +25,31 @@ These instructions apply to all package work in this repository.
 - pkgdown builds locally and generated HTML is checked for broken O&#42;NET rendering.
 - Optional release checks are run when the tools are installed: lintr, spelling, urlchecker, goodpractice, and CRAN extra checks.
 - Generated local artifacts such as `doc/`, `Meta/`, `*.Rcheck`, package tarballs, and local `_pkgdown/` output are removed before committing unless the repository intentionally tracks them.
+
+## Module map
+
+- R/auth.R, R/request.R - API key, request construction, retry, rate limit,
+  opt-in response cache (tools::R_user_dir sections: api, archives,
+  crosswalks, oews, reference; onet_cache_clear(what=) clears each).
+- R/search.R, R/occupations.R, R/database.R, R/crosswalks.R - API endpoints.
+  All endpoints return tibbles with stable empty schemas; `_all` variants
+  auto-paginate with a non-advancing-cursor guard.
+- R/oews.R - BLS OEWS flat-file download/parse. `o_group` filtering, topcode
+  and suppression flags, atomic cached downloads.
+- R/census.R (deprecated), R/weights.R, R/weighted.R - employment weight panels
+  from user-supplied PUMS/OEWS data. No Census fetcher by design.
+- R/panel.R - longitudinal archives: releases scrape (memoised), archive
+  download/read, panel assembly, crosswalk bridges, reconciliation truth table
+  (`stale_carryforward`, `real_update`, `resampled_stable`, and related
+  states).
+- R/measure.R, R/decomposition.R - bring-your-own-measure validation,
+  employment-weighted aggregation, sensitivity grids, shift-share decomposition.
+- R/data_updates.R - official O&#42;NET longitudinal update record.
+
+## Non-negotiables
+
+- CRAN: no unconditional network in tests/examples/vignettes; fixtures under
+  inst/extdata and tests/testthat/fixtures.
+- Never mock above the JSON-parse layer when a realistic-body fixture can
+  exercise it (see tests/testthat/test-parse-layer.R).
+- Windows dev quirk: do not pipe `Rscript -e` output; write a script file.

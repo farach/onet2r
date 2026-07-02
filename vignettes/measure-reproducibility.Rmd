@@ -1,6 +1,8 @@
 ---
 title: "Reproducible User Measures"
 output: rmarkdown::html_vignette
+bibliography: ../inst/REFERENCES.bib
+link-citations: true
 vignette: >
   %\VignetteIndexEntry{Reproducible User Measures}
   %\VignetteEngine{knitr::rmarkdown}
@@ -77,6 +79,13 @@ tasks |>
 `Task Statements` carries task ids and Core or Supplemental labels. `Task
 Ratings` carries relevance and importance ratings used to aggregate task-level
 scores.
+
+A practical note on choosing between the Importance (1-5) and Level (0-7)
+scales: they are empirically near-redundant. Handel [@handel2016onet] reports
+a mean within-descriptor correlation of 0.92 across 130,249 ratings, with
+roughly 19% of correlations at 0.98 or above. A measure built from IM and one
+built from LV will usually rank occupations almost identically, so treat an
+IM-vs-LV sensitivity check as cheap insurance, not as two independent measures.
 
 ```{r task-ratings-preview}
 task_ratings |>

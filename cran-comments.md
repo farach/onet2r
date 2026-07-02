@@ -28,3 +28,6 @@ O&#42;NET and Bureau of Labor Statistics data products. It does not ship a
 substantive exposure score. The vignettes cite the official O&#42;NET Resource
 Center documentation and Bureau of Labor Statistics mapping guidance used by the
 longitudinal and weighting workflows.
+
+Note: the existing CRAN package ONETr wraps the retired v1 XML API; onet2r
+targets the current v2 REST API and the two share no code or namespace.

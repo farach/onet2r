@@ -318,3 +318,16 @@ onet_coverage(decomp) |>
 - User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
   `onet_measure_aggregate()`, `onet_measure_sensitivity()`,
   `onet_provenance()`, `onet_coverage()`, `onet_decompose_change()`.
+
+## Related tools
+
+- **ONETr** (CRAN) wraps the retired O&#42;NET Web Services v1 XML API with
+  username/password auth; it predates the v2 API this package targets.
+- **blscrapeR / blsAPI** wrap the BLS time-series API, which does not serve the
+  OEWS research flat files onet2r ingests; they are complementary, not
+  overlapping.
+- **tidycensus / ipumsr** are the right tools for fetching ACS PUMS microdata;
+  onet2r deliberately has no Census fetcher and consumes their output for
+  employment weights.
+- No other R or Python tool assembles longitudinal panels from historical
+  O&#42;NET database releases; that machinery is unique to onet2r.
