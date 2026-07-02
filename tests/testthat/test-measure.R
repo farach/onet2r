@@ -136,6 +136,28 @@ test_that("onet_measure_aggregate computes weighted aggregates with provenance",
   expect_equal(onet_coverage(result)$covered_employment, 400)
 })
 
+test_that("onet_measure_aggregate reports largest unmatched weight-panel SOCs", {
+  measure <- onet_measure(
+    tibble::tibble(onet_soc_code = "11-1011.00", score = 0.5),
+    key = "onet_soc_code",
+    score = "score"
+  )
+  weights <- tibble::tibble(
+    reference_soc_code = c("11-1011", "55-1011"),
+    year = 2024L,
+    employment = c(100, 900),
+    weight_share = c(0.1, 0.9),
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+
+  expect_message(
+    onet_measure_aggregate(measure, weights),
+    "55-1011"
+  )
+})
+
 test_that("onet_measure_aggregate collapses detail codes before weighting", {
   scores <- tibble::tibble(
     onet_soc_code = c("15-1299.01", "15-1299.02", "29-1141.00"),

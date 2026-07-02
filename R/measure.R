@@ -362,6 +362,8 @@ onet_task_to_occupation <- function(
 #' `onet_measure_aggregate()` first averages those detail scores within the SOC.
 #' Employment coverage is then counted once per reference SOC, so coverage shares
 #' cannot exceed 100 percent because of detail-code duplication.
+#' If more than 5 percent of filtered weight-panel employment has no matching
+#' measure score, the function reports the largest unmatched reference SOCs.
 #' @export
 #'
 #' @examples
@@ -409,6 +411,7 @@ onet_measure_aggregate <- function(
     dplyr::filter(!is.na(.data$measure_score), !is.na(.data$employment)) |>
     dplyr::summarise(total = sum(.data$.effective_weight, na.rm = TRUE)) |>
     dplyr::pull("total")
+  report_unmatched_weight_panel(weights, collapsed, total_employment)
 
   result <- tibble::tibble(
     measure_id = scores$measure_id[[1]],
@@ -427,6 +430,36 @@ onet_measure_aggregate <- function(
     result,
     provenance = aggregation_provenance(scores, weights, bridge)
   )
+}
+
+report_unmatched_weight_panel <- function(weights, collapsed, total_employment) {
+  if (!isTRUE(total_employment > 0)) {
+    return(invisible(NULL))
+  }
+
+  unmatched <- weights |>
+    dplyr::anti_join(
+      dplyr::distinct(collapsed, .data$reference_soc_code),
+      by = "reference_soc_code"
+    )
+  if (nrow(unmatched) == 0) {
+    return(invisible(NULL))
+  }
+
+  unmatched_share <- sum(unmatched$employment, na.rm = TRUE) / total_employment
+  if (!is.finite(unmatched_share) || unmatched_share <= 0.05) {
+    return(invisible(NULL))
+  }
+
+  top <- unmatched |>
+    dplyr::arrange(dplyr::desc(.data$employment)) |>
+    utils::head(5)
+  cli::cli_inform(c(
+    "{round(100 * unmatched_share, 1)}% of weight-panel employment has no matching measure score.",
+    "i" = "Largest unmatched SOC{?s}: {.val {top$reference_soc_code}}.",
+    "i" = "Some detailed SOCs are published only as OEWS combinations, and military or residual codes may also lack measure scores; unmatched employment stays in the denominator of {.field employment_coverage_share}."
+  ))
+  invisible(NULL)
 }
 
 #' Stress Test a User-Supplied Measure
