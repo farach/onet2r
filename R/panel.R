@@ -861,6 +861,49 @@ vintage_path <- function(from_vintage, to_vintage) {
   }
 }
 
+download_crosswalk_file <- function(url, cache_dir = onet_cache_dir()) {
+  crosswalk_dir <- file.path(cache_dir, "crosswalks")
+  dir.create(crosswalk_dir, recursive = TRUE, showWarnings = FALSE)
+  dest <- file.path(crosswalk_dir, sub("\\?.*$", "", basename(url)))
+  if (file.exists(dest) && file.info(dest)$size > 0) {
+    return(dest)
+  }
+  tmp <- tempfile("onet-crosswalk-", tmpdir = crosswalk_dir, fileext = ".csv")
+  on.exit(unlink(tmp, force = TRUE), add = TRUE)
+  old_options <- options(
+    HTTPUserAgent = "onet2r (https://github.com/farach/onet2r)",
+    timeout = max(300, getOption("timeout"))
+  )
+  on.exit(options(old_options), add = TRUE)
+  status <- tryCatch(
+    utils::download.file(url = url, destfile = tmp, mode = "wb", quiet = TRUE),
+    error = function(cnd) {
+      cli::cli_abort(
+        c(
+          "Failed to download O*NET crosswalk.",
+          "i" = "URL: {.url {url}}"
+        ),
+        parent = cnd
+      )
+    }
+  )
+  if (!identical(status, 0L)) {
+    cli::cli_abort(
+      c(
+        "Failed to download O*NET crosswalk.",
+        "i" = "URL: {.url {url}}"
+      )
+    )
+  }
+  if (file.info(tmp)$size <= 0) {
+    cli::cli_abort("Downloaded O*NET crosswalk was empty.")
+  }
+  if (!file.rename(tmp, dest)) {
+    cli::cli_abort("Failed to move downloaded O*NET crosswalk into the cache.")
+  }
+  dest
+}
+
 read_adjacent_crosswalk <- function(from_vintage, to_vintage) {
   reverse <- match(from_vintage, onet_vintage_levels) > match(to_vintage, onet_vintage_levels)
   low <- if (reverse) to_vintage else from_vintage
@@ -875,49 +918,6 @@ read_adjacent_crosswalk <- function(from_vintage, to_vintage) {
   to_title_col <- grep(paste0("O\\*NET-SOC ", high, " Title"), names(data), value = TRUE)
   if (length(from_col) != 1 || length(to_col) != 1) {
     cli::cli_abort("Unexpected crosswalk columns from {.url {url}}.")
-  }
-
-  download_crosswalk_file <- function(url, cache_dir = onet_cache_dir()) {
-    crosswalk_dir <- file.path(cache_dir, "crosswalks")
-    dir.create(crosswalk_dir, recursive = TRUE, showWarnings = FALSE)
-    dest <- file.path(crosswalk_dir, basename(url))
-    if (file.exists(dest) && file.info(dest)$size > 0) {
-      return(dest)
-    }
-    tmp <- tempfile("onet-crosswalk-", tmpdir = crosswalk_dir, fileext = ".csv")
-    on.exit(unlink(tmp, force = TRUE), add = TRUE)
-    old_options <- options(
-      HTTPUserAgent = "onet2r (https://github.com/farach/onet2r)",
-      timeout = max(300, getOption("timeout"))
-    )
-    on.exit(options(old_options), add = TRUE)
-    status <- tryCatch(
-      utils::download.file(url = url, destfile = tmp, mode = "wb", quiet = TRUE),
-      error = function(cnd) {
-        cli::cli_abort(
-          c(
-            "Failed to download O*NET crosswalk.",
-            "i" = "URL: {.url {url}}"
-          ),
-          parent = cnd
-        )
-      }
-    )
-    if (!identical(status, 0L)) {
-      cli::cli_abort(
-        c(
-          "Failed to download O*NET crosswalk.",
-          "i" = "URL: {.url {url}}"
-        )
-      )
-    }
-    if (file.info(tmp)$size <= 0) {
-      cli::cli_abort("Downloaded O*NET crosswalk was empty.")
-    }
-    if (!file.rename(tmp, dest)) {
-      cli::cli_abort("Failed to move downloaded O*NET crosswalk into the cache.")
-    }
-    dest
   }
 
   out <- tibble::tibble(

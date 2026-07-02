@@ -319,6 +319,41 @@ test_that("onet_crosswalk_bridge chains native O*NET-SOC detail codes", {
   expect_equal(result$crosswalk_weight, c(0.5, 0.5))
 })
 
+test_that("download_crosswalk_file is a package-level function", {
+  expect_type(onet2r:::download_crosswalk_file, "closure")
+})
+
+test_that("read_adjacent_crosswalk parses a cached crosswalk CSV end to end", {
+  cache_dir <- withr::local_tempdir()
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    .package = "onet2r"
+  )
+  crosswalk_dir <- file.path(cache_dir, "crosswalks")
+  dir.create(crosswalk_dir, recursive = TRUE)
+
+  csv <- paste(
+    '"O*NET-SOC 2010 Code","O*NET-SOC 2010 Title","O*NET-SOC 2019 Code","O*NET-SOC 2019 Title"',
+    '"15-1132.00","Software Developers, Applications","15-1252.00","Software Developers"',
+    '"15-1133.00","Software Developers, Systems Software","15-1252.00","Software Developers"',
+    '"29-1141.00","Registered Nurses","29-1141.00","Registered Nurses"',
+    sep = "\n"
+  )
+  writeLines(csv, file.path(crosswalk_dir, "2010_to_2019_Crosswalk.csv"))
+
+  out <- onet2r:::read_adjacent_crosswalk("2010", "2019")
+
+  expect_s3_class(out, "tbl_df")
+  expect_equal(nrow(out), 3L)
+  expect_setequal(
+    as.character(out$map_type[out$from_onet_soc_code == "29-1141.00"]),
+    "one_to_one"
+  )
+  expect_true(all(
+    as.character(out$map_type[out$to_onet_soc_code == "15-1252.00"]) == "merge"
+  ))
+})
+
 test_that("onet_panel_reconcile implements the change truth table", {
   panel <- tibble::tibble(
     release_version = rep(c("1.0", "2.0"), each = 4),
