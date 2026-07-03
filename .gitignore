@@ -26,6 +26,7 @@ Thumbs.db
 /rollout/
 
 # Local agent/session notes
+/sessions/
 /.copilot/
 /.history/
 /.memory/
