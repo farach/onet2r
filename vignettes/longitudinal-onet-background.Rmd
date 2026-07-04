@@ -71,7 +71,7 @@ panel <- onet_panel(
 
 panel |>
   count(release_version, release_date, soc_vintage, domain) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 The table above is produced by `onet_panel()`. In a live workflow, the same call
@@ -119,7 +119,7 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ### 3. A Release-to-Release "Change" May Not Be a True Content Change
@@ -139,31 +139,14 @@ changes <- onet_panel_reconcile(
 changes |>
   distinct(value_changed, date_changed, change_type, safely_comparable) |>
   arrange(change_type) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
-```{r comparable-chart, fig.alt = "Horizontal bar chart showing safely comparable and not safely comparable rows in the cross-vintage example."}
-comparison_counts <- cross_changes |>
+```{r comparable-counts}
+cross_changes |>
   mutate(comparability = if_else(safely_comparable, "Safe", "Not safe")) |>
-  count(comparability, name = "rows")
-
-ggplot2::ggplot(comparison_counts, ggplot2::aes(
-  x = comparability,
-  y = rows,
-  fill = comparability
-)) +
-  ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  ggplot2::scale_fill_manual(
-    values = c("Safe" = onet2r_colors[["teal"]], "Not safe" = onet2r_colors[["rose"]])
-  ) +
-  ggplot2::labs(
-    title = "How Many Rows Are Safe to Compare?",
-    subtitle = "The count comes from the cross-vintage example, not a hand-built table.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  count(comparability, name = "rows") |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Those rows are not a hand-built truth table. They are the observed

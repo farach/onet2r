@@ -101,7 +101,7 @@ abilities <- onet_panel(
 abilities |>
   select(release_version, onet_soc_code, soc_code, element_name, data_value) |>
   head(6) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 O&#42;NET-SOC remains at the native 8-digit detail level in `onet_soc_code`.
@@ -137,29 +137,14 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
-```{r change-chart, fig.alt = "Horizontal bar chart of cross-vintage archive change classifications in the bundled example panel."}
-change_counts <- changes |>
+```{r change-counts}
+changes |>
   count(change_type, name = "rows") |>
-  arrange(desc(rows))
-
-ggplot2::ggplot(change_counts, ggplot2::aes(
-  x = stats::reorder(change_type, rows),
-  y = rows,
-  fill = change_type
-)) +
-  ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  onet2r_discrete_fill() +
-  ggplot2::labs(
-    title = "Cross-Vintage Rows Need Reconciliation",
-    subtitle = "The bundled fixture crosses a 2010-to-2019 O*NET-SOC seam.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  arrange(desc(rows)) |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Rows marked as transition data, suppressed estimates, new content, or dropped
@@ -202,7 +187,7 @@ measure <- onet_measure(
 )
 
 onet_coverage(measure) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ```{r task-rollup}
@@ -215,7 +200,7 @@ occupation_scores <- onet_task_to_occupation(
 
 occupation_scores |>
   select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Add Employment Weights
@@ -234,7 +219,7 @@ oews_sample <- onet_oews_national(
 weights <- onet_weight_panel_oews(oews_sample, year = 2024)
 
 weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ```{r aggregate}
@@ -245,10 +230,10 @@ aggregate <- onet_measure_aggregate(
 
 aggregate |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 
 onet_provenance(aggregate) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Stress Test the Plumbing
@@ -278,7 +263,7 @@ sensitivity |>
     movement,
     movement_percent
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Decompose Aggregate Change
@@ -307,10 +292,10 @@ decomp <- onet_decompose_change(from_scores, to_scores, from_weights, to_weights
 
 decomp |>
   select(component, value) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 
 onet_coverage(decomp) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Main Function Groups

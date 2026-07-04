@@ -79,7 +79,7 @@ naive <- naive |>
 
 naive |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 The naive table is useful as a screening tool. It is not enough for an
@@ -103,7 +103,7 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Now the same differences have labels. A change without a source-date change is
@@ -151,31 +151,14 @@ seam |>
     crosswalk_uncertain,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
-```{r fool-yourself-chart, fig.alt = "Horizontal bar chart comparing safe and unsafe comparisons at a taxonomy seam."}
-safe_counts <- seam |>
+```{r fool-yourself-counts}
+seam |>
   mutate(comparability = if_else(safely_comparable, "Safe", "Not safe")) |>
-  count(comparability, name = "rows")
-
-ggplot2::ggplot(safe_counts, ggplot2::aes(
-  x = comparability,
-  y = rows,
-  fill = comparability
-)) +
-  ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  ggplot2::scale_fill_manual(
-    values = c("Safe" = onet2r_colors[["teal"]], "Not safe" = onet2r_colors[["rose"]])
-  ) +
-  ggplot2::labs(
-    title = "Taxonomy Seams Reduce Safe Comparisons",
-    subtitle = "A split occupation carries extra uncertainty even when codes can be bridged.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  count(comparability, name = "rows") |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Before making a historical claim, ask: Did the value change? Did the source date

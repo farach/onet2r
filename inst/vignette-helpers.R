@@ -87,15 +87,6 @@ onet2r_discrete_color <- function(...) {
   )
 }
 
-onet_kable <- function(x, digits = 3, caption = NULL) {
-  knitr::kable(
-    x,
-    digits = digits,
-    caption = caption,
-    align = "l"
-  )
-}
-
 onet2r_inst_path <- function(...) {
   pieces <- c(...)
   source_path <- do.call(file.path, as.list(c("inst", pieces)))

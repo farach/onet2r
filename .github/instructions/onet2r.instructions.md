@@ -22,6 +22,7 @@ These instructions apply to all package work in this repository.
 - `devtools::document()` has been run after roxygen changes.
 - `devtools::test()` has passed.
 - Function fixes have a clean external smoke test: install the package into a temporary library from outside the repository, load it without `devtools::load_all()`, run the affected public function, and inspect the output.
+- For broad package validation, run `Rscript tools\validate-clean-install.R --rounds=2` and only enable live checks explicitly with `--live-api` or `--live-archives`.
 - `rcmdcheck::rcmdcheck(args = "--as-cran")` has been run before release.
 - pkgdown builds locally and generated HTML is checked for broken O&#42;NET rendering.
 - Optional release checks are run when the tools are installed: lintr, spelling, urlchecker, goodpractice, and CRAN extra checks.

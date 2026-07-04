@@ -81,7 +81,7 @@ abilities_303 |>
     domain_source
   ) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 The output has one row per occupation, element, scale, and release. The
@@ -119,7 +119,7 @@ panel |>
     domain_source
   ) |>
   head(10) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 This is the table you would save as your audit trail before doing any modeling.
@@ -149,7 +149,7 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(10) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Read `change_type` before interpreting `value_change`.
@@ -176,7 +176,7 @@ changes |>
     method_break,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Cross a Taxonomy Seam
@@ -222,7 +222,7 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ```{r summary-chart, fig.alt = "Dumbbell chart of cross-vintage ability changes, with safe comparisons separated from unsafe comparisons."}
@@ -270,7 +270,7 @@ driving the apparent change.
 
 ```{r summary}
 onet_change_summary(changes, by = "job_family") |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Recommended Workflow for Real Archive Work

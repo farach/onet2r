@@ -64,7 +64,7 @@ tibble::tibble(
   setting = c("ONET_API_KEY configured", "live vignette API calls enabled"),
   value = c(has_onet_key, run_live)
 ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Search the Current O&#42;NET API
@@ -75,26 +75,26 @@ by a detail endpoint such as `onet_skills()` or `onet_abilities()`.
 ```{r live-api-search}
 if (run_live) {
   onet_search("software developer", start = 1, end = 5) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search()."
   ) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 }
 ```
 
 ```{r live-api-details}
 if (run_live) {
   onet_skills("15-1252.00", start = 1, end = 5) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills()."
   ) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 }
 ```
 
@@ -124,7 +124,7 @@ abilities |>
     domain_source
   ) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Add Labor-Market Context
@@ -137,7 +137,7 @@ oews <- onet_oews_national(2024, path = sample_oews)
 weights <- onet_weight_panel_oews(oews, year = 2024)
 
 weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 To answer a concrete question, take one ability, treat the O&#42;NET values as the
@@ -156,10 +156,10 @@ oral_aggregate <- onet_measure_aggregate(
 
 oral_aggregate |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 
 onet_provenance(oral_aggregate) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Compare Two Archive Releases
@@ -193,29 +193,14 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
-```{r getting-started-chart, fig.alt = "Horizontal bar chart of change classifications in the getting started example."}
-plot_data <- changes |>
+```{r getting-started-change-counts}
+changes |>
   count(change_type, name = "rows") |>
-  arrange(desc(rows))
-
-ggplot2::ggplot(plot_data, ggplot2::aes(
-  x = stats::reorder(change_type, rows),
-  y = rows,
-  fill = change_type
-)) +
-  ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  onet2r_discrete_fill() +
-  ggplot2::labs(
-    title = "What Kind of Change Was Observed?",
-    subtitle = "Interpret the classification before the numeric change.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  arrange(desc(rows)) |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Next Steps

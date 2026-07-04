@@ -97,9 +97,9 @@ to_weights <- tibble::tibble(
 )
 
 from_scores |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 to_scores |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 The comparability flag comes from `onet_panel_reconcile()`, not from a
@@ -116,10 +116,10 @@ decomp <- onet_decompose_change(
 
 decomp |>
   select(component, value) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 
 onet_coverage(decomp) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ```{r decomposition-chart, fig.alt = "Horizontal bar chart showing the within, between, interaction, and unclassifiable contributions to the aggregate change, with value labels."}
@@ -170,7 +170,7 @@ decomp |>
     total_change = value[component == "total_change"],
     difference = component_sum - total_change
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## A Demographic Split
@@ -205,7 +205,7 @@ split_results <- lapply(unique(from_weights_by_sex$sex), function(cell) {
 
 split_results |>
   select(sex, component, value) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Each cell has its own weight shift and its own unclassifiable bucket. That is

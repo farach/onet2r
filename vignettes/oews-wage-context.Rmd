@@ -66,7 +66,7 @@ oews <- onet_oews_national(year = 2023, path = sample_oews)
 
 oews |>
   select(occ_code, occ_title, tot_emp, a_median, h_median, a_median_topcoded) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 The sample includes BLS hierarchy rows and a top-coded wage. The parser keeps
@@ -83,7 +83,7 @@ join is auditable.
 oews_weights <- onet_weight_panel_oews(oews, year = 2024)
 
 oews_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Get O&#42;NET Occupation Scores from an Archive
@@ -109,7 +109,7 @@ oral_scores <- abilities |>
   )
 
 oral_scores |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Aggregate with OEWS Employment
@@ -123,10 +123,10 @@ oral_oews <- onet_measure_aggregate(
 
 oral_oews |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 
 onet_provenance(oral_oews) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 The aggregate is the employment-weighted score for occupations covered by both
@@ -135,7 +135,7 @@ panel was included.
 
 ```{r aggregate-coverage}
 onet_coverage(oral_oews) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Inspect Occupation Contributions
@@ -154,27 +154,11 @@ contributions <- oral_scores |>
   select(title, reference_soc_code, measure_score, employment, weight_share, weighted_score)
 
 contributions |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
-```{r contribution-chart, fig.alt = "Horizontal bar chart showing employment-weighted ability contributions by occupation."}
-ggplot2::ggplot(contributions, ggplot2::aes(
-  x = weighted_score,
-  y = stats::reorder(title, weighted_score)
-)) +
-  ggplot2::geom_col(fill = onet2r_colors[["teal"]], width = 0.65) +
-  ggplot2::scale_x_continuous(
-    labels = scales::label_number(scale_cut = scales::cut_short_scale()),
-    expand = ggplot2::expansion(mult = c(0, 0.05))
-  ) +
-  ggplot2::labs(
-    title = "Which Occupations Drive the Weighted Score?",
-    subtitle = "Contribution is the occupation score times employment.",
-    x = "Score times employment",
-    y = NULL
-  ) +
-  onet2r_theme()
-```
+The contribution is already the `weighted_score` column: occupation score times
+employment. In this fixture a separate chart would only redraw the table.
 
 ## Compare OEWS with a PUMS-Style Weight Panel
 
@@ -196,7 +180,7 @@ pums_weights <- onet_weight_panel_pums(
 )
 
 pums_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Because this PUMS-style panel has cells, pick one cell before aggregating.
@@ -234,7 +218,7 @@ tibble::tibble(
     oral_pums_f$employment_coverage_share
   )
 ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 Neither source is always better. OEWS gives official labor market estimates;

@@ -86,7 +86,7 @@ measure <- onet_measure(
 )
 
 onet_coverage(measure) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Create Alternative Weight Panels
@@ -104,9 +104,9 @@ pums <- tibble::tibble(
 pums_weights <- onet_weight_panel_pums(pums, year = 2022)
 
 oews_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 pums_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ## Run the Sensitivity Grid
@@ -154,7 +154,7 @@ sensitivity |>
     movement,
     movement_percent
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 ```{r sensitivity-chart, fig.alt = "Horizontal dot chart of stylized exposure aggregates across task release, weight source, and task handling choices."}
@@ -203,7 +203,7 @@ ggplot2::ggplot(plot_sensitivity, ggplot2::aes(
 onet_provenance(sensitivity) |>
   select(any_of(c("weight_source", "weight_year", "bridge", "measure_id"))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 If the sign, rank, or interpretation of a result depends on one plumbing choice,
