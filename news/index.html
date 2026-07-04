@@ -53,6 +53,8 @@
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>
+<code><a href="../reference/onet_oews.html">onet_oews()</a></code> now tries current and legacy official BLS OEWS ZIP URLs before asking users to pass a manually downloaded <code>path</code>, making BLS 403 failures easier to diagnose (reported manually).</li>
+<li>
 <code><a href="../reference/onet_oews.html">onet_oews()</a></code> now downloads OEWS ZIP files through the package HTTP client, avoiding RStudio’s <code>.rs.downloadFile()</code> path that can trigger BLS 403 responses (reported manually).</li>
 </ul></div>
 </div>

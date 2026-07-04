@@ -5,6 +5,10 @@
 ### Bug fixes
 
 - [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)
+  now tries current and legacy official BLS OEWS ZIP URLs before asking
+  users to pass a manually downloaded `path`, making BLS 403 failures
+  easier to diagnose (reported manually).
+- [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)
   now downloads OEWS ZIP files through the package HTTP client, avoiding
   RStudio’s `.rs.downloadFile()` path that can trigger BLS 403 responses
   (reported manually).
