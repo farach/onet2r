@@ -98,6 +98,16 @@ and what changes if we use a custom PUMS-style population instead?</p>
 <p><code><a href="../reference/onet_oews_national.html">onet_oews_national()</a></code> normalizes BLS OEWS files into
 snake_case columns and parses formatted employment and wage fields into
 numeric values.</p>
+<p>BLS sometimes rejects automated ZIP downloads even when the same OEWS
+URL works in a browser. In interactive sessions,
+<code><a href="../reference/onet_oews_national.html">onet_oews_national()</a></code> opens the official BLS URL in your
+browser, waits for the matching ZIP to appear in your Downloads folder,
+validates it, and copies it into the package cache. You can set
+<code>options(onet2r.oews_download_dir = "path/to/downloads")</code> for
+a different folder or pass the file explicitly with <code>path</code>,
+which is what this article does so it can build without network access.
+Passing <code>path</code> is also the fallback if BLS changes the OEWS
+URL or file name.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">2023</span>, path <span class="op">=</span> <span class="va">sample_oews</span><span class="op">)</span></span>
 <span></span>

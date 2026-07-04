@@ -130,6 +130,24 @@ columns). <code>*_prse</code> columns are percent relative standard errors of th
 corresponding estimates.</p>
 </div>
 
+<div class="section">
+<h3 id="bls-download-blocking">BLS download blocking<a class="anchor" aria-label="anchor" href="#bls-download-blocking"></a></h3>
+
+
+<p>BLS may reject automated ZIP downloads with HTTP 403 even when the same URL
+downloads in a browser. <code>onet_oews()</code> handles that case in three steps:
+first it checks the package cache, then it looks for the matching ZIP in your
+Downloads folder, then in interactive sessions it opens the official BLS URL
+in your browser and waits for the downloaded file to appear. Set
+<code>options(onet2r.oews_download_dir = "path/to/downloads")</code> to search a
+different manual-download folder. Set
+<code>options(onet2r.oews_browser_fallback = FALSE)</code> to disable opening a browser.
+Set <code>options(onet2r.oews_browser_wait = 120)</code> to control how many seconds
+<code>onet_oews()</code> waits for a browser download. You can always pass a ZIP path
+directly with <code>path</code>; this is the stable fallback if BLS changes OEWS URLs or
+file names.</p>
+</div>
+
     </div>
 
     <div class="section level2">

@@ -422,6 +422,7 @@
 <div class="section level2">
 <h2 id="add-employment-weights">Add Employment Weights<a class="anchor" aria-label="anchor" href="#add-employment-weights"></a>
 </h2>
+<p>If BLS rejects an automated OEWS ZIP download, <code><a href="reference/onet_oews_national.html">onet_oews_national()</a></code> can use a matching ZIP that you downloaded in your browser. Leave the ZIP in your Downloads folder, or set <code>options(onet2r.oews_download_dir = "path/to/downloads")</code>. Passing <code>path</code> is always supported, keeps examples offline, and remains the fallback if BLS changes OEWS URLs or file names.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oews_sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/onet_oews_national.html">onet_oews_national</a></span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"oews-national-sample.csv"</span>, package <span class="op">=</span> <span class="st">"onet2r"</span><span class="op">)</span></span>
