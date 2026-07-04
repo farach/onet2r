@@ -65,7 +65,10 @@ test_that("annual/hourly flags are coerced to logical", {
 })
 
 test_that("oews_url uses current BLS file slugs", {
-  expect_match(onet2r:::oews_url("national", 2023), "oesm23nat\\.zip$")
+  expect_match(
+    onet2r:::oews_url("national", 2023),
+    "special-requests/oesm23nat\\.zip$"
+  )
   expect_match(onet2r:::oews_url("metro", 2023), "oesm23ma\\.zip$")
   expect_match(onet2r:::oews_url("industry", 2023), "oesm23in4\\.zip$")
 })
@@ -130,6 +133,38 @@ test_that("download_oews_file reuses a valid cached file", {
 
   expect_equal(normalizePath(result), normalizePath(cached_file))
   expect_identical(called, FALSE)
+})
+
+test_that("download_oews_file tries alternate official BLS URLs", {
+  cache_dir <- withr::local_tempdir()
+  calls <- character()
+
+  local_mocked_bindings(
+    download_oews_file_http = function(url, destfile, quiet) {
+      calls <<- c(calls, url)
+      if (length(calls) == 1) {
+        cli::cli_abort("blocked")
+      }
+      writeBin(charToRaw("zip"), destfile)
+      invisible(destfile)
+    },
+    validate_oews_zip = function(path) {
+      expect_identical(file.exists(path), TRUE)
+      invisible(path)
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet2r:::download_oews_file(
+    type = "state",
+    year = 2025,
+    cache_dir = cache_dir
+  )
+
+  expect_equal(length(calls), 2)
+  expect_match(calls[[1]], "special-requests/oesm25st\\.zip$")
+  expect_match(calls[[2]], "special\\.requests/oesm25st\\.zip$")
+  expect_match(result, "oesm25st\\.zip$")
 })
 
 test_that("onet_oews reads local extracted files", {

@@ -305,8 +305,8 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
   cache_dir <- file.path(cache_dir, "oews")
   dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 
-  url <- oews_url(type = type, year = year)
-  destfile <- file.path(cache_dir, basename(url))
+  urls <- oews_urls(type = type, year = year)
+  destfile <- file.path(cache_dir, basename(urls[[1]]))
 
   if (file.exists(destfile) && !isTRUE(force)) {
     validate_oews_zip(destfile)
@@ -317,22 +317,10 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
   on.exit(unlink(tmpfile, force = TRUE), add = TRUE)
 
   if (!file.exists(destfile) || isTRUE(force)) {
-    tryCatch(
-      download_oews_file_http(
-        url = url,
-        destfile = tmpfile,
-        quiet = quiet
-      ),
-      error = function(cnd) {
-        cli::cli_abort(
-          c(
-            "Failed to download OEWS estimates from BLS.",
-            "i" = "URL: {.url {url}}",
-            "i" = "You can download the ZIP manually and pass it to {.arg path}."
-          ),
-          parent = cnd
-        )
-      }
+    download_oews_file_from_urls(
+      urls = urls,
+      destfile = tmpfile,
+      quiet = quiet
     )
     validate_oews_zip(tmpfile)
     if (!file.rename(tmpfile, destfile)) {
@@ -341,6 +329,42 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
   }
 
   destfile
+}
+
+download_oews_file_from_urls <- function(urls, destfile, quiet = TRUE) {
+  errors <- list()
+
+  for (url in urls) {
+    result <- tryCatch(
+      {
+        download_oews_file_http(
+          url = url,
+          destfile = destfile,
+          quiet = quiet
+        )
+        NULL
+      },
+      error = function(cnd) cnd
+    )
+
+    if (is.null(result)) {
+      return(invisible(destfile))
+    }
+
+    errors[[url]] <- result
+    unlink(destfile, force = TRUE)
+  }
+
+  parent <- errors[[length(errors)]]
+  cli::cli_abort(
+    c(
+      "Failed to download OEWS estimates from BLS.",
+      "i" = "BLS rejected every official OEWS ZIP URL tried.",
+      "i" = "URLs: {.url {urls}}",
+      "i" = "If BLS blocks automated downloads from your network, download the ZIP in a browser and pass it to {.arg path}."
+    ),
+    parent = parent
+  )
 }
 
 download_oews_file_http <- function(url, destfile, quiet = TRUE) {
@@ -367,7 +391,21 @@ oews_national_url <- function(year) {
   oews_url("national", year)
 }
 
+oews_urls <- function(type, year) {
+  file <- oews_file_name(type, year)
+  unique(c(
+    sprintf("https://www.bls.gov/oes/special-requests/%s", file),
+    sprintf("https://www.bls.gov/oes/special.requests/%s", file),
+    sprintf("https://download.bls.gov/pub/special.requests/oes/%s", file),
+    sprintf("https://download.bls.gov/pub/time.series/oe/%s", file)
+  ))
+}
+
 oews_url <- function(type, year) {
+  oews_urls(type, year)[[1]]
+}
+
+oews_file_name <- function(type, year) {
   yy <- year %% 100
   slug <- switch(type,
     national = "nat",
@@ -376,7 +414,7 @@ oews_url <- function(type, year) {
     industry = "in4"
   )
 
-  sprintf("https://www.bls.gov/oes/special.requests/oesm%02d%s.zip", yy, slug)
+  sprintf("oesm%02d%s.zip", yy, slug)
 }
 
 read_oews_file <- function(path) {
