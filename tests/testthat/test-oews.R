@@ -70,6 +70,68 @@ test_that("oews_url uses current BLS file slugs", {
   expect_match(onet2r:::oews_url("industry", 2023), "oesm23in4\\.zip$")
 })
 
+test_that("download_oews_file uses the package HTTP client", {
+  cache_dir <- withr::local_tempdir()
+  calls <- new.env(parent = emptyenv())
+
+  local_mocked_bindings(
+    download_oews_file_http = function(url, destfile, quiet) {
+      calls$url <- url
+      calls$destfile <- destfile
+      calls$quiet <- quiet
+      writeBin(charToRaw("zip"), destfile)
+      invisible(destfile)
+    },
+    validate_oews_zip = function(path) {
+      expect_identical(file.exists(path), TRUE)
+      invisible(path)
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet2r:::download_oews_file(
+    type = "national",
+    year = 2025,
+    cache_dir = cache_dir,
+    quiet = FALSE
+  )
+
+  expect_equal(calls$url, onet2r:::oews_url("national", 2025))
+  expect_identical(calls$quiet, FALSE)
+  expect_match(result, "oesm25nat\\.zip$")
+  expect_identical(file.exists(result), TRUE)
+  expect_identical(file.exists(calls$destfile), FALSE)
+})
+
+test_that("download_oews_file reuses a valid cached file", {
+  cache_dir <- file.path(withr::local_tempdir(), "oews")
+  dir.create(cache_dir, recursive = TRUE)
+  cached_file <- file.path(cache_dir, "oesm25nat.zip")
+  writeBin(charToRaw("zip"), cached_file)
+  called <- FALSE
+
+  local_mocked_bindings(
+    download_oews_file_http = function(...) {
+      called <<- TRUE
+      stop("download should not be called")
+    },
+    validate_oews_zip = function(path) {
+      expect_equal(normalizePath(path), normalizePath(cached_file))
+      invisible(path)
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet2r:::download_oews_file(
+    type = "national",
+    year = 2025,
+    cache_dir = dirname(cache_dir)
+  )
+
+  expect_equal(normalizePath(result), normalizePath(cached_file))
+  expect_identical(called, FALSE)
+})
+
 test_that("onet_oews reads local extracted files", {
   path <- withr::local_tempfile(fileext = ".csv")
   writeLines(

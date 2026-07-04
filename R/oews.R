@@ -317,21 +317,10 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
   on.exit(unlink(tmpfile, force = TRUE), add = TRUE)
 
   if (!file.exists(destfile) || isTRUE(force)) {
-    old_options <- options(
-      HTTPUserAgent = paste(
-        "onet2r",
-        as.character(utils::packageVersion("onet2r")),
-        "(https://github.com/farach/onet2r)"
-      ),
-      timeout = max(300, getOption("timeout"))
-    )
-    on.exit(options(old_options), add = TRUE)
-
-    status <- tryCatch(
-      utils::download.file(
+    tryCatch(
+      download_oews_file_http(
         url = url,
         destfile = tmpfile,
-        mode = "wb",
         quiet = quiet
       ),
       error = function(cnd) {
@@ -345,14 +334,6 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
         )
       }
     )
-    if (!identical(status, 0L)) {
-      cli::cli_abort(
-        c(
-          "Failed to download OEWS estimates from BLS.",
-          "i" = "URL: {.url {url}}"
-        )
-      )
-    }
     validate_oews_zip(tmpfile)
     if (!file.rename(tmpfile, destfile)) {
       cli::cli_abort("Failed to move downloaded OEWS ZIP into the cache.")
@@ -360,6 +341,26 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
   }
 
   destfile
+}
+
+download_oews_file_http <- function(url, destfile, quiet = TRUE) {
+  if (!isTRUE(quiet)) {
+    cli::cli_inform("Downloading OEWS estimates from BLS: {.url {url}}")
+  }
+
+  httr2::request(url) |>
+    httr2::req_user_agent(oews_user_agent()) |>
+    httr2::req_headers(
+      Accept = "application/zip,application/octet-stream,*/*"
+    ) |>
+    httr2::req_timeout(max(300, getOption("timeout"))) |>
+    httr2::req_perform(path = destfile)
+
+  invisible(destfile)
+}
+
+oews_user_agent <- function() {
+  "onet2r (https://github.com/farach/onet2r)"
 }
 
 oews_national_url <- function(year) {
