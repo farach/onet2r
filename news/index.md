@@ -2,6 +2,13 @@
 
 ## onet2r (development version)
 
+### Bug fixes
+
+- [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)
+  now downloads OEWS ZIP files through the package HTTP client, avoiding
+  RStudio’s `.rs.downloadFile()` path that can trigger BLS 403 responses
+  (reported manually).
+
 ## onet2r 0.4.2
 
 ### Bug fixes
