@@ -127,7 +127,7 @@ next to the estimate.</p>
 <span></span>
 <span><span class="va">naive</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
 <col width="17%">
@@ -226,7 +226,7 @@ an interpretation.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="9%">
@@ -369,7 +369,7 @@ support.</p>
 <span>    <span class="va">crosswalk_uncertain</span>,</span>
 <span>    <span class="va">safely_comparable</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="15%">
@@ -438,28 +438,26 @@ support.</p>
 </tbody>
 </table>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">safe_counts</span> <span class="op">&lt;-</span> <span class="va">seam</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">seam</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>comparability <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">safely_comparable</span>, <span class="st">"Safe"</span>, <span class="st">"Not safe"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">count</span><span class="op">(</span><span class="va">comparability</span>, name <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">safe_counts</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">comparability</span>,</span>
-<span>  y <span class="op">=</span> <span class="va">rows</span>,</span>
-<span>  fill <span class="op">=</span> <span class="va">comparability</span></span>
-<span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.6</span>, show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span></span>
-<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Safe"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>, <span class="st">"Not safe"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"rose"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Taxonomy Seams Reduce Safe Comparisons"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"A split occupation carries extra uncertainty even when codes can be bridged."</span>,</span>
-<span>    x <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    y <span class="op">=</span> <span class="st">"Rows"</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="how-to-fool-yourself-with-onet-over-time_files/figure-html/fool-yourself-chart-1.png" class="r-plt" alt="Horizontal bar chart comparing safe and unsafe comparisons at a taxonomy seam." width="672"></p>
+<span>  <span class="fu">count</span><span class="op">(</span><span class="va">comparability</span>, name <span class="op">=</span> <span class="st">"rows"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">comparability</th>
+<th align="left">rows</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Not safe</td>
+<td align="left">4</td>
+</tr>
+<tr class="even">
+<td align="left">Safe</td>
+<td align="left">1</td>
+</tr>
+</tbody>
+</table>
 <p>Before making a historical claim, ask: Did the value change? Did the
 source date change? Did the occupation cross a taxonomy seam? Was either
 row transition data or suppressed? The package gives you those fields so

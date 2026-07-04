@@ -58,7 +58,7 @@ to_weights <- tibble::tibble(
 )
 
 from_scores |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | measure_score | safely_comparable |
@@ -69,7 +69,7 @@ from_scores |>
 
 ``` r
 to_scores |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | measure_score | safely_comparable |
@@ -94,7 +94,7 @@ decomp <- onet_decompose_change(
 
 decomp |>
   select(component, value) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | component      | value  |
@@ -108,7 +108,7 @@ decomp |>
 ``` r
 
 onet_coverage(decomp) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | n_common | n_safely_comparable | leakage |
@@ -167,7 +167,7 @@ decomp |>
     total_change = value[component == "total_change"],
     difference = component_sum - total_change
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | component_sum | total_change | difference |
@@ -207,7 +207,7 @@ split_results <- lapply(unique(from_weights_by_sex$sex), function(cell) {
 
 split_results |>
   select(sex, component, value) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | sex | component      | value  |

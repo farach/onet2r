@@ -113,7 +113,7 @@ URL or file name.</p>
 <span></span>
 <span><span class="va">oews</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">occ_code</span>, <span class="va">occ_title</span>, <span class="va">tot_emp</span>, <span class="va">a_median</span>, <span class="va">h_median</span>, <span class="va">a_median_topcoded</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="9%">
@@ -189,7 +189,7 @@ reference taxonomy so the join is auditable.</p>
 <span><span class="co">#&gt; Dropped 2 OEWS aggregate rows; keeping <span style="color: #0000BB;">"detailed"</span> occupations.</span></span>
 <span></span>
 <span><span class="va">oews_weights</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="21%">
@@ -264,7 +264,7 @@ the bundled fixture.</p>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">oral_scores</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">onet_soc_code</th>
@@ -307,7 +307,7 @@ the bundled fixture.</p>
 <span></span>
 <span><span class="va">oral_oews</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="20%">
@@ -340,7 +340,7 @@ the bundled fixture.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/onet_provenance.html">onet_provenance</a></span><span class="op">(</span><span class="va">oral_oews</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="19%">
@@ -378,7 +378,7 @@ covered by both the O*NET fixture and the OEWS sample. Coverage tells
 you how much of the weight panel was included.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">oral_oews</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="22%">
@@ -423,7 +423,7 @@ you how much of the weight panel was included.</p>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">title</span>, <span class="va">reference_soc_code</span>, <span class="va">measure_score</span>, <span class="va">employment</span>, <span class="va">weight_share</span>, <span class="va">weighted_score</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">contributions</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
 <col width="7%">
@@ -468,24 +468,9 @@ you how much of the weight panel was included.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">contributions</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">weighted_score</span>,</span>
-<span>  y <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">title</span>, <span class="va">weighted_score</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>, width <span class="op">=</span> <span class="fl">0.65</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_x_continuous</a></span><span class="op">(</span></span>
-<span>    labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/label_number.html" class="external-link">label_number</a></span><span class="op">(</span>scale_cut <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/number.html" class="external-link">cut_short_scale</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    expand <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/expansion.html" class="external-link">expansion</a></span><span class="op">(</span>mult <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Which Occupations Drive the Weighted Score?"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"Contribution is the occupation score times employment."</span>,</span>
-<span>    x <span class="op">=</span> <span class="st">"Score times employment"</span>,</span>
-<span>    y <span class="op">=</span> <span class="cn">NULL</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="oews-wage-context_files/figure-html/contribution-chart-1.png" class="r-plt" alt="Horizontal bar chart showing employment-weighted ability contributions by occupation." width="672"></p>
+<p>The contribution is already the <code>weighted_score</code> column:
+occupation score times employment. In this fixture a separate chart
+would only redraw the table.</p>
 </div>
 <div class="section level2">
 <h2 id="compare-oews-with-a-pums-style-weight-panel">Compare OEWS with a PUMS-Style Weight Panel<a class="anchor" aria-label="anchor" href="#compare-oews-with-a-pums-style-weight-panel"></a>
@@ -493,7 +478,7 @@ you how much of the weight panel was included.</p>
 <p>OEWS is the right default for official occupation employment and wage
 context. PUMS-derived weights are useful when the target population is a
 custom sample, geography, or demographic cell.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  SOCP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"151252"</span>, <span class="st">"151252"</span>, <span class="st">"291141"</span>, <span class="st">"291141"</span>, <span class="st">"111011"</span><span class="op">)</span>,</span>
 <span>  PWGTP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">80</span>, <span class="fl">90</span>, <span class="fl">110</span>, <span class="fl">20</span><span class="op">)</span>,</span>
@@ -507,7 +492,7 @@ custom sample, geography, or demographic cell.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pums_weights</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="20%">
@@ -589,7 +574,7 @@ weights. The common starting point is employed civilians, often
 <code>ESR %in% c(1, 2)</code> and age 16 or older. <code>SOCP</code> is
 the SOC field. <code>OCCP</code> is a Census occupation recode and needs
 a separate crosswalk before it can be used with O*NET or OEWS.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tidycensus</span><span class="fu">::</span><span class="fu"><a href="https://walker-data.com/tidycensus/reference/get_pums.html" class="external-link">get_pums</a></span><span class="op">(</span></span>
 <span>  variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOCP"</span>, <span class="st">"PWGTP"</span>, <span class="st">"ESR"</span>, <span class="st">"AGEP"</span><span class="op">)</span>,</span>
 <span>  state <span class="op">=</span> <span class="st">"WA"</span>,</span>
@@ -599,7 +584,7 @@ a separate crosswalk before it can be used with O*NET or OEWS.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ESR</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span><span class="op">)</span>, <span class="va">AGEP</span> <span class="op">&gt;=</span> <span class="fl">16</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pums_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_pums.html">onet_weight_panel_pums</a></span><span class="op">(</span><span class="va">pums</span>, year <span class="op">=</span> <span class="fl">2023</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oral_pums_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
 <span>  <span class="va">oral_scores</span>,</span>
 <span>  <span class="va">pums_weights</span>,</span>
@@ -615,7 +600,7 @@ a separate crosswalk before it can be used with O*NET or OEWS.</p>
 <span>    <span class="va">oral_pums_f</span><span class="op">$</span><span class="va">employment_coverage_share</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">weight_source</th>

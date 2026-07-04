@@ -49,7 +49,7 @@ measure <- onet_measure(
 )
 
 onet_coverage(measure) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
@@ -72,7 +72,7 @@ pums <- tibble::tibble(
 pums_weights <- onet_weight_panel_pums(pums, year = 2022)
 
 oews_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -83,7 +83,7 @@ oews_weights |>
 
 ``` r
 pums_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -137,7 +137,7 @@ sensitivity |>
     movement,
     movement_percent
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | scenario                                                                | task_release | soc_vintage | weight_panel | include_supplemental | aggregate | employment_coverage_share | movement | movement_percent |
@@ -201,7 +201,7 @@ choices.](stress-testing-exposure-measure_files/figure-html/sensitivity-chart-1.
 onet_provenance(sensitivity) |>
   select(any_of(c("weight_source", "weight_year", "bridge", "measure_id"))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | weight_source | weight_year | measure_id        |

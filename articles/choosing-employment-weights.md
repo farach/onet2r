@@ -19,7 +19,7 @@ score <- abilities |>
   transmute(onet_soc_code, measure_score = data_value)
 
 score |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | measure_score |
@@ -45,7 +45,7 @@ oews_result <- onet_measure_aggregate(
 )
 
 oews_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -57,7 +57,7 @@ oews_weights |>
 ``` r
 oews_result |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
@@ -94,7 +94,7 @@ pums_m <- onet_measure_aggregate(
 )
 
 pums_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | sex | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -134,7 +134,7 @@ comparison <- tibble::tibble(
 )
 
 comparison |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | population    | aggregate | coverage |
@@ -142,40 +142,6 @@ comparison |>
 | OEWS national | 4.574     | 1        |
 | PUMS-style F  | 4.504     | 1        |
 | PUMS-style M  | 4.550     | 1        |
-
-``` r
-score_span <- range(comparison$aggregate)
-pad <- max(0.05, diff(score_span))
-
-ggplot2::ggplot(comparison, ggplot2::aes(
-  x = aggregate,
-  y = stats::reorder(population, aggregate)
-)) +
-  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 4.5) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = sprintf("%.2f", aggregate)),
-    vjust = -1.2,
-    size = 3.6,
-    color = onet2r_colors[["ink"]]
-  ) +
-  ggplot2::coord_cartesian(
-    xlim = c(score_span[1] - pad, score_span[2] + pad)
-  ) +
-  ggplot2::labs(
-    title = "Same score, different population",
-    subtitle = paste(
-      "Each weight source implies a different population.",
-      "Here the aggregate shifts only slightly."
-    ),
-    x = "Employment-weighted aggregate score",
-    y = NULL
-  ) +
-  onet2r_theme()
-```
-
-![Dot chart comparing OEWS and PUMS-style weighted aggregates on a
-zoomed axis, with value
-labels.](choosing-employment-weights_files/figure-html/weights-chart-1.png)
 
 If your claim is about the national labor market, OEWS is the natural
 default. If your claim is about a subgroup, geography, or survey-defined

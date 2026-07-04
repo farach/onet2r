@@ -107,7 +107,7 @@ using O*NET task ratings.</p>
 <span></span>
 <span><span class="va">tasks</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">task_type</span>, <span class="va">task</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="17%">
@@ -147,7 +147,7 @@ using O*NET task ratings.</p>
 <span><span class="va">ratings</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">task_id</span>, <span class="va">scale_id</span>, <span class="va">scale_name</span>, <span class="va">data_value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">onet_soc_code</th>
@@ -215,7 +215,7 @@ using O*NET task ratings.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="11%">
@@ -265,7 +265,7 @@ using O*NET task ratings.</p>
 <span></span>
 <span><span class="va">core_only</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">soc_code</span>, <span class="va">n_tasks</span>, <span class="va">total_task_weight</span>, <span class="va">measure_score</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">onet_soc_code</th>
@@ -294,7 +294,7 @@ using O*NET task ratings.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">core_plus_supplemental</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">onet_soc_code</span>, <span class="va">soc_code</span>, <span class="va">n_tasks</span>, <span class="va">total_task_weight</span>, <span class="va">measure_score</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left">onet_soc_code</th>
@@ -332,7 +332,7 @@ using O*NET task ratings.</p>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">rule</span>, <span class="va">onet_soc_code</span>, <span class="va">n_tasks</span>, <span class="va">total_task_weight</span>, <span class="va">measure_score</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">comparison</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">onet_kable</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="29%">
@@ -379,33 +379,6 @@ using O*NET task ratings.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comparison</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span></span>
-<span>  x <span class="op">=</span> <span class="va">measure_score</span>,</span>
-<span>  y <span class="op">=</span> <span class="va">onet_soc_code</span>,</span>
-<span>  color <span class="op">=</span> <span class="va">rule</span></span>
-<span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="va">rule</span><span class="op">)</span>,</span>
-<span>    size <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>    position <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.45</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Task Handling Can Change Occupation Scores"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"The task score is fixed; the rollup rule changes."</span>,</span>
-<span>    x <span class="op">=</span> <span class="st">"Occupation score"</span>,</span>
-<span>    y <span class="op">=</span> <span class="st">"O*NET-SOC code"</span>,</span>
-<span>    color <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    shape <span class="op">=</span> <span class="cn">NULL</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span></span>
-<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>      <span class="st">"Core tasks only"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"teal"</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>      <span class="st">"Core plus Supplemental"</span> <span class="op">=</span> <span class="va">onet2r_colors</span><span class="op">[[</span><span class="st">"amber"</span><span class="op">]</span><span class="op">]</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">onet2r_theme</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="from-tasks-to-occupations_files/figure-html/task-chart-1.png" class="r-plt" alt="Grouped dot chart of occupation scores under core-only and core-plus-supplemental task rules." width="672"></p>
 <p>The task score did not change; only the rollup rule did. A clear
 write-up keeps the scoring choice separate from the package
 mechanics.</p>

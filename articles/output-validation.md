@@ -72,7 +72,7 @@ tibble::tibble(
     nrow(onet_coverage(aggregate)) == 1
   )
 ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | check                                | passed |
@@ -87,7 +87,7 @@ tibble::tibble(
 
 weights |>
   head(5) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -100,7 +100,7 @@ weights |>
 
 aggregate |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
@@ -118,7 +118,7 @@ tibble::tibble(
   check = "ONET_API_KEY available for live API validation",
   passed = nzchar(Sys.getenv("ONET_API_KEY"))
 ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | check                                          | passed |

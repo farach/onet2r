@@ -24,7 +24,7 @@ ratings <- onet_archive_read(
 
 tasks |>
   select(onet_soc_code, task_id, task_type, task) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | task_id | task_type    | task                                          |
@@ -38,7 +38,7 @@ tasks |>
 ratings |>
   select(onet_soc_code, task_id, scale_id, scale_name, data_value) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | task_id | scale_id | scale_name        | data_value |
@@ -68,7 +68,7 @@ measure <- onet_measure(
 )
 
 onet_coverage(measure) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
@@ -96,7 +96,7 @@ core_plus_supplemental <- onet_task_to_occupation(
 
 core_only |>
   select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
@@ -107,7 +107,7 @@ core_only |>
 ``` r
 core_plus_supplemental |>
   select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
@@ -125,7 +125,7 @@ comparison <- bind_rows(
   select(rule, onet_soc_code, n_tasks, total_task_weight, measure_score)
 
 comparison |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | rule                   | onet_soc_code | n_tasks | total_task_weight | measure_score |
@@ -134,38 +134,6 @@ comparison |>
 | Core tasks only        | 29-1141.00    | 1       | 98                | 0.200         |
 | Core plus Supplemental | 15-1252.00    | 2       | 140               | 0.671         |
 | Core plus Supplemental | 29-1141.00    | 1       | 98                | 0.200         |
-
-``` r
-ggplot2::ggplot(comparison, ggplot2::aes(
-  x = measure_score,
-  y = onet_soc_code,
-  color = rule
-)) +
-  ggplot2::geom_point(
-    ggplot2::aes(shape = rule),
-    size = 3,
-    position = ggplot2::position_dodge(width = 0.45)
-  ) +
-  ggplot2::labs(
-    title = "Task Handling Can Change Occupation Scores",
-    subtitle = "The task score is fixed; the rollup rule changes.",
-    x = "Occupation score",
-    y = "O*NET-SOC code",
-    color = NULL,
-    shape = NULL
-  ) +
-  ggplot2::scale_color_manual(
-    values = c(
-      "Core tasks only" = onet2r_colors[["teal"]],
-      "Core plus Supplemental" = onet2r_colors[["amber"]]
-    )
-  ) +
-  onet2r_theme()
-```
-
-![Grouped dot chart of occupation scores under core-only and
-core-plus-supplemental task
-rules.](from-tasks-to-occupations_files/figure-html/task-chart-1.png)
 
 The task score did not change; only the rollup rule did. A clear
 write-up keeps the scoring choice separate from the package mechanics.

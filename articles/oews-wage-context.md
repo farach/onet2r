@@ -33,7 +33,7 @@ oews <- onet_oews_national(year = 2023, path = sample_oews)
 
 oews |>
   select(occ_code, occ_title, tot_emp, a_median, h_median, a_median_topcoded) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | occ_code | occ_title                             | tot_emp   | a_median | h_median | a_median_topcoded |
@@ -59,7 +59,7 @@ oews_weights <- onet_weight_panel_oews(oews, year = 2024)
 #> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 oews_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -92,7 +92,7 @@ oral_scores <- abilities |>
   )
 
 oral_scores |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | title | measure_score |
@@ -113,7 +113,7 @@ oral_oews <- onet_measure_aggregate(
 
 oral_oews |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
@@ -123,7 +123,7 @@ oral_oews |>
 ``` r
 
 onet_provenance(oral_oews) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id                 | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
@@ -136,7 +136,7 @@ much of the weight panel was included.
 
 ``` r
 onet_coverage(oral_oews) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id                 | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
@@ -159,7 +159,7 @@ contributions <- oral_scores |>
   select(title, reference_soc_code, measure_score, employment, weight_share, weighted_score)
 
 contributions |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | title | reference_soc_code | measure_score | employment | weight_share | weighted_score |
@@ -168,28 +168,9 @@ contributions |>
 |       | 15-1252            | 4.35          | 1847900    | 0.353        | 8038365        |
 |       | 11-1011            | 4.50          | 211230     | 0.040        | 950535         |
 
-``` r
-ggplot2::ggplot(contributions, ggplot2::aes(
-  x = weighted_score,
-  y = stats::reorder(title, weighted_score)
-)) +
-  ggplot2::geom_col(fill = onet2r_colors[["teal"]], width = 0.65) +
-  ggplot2::scale_x_continuous(
-    labels = scales::label_number(scale_cut = scales::cut_short_scale()),
-    expand = ggplot2::expansion(mult = c(0, 0.05))
-  ) +
-  ggplot2::labs(
-    title = "Which Occupations Drive the Weighted Score?",
-    subtitle = "Contribution is the occupation score times employment.",
-    x = "Score times employment",
-    y = NULL
-  ) +
-  onet2r_theme()
-```
-
-![Horizontal bar chart showing employment-weighted ability contributions
-by
-occupation.](oews-wage-context_files/figure-html/contribution-chart-1.png)
+The contribution is already the `weighted_score` column: occupation
+score times employment. In this fixture a separate chart would only
+redraw the table.
 
 ## Compare OEWS with a PUMS-Style Weight Panel
 
@@ -211,7 +192,7 @@ pums_weights <- onet_weight_panel_pums(
 )
 
 pums_weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | sex | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -259,7 +240,7 @@ tibble::tibble(
     oral_pums_f$employment_coverage_share
   )
 ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | weight_source     | aggregate | coverage |

@@ -17,7 +17,7 @@ tibble::tibble(
   setting = c("ONET_API_KEY configured", "live vignette API calls enabled"),
   value = c(has_onet_key, run_live)
 ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | setting                         | value |
@@ -37,13 +37,13 @@ or
 ``` r
 if (run_live) {
   onet_search("software developer", start = 1, end = 5) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_search()."
   ) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 }
 ```
 
@@ -54,13 +54,13 @@ if (run_live) {
 ``` r
 if (run_live) {
   onet_skills("15-1252.00", start = 1, end = 5) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 } else {
   tibble::tibble(
     live_api_example = "skipped",
     reason = "Set ONET_API_KEY and ONET2R_RUN_LIVE_VIGNETTES=true to run onet_skills()."
   ) |>
-    onet_kable()
+    knitr::kable(digits = 3, align = "l")
 }
 ```
 
@@ -95,7 +95,7 @@ abilities |>
     domain_source
   ) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | release_version | onet_soc_code | soc_code | element_id | element_name        | data_value | source_date | domain_source |
@@ -120,7 +120,7 @@ weights <- onet_weight_panel_oews(oews, year = 2024)
 #> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -146,7 +146,7 @@ oral_aggregate <- onet_measure_aggregate(
 
 oral_aggregate |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
@@ -156,7 +156,7 @@ oral_aggregate |>
 ``` r
 
 onet_provenance(oral_aggregate) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id                 | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
@@ -194,7 +194,7 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | to_soc_code | element_name        | from_value | to_value | value_change | change_type           | safely_comparable |
@@ -208,29 +208,18 @@ changes |>
 | 11-1011     | Problem Sensitivity | 4.22       | 4.22     | 0.00         | stale_carryforward    | TRUE              |
 
 ``` r
-plot_data <- changes |>
+changes |>
   count(change_type, name = "rows") |>
-  arrange(desc(rows))
-
-ggplot2::ggplot(plot_data, ggplot2::aes(
-  x = stats::reorder(change_type, rows),
-  y = rows,
-  fill = change_type
-)) +
-  ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  onet2r_discrete_fill() +
-  ggplot2::labs(
-    title = "What Kind of Change Was Observed?",
-    subtitle = "Interpret the classification before the numeric change.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  arrange(desc(rows)) |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
-![Horizontal bar chart of change classifications in the getting started
-example.](getting-started_files/figure-html/getting-started-chart-1.png)
+| change_type           | rows |
+|:----------------------|:-----|
+| real_update           | 3    |
+| stale_carryforward    | 2    |
+| resampled_stable      | 1    |
+| recode_or_recalc_flag | 1    |
 
 ## Next Steps
 

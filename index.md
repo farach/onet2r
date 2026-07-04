@@ -57,7 +57,7 @@ abilities <- onet_panel(
 abilities |>
   select(release_version, onet_soc_code, soc_code, element_name, data_value) |>
   head(6) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | release_version | onet_soc_code | soc_code | element_name        | data_value |
@@ -102,7 +102,7 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | from_onet_soc_code | to_onet_soc_code | element_name        | from_value | to_value | value_change | change_type     | safely_comparable |
@@ -114,30 +114,17 @@ changes |>
 | 15-1132.00         | 15-1253.00       | Problem Sensitivity | 4.4        | NA       | NA           | dropped         | FALSE             |
 
 ``` r
-change_counts <- changes |>
+changes |>
   count(change_type, name = "rows") |>
-  arrange(desc(rows))
-
-ggplot2::ggplot(change_counts, ggplot2::aes(
-  x = stats::reorder(change_type, rows),
-  y = rows,
-  fill = change_type
-)) +
-  ggplot2::geom_col(width = 0.65, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  onet2r_discrete_fill() +
-  ggplot2::labs(
-    title = "Cross-Vintage Rows Need Reconciliation",
-    subtitle = "The bundled fixture crosses a 2010-to-2019 O*NET-SOC seam.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  arrange(desc(rows)) |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
-![Horizontal bar chart of cross-vintage archive change classifications
-in the bundled example
-panel.](reference/figures/README-change-chart-1.png)
+| change_type     | rows |
+|:----------------|:-----|
+| transition_data | 2    |
+| dropped         | 2    |
+| real_update     | 1    |
 
 Rows marked as transition data, suppressed estimates, new content, or
 dropped content are visible in `change_type`. They are not counted as
@@ -179,7 +166,7 @@ measure <- onet_measure(
 )
 
 onet_coverage(measure) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
@@ -196,7 +183,7 @@ occupation_scores <- onet_task_to_occupation(
 
 occupation_scores |>
   select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
@@ -223,7 +210,7 @@ weights <- onet_weight_panel_oews(oews_sample, year = 2024)
 #> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -240,7 +227,7 @@ aggregate <- onet_measure_aggregate(
 
 aggregate |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id          | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
@@ -250,7 +237,7 @@ aggregate |>
 ``` r
 
 onet_provenance(aggregate) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id          | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
@@ -284,7 +271,7 @@ sensitivity |>
     movement,
     movement_percent
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | scenario                                                    | aggregate | employment_coverage_share | movement | movement_percent |
@@ -320,7 +307,7 @@ decomp <- onet_decompose_change(from_scores, to_scores, from_weights, to_weights
 
 decomp |>
   select(component, value) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | component      | value  |
@@ -334,7 +321,7 @@ decomp |>
 ``` r
 
 onet_coverage(decomp) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | n_common | n_safely_comparable | leakage |

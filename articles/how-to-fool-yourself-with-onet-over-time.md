@@ -43,7 +43,7 @@ naive <- naive |>
 
 naive |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | element_id | element_name        | from_value | to_value | naive_change |
@@ -77,7 +77,7 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | to_soc_code | element_name        | value_change | change_type           | from_source_date | to_source_date | method_break | safely_comparable |
@@ -134,7 +134,7 @@ seam |>
     crosswalk_uncertain,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | from_onet_soc_code | to_onet_soc_code | element_name        | change_type     | transition_data | crosswalk_uncertain | safely_comparable |
@@ -146,32 +146,16 @@ seam |>
 | 15-1132.00         | 15-1253.00       | Problem Sensitivity | dropped         | FALSE           | TRUE                | FALSE             |
 
 ``` r
-safe_counts <- seam |>
+seam |>
   mutate(comparability = if_else(safely_comparable, "Safe", "Not safe")) |>
-  count(comparability, name = "rows")
-
-ggplot2::ggplot(safe_counts, ggplot2::aes(
-  x = comparability,
-  y = rows,
-  fill = comparability
-)) +
-  ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  ggplot2::scale_fill_manual(
-    values = c("Safe" = onet2r_colors[["teal"]], "Not safe" = onet2r_colors[["rose"]])
-  ) +
-  ggplot2::labs(
-    title = "Taxonomy Seams Reduce Safe Comparisons",
-    subtitle = "A split occupation carries extra uncertainty even when codes can be bridged.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  count(comparability, name = "rows") |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
-![Horizontal bar chart comparing safe and unsafe comparisons at a
-taxonomy
-seam.](how-to-fool-yourself-with-onet-over-time_files/figure-html/fool-yourself-chart-1.png)
+| comparability | rows |
+|:--------------|:-----|
+| Not safe      | 4    |
+| Safe          | 1    |
 
 Before making a historical claim, ask: Did the value change? Did the
 source date change? Did the occupation cross a taxonomy seam? Was either

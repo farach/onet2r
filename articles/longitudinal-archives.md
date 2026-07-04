@@ -46,7 +46,7 @@ abilities_303 |>
     domain_source
   ) |>
   head(8) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | release_version | onet_soc_code | soc_code | element_id | element_name        | data_value | source_date | domain_source |
@@ -95,7 +95,7 @@ panel |>
     domain_source
   ) |>
   head(10) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | release_version | onet_soc_code | element_name        | data_value | source_date | domain_source |
@@ -140,7 +140,7 @@ changes |>
   ) |>
   arrange(desc(abs(value_change))) |>
   head(10) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | from_soc_code | to_soc_code | element_name        | from_value | to_value | value_change | from_source_date | to_source_date | change_type           | method_break | safely_comparable |
@@ -177,7 +177,7 @@ changes |>
     method_break,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | to_soc_code | element_name        | from_value | to_value | value_change | change_type           | method_break | safely_comparable |
@@ -230,7 +230,7 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | from_onet_soc_code | to_onet_soc_code | element_name        | change_type     | crosswalk_uncertain | transition_data | safely_comparable |
@@ -291,7 +291,7 @@ the apparent change.
 
 ``` r
 onet_change_summary(changes, by = "job_family") |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | summary_level | job_family | n_group | share_group | mean_value_change | median_abs_value_change | share_safely_comparable | share_method_break | share_crosswalk_uncertain | change_type           | n   | n_weighted | share | share_weighted |

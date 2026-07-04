@@ -31,7 +31,7 @@ task_ratings <- onet_archive_read(
 tasks |>
   select(onet_soc_code, task_id, task_type, task) |>
   head() |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | task_id | task_type    | task                                          |
@@ -56,7 +56,7 @@ check as cheap insurance, not as two independent measures.
 task_ratings |>
   select(onet_soc_code, task_id, scale_id, scale_name, data_value, recommend_suppress) |>
   head() |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | task_id | scale_id | scale_name        | data_value | recommend_suppress |
@@ -91,7 +91,7 @@ measure <- onet_measure(
 )
 
 onet_coverage(measure) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
@@ -108,7 +108,7 @@ unmatched <- if (nrow(measure$unmatched) == 0) {
 }
 
 unmatched |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | status                |
@@ -131,7 +131,7 @@ occupation_scores <- onet_task_to_occupation(
 
 occupation_scores |>
   select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
@@ -153,7 +153,7 @@ occupation_scores_all <- onet_task_to_occupation(
 
 occupation_scores_all |>
   select(onet_soc_code, soc_code, n_tasks, total_task_weight, measure_score) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | onet_soc_code | soc_code | n_tasks | total_task_weight | measure_score |
@@ -175,7 +175,7 @@ weights <- onet_weight_panel_oews(oews_sample, year = 2024)
 #> Dropped 2 OEWS aggregate rows; keeping "detailed" occupations.
 
 weights |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
@@ -195,7 +195,7 @@ national <- onet_measure_aggregate(
 
 national |>
   select(-coverage, -provenance) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id          | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
@@ -205,7 +205,7 @@ national |>
 ``` r
 
 onet_provenance(national) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | measure_id          | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
@@ -225,60 +225,13 @@ diagnostic <- onet_measure_sensitivity(
 
 diagnostic |>
   select(scenario, aggregate, employment_coverage_share, movement, movement_percent) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | scenario                                                       | aggregate | employment_coverage_share | movement | movement_percent |
 |:---------------------------------------------------------------|:----------|:--------------------------|:---------|:-----------------|
 | RT_core / task_release / weights / no_bridge                   | 0.421     | 0.96                      | 0.000    | 0.000            |
 | RT_core_plus_supplemental / task_release / weights / no_bridge | 0.373     | 0.96                      | -0.047   | -0.112           |
-
-``` r
-plot_diagnostic <- diagnostic |>
-  mutate(
-    rule = if_else(
-      include_supplemental,
-      "Core + supplemental tasks",
-      "Core tasks only"
-    )
-  )
-
-ggplot2::ggplot(plot_diagnostic, ggplot2::aes(
-  x = aggregate,
-  y = stats::reorder(rule, aggregate)
-)) +
-  ggplot2::geom_vline(
-    xintercept = plot_diagnostic$baseline_aggregate[[1]],
-    color = onet2r_colors[["slate"]],
-    linetype = "dashed"
-  ) +
-  ggplot2::geom_segment(
-    ggplot2::aes(x = 0, xend = aggregate, yend = rule),
-    color = onet2r_colors[["light_gray"]],
-    linewidth = 1.1
-  ) +
-  ggplot2::geom_point(color = onet2r_colors[["teal"]], size = 4) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = sprintf("%.3f", aggregate)),
-    hjust = -0.3,
-    size = 3.5,
-    color = onet2r_colors[["ink"]]
-  ) +
-  ggplot2::scale_x_continuous(
-    expand = ggplot2::expansion(mult = c(0, 0.18))
-  ) +
-  ggplot2::labs(
-    title = "Task handling moves the headline number",
-    subtitle = "Same task score, two rollup rules. The dashed line is the baseline.",
-    x = "Aggregate score",
-    y = NULL
-  ) +
-  onet2r_theme()
-```
-
-![Horizontal dot chart comparing core-only and core-plus-supplemental
-stylized task
-aggregates.](measure-reproducibility_files/figure-html/robustness-chart-1.png)
 
 The diagnostic will not tell you which task score is right. It reports
 how far the headline number moves when non-substantive plumbing changes.

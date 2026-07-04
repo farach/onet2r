@@ -32,7 +32,7 @@ panel <- onet_panel(
 
 panel |>
   count(release_version, release_date, soc_vintage, domain) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | release_version | release_date | soc_vintage | domain    | n   |
@@ -88,7 +88,7 @@ cross_changes |>
     transition_data,
     safely_comparable
   ) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | from_onet_soc_code | to_onet_soc_code | element_name        | change_type     | crosswalk_uncertain | transition_data | safely_comparable |
@@ -117,7 +117,7 @@ changes <- onet_panel_reconcile(
 changes |>
   distinct(value_changed, date_changed, change_type, safely_comparable) |>
   arrange(change_type) |>
-  onet_kable()
+  knitr::kable(digits = 3, align = "l")
 ```
 
 | value_changed | date_changed | change_type           | safely_comparable |
@@ -129,32 +129,16 @@ changes |>
 | TRUE          | FALSE        | recode_or_recalc_flag | FALSE             |
 
 ``` r
-comparison_counts <- cross_changes |>
+cross_changes |>
   mutate(comparability = if_else(safely_comparable, "Safe", "Not safe")) |>
-  count(comparability, name = "rows")
-
-ggplot2::ggplot(comparison_counts, ggplot2::aes(
-  x = comparability,
-  y = rows,
-  fill = comparability
-)) +
-  ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
-  ggplot2::coord_flip() +
-  ggplot2::scale_fill_manual(
-    values = c("Safe" = onet2r_colors[["teal"]], "Not safe" = onet2r_colors[["rose"]])
-  ) +
-  ggplot2::labs(
-    title = "How Many Rows Are Safe to Compare?",
-    subtitle = "The count comes from the cross-vintage example, not a hand-built table.",
-    x = NULL,
-    y = "Rows"
-  ) +
-  onet2r_theme()
+  count(comparability, name = "rows") |>
+  knitr::kable(digits = 3, align = "l")
 ```
 
-![Horizontal bar chart showing safely comparable and not safely
-comparable rows in the cross-vintage
-example.](longitudinal-onet-background_files/figure-html/comparable-chart-1.png)
+| comparability | rows |
+|:--------------|:-----|
+| Not safe      | 4    |
+| Safe          | 1    |
 
 Those rows are not a hand-built truth table. They are the observed
 classifications from the example archive panels. The patterns are the
