@@ -78,6 +78,9 @@ test_that("download_oews_file uses the package HTTP client", {
   calls <- new.env(parent = emptyenv())
 
   local_mocked_bindings(
+    find_oews_manual_download = function(...) {
+      NULL
+    },
     download_oews_file_http = function(url, destfile, quiet) {
       calls$url <- url
       calls$destfile <- destfile
@@ -135,22 +138,66 @@ test_that("download_oews_file reuses a valid cached file", {
   expect_identical(called, FALSE)
 })
 
-test_that("download_oews_file tries alternate official BLS URLs", {
+test_that("download_oews_file caches a matching manual browser download", {
   cache_dir <- withr::local_tempdir()
-  calls <- character()
+  manual_dir <- withr::local_tempdir()
+  manual_file <- file.path(manual_dir, "oesm25nat (1).zip")
+  writeBin(charToRaw("zip"), manual_file)
+  withr::local_options(onet2r.oews_download_dir = manual_dir)
+  called <- FALSE
 
   local_mocked_bindings(
-    download_oews_file_http = function(url, destfile, quiet) {
-      calls <<- c(calls, url)
-      if (length(calls) == 1) {
-        cli::cli_abort("blocked")
-      }
-      writeBin(charToRaw("zip"), destfile)
-      invisible(destfile)
+    download_oews_file_http = function(...) {
+      called <<- TRUE
+      stop("download should not be called")
+    },
+    validate_oews_manual_zip = function(path) {
+      expect_equal(normalizePath(path), normalizePath(manual_file))
+      invisible(path)
     },
     validate_oews_zip = function(path) {
       expect_identical(file.exists(path), TRUE)
       invisible(path)
+    },
+    is_readable_oews_zip = function(path) {
+      file.exists(path)
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet2r:::download_oews_file(
+    type = "national",
+    year = 2025,
+    cache_dir = cache_dir
+  )
+
+  expect_match(result, "oesm25nat\\.zip$")
+  expect_identical(called, FALSE)
+  expect_identical(file.exists(result), TRUE)
+  expect_equal(readBin(result, "raw", file.info(result)$size), charToRaw("zip"))
+})
+
+test_that("download_oews_file falls back to manual download after HTTP failure", {
+  cache_dir <- withr::local_tempdir()
+  manual_dir <- withr::local_tempdir()
+  manual_file <- file.path(manual_dir, "oesm25st.zip")
+  writeBin(charToRaw("zip"), manual_file)
+  withr::local_options(onet2r.oews_download_dir = manual_dir)
+
+  local_mocked_bindings(
+    download_oews_file_http = function(...) {
+      cli::cli_abort("blocked")
+    },
+    validate_oews_manual_zip = function(path) {
+      expect_equal(normalizePath(path), normalizePath(manual_file))
+      invisible(path)
+    },
+    validate_oews_zip = function(path) {
+      expect_identical(file.exists(path), TRUE)
+      invisible(path)
+    },
+    is_readable_oews_zip = function(path) {
+      file.exists(path)
     },
     .package = "onet2r"
   )
@@ -158,13 +205,60 @@ test_that("download_oews_file tries alternate official BLS URLs", {
   result <- onet2r:::download_oews_file(
     type = "state",
     year = 2025,
-    cache_dir = cache_dir
+    cache_dir = cache_dir,
+    force = TRUE
   )
 
-  expect_equal(length(calls), 2)
-  expect_match(calls[[1]], "special-requests/oesm25st\\.zip$")
-  expect_match(calls[[2]], "special\\.requests/oesm25st\\.zip$")
   expect_match(result, "oesm25st\\.zip$")
+  expect_equal(readBin(result, "raw", file.info(result)$size), charToRaw("zip"))
+})
+
+test_that("download_oews_file can open the browser and wait for a manual ZIP", {
+  cache_dir <- withr::local_tempdir()
+  manual_dir <- withr::local_tempdir()
+  manual_file <- file.path(manual_dir, "oesm26nat.zip")
+  calls <- character()
+  withr::local_options(
+    onet2r.oews_download_dir = manual_dir,
+    onet2r.oews_browser_wait = 1
+  )
+
+  local_mocked_bindings(
+    download_oews_file_http = function(...) {
+      cli::cli_abort("blocked")
+    },
+    oews_browser_fallback_enabled = function() {
+      TRUE
+    },
+    open_oews_browser_url = function(url) {
+      calls <<- c(calls, url)
+      writeBin(charToRaw("zip"), manual_file)
+      invisible(url)
+    },
+    validate_oews_manual_zip = function(path) {
+      expect_equal(normalizePath(path), normalizePath(manual_file))
+      invisible(path)
+    },
+    validate_oews_zip = function(path) {
+      expect_identical(file.exists(path), TRUE)
+      invisible(path)
+    },
+    is_readable_oews_zip = function(path) {
+      file.exists(path)
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet2r:::download_oews_file(
+    type = "national",
+    year = 2026,
+    cache_dir = cache_dir,
+    force = TRUE
+  )
+
+  expect_equal(calls, onet2r:::oews_url("national", 2026))
+  expect_match(result, "oesm26nat\\.zip$")
+  expect_equal(readBin(result, "raw", file.info(result)$size), charToRaw("zip"))
 })
 
 test_that("onet_oews reads local extracted files", {

@@ -52,6 +52,15 @@ we use a custom PUMS-style population instead?
 `onet_oews_national()` normalizes BLS OEWS files into snake_case columns and
 parses formatted employment and wage fields into numeric values.
 
+BLS sometimes rejects automated ZIP downloads even when the same OEWS URL works
+in a browser. In interactive sessions, `onet_oews_national()` opens the official
+BLS URL in your browser, waits for the matching ZIP to appear in your Downloads
+folder, validates it, and copies it into the package cache. You can set
+`options(onet2r.oews_download_dir = "path/to/downloads")` for a different folder
+or pass the file explicitly with `path`, which is what this article does so it
+can build without network access. Passing `path` is also the fallback if BLS
+changes the OEWS URL or file name.
+
 ```{r read-oews}
 oews <- onet_oews_national(year = 2023, path = sample_oews)
 

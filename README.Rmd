@@ -220,6 +220,12 @@ occupation_scores |>
 
 ## Add Employment Weights
 
+If BLS rejects an automated OEWS ZIP download, `onet_oews_national()` can use a
+matching ZIP that you downloaded in your browser. Leave the ZIP in your Downloads
+folder, or set `options(onet2r.oews_download_dir = "path/to/downloads")`. Passing
+`path` is always supported, keeps examples offline, and remains the fallback if
+BLS changes OEWS URLs or file names.
+
 ```{r weights}
 oews_sample <- onet_oews_national(
   path = system.file("extdata", "oews-national-sample.csv", package = "onet2r")

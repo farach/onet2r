@@ -35,6 +35,21 @@
 #' flagged separately (see the `*_topcoded` and suppression indicator
 #' columns). `*_prse` columns are percent relative standard errors of the
 #' corresponding estimates.
+#'
+#' ## BLS download blocking
+#'
+#' BLS may reject automated ZIP downloads with HTTP 403 even when the same URL
+#' downloads in a browser. `onet_oews()` handles that case in three steps:
+#' first it checks the package cache, then it looks for the matching ZIP in your
+#' Downloads folder, then in interactive sessions it opens the official BLS URL
+#' in your browser and waits for the downloaded file to appear. Set
+#' `options(onet2r.oews_download_dir = "path/to/downloads")` to search a
+#' different manual-download folder. Set
+#' `options(onet2r.oews_browser_fallback = FALSE)` to disable opening a browser.
+#' Set `options(onet2r.oews_browser_wait = 120)` to control how many seconds
+#' `onet_oews()` waits for a browser download. You can always pass a ZIP path
+#' directly with `path`; this is the stable fallback if BLS changes OEWS URLs or
+#' file names.
 #' @export
 #'
 #' @examplesIf interactive()
@@ -305,22 +320,29 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
   cache_dir <- file.path(cache_dir, "oews")
   dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 
-  urls <- oews_urls(type = type, year = year)
-  destfile <- file.path(cache_dir, basename(urls[[1]]))
+  url <- oews_url(type = type, year = year)
+  destfile <- file.path(cache_dir, basename(url))
 
   if (file.exists(destfile) && !isTRUE(force)) {
     validate_oews_zip(destfile)
     return(destfile)
   }
 
+  manual_path <- find_oews_manual_download(type = type, year = year)
+  if (!is.null(manual_path) && !isTRUE(force)) {
+    return(cache_oews_manual_download(manual_path, destfile, quiet = quiet))
+  }
+
   tmpfile <- tempfile("oews-", tmpdir = cache_dir, fileext = ".zip")
   on.exit(unlink(tmpfile, force = TRUE), add = TRUE)
 
   if (!file.exists(destfile) || isTRUE(force)) {
-    download_oews_file_from_urls(
-      urls = urls,
+    download_oews_file_from_url(
+      url = url,
       destfile = tmpfile,
-      quiet = quiet
+      quiet = quiet,
+      type = type,
+      year = year
     )
     validate_oews_zip(tmpfile)
     if (!file.rename(tmpfile, destfile)) {
@@ -331,40 +353,112 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
   destfile
 }
 
-download_oews_file_from_urls <- function(urls, destfile, quiet = TRUE) {
-  errors <- list()
-
-  for (url in urls) {
-    result <- tryCatch(
-      {
-        download_oews_file_http(
-          url = url,
-          destfile = destfile,
+download_oews_file_from_url <- function(
+    url,
+    destfile,
+    quiet = TRUE,
+    type,
+    year) {
+  tryCatch(
+    download_oews_file_http(
+      url = url,
+      destfile = destfile,
+      quiet = quiet
+    ),
+    error = function(cnd) {
+      manual_path <- find_oews_manual_download(type = type, year = year)
+      if (!is.null(manual_path)) {
+        cache_oews_manual_download(
+          manual_path,
+          destfile,
           quiet = quiet
         )
-        NULL
-      },
-      error = function(cnd) cnd
-    )
+        return(invisible(destfile))
+      }
 
-    if (is.null(result)) {
-      return(invisible(destfile))
+      manual_path <- request_oews_browser_download(
+        url = url,
+        type = type,
+        year = year
+      )
+      if (!is.null(manual_path)) {
+        cache_oews_manual_download(
+          manual_path,
+          destfile,
+          quiet = quiet
+        )
+        return(invisible(destfile))
+      }
+
+      cli::cli_abort(
+        c(
+          "Failed to download OEWS estimates from BLS.",
+          "i" = "URL: {.url {url}}",
+          "i" = "BLS may reject automated downloads even when this URL works in a browser.",
+          "i" = "Download the ZIP in your browser, leave it in Downloads, and rerun this function.",
+          "i" = "If BLS changes URLs or file names, pass the current ZIP path directly with {.arg path}."
+        ),
+        parent = cnd
+      )
     }
+  )
 
-    errors[[url]] <- result
-    unlink(destfile, force = TRUE)
+  invisible(destfile)
+}
+
+request_oews_browser_download <- function(url, type, year) {
+  if (!oews_browser_fallback_enabled()) {
+    return(NULL)
   }
 
-  parent <- errors[[length(errors)]]
-  cli::cli_abort(
-    c(
-      "Failed to download OEWS estimates from BLS.",
-      "i" = "BLS rejected every official OEWS ZIP URL tried.",
-      "i" = "URLs: {.url {urls}}",
-      "i" = "If BLS blocks automated downloads from your network, download the ZIP in a browser and pass it to {.arg path}."
-    ),
-    parent = parent
+  file <- oews_file_name(type, year)
+  cli::cli_inform(c(
+    "BLS rejected the automated OEWS download. Opening the official URL in your browser.",
+    "i" = "Leave the downloaded {.file {file}} file in your Downloads folder.",
+    "i" = "onet2r will continue after the file appears."
+  ))
+
+  open_oews_browser_url(url)
+  wait_for_oews_manual_download(
+    type = type,
+    year = year,
+    timeout = oews_browser_wait_seconds()
   )
+}
+
+oews_browser_fallback_enabled <- function() {
+  isTRUE(getOption("onet2r.oews_browser_fallback", interactive()))
+}
+
+oews_browser_wait_seconds <- function() {
+  wait <- getOption("onet2r.oews_browser_wait", 120)
+  wait <- suppressWarnings(as.numeric(wait))
+  if (length(wait) != 1 || is.na(wait) || wait < 0) {
+    return(120)
+  }
+  wait
+}
+
+wait_for_oews_manual_download <- function(type, year, timeout, interval = 1) {
+  deadline <- Sys.time() + timeout
+
+  repeat {
+    path <- find_oews_manual_download(type = type, year = year)
+    if (!is.null(path) && is_readable_oews_zip(path)) {
+      return(path)
+    }
+
+    if (Sys.time() >= deadline) {
+      return(NULL)
+    }
+
+    Sys.sleep(interval)
+  }
+}
+
+open_oews_browser_url <- function(url) {
+  utils::browseURL(url)
+  invisible(url)
 }
 
 download_oews_file_http <- function(url, destfile, quiet = TRUE) {
@@ -391,18 +485,11 @@ oews_national_url <- function(year) {
   oews_url("national", year)
 }
 
-oews_urls <- function(type, year) {
-  file <- oews_file_name(type, year)
-  unique(c(
-    sprintf("https://www.bls.gov/oes/special-requests/%s", file),
-    sprintf("https://www.bls.gov/oes/special.requests/%s", file),
-    sprintf("https://download.bls.gov/pub/special.requests/oes/%s", file),
-    sprintf("https://download.bls.gov/pub/time.series/oe/%s", file)
-  ))
-}
-
 oews_url <- function(type, year) {
-  oews_urls(type, year)[[1]]
+  sprintf(
+    "https://www.bls.gov/oes/special-requests/%s",
+    oews_file_name(type, year)
+  )
 }
 
 oews_file_name <- function(type, year) {
@@ -415,6 +502,86 @@ oews_file_name <- function(type, year) {
   )
 
   sprintf("oesm%02d%s.zip", yy, slug)
+}
+
+find_oews_manual_download <- function(type, year) {
+  file <- oews_file_name(type, year)
+
+  for (dir in oews_manual_download_dirs()) {
+    candidates <- oews_manual_download_candidates(dir, file)
+    if (length(candidates) == 0) {
+      next
+    }
+
+    info <- file.info(candidates)
+    candidates <- candidates[order(info$mtime, decreasing = TRUE, na.last = TRUE)]
+    readable <- vapply(candidates, is_readable_oews_zip, logical(1))
+    if (any(readable)) {
+      return(candidates[readable][[1]])
+    }
+  }
+
+  NULL
+}
+
+oews_manual_download_candidates <- function(dir, file) {
+  if (!dir.exists(dir)) {
+    return(character())
+  }
+
+  stem <- tools::file_path_sans_ext(file)
+  pattern <- sprintf("^%s( \\([0-9]+\\))?\\.zip$", stem)
+  list.files(dir, pattern = pattern, full.names = TRUE, ignore.case = TRUE)
+}
+
+oews_manual_download_dirs <- function() {
+  dirs <- c(
+    getOption("onet2r.oews_download_dir"),
+    Sys.getenv("ONET2R_OEWS_DOWNLOAD_DIR", unset = NA_character_),
+    file.path(path.expand("~"), "Downloads"),
+    file.path(Sys.getenv("USERPROFILE"), "Downloads")
+  )
+
+  unique(dirs[!is.na(dirs) & nzchar(dirs)])
+}
+
+cache_oews_manual_download <- function(path, destfile, quiet = TRUE) {
+  validate_oews_manual_zip(path)
+  if (!isTRUE(quiet)) {
+    cli::cli_inform(c(
+      "Using manually downloaded OEWS ZIP.",
+      "i" = "Path: {.path {path}}"
+    ))
+  }
+
+  if (!file.copy(path, destfile, overwrite = TRUE)) {
+    cli::cli_abort("Failed to copy manually downloaded OEWS ZIP into the cache.")
+  }
+  validate_oews_zip(destfile)
+  destfile
+}
+
+validate_oews_manual_zip <- function(path) {
+  tryCatch(
+    utils::unzip(path, list = TRUE),
+    error = function(cnd) {
+      cli::cli_abort(
+        "Manually downloaded OEWS file is not a readable ZIP archive: {.path {path}}",
+        parent = cnd
+      )
+    }
+  )
+  invisible(path)
+}
+
+is_readable_oews_zip <- function(path) {
+  tryCatch(
+    {
+      suppressWarnings(utils::unzip(path, list = TRUE))
+      TRUE
+    },
+    error = function(cnd) FALSE
+  )
 }
 
 read_oews_file <- function(path) {

@@ -73,6 +73,12 @@ crosswalk CSVs, OEWS source ZIPs, API responses, and aggregated weights may be
 cached under `tools::R_user_dir("onet2r", "cache")`; `onet_cache_clear()` removes
 the package-managed cache sections.
 
+If BLS blocks automated OEWS ZIP downloads, `onet_oews()` may use a matching
+browser-downloaded ZIP from the user's Downloads folder or from
+`options(onet2r.oews_download_dir = ...)`. User-supplied ZIPs are validated before
+they are copied into the package-managed OEWS cache and are never deleted by
+validation.
+
 `onet_measure_aggregate()` accepts exactly one weight period and one optional
 cell at a time. If a panel contains more than one `year`, callers must pass
 `year`. If a panel contains multiple non-standard cell columns, callers must
