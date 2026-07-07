@@ -2,14 +2,17 @@
 % Please edit documentation in R/imports.R
 \name{onet_import_felten_aioe}
 \alias{onet_import_felten_aioe}
-\title{Import the Felten, Raj, and Seamans AI Occupational Exposure (AIOE) Scores}
+\title{Import the Felten, Raj, and Seamans AIOE Scores as a Task-Grain Measure}
 \usage{
 onet_import_felten_aioe(
+  panel,
   path = NULL,
   url = onet_felten_aioe_url,
   score = "AIOE",
   key = NULL,
   sheet = "Appendix A",
+  occupation_code = "onet_soc_code",
+  task_id = "task_id",
   measure_id = "felten_aioe",
   measure_name = "Felten, Raj, and Seamans (2021) AIOE",
   force = FALSE,
@@ -17,6 +20,11 @@ onet_import_felten_aioe(
 )
 }
 \arguments{
+\item{panel}{A Task Ratings style panel with an occupation column
+(\code{occupation_code}, default \code{"onet_soc_code"}) and a task column (\code{task_id},
+default \code{"task_id"}). Its distinct occupation-task pairs set the grain of
+the returned measure.}
+
 \item{path}{Optional path to a local copy of the AIOE workbook or a comma or
 tab separated export. When supplied, no download is attempted.}
 
@@ -26,11 +34,14 @@ tab separated export. When supplied, no download is attempted.}
 \item{score}{Name of the exposure column to use as the measure score.
 Defaults to \code{"AIOE"}.}
 
-\item{key}{Optional name of the SOC code column. When \code{NULL}, common column
-names such as \code{"SOC Code"} are detected automatically.}
+\item{key}{Optional name of the SOC code column in the workbook. When \code{NULL},
+common column names such as \code{"SOC Code"} are detected automatically.}
 
 \item{sheet}{Worksheet holding the occupation scores. Defaults to
 \code{"Appendix A"}, the occupation sheet of the published workbook.}
+
+\item{occupation_code, task_id}{Names of the occupation and task columns in
+\code{panel}.}
 
 \item{measure_id, measure_name}{Identifiers recorded on the returned measure.}
 
@@ -40,29 +51,34 @@ names such as \code{"SOC Code"} are detected automatically.}
 \code{universe} or \code{weight_panel}.}
 }
 \value{
-An occupation-grain \code{onet_measure} object keyed on the 6-digit SOC
-code (\code{measure_key}) with \code{measure_score} set to the selected AIOE column.
+A task-grain \code{onet_measure} object (\code{key_type = "task"}) keyed on
+\code{task_id} and scored on the selected AIOE column, with the occupation code
+retained. It is ready for \code{\link[=onet_task_to_occupation]{onet_task_to_occupation()}}.
 }
 \description{
 Reads the occupation-level AI Occupational Exposure (AIOE) scores from Felten,
 Raj, and Seamans (2021), "Occupational, Industry, and Geographic Exposure to
-Artificial Intelligence", and returns them as an occupation-grain
-\code{\link[=onet_measure]{onet_measure()}} object. This is a thin adapter: it selects the key and score
-columns and records provenance without transforming the published values.
+Artificial Intelligence", and broadcasts them onto the tasks of a Task Ratings
+style \code{panel}, returning a task-grain \code{\link[=onet_measure]{onet_measure()}} keyed on
+\verb{(occupation, task)}. Every task inherits its occupation's published AIOE
+score. This is a thin adapter: it selects the score column, standardizes the
+SOC code, joins to the panel, and records provenance without transforming the
+published values.
 }
 \details{
 AIOE scores are indexed by 6-digit SOC code, not by 8-digit O*NET-SOC
-code, so the returned \code{measure_key} is a 6-digit SOC code suitable for direct
-joins to OEWS or PUMS weight panels. onet2r never bundles or ships the
-workbook; you must supply \code{path} or download it from \code{url}. Downloads are
-cached under \code{tools::R_user_dir("onet2r", "cache")} in the \code{reference}
-section and can be cleared with \code{onet_cache_clear(what = "reference")}.
+code. The adapter derives a 6-digit SOC code from the panel's occupation code
+and joins on it, then broadcasts each occupation's score to its tasks. Tasks
+whose occupation has no published score are dropped with a warning. Pass a
+single-release panel so each task id is unique.
 
-The AIOE workbook is provided for research use; cite Felten, Raj, and Seamans
-(2021) when you use the scores.
+onet2r never bundles or ships the workbook; you must supply \code{path} or download
+it from \code{url}. Downloads are cached under \code{tools::R_user_dir("onet2r", "cache")} in the \code{reference} section and can be cleared with
+\code{onet_cache_clear(what = "reference")}. The AIOE workbook is provided for
+research use; cite Felten, Raj, and Seamans (2021) when you use the scores.
 }
 \examples{
-# Offline: read a small local extract in the published layout.
+# Offline: broadcast a small local extract onto a tiny panel.
 extract <- tempfile(fileext = ".csv")
 utils::write.csv(
   data.frame(
@@ -74,12 +90,16 @@ utils::write.csv(
   extract,
   row.names = FALSE
 )
-measure <- onet_import_felten_aioe(path = extract)
-onet_coverage(measure)
+panel <- tibble::tibble(
+  onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 2),
+  task_id = c("1", "2", "3", "4")
+)
+measure <- onet_import_felten_aioe(panel, path = extract)
+measure$data
 
 # Online: download the published AIOE workbook.
 if (interactive()) {
-  aioe <- onet_import_felten_aioe()
+  aioe <- onet_import_felten_aioe(panel)
   head(aioe$data)
 }
 }

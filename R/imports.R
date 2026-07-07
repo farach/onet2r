@@ -2,8 +2,9 @@
 # External AI-exposure measure import adapters
 # =============================================================================
 #
-# Thin adapters that ingest published occupation-level exposure scores and hand
-# them to the bring-your-own-measure machinery unchanged. The package does not
+# Thin adapters that ingest published occupation-level exposure scores and
+# broadcast them onto the tasks of a caller-supplied panel, handing the result
+# to the bring-your-own-measure machinery unchanged. The package does not
 # bundle, cache in source, or transform these third-party scores; it only reads
 # a user-supplied file or an explicit download URL and records provenance.
 
@@ -19,16 +20,21 @@ onet_felten_aioe_url <- paste0(
   "adca5fc2cd0e9a659ff05278b7fa7a53f4f324c1/AIOE_DataAppendix.xlsx"
 )
 
-#' Import Eloundou et al. (2023) Occupation GPT-Exposure Scores
+#' Import Eloundou et al. (2023) GPT-Exposure Scores as a Task-Grain Measure
 #'
 #' Reads the occupation-level GPT-exposure table released with Eloundou,
 #' Manning, Mishkin, and Rock (2023), "GPTs are GPTs: An Early Look at the Labor
-#' Market Impact Potential of Large Language Models", and returns it as an
-#' occupation-grain [onet_measure()] object. This is a thin adapter: it selects
-#' the key and score columns, standardizes the O&#42;NET-SOC code, and records
-#' provenance. It does not rescale, average, or otherwise transform the
-#' published exposure values.
+#' Market Impact Potential of Large Language Models", and broadcasts it onto the
+#' tasks of a Task Ratings style `panel`, returning a task-grain [onet_measure()]
+#' keyed on `(occupation, task)`. Every task inherits its occupation's published
+#' exposure. This is a thin adapter: it selects the score column, standardizes
+#' the O&#42;NET-SOC code, joins to the panel, and records provenance. It does
+#' not rescale, average, or otherwise transform the published exposure values.
 #'
+#' @param panel A Task Ratings style panel with an occupation column
+#'   (`occupation_code`, default `"onet_soc_code"`) and a task column (`task_id`,
+#'   default `"task_id"`). Its distinct occupation-task pairs set the grain of
+#'   the returned measure.
 #' @param path Optional path to a local copy of the exposure file. A comma or
 #'   tab separated file or an Excel workbook is accepted. When supplied, no
 #'   download is attempted.
@@ -39,20 +45,29 @@ onet_felten_aioe_url <- paste0(
 #'   `human_rating_gamma` (human-labeled exposure at the alpha, beta, and gamma
 #'   definitions) and the `dv_rating_*` model-labeled counterparts. Defaults to
 #'   `"human_rating_beta"`.
-#' @param key Optional name of the O&#42;NET-SOC code column. When `NULL`, common
-#'   column names such as `"O*NET-SOC Code"` are detected automatically.
+#' @param key Optional name of the O&#42;NET-SOC code column in the exposure
+#'   file. When `NULL`, common column names such as `"O*NET-SOC Code"` are
+#'   detected automatically.
 #' @param sheet Optional worksheet name or index used when reading an Excel
 #'   workbook.
+#' @param occupation_code,task_id Names of the occupation and task columns in
+#'   `panel`.
 #' @param measure_id,measure_name Identifiers recorded on the returned measure.
 #' @param force Logical; re-download even when a cached copy exists.
 #' @param ... Additional arguments passed to [onet_measure()], such as
 #'   `universe` or `weight_panel`.
 #'
-#' @return An occupation-grain `onet_measure` object. The unchanged published
-#'   columns are preserved alongside `measure_key` (the standardized 8-digit
-#'   O&#42;NET-SOC code) and `measure_score` (the selected exposure column).
+#' @return A task-grain `onet_measure` object (`key_type = "task"`) keyed on
+#'   `task_id` and scored on the selected exposure column, with the occupation
+#'   code retained. It is ready for [onet_task_to_occupation()].
 #'
 #' @details
+#' The published scores are occupation-level; broadcasting them to every task of
+#' an occupation is the structurally blind aggregate construction the source
+#' paper contrasts against task-aware measures. Tasks whose occupation has no
+#' published score are dropped with a warning. Pass a single-release panel so
+#' each task id is unique.
+#'
 #' The exposure data are distributed by OpenAI under the MIT License. onet2r
 #' never bundles or ships the file; you must supply `path` or download it from
 #' `url`. Downloads are cached under `tools::R_user_dir("onet2r", "cache")` in
@@ -68,7 +83,7 @@ onet_felten_aioe_url <- paste0(
 #' @export
 #'
 #' @examples
-#' # Offline: read a small local extract in the published layout.
+#' # Offline: broadcast a small local extract onto a tiny panel.
 #' extract <- tempfile(fileext = ".csv")
 #' utils::write.csv(
 #'   data.frame(
@@ -80,27 +95,34 @@ onet_felten_aioe_url <- paste0(
 #'   extract,
 #'   row.names = FALSE
 #' )
-#' measure <- onet_import_eloundou(path = extract)
-#' onet_coverage(measure)
+#' panel <- tibble::tibble(
+#'   onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 2),
+#'   task_id = c("1", "2", "3", "4")
+#' )
+#' measure <- onet_import_eloundou(panel, path = extract)
+#' measure$data
 #'
 #' # Online: download the published occupation-level table.
 #' if (interactive()) {
-#'   exposure <- onet_import_eloundou()
+#'   exposure <- onet_import_eloundou(panel)
 #'   head(exposure$data)
 #' }
 onet_import_eloundou <- function(
+    panel,
     path = NULL,
     url = onet_eloundou_url,
     score = "human_rating_beta",
     key = NULL,
     sheet = NULL,
+    occupation_code = "onet_soc_code",
+    task_id = "task_id",
     measure_id = "eloundou_gpt_exposure",
     measure_name = "Eloundou et al. (2023) GPT exposure",
     force = FALSE,
     ...) {
   validate_single_string(score, "score")
 
-  data <- read_import_measure_file(
+  external <- read_import_measure_file(
     path = path,
     url = url,
     key = key,
@@ -110,15 +132,18 @@ onet_import_eloundou <- function(
     key_column = "onet_soc_code",
     key_standardize = standardize_onet_soc_code
   )
-  if (!score %in% names(data)) {
-    import_abort_missing_score(score, data, "onet_soc_code")
+  if (!score %in% names(external)) {
+    import_abort_missing_score(score, external, "onet_soc_code")
   }
 
-  onet_measure(
-    data,
-    key = "onet_soc_code",
+  broadcast_import_to_tasks(
+    external = external,
+    panel = panel,
     score = score,
-    key_type = "occupation",
+    join_key = "onet_soc_code",
+    panel_join_value = standardize_onet_soc_code,
+    occupation_code = occupation_code,
+    task_id = task_id,
     measure_id = measure_id,
     measure_name = measure_name,
     source = "Eloundou et al. (2023) GPTs are GPTs (MIT License)",
@@ -126,46 +151,58 @@ onet_import_eloundou <- function(
   )
 }
 
-#' Import the Felten, Raj, and Seamans AI Occupational Exposure (AIOE) Scores
+#' Import the Felten, Raj, and Seamans AIOE Scores as a Task-Grain Measure
 #'
 #' Reads the occupation-level AI Occupational Exposure (AIOE) scores from Felten,
 #' Raj, and Seamans (2021), "Occupational, Industry, and Geographic Exposure to
-#' Artificial Intelligence", and returns them as an occupation-grain
-#' [onet_measure()] object. This is a thin adapter: it selects the key and score
-#' columns and records provenance without transforming the published values.
+#' Artificial Intelligence", and broadcasts them onto the tasks of a Task Ratings
+#' style `panel`, returning a task-grain [onet_measure()] keyed on
+#' `(occupation, task)`. Every task inherits its occupation's published AIOE
+#' score. This is a thin adapter: it selects the score column, standardizes the
+#' SOC code, joins to the panel, and records provenance without transforming the
+#' published values.
 #'
+#' @param panel A Task Ratings style panel with an occupation column
+#'   (`occupation_code`, default `"onet_soc_code"`) and a task column (`task_id`,
+#'   default `"task_id"`). Its distinct occupation-task pairs set the grain of
+#'   the returned measure.
 #' @param path Optional path to a local copy of the AIOE workbook or a comma or
 #'   tab separated export. When supplied, no download is attempted.
 #' @param url Download URL used when `path` is `NULL`. Defaults to the pinned
 #'   `AIOE_DataAppendix.xlsx` in the authors' public repository.
 #' @param score Name of the exposure column to use as the measure score.
 #'   Defaults to `"AIOE"`.
-#' @param key Optional name of the SOC code column. When `NULL`, common column
-#'   names such as `"SOC Code"` are detected automatically.
+#' @param key Optional name of the SOC code column in the workbook. When `NULL`,
+#'   common column names such as `"SOC Code"` are detected automatically.
 #' @param sheet Worksheet holding the occupation scores. Defaults to
 #'   `"Appendix A"`, the occupation sheet of the published workbook.
+#' @param occupation_code,task_id Names of the occupation and task columns in
+#'   `panel`.
 #' @param measure_id,measure_name Identifiers recorded on the returned measure.
 #' @param force Logical; re-download even when a cached copy exists.
 #' @param ... Additional arguments passed to [onet_measure()], such as
 #'   `universe` or `weight_panel`.
 #'
-#' @return An occupation-grain `onet_measure` object keyed on the 6-digit SOC
-#'   code (`measure_key`) with `measure_score` set to the selected AIOE column.
+#' @return A task-grain `onet_measure` object (`key_type = "task"`) keyed on
+#'   `task_id` and scored on the selected AIOE column, with the occupation code
+#'   retained. It is ready for [onet_task_to_occupation()].
 #'
 #' @details
 #' AIOE scores are indexed by 6-digit SOC code, not by 8-digit O&#42;NET-SOC
-#' code, so the returned `measure_key` is a 6-digit SOC code suitable for direct
-#' joins to OEWS or PUMS weight panels. onet2r never bundles or ships the
-#' workbook; you must supply `path` or download it from `url`. Downloads are
-#' cached under `tools::R_user_dir("onet2r", "cache")` in the `reference`
-#' section and can be cleared with `onet_cache_clear(what = "reference")`.
+#' code. The adapter derives a 6-digit SOC code from the panel's occupation code
+#' and joins on it, then broadcasts each occupation's score to its tasks. Tasks
+#' whose occupation has no published score are dropped with a warning. Pass a
+#' single-release panel so each task id is unique.
 #'
-#' The AIOE workbook is provided for research use; cite Felten, Raj, and Seamans
-#' (2021) when you use the scores.
+#' onet2r never bundles or ships the workbook; you must supply `path` or download
+#' it from `url`. Downloads are cached under `tools::R_user_dir("onet2r",
+#' "cache")` in the `reference` section and can be cleared with
+#' `onet_cache_clear(what = "reference")`. The AIOE workbook is provided for
+#' research use; cite Felten, Raj, and Seamans (2021) when you use the scores.
 #' @export
 #'
 #' @examples
-#' # Offline: read a small local extract in the published layout.
+#' # Offline: broadcast a small local extract onto a tiny panel.
 #' extract <- tempfile(fileext = ".csv")
 #' utils::write.csv(
 #'   data.frame(
@@ -177,27 +214,34 @@ onet_import_eloundou <- function(
 #'   extract,
 #'   row.names = FALSE
 #' )
-#' measure <- onet_import_felten_aioe(path = extract)
-#' onet_coverage(measure)
+#' panel <- tibble::tibble(
+#'   onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 2),
+#'   task_id = c("1", "2", "3", "4")
+#' )
+#' measure <- onet_import_felten_aioe(panel, path = extract)
+#' measure$data
 #'
 #' # Online: download the published AIOE workbook.
 #' if (interactive()) {
-#'   aioe <- onet_import_felten_aioe()
+#'   aioe <- onet_import_felten_aioe(panel)
 #'   head(aioe$data)
 #' }
 onet_import_felten_aioe <- function(
+    panel,
     path = NULL,
     url = onet_felten_aioe_url,
     score = "AIOE",
     key = NULL,
     sheet = "Appendix A",
+    occupation_code = "onet_soc_code",
+    task_id = "task_id",
     measure_id = "felten_aioe",
     measure_name = "Felten, Raj, and Seamans (2021) AIOE",
     force = FALSE,
     ...) {
   validate_single_string(score, "score")
 
-  data <- read_import_measure_file(
+  external <- read_import_measure_file(
     path = path,
     url = url,
     key = key,
@@ -207,15 +251,18 @@ onet_import_felten_aioe <- function(
     key_column = "soc_code",
     key_standardize = standardize_soc_code
   )
-  if (!score %in% names(data)) {
-    import_abort_missing_score(score, data, "soc_code")
+  if (!score %in% names(external)) {
+    import_abort_missing_score(score, external, "soc_code")
   }
 
-  onet_measure(
-    data,
-    key = "soc_code",
+  broadcast_import_to_tasks(
+    external = external,
+    panel = panel,
     score = score,
-    key_type = "occupation",
+    join_key = "soc_code",
+    panel_join_value = standardize_soc_code,
+    occupation_code = occupation_code,
+    task_id = task_id,
     measure_id = measure_id,
     measure_name = measure_name,
     source = "Felten, Raj, and Seamans (2021) AIOE",
@@ -224,6 +271,76 @@ onet_import_felten_aioe <- function(
 }
 
 # --- shared import helpers ---------------------------------------------------
+
+# Broadcast an occupation-level external score table onto the distinct
+# occupation-task pairs of a panel, producing a task-grain measure. Every task
+# inherits its occupation's score; tasks whose occupation has no score are
+# dropped with a warning. This intentional broadcast is the structurally blind
+# aggregate construction that task-aware measures are contrasted against.
+broadcast_import_to_tasks <- function(
+    external,
+    panel,
+    score,
+    join_key,
+    panel_join_value,
+    occupation_code,
+    task_id,
+    measure_id,
+    measure_name,
+    source,
+    ...) {
+  validate_single_string(occupation_code, "occupation_code")
+  validate_single_string(task_id, "task_id")
+  if (!is.data.frame(panel)) {
+    cli::cli_abort("{.arg panel} must be a data frame.")
+  }
+  validate_columns_present(panel, c(occupation_code, task_id), "panel")
+
+  pairs <- dplyr::distinct(
+    tibble::as_tibble(panel),
+    dplyr::across(dplyr::all_of(c(occupation_code, task_id)))
+  )
+  pairs[[join_key]] <- panel_join_value(pairs[[occupation_code]])
+
+  scores <- tibble::as_tibble(external)[, c(join_key, score), drop = FALSE]
+  joined <- dplyr::left_join(
+    pairs,
+    scores,
+    by = join_key,
+    relationship = "many-to-one"
+  )
+
+  matched <- !is.na(joined[[score]])
+  if (any(!matched)) {
+    missing_occ <- unique(joined[[occupation_code]][!matched])
+    cli::cli_warn(
+      c(
+        "Dropped {sum(!matched)} task{?s} with no matching exposure score.",
+        "i" = "{length(missing_occ)} occupation{?s} had no score in the import file."
+      )
+    )
+    joined <- joined[matched, , drop = FALSE]
+  }
+  if (nrow(joined) == 0) {
+    cli::cli_abort(
+      c(
+        "No panel tasks matched an exposure score.",
+        "i" = "Check that the panel occupation codes align with the import file."
+      )
+    )
+  }
+
+  onet_measure(
+    joined,
+    key = task_id,
+    score = score,
+    key_type = "task",
+    measure_id = measure_id,
+    measure_name = measure_name,
+    source = source,
+    ...
+  )
+}
 
 onet_soc_key_candidates <- function() {
   c(

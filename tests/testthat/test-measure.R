@@ -383,7 +383,7 @@ test_that("onet_robustness_diagnostic compares scenarios to a baseline", {
 # onet_measure(items =, agg =) convenience switch
 # ---------------------------------------------------------------------------
 
-# Two occupations, three items each, all on the IM scale.
+# Two occupations, three tasks each, all on the IM scale.
 targeted_panel <- function() {
   tibble::tibble(
     onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 3),
@@ -393,7 +393,21 @@ targeted_panel <- function() {
   )
 }
 
-test_that("onet_measure builds a targeted occupation measure from a panel", {
+# The same panel with RT weights and task types added, so a targeted measure
+# built from it can also be rolled up with onet_task_to_occupation().
+feed_targeted_panel <- function() {
+  base <- tibble::tibble(
+    onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 3),
+    task_id = c("1", "2", "3", "4", "5", "6"),
+    task_type = "Core"
+  )
+  dplyr::bind_rows(
+    dplyr::mutate(base, scale_id = "IM", data_value = c(4.5, 3.0, 2.0, 1.0, 4.0, 3.0)),
+    dplyr::mutate(base, scale_id = "RT", data_value = c(80, 60, 40, 50, 70, 30))
+  )
+}
+
+test_that("onet_measure builds a targeted task measure from a panel", {
   measure <- onet_measure(
     targeted_panel(),
     items = c("1", "5"),
@@ -401,22 +415,85 @@ test_that("onet_measure builds a targeted occupation measure from a panel", {
   )
 
   expect_s3_class(measure, "onet_measure")
-  expect_equal(measure$metadata$key_type, "occupation")
-  expect_equal(measure$metadata$score, "targeted_share")
+  expect_equal(measure$metadata$key_type, "task")
+  expect_equal(measure$metadata$score, "data_value")
 
-  soft <- measure$data[measure$data$measure_key == "15-1252.00", ]
-  nurse <- measure$data[measure$data$measure_key == "29-1141.00", ]
-  # Importance-weighted share of the portfolio on targeted items.
-  expect_equal(soft$measure_score, 4.5 / 9.5)
-  expect_equal(nurse$measure_score, 4.0 / 8.0)
-  expect_equal(soft$n_targeted, 1L)
-  expect_equal(soft$n_items, 3L)
+  # Task grain, restricted to the requested items, scored on the IM value.
+  expect_setequal(measure$data$measure_key, c("1", "5"))
+  task1 <- measure$data[measure$data$measure_key == "1", ]
+  task5 <- measure$data[measure$data$measure_key == "5", ]
+  expect_equal(task1$measure_score, 4.5)
+  expect_equal(task5$measure_score, 4.0)
+  # Occupation code rides along for the downstream rollup.
+  expect_true("onet_soc_code" %in% names(measure$data))
+})
+
+test_that("onet_measure targeted path equals the canonical longhand", {
+  panel <- targeted_panel()
+  items <- c("1", "5")
+
+  sugar <- onet_measure(panel, items = items, agg = "targeted")
+  filtered <- panel[panel$scale_id == "IM" & panel$task_id %in% items, , drop = FALSE]
+  canonical <- onet_measure(
+    filtered,
+    key = "task_id",
+    score = "data_value",
+    key_type = "task"
+  )
+
+  # The switch is exactly the default path on the filtered item subset.
+  expect_equal(sugar, canonical)
+})
+
+test_that("onet_measure aggregate path keeps every item at task grain", {
+  measure <- onet_measure(targeted_panel(), agg = "aggregate")
+
+  expect_equal(measure$metadata$key_type, "task")
+  expect_setequal(measure$data$measure_key, as.character(1:6))
+  task1 <- measure$data[measure$data$measure_key == "1", ]
+  expect_equal(task1$measure_score, 4.5)
+})
+
+test_that("onet_measure aggregate path equals the canonical longhand over all items", {
+  panel <- targeted_panel()
+
+  sugar <- onet_measure(panel, agg = "aggregate")
+  filtered <- panel[panel$scale_id == "IM", , drop = FALSE]
+  canonical <- onet_measure(
+    filtered,
+    key = "task_id",
+    score = "data_value",
+    key_type = "task"
+  )
+
+  expect_equal(sugar, canonical)
+})
+
+test_that("onet_measure aggregate path rejects an item restriction", {
+  expect_error(
+    onet_measure(targeted_panel(), items = c("1", "5"), agg = "aggregate"),
+    "aggregate"
+  )
 })
 
 test_that("onet_measure items path defaults agg to targeted", {
   explicit <- onet_measure(targeted_panel(), items = c("1", "5"), agg = "targeted")
   implied <- onet_measure(targeted_panel(), items = c("1", "5"))
-  expect_equal(implied$data$measure_score, explicit$data$measure_score)
+  expect_equal(implied, explicit)
+})
+
+test_that("onet_measure targeted output feeds onet_task_to_occupation", {
+  panel <- feed_targeted_panel()
+  e_tgt <- onet_measure(panel, items = c("1", "5"), agg = "targeted")
+  expect_equal(e_tgt$metadata$key_type, "task")
+
+  occ <- onet_task_to_occupation(e_tgt, panel)
+  expect_s3_class(occ, "tbl_df")
+  expect_setequal(occ$onet_soc_code, c("15-1252.00", "29-1141.00"))
+  # Each occupation contributes only its single targeted task, so the
+  # relevance-weighted score is that task's importance value.
+  soft <- occ[occ$onet_soc_code == "15-1252.00", ]
+  expect_equal(soft$measure_score, 4.5)
 })
 
 test_that("onet_measure items path filters to the requested scale", {
@@ -430,9 +507,17 @@ test_that("onet_measure items path filters to the requested scale", {
     )
   )
   measure <- onet_measure(panel, items = c("1", "5"), scale = "IM")
-  soft <- measure$data[measure$data$measure_key == "15-1252.00", ]
-  # The out-of-scale RL row is ignored, so the IM share is unchanged.
-  expect_equal(soft$measure_score, 4.5 / 9.5)
+  task1 <- measure$data[measure$data$measure_key == "1", ]
+  # The out-of-scale RL row is ignored, so task 1 keeps its IM value.
+  expect_equal(task1$measure_score, 4.5)
+})
+
+test_that("onet_measure targeted path warns on items absent from the panel", {
+  expect_warning(
+    measure <- onet_measure(targeted_panel(), items = c("1", "999")),
+    "not found"
+  )
+  expect_setequal(measure$data$measure_key, "1")
 })
 
 test_that("onet_measure items path rejects an unknown aggregation", {
@@ -442,7 +527,7 @@ test_that("onet_measure items path rejects an unknown aggregation", {
   )
 })
 
-test_that("onet_measure items path requires a non-empty item set", {
+test_that("onet_measure targeted path requires a non-empty item set", {
   expect_error(
     onet_measure(targeted_panel(), items = character()),
     "items"
@@ -453,21 +538,23 @@ test_that("onet_measure items path requires a non-empty item set", {
   )
 })
 
-test_that("onet_measure items path guards against multi-release panels", {
+test_that("onet_measure items path rejects duplicate task keys", {
   panel <- dplyr::bind_rows(
     dplyr::mutate(targeted_panel(), release_version = "25.1"),
     dplyr::mutate(targeted_panel(), release_version = "26.1")
   )
+  # A multi-release panel repeats task ids on the scale, which the underlying
+  # default path rejects; the switch inherits that guarantee unchanged.
   expect_error(
     onet_measure(panel, items = c("1", "5")),
-    "release"
+    "duplicate"
   )
 })
 
 test_that("onet_measure items path errors when the scale has no rows", {
   expect_error(
     onet_measure(targeted_panel(), items = c("1", "5"), scale = "PT"),
-    "no rows"
+    "No rows remain"
   )
 })
 

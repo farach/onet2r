@@ -2,14 +2,17 @@
 % Please edit documentation in R/imports.R
 \name{onet_import_eloundou}
 \alias{onet_import_eloundou}
-\title{Import Eloundou et al. (2023) Occupation GPT-Exposure Scores}
+\title{Import Eloundou et al. (2023) GPT-Exposure Scores as a Task-Grain Measure}
 \usage{
 onet_import_eloundou(
+  panel,
   path = NULL,
   url = onet_eloundou_url,
   score = "human_rating_beta",
   key = NULL,
   sheet = NULL,
+  occupation_code = "onet_soc_code",
+  task_id = "task_id",
   measure_id = "eloundou_gpt_exposure",
   measure_name = "Eloundou et al. (2023) GPT exposure",
   force = FALSE,
@@ -17,6 +20,11 @@ onet_import_eloundou(
 )
 }
 \arguments{
+\item{panel}{A Task Ratings style panel with an occupation column
+(\code{occupation_code}, default \code{"onet_soc_code"}) and a task column (\code{task_id},
+default \code{"task_id"}). Its distinct occupation-task pairs set the grain of
+the returned measure.}
+
 \item{path}{Optional path to a local copy of the exposure file. A comma or
 tab separated file or an Excel workbook is accepted. When supplied, no
 download is attempted.}
@@ -30,11 +38,15 @@ published \code{occ_level.csv} carries \code{human_rating_alpha}, \code{human_ra
 definitions) and the \verb{dv_rating_*} model-labeled counterparts. Defaults to
 \code{"human_rating_beta"}.}
 
-\item{key}{Optional name of the O*NET-SOC code column. When \code{NULL}, common
-column names such as \code{"O*NET-SOC Code"} are detected automatically.}
+\item{key}{Optional name of the O*NET-SOC code column in the exposure
+file. When \code{NULL}, common column names such as \code{"O*NET-SOC Code"} are
+detected automatically.}
 
 \item{sheet}{Optional worksheet name or index used when reading an Excel
 workbook.}
+
+\item{occupation_code, task_id}{Names of the occupation and task columns in
+\code{panel}.}
 
 \item{measure_id, measure_name}{Identifiers recorded on the returned measure.}
 
@@ -44,20 +56,27 @@ workbook.}
 \code{universe} or \code{weight_panel}.}
 }
 \value{
-An occupation-grain \code{onet_measure} object. The unchanged published
-columns are preserved alongside \code{measure_key} (the standardized 8-digit
-O*NET-SOC code) and \code{measure_score} (the selected exposure column).
+A task-grain \code{onet_measure} object (\code{key_type = "task"}) keyed on
+\code{task_id} and scored on the selected exposure column, with the occupation
+code retained. It is ready for \code{\link[=onet_task_to_occupation]{onet_task_to_occupation()}}.
 }
 \description{
 Reads the occupation-level GPT-exposure table released with Eloundou,
 Manning, Mishkin, and Rock (2023), "GPTs are GPTs: An Early Look at the Labor
-Market Impact Potential of Large Language Models", and returns it as an
-occupation-grain \code{\link[=onet_measure]{onet_measure()}} object. This is a thin adapter: it selects
-the key and score columns, standardizes the O*NET-SOC code, and records
-provenance. It does not rescale, average, or otherwise transform the
-published exposure values.
+Market Impact Potential of Large Language Models", and broadcasts it onto the
+tasks of a Task Ratings style \code{panel}, returning a task-grain \code{\link[=onet_measure]{onet_measure()}}
+keyed on \verb{(occupation, task)}. Every task inherits its occupation's published
+exposure. This is a thin adapter: it selects the score column, standardizes
+the O*NET-SOC code, joins to the panel, and records provenance. It does
+not rescale, average, or otherwise transform the published exposure values.
 }
 \details{
+The published scores are occupation-level; broadcasting them to every task of
+an occupation is the structurally blind aggregate construction the source
+paper contrasts against task-aware measures. Tasks whose occupation has no
+published score are dropped with a warning. Pass a single-release panel so
+each task id is unique.
+
 The exposure data are distributed by OpenAI under the MIT License. onet2r
 never bundles or ships the file; you must supply \code{path} or download it from
 \code{url}. Downloads are cached under \code{tools::R_user_dir("onet2r", "cache")} in
@@ -72,7 +91,7 @@ is a substantive decision left to the caller; the adapter does not endorse a
 definition.
 }
 \examples{
-# Offline: read a small local extract in the published layout.
+# Offline: broadcast a small local extract onto a tiny panel.
 extract <- tempfile(fileext = ".csv")
 utils::write.csv(
   data.frame(
@@ -84,12 +103,16 @@ utils::write.csv(
   extract,
   row.names = FALSE
 )
-measure <- onet_import_eloundou(path = extract)
-onet_coverage(measure)
+panel <- tibble::tibble(
+  onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 2),
+  task_id = c("1", "2", "3", "4")
+)
+measure <- onet_import_eloundou(panel, path = extract)
+measure$data
 
 # Online: download the published occupation-level table.
 if (interactive()) {
-  exposure <- onet_import_eloundou()
+  exposure <- onet_import_eloundou(panel)
   head(exposure$data)
 }
 }
