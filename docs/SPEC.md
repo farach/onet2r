@@ -43,6 +43,36 @@ ordinary matched comparisons and coverage rows:
 Rows with `transition_data`, `suppressed_change`, `new`, or `dropped` are not
 counted as safely comparable changes.
 
+## Resurvey and content-change contract
+
+Three verbs turn a Task Ratings `onet_panel()` into resurvey denominators and
+content-change metrics. They ship verbs and denominators only; hazard
+estimation, weighting, bounds, and figures live in downstream analysis, not in
+the package.
+
+`onet_resurvey_panel()` returns one row per occupation, item, and release. It
+adds the survey clock (`occ_survey_date`, the newest survey `source_date` in
+that release, excluding `Analyst - Transition`), `prev_survey_date`,
+`prev_release_version`, `resurvey_event` (the clock advanced versus the
+occupation's prior release and the incoming step is not a seam), `cycle_index`
+(cumulative resurvey count within the occupation), `age_resolved` (years of
+staleness a resurvey resolved), and the incoming seam flags `seam_in` and
+`seam_type`.
+
+`onet_condition_on_resurvey()` adds `selection_reason` (a factor with levels
+`resurveyed`, `unrevisited`, `taxonomy_seam`, `suppressed`) and `at_risk`.
+Precedence is `taxonomy_seam` then `suppressed` then `resurveyed` then
+`unrevisited`, so structural exclusions win over the resurvey signal. The
+v25.1 SOC carry-forward is always `taxonomy_seam`, never a resurvey.
+
+`onet_content_change()` is the single source of content metrics. It returns one
+row per occupation and release pair (adjacent pairs by default) with `n_from`,
+`n_to`, `n_added`, `n_dropped`, `n_retained`, `jaccard` (set similarity),
+`churn_rate` (`1 - jaccard`), `rating_delta_l2` (Euclidean norm of rating
+change over retained items), and `cosine` (cosine similarity over the item
+union with zero fill). Pairs crossing the v21.0 or v25.1 seam carry metrics but
+are flagged `seam`, `seam_type`, and `safely_comparable == FALSE`.
+
 ## Reference-SOC resolver contract
 
 A reference-SOC resolver maps source codes onto a selected reference SOC
