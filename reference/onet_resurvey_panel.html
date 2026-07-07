@@ -75,7 +75,8 @@ releases. This function exposes that resurvey clock at the task level.</p>
 <span>  scale <span class="op">=</span> <span class="st">"IM"</span>,</span>
 <span>  item <span class="op">=</span> <span class="st">"task_id"</span>,</span>
 <span>  survey_sources <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Incumbent"</span>, <span class="st">"Occupational Expert"</span><span class="op">)</span>,</span>
-<span>  min_importance <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  min_importance <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  seams <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -112,6 +113,18 @@ Expert. Matching is case-insensitive and by substring.</p></dd>
 selected <code>scale</code>). Rows below the floor, or with missing <code>data_value</code>, are
 dropped. Use it to reproduce the Importance filter that removes the
 post-v21.0 Task Relevance artifact.</p></dd>
+
+
+<dt id="arg-seams">seams<a class="anchor" aria-label="anchor" href="#arg-seams"></a></dt>
+<dd><p>Optional data frame with <code>seam_type</code> and <code>seam_date</code> columns that
+overrides the default Task-Ratings seam table returned by
+<code>onet_known_seams()</code>. Use it for non-Task-Ratings inputs such as Work
+Activities, Work Context, or Abilities, where the v21.0 Task Relevance scale
+seam does not apply. A row is a date-based seam when its <code>seam_date</code> falls in
+the interval between a release and its prior release. Supply an empty table
+to disable date-based seams entirely. <code>NULL</code> keeps the default table, so
+Task Ratings output is unchanged. Cross-vintage SOC seams are always
+detected from <code>soc_vintage</code> regardless of this table.</p></dd>
 
 </dl></div>
     <div class="section level2">

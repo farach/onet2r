@@ -16,7 +16,8 @@ onet_content_change(
   item = "task_id",
   min_importance = NULL,
   from = NULL,
-  to = NULL
+  to = NULL,
+  seams = NULL
 )
 ```
 
@@ -53,6 +54,17 @@ onet_content_change(
   Optional release versions selecting a single comparison. When both are
   supplied only that pair is returned; otherwise every adjacent release
   pair is compared in release-date order.
+
+- seams:
+
+  Optional data frame with `seam_type` and `seam_date` columns that
+  overrides the default Task-Ratings seam table returned by
+  `onet_known_seams()`. Use it for non-Task-Ratings inputs such as Work
+  Activities, Work Context, or Abilities, where the v21.0 Task Relevance
+  scale seam does not apply. Supply an empty table to disable date-based
+  seams entirely. `NULL` keeps the default table, so Task Ratings output
+  is unchanged. Cross-vintage SOC seams are always detected from
+  `soc_vintage` regardless of this table.
 
 ## Value
 

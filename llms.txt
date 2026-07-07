@@ -540,6 +540,19 @@ Soft-deprecated helpers retained for compatibility.
 - [`onet_decompose_change()`](https://farach.github.io/onet2r/reference/onet_decompose_change.md)
   : Decompose Aggregate Change into Within and Between Components
 
+## External AI-exposure adapters
+
+Download-only adapters that ingest published occupation-level
+AI-exposure scores and broadcast them onto a panel’s task grain as
+onet_measure objects.
+
+- [`onet_import_eloundou()`](https://farach.github.io/onet2r/reference/onet_import_eloundou.md)
+  : Import Eloundou et al. (2023) GPT-Exposure Scores as a Task-Grain
+  Measure
+- [`onet_import_felten_aioe()`](https://farach.github.io/onet2r/reference/onet_import_felten_aioe.md)
+  : Import the Felten, Raj, and Seamans AIOE Scores as a Task-Grain
+  Measure
+
 # Articles
 
 ### Start here

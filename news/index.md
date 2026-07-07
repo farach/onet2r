@@ -19,6 +19,44 @@
   `rating_delta_l2`, and `cosine`. Pairs crossing the v21.0 or v25.1
   seam are flagged `safely_comparable = FALSE` so taxonomy churn is not
   counted as content churn.
+- [`onet_import_eloundou()`](https://farach.github.io/onet2r/reference/onet_import_eloundou.md)
+  ingests the occupation-level GPT-exposure table from Eloundou et
+  al. (2023), “GPTs are GPTs”, and broadcasts it onto the tasks of a
+  caller-supplied panel, returning a task-grain
+  [`onet_measure()`](https://farach.github.io/onet2r/reference/onet_measure.md)
+  object keyed on `(occupation, task)` that feeds
+  [`onet_task_to_occupation()`](https://farach.github.io/onet2r/reference/onet_task_to_occupation.md).
+  Every task inherits its occupation’s published score; this
+  structurally blind broadcast is the aggregate construction task-aware
+  measures are contrasted against. It is a thin adapter that selects the
+  score column and records provenance without transforming the published
+  values. The MIT-licensed data are never bundled; supply a local `path`
+  or download `url`.
+- [`onet_import_felten_aioe()`](https://farach.github.io/onet2r/reference/onet_import_felten_aioe.md)
+  ingests the AI Occupational Exposure (AIOE) scores from Felten, Raj,
+  and Seamans (2021) and broadcasts them onto panel tasks the same way,
+  joining on 6-digit SOC code, following the same download-only,
+  no-transform adapter pattern.
+- [`onet_measure()`](https://farach.github.io/onet2r/reference/onet_measure.md)
+  gains an `items =` / `agg =` convenience path: given a Task Ratings
+  style panel it builds a task-grain measure in one line.
+  `agg = "targeted"` restricts the panel to a set of target task ids;
+  `agg = "aggregate"` keeps every task. Either way it selects one rating
+  row per task on `scale` (default Importance) and keys on the task id,
+  so the result is exactly the measure the default `data` / `key` /
+  `score` path returns on that same subset, ready for
+  [`onet_task_to_occupation()`](https://farach.github.io/onet2r/reference/onet_task_to_occupation.md).
+  The existing `data` / `key` / `score` / `key_type` path is unchanged.
+- [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md)
+  and
+  [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
+  gain an optional `seams =` argument to override the default
+  Task-Ratings-scoped seam table. The default (`NULL`) reproduces
+  existing output exactly; supplying a table lets non-Task-Ratings
+  inputs such as Work Activities, Work Context, or Abilities drop the
+  v21.0 Task Relevance scale seam that does not apply to them.
+  Cross-vintage SOC seams are still detected from `soc_vintage`
+  regardless.
 
 ### Bug fixes
 

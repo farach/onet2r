@@ -63,15 +63,19 @@ the substantive score.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">onet_measure</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
-<span>  <span class="va">key</span>,</span>
-<span>  <span class="va">score</span>,</span>
+<span>  key <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  score <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  key_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occupation"</span>, <span class="st">"task"</span>, <span class="st">"dwa"</span><span class="op">)</span>,</span>
 <span>  universe <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  measure_id <span class="op">=</span> <span class="st">"user_measure"</span>,</span>
 <span>  measure_name <span class="op">=</span> <span class="va">measure_id</span>,</span>
 <span>  source <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
 <span>  release_version <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
-<span>  weight_panel <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  weight_panel <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  items <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  agg <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  item <span class="op">=</span> <span class="st">"task_id"</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"IM"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -80,19 +84,24 @@ the substantive score.</p>
 
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A data frame containing the user-supplied measure.</p></dd>
+<dd><p>A data frame. For the default path, the user-supplied measure
+table. For the <code>items</code>/<code>agg</code> path, a Task Ratings style panel with the
+<code>item</code> column, <code>data_value</code>, and (when <code>scale</code> is not <code>NULL</code>) <code>scale_id</code>.</p></dd>
 
 
 <dt id="arg-key">key<a class="anchor" aria-label="anchor" href="#arg-key"></a></dt>
-<dd><p>Name of the key column.</p></dd>
+<dd><p>Name of the key column for the default path. Ignored on the
+<code>items</code>/<code>agg</code> path, where the measure is keyed on <code>item</code>.</p></dd>
 
 
 <dt id="arg-score">score<a class="anchor" aria-label="anchor" href="#arg-score"></a></dt>
-<dd><p>Name of the numeric score column.</p></dd>
+<dd><p>Name of the numeric score column for the default path. Ignored
+on the <code>items</code>/<code>agg</code> path, where the score is the <code>data_value</code> on <code>scale</code>.</p></dd>
 
 
 <dt id="arg-key-type">key_type<a class="anchor" aria-label="anchor" href="#arg-key-type"></a></dt>
-<dd><p>Measure grain: occupation, task, or DWA.</p></dd>
+<dd><p>Measure grain: occupation, task, or DWA. Forced to
+<code>"task"</code> on the <code>items</code>/<code>agg</code> path.</p></dd>
 
 
 <dt id="arg-universe">universe<a class="anchor" aria-label="anchor" href="#arg-universe"></a></dt>
@@ -119,11 +128,53 @@ the substantive score.</p>
 <dd><p>Optional weight panel used to report employment coverage
 for occupation-level measures.</p></dd>
 
+
+<dt id="arg-items">items<a class="anchor" aria-label="anchor" href="#arg-items"></a></dt>
+<dd><p>Optional character vector of target task ids. Supplying it (or
+<code>agg</code>) selects the convenience path. Required when <code>agg = "targeted"</code>.</p></dd>
+
+
+<dt id="arg-agg">agg<a class="anchor" aria-label="anchor" href="#arg-agg"></a></dt>
+<dd><p>Aggregation mode for the convenience path. <code>"targeted"</code> restricts
+the panel to <code>items</code>; <code>"aggregate"</code> keeps every item. Defaults to
+<code>"targeted"</code> when <code>items</code> is supplied.</p></dd>
+
+
+<dt id="arg-item">item<a class="anchor" aria-label="anchor" href="#arg-item"></a></dt>
+<dd><p>Column identifying the content item on the <code>items</code>/<code>agg</code> path and
+used as the measure key. Defaults to <code>"task_id"</code>.</p></dd>
+
+
+<dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
+<dd><p>Scale id used to select one rating row per task on the
+<code>items</code>/<code>agg</code> path, for example <code>"IM"</code> for Importance. Use <code>NULL</code> to keep
+every row of <code>data</code>, which requires <code>item</code> to be unique on its own.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>onet_measure</code> object with <code>data</code>, <code>coverage</code>, <code>unmatched</code>, and
-<code>metadata</code> fields.</p>
+<code>metadata</code> fields. The <code>items</code>/<code>agg</code> path returns a task-grain measure
+(<code>key_type = "task"</code>) keyed on <code>item</code> and scored on the <code>scale</code> rating,
+ready for <code><a href="onet_task_to_occupation.html">onet_task_to_occupation()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Two construction paths are available. The default path validates a table of
+<code>key</code> and <code>score</code> columns you already built. The convenience path, selected by
+passing <code>items</code> or <code>agg</code>, builds a task-grain measure in one line from a Task
+Ratings style panel: it restricts the panel to the caller's target <code>items</code>
+(when <code>agg = "targeted"</code>) or keeps every item (when <code>agg = "aggregate"</code>),
+selects one rating row per task on <code>scale</code> (default Importance, <code>"IM"</code>), and
+keys the result on <code>item</code> (default <code>"task_id"</code>). The result is exactly the
+measure the default path returns on that same subset, so it is a thin
+convenience wrapper, not a new estimator. Roll it up to occupations with
+<code><a href="onet_task_to_occupation.html">onet_task_to_occupation()</a></code> and <code><a href="onet_measure_aggregate.html">onet_measure_aggregate()</a></code>. The target items,
+not the package, carry the substantive judgement.</p>
+<p>A single <code>items</code> vector expresses one target set, so the switch builds a
+targeted composite such as a routine-task composite. A difference index like
+routine-task intensity, which subtracts abstract and manual composites from a
+routine composite, is composed separately from two or more such measures.</p>
     </div>
 
     <div class="section level2">
@@ -140,6 +191,22 @@ for occupation-level measures.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> occupation       2          3         2          0.667                      <span style="color: #BB0000;">NA</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ abbreviated name: ¹​employment_coverage_share</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Convenience path: build a task-grain targeted measure from a panel in one</span></span></span>
+<span class="r-in"><span><span class="co"># line, ready to roll up with onet_task_to_occupation().</span></span></span>
+<span class="r-in"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15-1252.00"</span>, <span class="st">"29-1141.00"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  task_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>, <span class="st">"5"</span>, <span class="st">"6"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  scale_id <span class="op">=</span> <span class="st">"IM"</span>,</span></span>
+<span class="r-in"><span>  data_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">3.0</span>, <span class="fl">2.0</span>, <span class="fl">1.0</span>, <span class="fl">4.0</span>, <span class="fl">3.0</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">targeted</span> <span class="op">&lt;-</span> <span class="fu">onet_measure</span><span class="op">(</span><span class="va">panel</span>, items <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"5"</span><span class="op">)</span>, agg <span class="op">=</span> <span class="st">"targeted"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">targeted</span><span class="op">$</span><span class="va">data</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   onet_soc_code task_id scale_id data_value measure_key measure_score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 15-1252.00    1       IM              4.5 1                     4.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 29-1141.00    5       IM              4   5                     4  </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
