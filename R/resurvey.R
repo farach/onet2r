@@ -19,6 +19,32 @@ onet_known_seams <- function() {
   )
 }
 
+# Resolve the seam table used to flag date-based longitudinal seams. `NULL`
+# keeps the default Task-Ratings-scoped table from onet_known_seams() so
+# existing calls are unchanged. A supplied table lets non-Task-Ratings inputs
+# (Work Activities, Work Context, Abilities) drop the v21.0 Task Relevance
+# scale seam, which does not apply to them, or provide their own seam dates.
+resolve_seams <- function(seams) {
+  if (is.null(seams)) {
+    return(onet_known_seams())
+  }
+  if (!is.data.frame(seams)) {
+    cli::cli_abort("{.arg seams} must be a data frame or `NULL`.")
+  }
+  missing <- setdiff(c("seam_type", "seam_date"), names(seams))
+  if (length(missing) > 0) {
+    cli::cli_abort("{.arg seams} is missing columns: {.var {missing}}.")
+  }
+  out <- tibble::tibble(
+    seam_type = as.character(seams$seam_type),
+    seam_date = as.Date(seams$seam_date)
+  )
+  if (nrow(out) > 0 && anyNA(out$seam_date)) {
+    cli::cli_abort("{.arg seams} column {.field seam_date} must contain valid dates.")
+  }
+  out
+}
+
 # Classify a Task Ratings Domain Source into the resurvey source vocabulary.
 # Survey rotation = Incumbent + Occupational Expert (the Data Collection
 # Program). Analyst - Transition rows are the SOC-2018 seam carry-forward and
@@ -66,8 +92,7 @@ running_prev_max_date <- function(x) {
 # Per-release incoming-transition seam flags. A release inherits a seam when the
 # interval since the prior release crosses a known seam date, or when the SOC
 # taxonomy vintage changes from the prior release.
-resurvey_release_seams <- function(rel_meta) {
-  seams <- onet_known_seams()
+resurvey_release_seams <- function(rel_meta, seams = onet_known_seams()) {
   rel_meta <- rel_meta |>
     dplyr::arrange(.data$release_date, .data$release_version)
 
@@ -158,6 +183,15 @@ empty_resurvey_panel <- function(item = "task_id") {
 #'   selected `scale`). Rows below the floor, or with missing `data_value`, are
 #'   dropped. Use it to reproduce the Importance filter that removes the
 #'   post-v21.0 Task Relevance artifact.
+#' @param seams Optional data frame with `seam_type` and `seam_date` columns that
+#'   overrides the default Task-Ratings seam table returned by
+#'   `onet_known_seams()`. Use it for non-Task-Ratings inputs such as Work
+#'   Activities, Work Context, or Abilities, where the v21.0 Task Relevance scale
+#'   seam does not apply. A row is a date-based seam when its `seam_date` falls in
+#'   the interval between a release and its prior release. Supply an empty table
+#'   to disable date-based seams entirely. `NULL` keeps the default table, so
+#'   Task Ratings output is unchanged. Cross-vintage SOC seams are always
+#'   detected from `soc_vintage` regardless of this table.
 #'
 #' @return A tibble with one row per occupation, item, and release. Alongside
 #'   the identifier and rating columns it carries the resurvey clock:
@@ -198,8 +232,10 @@ onet_resurvey_panel <- function(
     scale = "IM",
     item = "task_id",
     survey_sources = c("Incumbent", "Occupational Expert"),
-    min_importance = NULL) {
+    min_importance = NULL,
+    seams = NULL) {
   validate_single_string(item, "item")
+  seam_table <- resolve_seams(seams)
   if (!is.null(scale)) {
     validate_single_string(scale, "scale")
   }
@@ -259,7 +295,7 @@ onet_resurvey_panel <- function(
     dplyr::distinct(.data$release_version, .data$release_date, .data$soc_vintage) |>
     dplyr::arrange(.data$release_date, .data$release_version)
 
-  seams <- resurvey_release_seams(rel_meta)
+  seams <- resurvey_release_seams(rel_meta, seam_table)
 
   occ_clock <- data |>
     dplyr::filter(.data$survey_source == "survey") |>

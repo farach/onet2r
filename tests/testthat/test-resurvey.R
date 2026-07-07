@@ -176,3 +176,80 @@ test_that("selection_reason uses the full factor level set", {
     c("resurveyed", "unrevisited", "taxonomy_seam", "suppressed")
   )
 })
+
+# ---------------------------------------------------------------------------
+# seams override (additive; default reproduces M1 behavior)
+# ---------------------------------------------------------------------------
+
+# One occupation observed on either side of the August 2016 (v21.0) scale seam.
+# The survey clock advances across the gap, so absent the scale seam this is a
+# resurvey. This mirrors a Work Activities / Abilities call that should not be
+# masked by the Task Relevance retirement.
+scale_span_fixture <- function() {
+  tibble::tibble(
+    release_version = c("21.1", "22.0"),
+    release_date = as.Date(c("2016-02-01", "2017-08-01")),
+    soc_vintage = c("2010", "2010"),
+    onet_soc_code = c("15-1132.00", "15-1132.00"),
+    soc_code = c("15-1132", "15-1132"),
+    element_id = c("4.A.1", "4.A.1"),
+    scale_id = "IM",
+    data_value = c(4.1, 4.6),
+    source_date = as.Date(c("2015-07-01", "2017-07-01")),
+    domain_source = c("Incumbent", "Incumbent"),
+    recommend_suppress = c("N", "N")
+  )
+}
+
+test_that("resurvey_panel seams = NULL reproduces the default output exactly", {
+  expect_equal(
+    onet_resurvey_panel(resurvey_fixture(), seams = NULL),
+    onet_resurvey_panel(resurvey_fixture())
+  )
+})
+
+test_that("the default scale seam masks a survey step across August 2016", {
+  rp <- onet_resurvey_panel(scale_span_fixture(), item = "element_id")
+  step <- rp |> dplyr::filter(.data$release_version == "22.0")
+  expect_true(step$seam_in)
+  expect_equal(step$seam_type, "scale_seam")
+})
+
+test_that("an empty seams table unmasks a non-Task-Ratings survey step", {
+  no_date_seams <- tibble::tibble(
+    seam_type = character(),
+    seam_date = as.Date(character())
+  )
+  rp <- onet_resurvey_panel(
+    scale_span_fixture(),
+    item = "element_id",
+    seams = no_date_seams
+  )
+  step <- rp |> dplyr::filter(.data$release_version == "22.0")
+  expect_false(step$seam_in)
+  # With the scale seam removed, the advancing clock reads as a resurvey.
+  expect_true(step$resurvey_event)
+})
+
+test_that("an empty seams table still flags the cross-vintage SOC seam", {
+  no_date_seams <- tibble::tibble(
+    seam_type = character(),
+    seam_date = as.Date(character())
+  )
+  rp <- onet_resurvey_panel(resurvey_fixture(), seams = no_date_seams)
+  seam_rows <- rp |> dplyr::filter(.data$release_version == "25.1")
+  expect_true(all(seam_rows$seam_in))
+  expect_true(all(seam_rows$seam_type == "soc_seam"))
+})
+
+test_that("resurvey_panel rejects a malformed seams table", {
+  expect_error(
+    onet_resurvey_panel(resurvey_fixture(), seams = tibble::tibble(x = 1)),
+    "seam_type"
+  )
+  expect_error(
+    onet_resurvey_panel(resurvey_fixture(), seams = 42),
+    "data frame"
+  )
+})
+

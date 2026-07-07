@@ -6,25 +6,35 @@
 \usage{
 onet_measure(
   data,
-  key,
-  score,
+  key = NULL,
+  score = NULL,
   key_type = c("occupation", "task", "dwa"),
   universe = NULL,
   measure_id = "user_measure",
   measure_name = measure_id,
   source = NA_character_,
   release_version = NA_character_,
-  weight_panel = NULL
+  weight_panel = NULL,
+  items = NULL,
+  agg = NULL,
+  item = "task_id",
+  scale = "IM"
 )
 }
 \arguments{
-\item{data}{A data frame containing the user-supplied measure.}
+\item{data}{A data frame. For the default path, the user-supplied measure
+table. For the \code{items}/\code{agg} path, a Task Ratings style panel with an
+occupation column, the \code{item} column, \code{data_value}, and \code{scale_id}.}
 
-\item{key}{Name of the key column.}
+\item{key}{Name of the key column. Optional and ignored on the \code{items}/\code{agg}
+path, where it may instead name the occupation column (default
+\code{"onet_soc_code"}).}
 
-\item{score}{Name of the numeric score column.}
+\item{score}{Name of the numeric score column. Not used on the \code{items}/\code{agg}
+path.}
 
-\item{key_type}{Measure grain: occupation, task, or DWA.}
+\item{key_type}{Measure grain: occupation, task, or DWA. Forced to
+\code{"occupation"} on the \code{items}/\code{agg} path.}
 
 \item{universe}{Optional vector or data frame of valid keys.}
 
@@ -38,15 +48,40 @@ onet_measure(
 
 \item{weight_panel}{Optional weight panel used to report employment coverage
 for occupation-level measures.}
+
+\item{items}{Optional character vector of target item ids. Supplying it (or
+\code{agg}) selects the convenience path that aggregates \code{data} to an occupation
+measure.}
+
+\item{agg}{Aggregation method for the \code{items} path. Currently \code{"targeted"},
+the \code{data_value}-weighted share of an occupation's items that fall in
+\code{items}. Defaults to \code{"targeted"} when \code{items} is supplied.}
+
+\item{item}{Column identifying the content item on the \code{items}/\code{agg} path.
+Defaults to \code{"task_id"}.}
+
+\item{scale}{Scale id used to weight the targeted share on the \code{items}/\code{agg}
+path, for example \code{"IM"} for Importance. Use \code{NULL} to weight every row of
+\code{data}.}
 }
 \value{
 An \code{onet_measure} object with \code{data}, \code{coverage}, \code{unmatched}, and
-\code{metadata} fields.
+\code{metadata} fields. On the \code{items}/\code{agg} path the \code{data} table also carries
+\code{n_items}, \code{n_targeted}, \code{targeted_weight}, \code{total_weight}, and
+\code{targeted_share}, and \code{measure_score} is \code{targeted_share}.
 }
 \description{
 Validates a user-supplied occupation, task, or DWA score table and records
 coverage against an optional universe. The package does not supply or alter
 the substantive score.
+}
+\details{
+Two construction paths are available. The default path validates a table of
+\code{key} and \code{score} columns you already built. The convenience path, selected by
+passing \code{items} and \code{agg}, builds an occupation-grain measure in one line from
+a Task Ratings style panel by aggregating a caller-supplied set of target
+items. The set of target items, not the package, carries the substantive
+judgement.
 }
 \examples{
 scores <- tibble::tibble(
@@ -56,4 +91,14 @@ scores <- tibble::tibble(
 universe <- c("15-1252.00", "29-1141.00", "11-1011.00")
 measure <- onet_measure(scores, "onet_soc_code", "score", universe = universe)
 onet_measure_coverage(measure)
+
+# Convenience path: build a targeted-share measure from a panel in one line.
+panel <- tibble::tibble(
+  onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 3),
+  task_id = c("1", "2", "3", "4", "5", "6"),
+  scale_id = "IM",
+  data_value = c(4.5, 3.0, 2.0, 1.0, 4.0, 3.0)
+)
+targeted <- onet_measure(panel, items = c("1", "5"), agg = "targeted")
+targeted$data
 }

@@ -378,3 +378,106 @@ test_that("onet_robustness_diagnostic compares scenarios to a baseline", {
   expect_equal(diagnostic$baseline_aggregate, c(0.4, 0.4, 0.4))
   expect_equal(diagnostic$movement, c(0, 0.05, -0.05), tolerance = 1e-8)
 })
+
+# ---------------------------------------------------------------------------
+# onet_measure(items =, agg =) convenience switch
+# ---------------------------------------------------------------------------
+
+# Two occupations, three items each, all on the IM scale.
+targeted_panel <- function() {
+  tibble::tibble(
+    onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 3),
+    task_id = c("1", "2", "3", "4", "5", "6"),
+    scale_id = "IM",
+    data_value = c(4.5, 3.0, 2.0, 1.0, 4.0, 3.0)
+  )
+}
+
+test_that("onet_measure builds a targeted occupation measure from a panel", {
+  measure <- onet_measure(
+    targeted_panel(),
+    items = c("1", "5"),
+    agg = "targeted"
+  )
+
+  expect_s3_class(measure, "onet_measure")
+  expect_equal(measure$metadata$key_type, "occupation")
+  expect_equal(measure$metadata$score, "targeted_share")
+
+  soft <- measure$data[measure$data$measure_key == "15-1252.00", ]
+  nurse <- measure$data[measure$data$measure_key == "29-1141.00", ]
+  # Importance-weighted share of the portfolio on targeted items.
+  expect_equal(soft$measure_score, 4.5 / 9.5)
+  expect_equal(nurse$measure_score, 4.0 / 8.0)
+  expect_equal(soft$n_targeted, 1L)
+  expect_equal(soft$n_items, 3L)
+})
+
+test_that("onet_measure items path defaults agg to targeted", {
+  explicit <- onet_measure(targeted_panel(), items = c("1", "5"), agg = "targeted")
+  implied <- onet_measure(targeted_panel(), items = c("1", "5"))
+  expect_equal(implied$data$measure_score, explicit$data$measure_score)
+})
+
+test_that("onet_measure items path filters to the requested scale", {
+  panel <- dplyr::bind_rows(
+    targeted_panel(),
+    tibble::tibble(
+      onet_soc_code = "15-1252.00",
+      task_id = "1",
+      scale_id = "RL",
+      data_value = 99
+    )
+  )
+  measure <- onet_measure(panel, items = c("1", "5"), scale = "IM")
+  soft <- measure$data[measure$data$measure_key == "15-1252.00", ]
+  # The out-of-scale RL row is ignored, so the IM share is unchanged.
+  expect_equal(soft$measure_score, 4.5 / 9.5)
+})
+
+test_that("onet_measure items path rejects an unknown aggregation", {
+  expect_error(
+    onet_measure(targeted_panel(), items = c("1", "5"), agg = "mean"),
+    "agg"
+  )
+})
+
+test_that("onet_measure items path requires a non-empty item set", {
+  expect_error(
+    onet_measure(targeted_panel(), items = character()),
+    "items"
+  )
+  expect_error(
+    onet_measure(targeted_panel(), items = c("1", NA)),
+    "items"
+  )
+})
+
+test_that("onet_measure items path guards against multi-release panels", {
+  panel <- dplyr::bind_rows(
+    dplyr::mutate(targeted_panel(), release_version = "25.1"),
+    dplyr::mutate(targeted_panel(), release_version = "26.1")
+  )
+  expect_error(
+    onet_measure(panel, items = c("1", "5")),
+    "release"
+  )
+})
+
+test_that("onet_measure items path errors when the scale has no rows", {
+  expect_error(
+    onet_measure(targeted_panel(), items = c("1", "5"), scale = "PT"),
+    "no rows"
+  )
+})
+
+test_that("onet_measure key/score path is unchanged by the new arguments", {
+  scores <- tibble::tibble(
+    onet_soc_code = c("15-1252.00", "29-1141.00"),
+    score = c(0.7, 0.2)
+  )
+  measure <- onet_measure(scores, key = "onet_soc_code", score = "score")
+  expect_equal(measure$data$measure_score, c(0.7, 0.2))
+  expect_equal(measure$metadata$score, "score")
+})
+

@@ -189,3 +189,60 @@ test_that("content_change errors on a missing required column", {
   panel$data_value <- NULL
   expect_error(onet_content_change(panel), "data_value")
 })
+
+# ---------------------------------------------------------------------------
+# seams override (additive; default reproduces M1 behavior)
+# ---------------------------------------------------------------------------
+
+test_that("content_change seams = NULL reproduces the default output exactly", {
+  expect_equal(
+    onet_content_change(content_fixture(), seams = NULL),
+    onet_content_change(content_fixture())
+  )
+})
+
+test_that("an empty seams table disables the date-based scale seam", {
+  no_date_seams <- tibble::tibble(
+    seam_type = character(),
+    seam_date = as.Date(character())
+  )
+  cc <- onet_content_change(content_fixture(), seams = no_date_seams)
+
+  # The v21.0 Task Relevance scale seam no longer masks the nurse pair.
+  nurse <- cc |>
+    dplyr::filter(.data$from_release == "20.1", .data$to_release == "21.1")
+  expect_equal(nrow(nurse), 1L)
+  expect_false(nurse$seam)
+  expect_true(nurse$safely_comparable)
+
+  # The cross-vintage SOC seam is detected from soc_vintage regardless.
+  soc <- cc |>
+    dplyr::filter(.data$from_release == "23.1", .data$to_release == "25.1")
+  expect_true(soc$seam)
+  expect_equal(soc$seam_type, "soc_seam")
+})
+
+test_that("a custom seams table relocates the scale seam", {
+  custom <- tibble::tibble(
+    seam_type = "scale_seam",
+    seam_date = as.Date("2018-01-01")
+  )
+  cc <- onet_content_change(content_fixture(), seams = custom)
+  # 22.1 (2017-10) -> 23.1 (2018-11) now straddles the relocated seam.
+  pair <- cc |>
+    dplyr::filter(.data$from_release == "22.1", .data$to_release == "23.1")
+  expect_true(pair$seam)
+  expect_equal(pair$seam_type, "scale_seam")
+})
+
+test_that("content_change rejects a malformed seams table", {
+  expect_error(
+    onet_content_change(content_fixture(), seams = tibble::tibble(x = 1)),
+    "seam_type"
+  )
+  expect_error(
+    onet_content_change(content_fixture(), seams = "not a table"),
+    "data frame"
+  )
+})
+

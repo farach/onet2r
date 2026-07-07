@@ -9,7 +9,8 @@ onet_resurvey_panel(
   scale = "IM",
   item = "task_id",
   survey_sources = c("Incumbent", "Occupational Expert"),
-  min_importance = NULL
+  min_importance = NULL,
+  seams = NULL
 )
 }
 \arguments{
@@ -33,6 +34,16 @@ Expert. Matching is case-insensitive and by substring.}
 selected \code{scale}). Rows below the floor, or with missing \code{data_value}, are
 dropped. Use it to reproduce the Importance filter that removes the
 post-v21.0 Task Relevance artifact.}
+
+\item{seams}{Optional data frame with \code{seam_type} and \code{seam_date} columns that
+overrides the default Task-Ratings seam table returned by
+\code{onet_known_seams()}. Use it for non-Task-Ratings inputs such as Work
+Activities, Work Context, or Abilities, where the v21.0 Task Relevance scale
+seam does not apply. A row is a date-based seam when its \code{seam_date} falls in
+the interval between a release and its prior release. Supply an empty table
+to disable date-based seams entirely. \code{NULL} keeps the default table, so
+Task Ratings output is unchanged. Cross-vintage SOC seams are always
+detected from \code{soc_vintage} regardless of this table.}
 }
 \value{
 A tibble with one row per occupation, item, and release. Alongside
