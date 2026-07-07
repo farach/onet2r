@@ -26,6 +26,8 @@
 <url><loc>https://farach.github.io/onet2r/reference/onet_cache_clear.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_cache_use.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_change_summary.html</loc></url>
+<url><loc>https://farach.github.io/onet2r/reference/onet_condition_on_resurvey.html</loc></url>
+<url><loc>https://farach.github.io/onet2r/reference/onet_content_change.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_coverage.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_crosswalk_bridge.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_crosswalk_military.html</loc></url>
@@ -61,6 +63,7 @@
 <url><loc>https://farach.github.io/onet2r/reference/onet_reference_soc_resolve.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_related_occupations.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_releases.html</loc></url>
+<url><loc>https://farach.github.io/onet2r/reference/onet_resurvey_panel.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_robustness_diagnostic.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_search.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_skills.html</loc></url>

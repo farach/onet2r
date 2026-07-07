@@ -477,6 +477,18 @@ onet_coverage(decomp) |>
 - [`onet_data_updates()`](https://farach.github.io/onet2r/reference/onet_data_updates.md)
   : Get the O\*NET Longitudinal Data Updates Record
 
+## Resurvey identification and content change
+
+Resurvey-cycle structure, at-risk conditioning, and seam-aware content
+movement metrics built on longitudinal panels.
+
+- [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md)
+  : Assemble a Task by Resurvey-Cycle Panel
+- [`onet_condition_on_resurvey()`](https://farach.github.io/onet2r/reference/onet_condition_on_resurvey.md)
+  : Condition an O\*NET Panel on Resurvey Events
+- [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
+  : Measure O\*NET Content Change Between Releases
+
 ## BLS OEWS and PUMS weight panels
 
 - [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)

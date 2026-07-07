@@ -2,6 +2,24 @@
 
 ## onet2r (development version)
 
+### New features
+
+- [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md)
+  restructures a Task Ratings panel into a task by resurvey-cycle frame
+  keyed on the incumbent-survey `source_date`, exposing the occupation
+  survey clock, resurvey events, cycle index, and seam flags.
+- [`onet_condition_on_resurvey()`](https://farach.github.io/onet2r/reference/onet_condition_on_resurvey.md)
+  labels each row with `selection_reason` (`resurveyed`, `unrevisited`,
+  `taxonomy_seam`, `suppressed`) and an `at_risk` flag, the resurvey
+  denominator for change estimation. The v25.1 SOC carry-forward is
+  treated as a taxonomy seam, not a resurvey.
+- [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
+  is the single, seam-aware source of content metrics between releases:
+  `n_added`, `n_dropped`, `n_retained`, `jaccard`, `churn_rate`,
+  `rating_delta_l2`, and `cosine`. Pairs crossing the v21.0 or v25.1
+  seam are flagged `safely_comparable = FALSE` so taxonomy churn is not
+  counted as content churn.
+
 ### Bug fixes
 
 - [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)

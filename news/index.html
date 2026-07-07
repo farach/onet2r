@@ -51,6 +51,15 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="onet2r-development-version">onet2r (development version)<a class="anchor" aria-label="anchor" href="#onet2r-development-version"></a></h2>
 <div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/onet_resurvey_panel.html">onet_resurvey_panel()</a></code> restructures a Task Ratings panel into a task by resurvey-cycle frame keyed on the incumbent-survey <code>source_date</code>, exposing the occupation survey clock, resurvey events, cycle index, and seam flags.</li>
+<li>
+<code><a href="../reference/onet_condition_on_resurvey.html">onet_condition_on_resurvey()</a></code> labels each row with <code>selection_reason</code> (<code>resurveyed</code>, <code>unrevisited</code>, <code>taxonomy_seam</code>, <code>suppressed</code>) and an <code>at_risk</code> flag, the resurvey denominator for change estimation. The v25.1 SOC carry-forward is treated as a taxonomy seam, not a resurvey.</li>
+<li>
+<code><a href="../reference/onet_content_change.html">onet_content_change()</a></code> is the single, seam-aware source of content metrics between releases: <code>n_added</code>, <code>n_dropped</code>, <code>n_retained</code>, <code>jaccard</code>, <code>churn_rate</code>, <code>rating_delta_l2</code>, and <code>cosine</code>. Pairs crossing the v21.0 or v25.1 seam are flagged <code>safely_comparable = FALSE</code> so taxonomy churn is not counted as content churn.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>
 <code><a href="../reference/onet_oews.html">onet_oews()</a></code> now detects, validates, and caches matching OEWS ZIP files downloaded in the user’s browser, and interactive sessions can open the official BLS URL and wait for the ZIP when BLS rejects automated downloads with HTTP 403 (reported manually).</li>
