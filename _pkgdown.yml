@@ -184,6 +184,13 @@ reference:
       - onet_measure_sensitivity
       - onet_robustness_diagnostic
       - onet_decompose_change
+  - title: External AI-exposure adapters
+    desc: >
+      Download-only adapters that ingest published occupation-level AI-exposure
+      scores and broadcast them onto a panel's task grain as onet_measure objects.
+    contents:
+      - onet_import_eloundou
+      - onet_import_felten_aioe
 
 articles:
   - title: Start here
