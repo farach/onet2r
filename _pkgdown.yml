@@ -149,6 +149,14 @@ reference:
       - onet_panel_reconcile
       - onet_change_summary
       - onet_data_updates
+  - title: Resurvey identification and content change
+    desc: >
+      Resurvey-cycle structure, at-risk conditioning, and seam-aware content
+      movement metrics built on longitudinal panels.
+    contents:
+      - onet_resurvey_panel
+      - onet_condition_on_resurvey
+      - onet_content_change
   - title: BLS OEWS and PUMS weight panels
     contents:
       - onet_oews

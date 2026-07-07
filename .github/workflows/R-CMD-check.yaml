@@ -70,10 +70,10 @@ jobs:
           # Route any accidental network call to an unreachable local port so
           # the offline verbs are proven to need no O*NET access. The proxy is
           # scoped to this step only, so dependency install above is unaffected.
+          # GitHub Actions env keys are case-insensitive, so only the lowercase
+          # names are set; libcurl and R read these on the Linux runner.
           http_proxy: http://127.0.0.1:9
           https_proxy: http://127.0.0.1:9
-          HTTP_PROXY: http://127.0.0.1:9
-          HTTPS_PROXY: http://127.0.0.1:9
           no_proxy: ''
         run: |
           Rscript -e 'devtools::load_all("."); testthat::test_dir("tests/testthat", filter = "resurvey|content-change", stop_on_failure = TRUE)'
