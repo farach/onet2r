@@ -1,5 +1,11 @@
 # onet2r (development version)
 
+## New features
+
+* `onet_resurvey_panel()` restructures a Task Ratings panel into a task by resurvey-cycle frame keyed on the incumbent-survey `source_date`, exposing the occupation survey clock, resurvey events, cycle index, and seam flags.
+* `onet_condition_on_resurvey()` labels each row with `selection_reason` (`resurveyed`, `unrevisited`, `taxonomy_seam`, `suppressed`) and an `at_risk` flag, the resurvey denominator for change estimation. The v25.1 SOC carry-forward is treated as a taxonomy seam, not a resurvey.
+* `onet_content_change()` is the single, seam-aware source of content metrics between releases: `n_added`, `n_dropped`, `n_retained`, `jaccard`, `churn_rate`, `rating_delta_l2`, and `cosine`. Pairs crossing the v21.0 or v25.1 seam are flagged `safely_comparable = FALSE` so taxonomy churn is not counted as content churn.
+
 ## Bug fixes
 
 * `onet_oews()` now detects, validates, and caches matching OEWS ZIP files downloaded in the user's browser, and interactive sessions can open the official BLS URL and wait for the ZIP when BLS rejects automated downloads with HTTP 403 (reported manually).
