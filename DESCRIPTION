@@ -37,7 +37,8 @@ Suggests:
     rmarkdown,
     scales,
     testthat (>= 3.0.0),
-    withr
+    withr,
+    writexl
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://farach.github.io/onet2r/, https://github.com/farach/onet2r

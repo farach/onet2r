@@ -10,7 +10,8 @@ onet_content_change(
   item = "task_id",
   min_importance = NULL,
   from = NULL,
-  to = NULL
+  to = NULL,
+  seams = NULL
 )
 }
 \arguments{
@@ -34,6 +35,15 @@ filter that removes the post-v21.0 Task Relevance artifact.}
 \item{from, to}{Optional release versions selecting a single comparison. When
 both are supplied only that pair is returned; otherwise every adjacent
 release pair is compared in release-date order.}
+
+\item{seams}{Optional data frame with \code{seam_type} and \code{seam_date} columns that
+overrides the default Task-Ratings seam table returned by
+\code{onet_known_seams()}. Use it for non-Task-Ratings inputs such as Work
+Activities, Work Context, or Abilities, where the v21.0 Task Relevance scale
+seam does not apply. Supply an empty table to disable date-based seams
+entirely. \code{NULL} keeps the default table, so Task Ratings output is
+unchanged. Cross-vintage SOC seams are always detected from \code{soc_vintage}
+regardless of this table.}
 }
 \value{
 A tibble with one row per occupation and release pair:

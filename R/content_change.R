@@ -29,8 +29,8 @@ empty_content_change <- function() {
 }
 
 # Seam type for one from -> to release pair, or NA when the pair is seam-free.
-pair_seam <- function(from_date, to_date, from_vintage, to_vintage) {
-  seams <- onet_known_seams()
+pair_seam <- function(from_date, to_date, from_vintage, to_vintage,
+                      seams = onet_known_seams()) {
   crossed <- seams$seam_type[seams$seam_date > from_date & seams$seam_date <= to_date]
   if (length(crossed) > 0) {
     return(crossed[[1]])
@@ -42,7 +42,8 @@ pair_seam <- function(from_date, to_date, from_vintage, to_vintage) {
   NA_character_
 }
 
-content_change_pair <- function(tasks, item, from_meta, to_meta) {
+content_change_pair <- function(tasks, item, from_meta, to_meta,
+                                seams = onet_known_seams()) {
   a <- tasks |>
     dplyr::filter(.data$release_version == from_meta$release_version) |>
     dplyr::select("onet_soc_code", dplyr::all_of(item), from_value = "data_value")
@@ -100,7 +101,8 @@ content_change_pair <- function(tasks, item, from_meta, to_meta) {
 
   seam_type <- pair_seam(
     from_meta$release_date, to_meta$release_date,
-    from_meta$soc_vintage, to_meta$soc_vintage
+    from_meta$soc_vintage, to_meta$soc_vintage,
+    seams = seams
   )
 
   tibble::tibble(
@@ -153,6 +155,14 @@ content_change_pair <- function(tasks, item, from_meta, to_meta) {
 #' @param from,to Optional release versions selecting a single comparison. When
 #'   both are supplied only that pair is returned; otherwise every adjacent
 #'   release pair is compared in release-date order.
+#' @param seams Optional data frame with `seam_type` and `seam_date` columns that
+#'   overrides the default Task-Ratings seam table returned by
+#'   `onet_known_seams()`. Use it for non-Task-Ratings inputs such as Work
+#'   Activities, Work Context, or Abilities, where the v21.0 Task Relevance scale
+#'   seam does not apply. Supply an empty table to disable date-based seams
+#'   entirely. `NULL` keeps the default table, so Task Ratings output is
+#'   unchanged. Cross-vintage SOC seams are always detected from `soc_vintage`
+#'   regardless of this table.
 #'
 #' @return A tibble with one row per occupation and release pair:
 #'   `n_from`, `n_to`, `n_added`, `n_dropped`, `n_retained`; `jaccard`
@@ -190,8 +200,10 @@ onet_content_change <- function(
     item = "task_id",
     min_importance = NULL,
     from = NULL,
-    to = NULL) {
+    to = NULL,
+    seams = NULL) {
   validate_single_string(item, "item")
+  seam_table <- resolve_seams(seams)
   if (!is.null(scale)) {
     validate_single_string(scale, "scale")
   }
@@ -259,7 +271,8 @@ onet_content_change <- function(
       tasks = tasks,
       item = item,
       from_meta = rel_meta[rel_meta$release_version == pairs$from[[i]], ][1, ],
-      to_meta = rel_meta[rel_meta$release_version == pairs$to[[i]], ][1, ]
+      to_meta = rel_meta[rel_meta$release_version == pairs$to[[i]], ][1, ],
+      seams = seam_table
     )
   }) |>
     purrr::list_rbind()

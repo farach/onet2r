@@ -8,10 +8,32 @@
 #' coverage against an optional universe. The package does not supply or alter
 #' the substantive score.
 #'
-#' @param data A data frame containing the user-supplied measure.
-#' @param key Name of the key column.
-#' @param score Name of the numeric score column.
-#' @param key_type Measure grain: occupation, task, or DWA.
+#' Two construction paths are available. The default path validates a table of
+#' `key` and `score` columns you already built. The convenience path, selected by
+#' passing `items` or `agg`, builds a task-grain measure in one line from a Task
+#' Ratings style panel: it restricts the panel to the caller's target `items`
+#' (when `agg = "targeted"`) or keeps every item (when `agg = "aggregate"`),
+#' selects one rating row per task on `scale` (default Importance, `"IM"`), and
+#' keys the result on `item` (default `"task_id"`). The result is exactly the
+#' measure the default path returns on that same subset, so it is a thin
+#' convenience wrapper, not a new estimator. Roll it up to occupations with
+#' [onet_task_to_occupation()] and [onet_measure_aggregate()]. The target items,
+#' not the package, carry the substantive judgement.
+#'
+#' A single `items` vector expresses one target set, so the switch builds a
+#' targeted composite such as a routine-task composite. A difference index like
+#' routine-task intensity, which subtracts abstract and manual composites from a
+#' routine composite, is composed separately from two or more such measures.
+#'
+#' @param data A data frame. For the default path, the user-supplied measure
+#'   table. For the `items`/`agg` path, a Task Ratings style panel with the
+#'   `item` column, `data_value`, and (when `scale` is not `NULL`) `scale_id`.
+#' @param key Name of the key column for the default path. Ignored on the
+#'   `items`/`agg` path, where the measure is keyed on `item`.
+#' @param score Name of the numeric score column for the default path. Ignored
+#'   on the `items`/`agg` path, where the score is the `data_value` on `scale`.
+#' @param key_type Measure grain: occupation, task, or DWA. Forced to
+#'   `"task"` on the `items`/`agg` path.
 #' @param universe Optional vector or data frame of valid keys.
 #' @param measure_id Short identifier for the measure.
 #' @param measure_name Human-readable measure name.
@@ -19,9 +41,21 @@
 #' @param release_version Optional O&#42;NET release used to create the measure.
 #' @param weight_panel Optional weight panel used to report employment coverage
 #'   for occupation-level measures.
+#' @param items Optional character vector of target task ids. Supplying it (or
+#'   `agg`) selects the convenience path. Required when `agg = "targeted"`.
+#' @param agg Aggregation mode for the convenience path. `"targeted"` restricts
+#'   the panel to `items`; `"aggregate"` keeps every item. Defaults to
+#'   `"targeted"` when `items` is supplied.
+#' @param item Column identifying the content item on the `items`/`agg` path and
+#'   used as the measure key. Defaults to `"task_id"`.
+#' @param scale Scale id used to select one rating row per task on the
+#'   `items`/`agg` path, for example `"IM"` for Importance. Use `NULL` to keep
+#'   every row of `data`, which requires `item` to be unique on its own.
 #'
 #' @return An `onet_measure` object with `data`, `coverage`, `unmatched`, and
-#'   `metadata` fields.
+#'   `metadata` fields. The `items`/`agg` path returns a task-grain measure
+#'   (`key_type = "task"`) keyed on `item` and scored on the `scale` rating,
+#'   ready for [onet_task_to_occupation()].
 #' @export
 #'
 #' @examples
@@ -32,19 +66,49 @@
 #' universe <- c("15-1252.00", "29-1141.00", "11-1011.00")
 #' measure <- onet_measure(scores, "onet_soc_code", "score", universe = universe)
 #' onet_measure_coverage(measure)
+#'
+#' # Convenience path: build a task-grain targeted measure from a panel in one
+#' # line, ready to roll up with onet_task_to_occupation().
+#' panel <- tibble::tibble(
+#'   onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 3),
+#'   task_id = c("1", "2", "3", "4", "5", "6"),
+#'   scale_id = "IM",
+#'   data_value = c(4.5, 3.0, 2.0, 1.0, 4.0, 3.0)
+#' )
+#' targeted <- onet_measure(panel, items = c("1", "5"), agg = "targeted")
+#' targeted$data
 onet_measure <- function(
     data,
-    key,
-    score,
+    key = NULL,
+    score = NULL,
     key_type = c("occupation", "task", "dwa"),
     universe = NULL,
     measure_id = "user_measure",
     measure_name = measure_id,
     source = NA_character_,
     release_version = NA_character_,
-    weight_panel = NULL) {
+    weight_panel = NULL,
+    items = NULL,
+    agg = NULL,
+    item = "task_id",
+    scale = "IM") {
   if (!is.data.frame(data)) {
     cli::cli_abort("{.arg data} must be a data frame.")
+  }
+  if (!is.null(items) || !is.null(agg)) {
+    return(onet_measure_from_panel(
+      panel = data,
+      items = items,
+      agg = agg,
+      item = item,
+      scale = scale,
+      universe = universe,
+      measure_id = measure_id,
+      measure_name = measure_name,
+      source = source,
+      release_version = release_version,
+      weight_panel = weight_panel
+    ))
   }
   key_type <- match.arg(key_type)
   validate_single_column(data, key, "key")
@@ -104,6 +168,88 @@ onet_measure <- function(
     class = "onet_measure"
   )
 }
+
+# Convenience path for onet_measure(): build a TASK-grain measure from a Task
+# Ratings style panel. `agg = "targeted"` restricts the panel to the caller's
+# `items`; `agg = "aggregate"` keeps every item. Either way the panel is reduced
+# to one rating row per task on `scale` and keyed on `item`, so the result is
+# identical to calling onet_measure() on that same subset through the default
+# key/score path. The target set carries the substantive judgement; this wrapper
+# only filters and relabels.
+onet_measure_from_panel <- function(
+    panel,
+    items,
+    agg,
+    item,
+    scale,
+    universe,
+    measure_id,
+    measure_name,
+    source,
+    release_version,
+    weight_panel) {
+  agg <- agg %||% "targeted"
+  agg <- rlang::arg_match0(agg, c("targeted", "aggregate"), arg_nm = "agg")
+  validate_single_string(item, "item")
+  if (!is.null(scale)) {
+    validate_single_string(scale, "scale")
+  }
+  validate_columns_present(panel, c(item, "data_value"), "data")
+
+  data <- tibble::as_tibble(panel)
+  if (!is.null(scale)) {
+    validate_columns_present(data, "scale_id", "data")
+    data <- data[as.character(data$scale_id) == scale, , drop = FALSE]
+  }
+  if (nrow(data) == 0) {
+    cli::cli_abort(
+      "No rows remain after filtering {.arg data} to the selected scale."
+    )
+  }
+
+  if (identical(agg, "targeted")) {
+    if (is.null(items) || !is.atomic(items) || length(items) == 0 || anyNA(items)) {
+      cli::cli_abort(
+        "{.arg items} must be a non-empty vector of task ids when {.code agg = \"targeted\"}."
+      )
+    }
+    items_chr <- as.character(items)
+    missing_items <- setdiff(items_chr, unique(as.character(data[[item]])))
+    if (length(missing_items) > 0) {
+      cli::cli_warn(
+        "{length(missing_items)} requested item{?s} not found in {.arg data}: {.val {missing_items}}."
+      )
+    }
+    data <- data[as.character(data[[item]]) %in% items_chr, , drop = FALSE]
+  } else if (!is.null(items)) {
+    cli::cli_abort(
+      c(
+        "{.code agg = \"aggregate\"} keeps every item and does not take {.arg items}.",
+        "i" = "Use {.code agg = \"targeted\"} to restrict to specific items."
+      )
+    )
+  }
+
+  if (nrow(data) == 0) {
+    cli::cli_abort(
+      "No rows remain after filtering {.arg data} to the selected items."
+    )
+  }
+
+  onet_measure(
+    data,
+    key = item,
+    score = "data_value",
+    key_type = "task",
+    universe = universe,
+    measure_id = measure_id,
+    measure_name = measure_name,
+    source = source,
+    release_version = release_version,
+    weight_panel = weight_panel
+  )
+}
+
 
 #' Return Measure Coverage
 #'

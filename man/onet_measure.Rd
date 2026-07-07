@@ -6,25 +6,34 @@
 \usage{
 onet_measure(
   data,
-  key,
-  score,
+  key = NULL,
+  score = NULL,
   key_type = c("occupation", "task", "dwa"),
   universe = NULL,
   measure_id = "user_measure",
   measure_name = measure_id,
   source = NA_character_,
   release_version = NA_character_,
-  weight_panel = NULL
+  weight_panel = NULL,
+  items = NULL,
+  agg = NULL,
+  item = "task_id",
+  scale = "IM"
 )
 }
 \arguments{
-\item{data}{A data frame containing the user-supplied measure.}
+\item{data}{A data frame. For the default path, the user-supplied measure
+table. For the \code{items}/\code{agg} path, a Task Ratings style panel with the
+\code{item} column, \code{data_value}, and (when \code{scale} is not \code{NULL}) \code{scale_id}.}
 
-\item{key}{Name of the key column.}
+\item{key}{Name of the key column for the default path. Ignored on the
+\code{items}/\code{agg} path, where the measure is keyed on \code{item}.}
 
-\item{score}{Name of the numeric score column.}
+\item{score}{Name of the numeric score column for the default path. Ignored
+on the \code{items}/\code{agg} path, where the score is the \code{data_value} on \code{scale}.}
 
-\item{key_type}{Measure grain: occupation, task, or DWA.}
+\item{key_type}{Measure grain: occupation, task, or DWA. Forced to
+\code{"task"} on the \code{items}/\code{agg} path.}
 
 \item{universe}{Optional vector or data frame of valid keys.}
 
@@ -38,15 +47,49 @@ onet_measure(
 
 \item{weight_panel}{Optional weight panel used to report employment coverage
 for occupation-level measures.}
+
+\item{items}{Optional character vector of target task ids. Supplying it (or
+\code{agg}) selects the convenience path. Required when \code{agg = "targeted"}.}
+
+\item{agg}{Aggregation mode for the convenience path. \code{"targeted"} restricts
+the panel to \code{items}; \code{"aggregate"} keeps every item. Defaults to
+\code{"targeted"} when \code{items} is supplied.}
+
+\item{item}{Column identifying the content item on the \code{items}/\code{agg} path and
+used as the measure key. Defaults to \code{"task_id"}.}
+
+\item{scale}{Scale id used to select one rating row per task on the
+\code{items}/\code{agg} path, for example \code{"IM"} for Importance. Use \code{NULL} to keep
+every row of \code{data}, which requires \code{item} to be unique on its own.}
 }
 \value{
 An \code{onet_measure} object with \code{data}, \code{coverage}, \code{unmatched}, and
-\code{metadata} fields.
+\code{metadata} fields. The \code{items}/\code{agg} path returns a task-grain measure
+(\code{key_type = "task"}) keyed on \code{item} and scored on the \code{scale} rating,
+ready for \code{\link[=onet_task_to_occupation]{onet_task_to_occupation()}}.
 }
 \description{
 Validates a user-supplied occupation, task, or DWA score table and records
 coverage against an optional universe. The package does not supply or alter
 the substantive score.
+}
+\details{
+Two construction paths are available. The default path validates a table of
+\code{key} and \code{score} columns you already built. The convenience path, selected by
+passing \code{items} or \code{agg}, builds a task-grain measure in one line from a Task
+Ratings style panel: it restricts the panel to the caller's target \code{items}
+(when \code{agg = "targeted"}) or keeps every item (when \code{agg = "aggregate"}),
+selects one rating row per task on \code{scale} (default Importance, \code{"IM"}), and
+keys the result on \code{item} (default \code{"task_id"}). The result is exactly the
+measure the default path returns on that same subset, so it is a thin
+convenience wrapper, not a new estimator. Roll it up to occupations with
+\code{\link[=onet_task_to_occupation]{onet_task_to_occupation()}} and \code{\link[=onet_measure_aggregate]{onet_measure_aggregate()}}. The target items,
+not the package, carry the substantive judgement.
+
+A single \code{items} vector expresses one target set, so the switch builds a
+targeted composite such as a routine-task composite. A difference index like
+routine-task intensity, which subtracts abstract and manual composites from a
+routine composite, is composed separately from two or more such measures.
 }
 \examples{
 scores <- tibble::tibble(
@@ -56,4 +99,15 @@ scores <- tibble::tibble(
 universe <- c("15-1252.00", "29-1141.00", "11-1011.00")
 measure <- onet_measure(scores, "onet_soc_code", "score", universe = universe)
 onet_measure_coverage(measure)
+
+# Convenience path: build a task-grain targeted measure from a panel in one
+# line, ready to roll up with onet_task_to_occupation().
+panel <- tibble::tibble(
+  onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 3),
+  task_id = c("1", "2", "3", "4", "5", "6"),
+  scale_id = "IM",
+  data_value = c(4.5, 3.0, 2.0, 1.0, 4.0, 3.0)
+)
+targeted <- onet_measure(panel, items = c("1", "5"), agg = "targeted")
+targeted$data
 }
