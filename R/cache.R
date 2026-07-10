@@ -737,6 +737,109 @@ onet_url_parameter_is_sensitive <- function(name) {
       gsub("_", "", sensitive_names, fixed = TRUE)
 }
 
+onet_url_path_segment_is_sensitive <- function(segment) {
+  decoded <- tryCatch(
+    utils::URLdecode(segment),
+    error = function(cnd) segment
+  )
+  if (grepl("[/\\\\]", decoded)) {
+    return(TRUE)
+  }
+  stem <- tools::file_path_sans_ext(basename(decoded))
+  parts <- strsplit(stem, "[^[:alnum:]]+", perl = TRUE)[[1]]
+  candidates <- unique(c(stem, parts[nzchar(parts)]))
+  any(vapply(
+    candidates,
+    onet_url_parameter_is_sensitive,
+    logical(1)
+  ))
+}
+
+onet_redact_url_path_credentials <- function(url) {
+  authority <- regexpr(
+    "^[[:alpha:]][[:alnum:]+.-]*://",
+    url,
+    perl = TRUE
+  )
+  network_path <- startsWith(url, "//")
+  path_start <- if (authority[[1]] == 1L || network_path) {
+    start <- if (network_path) {
+      3L
+    } else {
+      attr(authority, "match.length") + 1L
+    }
+    remainder <- substr(url, start, nchar(url))
+    delimiter <- regexpr("[/?#]", remainder, perl = TRUE)[[1]]
+    if (
+      delimiter < 0L ||
+        !identical(substr(remainder, delimiter, delimiter), "/")
+    ) {
+      return(url)
+    }
+    start + delimiter - 1L
+  } else {
+    scheme <- regexpr(
+      "^[[:alpha:]][[:alnum:]+.-]*:",
+      url,
+      perl = TRUE
+    )
+    if (scheme[[1]] == 1L) {
+      attr(scheme, "match.length") + 1L
+    } else {
+      1L
+    }
+  }
+  suffix_start <- regexpr(
+    "[?#]",
+    substr(url, path_start, nchar(url)),
+    perl = TRUE
+  )[[1]]
+  path_end <- if (suffix_start < 0L) {
+    nchar(url)
+  } else {
+    path_start + suffix_start - 2L
+  }
+  path <- substr(url, path_start, path_end)
+  if (!nzchar(path) || identical(path, "/")) {
+    return(url)
+  }
+  leading <- startsWith(path, "/")
+  trailing <- endsWith(path, "/")
+  inner <- path
+  if (leading) {
+    inner <- substr(inner, 2L, nchar(inner))
+  }
+  if (trailing && nzchar(inner)) {
+    inner <- substr(inner, 1L, nchar(inner) - 1L)
+  }
+  segments <- if (nzchar(inner)) {
+    strsplit(inner, "/", fixed = TRUE)[[1]]
+  } else {
+    character()
+  }
+  sensitive <- vapply(
+    segments,
+    onet_url_path_segment_is_sensitive,
+    logical(1)
+  )
+  segments[sensitive] <- "[REDACTED]"
+  redacted_path <- paste0(
+    if (leading) "/" else "",
+    paste(segments, collapse = "/"),
+    if (trailing) "/" else ""
+  )
+  suffix <- if (suffix_start < 0L) {
+    ""
+  } else {
+    substr(url, path_end + 1L, nchar(url))
+  }
+  paste0(
+    substr(url, 1L, path_start - 1L),
+    redacted_path,
+    suffix
+  )
+}
+
 onet_redact_url_parameters <- function(parameters) {
   if (!nzchar(parameters)) {
     return(parameters)
@@ -745,12 +848,12 @@ onet_redact_url_parameters <- function(parameters) {
   vapply(parts, function(part) {
     equals <- regexpr("=", part, fixed = TRUE)[[1]]
     if (equals < 0) {
-      if (onet_url_parameter_is_sensitive(part)) {
-        return("[REDACTED]")
-      }
-      return(part)
+      return("[REDACTED]")
     }
     name <- substr(part, 1, equals - 1L)
+    if (!nzchar(name)) {
+      return("[REDACTED]")
+    }
     if (!onet_url_parameter_is_sensitive(name)) {
       return(part)
     }
@@ -815,9 +918,39 @@ onet_redact_url_credentials <- function(url) {
   if (is.null(url) || length(url) != 1 || is.na(url)) {
     return(url)
   }
+  scheme <- regexpr(
+    "^[[:alpha:]][[:alnum:]+.-]*:",
+    url,
+    perl = TRUE
+  )
+  if (scheme[[1]] == 1L) {
+    scheme_end <- attr(scheme, "match.length")
+    scheme_value <- substr(url, scheme_end + 1L, nchar(url))
+    if (!startsWith(scheme_value, "/")) {
+      return(paste0(substr(url, 1L, scheme_end), "[REDACTED]"))
+    }
+  }
   url <- onet_redact_url_authority(url)
+  url <- onet_redact_url_path_credentials(url)
   literal_at <- "ONET2RLITERALAT9C3E"
   url <- gsub("@", literal_at, url, fixed = TRUE)
+  query_source <- sub("#.*$", "", url)
+  raw_query <- if (grepl("?", query_source, fixed = TRUE)) {
+    sub("^[^?]*\\?", "", query_source)
+  } else {
+    NULL
+  }
+  query_parts <- if (is.null(raw_query)) {
+    character()
+  } else {
+    strsplit(raw_query, "&", fixed = TRUE)[[1]]
+  }
+  query_equals <- vapply(
+    query_parts,
+    \(part) regexpr("=", part, fixed = TRUE)[[1]],
+    integer(1)
+  )
+  query_has_bare <- any(query_equals <= 1L)
   parsed <- tryCatch(httr2::url_parse(url), error = function(cnd) NULL)
   if (is.null(parsed)) {
     fragment <- if (grepl("#", url, fixed = TRUE)) {
@@ -843,7 +976,9 @@ onet_redact_url_credentials <- function(url) {
   }
   parsed$username <- NULL
   parsed$password <- NULL
-  if (length(parsed$query) > 0) {
+  if (query_has_bare) {
+    parsed$query <- NULL
+  } else if (length(parsed$query) > 0) {
     credential_query <- vapply(
       names(parsed$query),
       onet_url_parameter_is_sensitive,
@@ -862,6 +997,9 @@ onet_redact_url_credentials <- function(url) {
     httr2::url_build(parsed),
     fixed = TRUE
   )
+  if (query_has_bare) {
+    redacted <- paste0(redacted, "?[REDACTED]")
+  }
   if (!is.null(fragment)) {
     redacted <- paste0(redacted, "#", fragment)
   }

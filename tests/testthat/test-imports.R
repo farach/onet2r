@@ -397,6 +397,344 @@ test_that("import adapters reject local digest mismatches before parsing", {
   expect_identical(file.exists(snapshot_paths), rep(FALSE, 2L))
 })
 
+test_that("import cache names use only safe explicit path filenames", {
+  cases <- c(
+    "https://host.invalid/data.csv" = "data.csv",
+    "//alice:secret@host.invalid/data.csv?token=query-secret" = "data.csv",
+    "https://host.invalid/data%20file.csv" = "data file.csv",
+    "file:///C:/fixtures/source.csv" = "source.csv"
+  )
+  names <- vapply(
+    names(cases),
+    onet2r:::onet_import_cache_name,
+    character(1)
+  )
+  expect_identical(unname(names), unname(cases))
+
+  opaque_urls <- c(
+    "https://alice:root-secret@host.invalid",
+    "https://alice:slash-secret@host.invalid/",
+    "https://host.invalid?token=query-secret",
+    "//alice:network-secret@host.invalid#fragment-secret",
+    "https://host.invalid/a%2Fb.csv",
+    "https://host.invalid/CON",
+    "https://host.invalid/CON%20.txt",
+    "https://host.invalid/AUX.txt",
+    "https://host.invalid/CONIN$.txt",
+    "https://host.invalid/CONOUT$.txt",
+    "https://host.invalid/COM%C2%B9.txt",
+    "https://host.invalid/trailing.",
+    "https://host.invalid/bad%3Fname.csv",
+    "https://host.invalid/access-token-secret.csv",
+    "https:plain-secret",
+    "https:alice@example.com"
+  )
+  opaque <- vapply(
+    opaque_urls,
+    onet2r:::onet_import_cache_name,
+    character(1)
+  )
+  expect_match(
+    opaque,
+    "^source-[[:xdigit:]]{64}\\.bin$"
+  )
+  expect_identical(
+    unname(opaque),
+    paste0(
+      "source-",
+      vapply(
+        opaque_urls,
+        onet2r:::onet_source_url_sha256,
+        character(1)
+      ),
+      ".bin"
+    )
+  )
+  expect_no_match(
+    paste(opaque, collapse = "\n"),
+    paste(
+      "root-secret|slash-secret|query-secret",
+      "network-secret|fragment-secret|plain-secret|alice@example.com",
+      "access-token-secret",
+      sep = "|"
+    )
+  )
+
+  same_basename <- c(
+    "https://one.example.invalid/occ_level.csv?token=first-secret",
+    "//alice:second-secret@two.example.invalid/occ_level.csv#fragment"
+  )
+  expect_identical(
+    unname(vapply(
+      same_basename,
+      onet2r:::onet_import_cache_name,
+      character(1)
+    )),
+    rep("occ_level.csv", 2L)
+  )
+
+  distinct_root <- c(
+    "https://alice:first-secret@host.invalid?token=first-token",
+    "https://alice:second-secret@host.invalid?token=second-token"
+  )
+  root_names <- unname(vapply(
+    distinct_root,
+    onet2r:::onet_import_cache_name,
+    character(1)
+  ))
+  expect_length(unique(root_names), 2L)
+  expect_length(unique(vapply(
+    distinct_root,
+    onet2r:::onet_source_url_sha256,
+    character(1)
+  )), 2L)
+})
+
+test_that("credentialed root URLs stay secret on every cache surface", {
+  cache_dir <- withr::local_tempdir()
+  urls <- c(
+    scheme = paste0(
+      "bad://alice:scheme-secret@host.invalid",
+      "?token=scheme-token#access_token=scheme-fragment"
+    ),
+    network = paste0(
+      "//alice:network-secret@host.invalid/",
+      "?token=network-token#access_token=network-fragment"
+    ),
+    bare_query = paste0(
+      "bad://alice:bare-authority-secret@host.invalid",
+      "?bare-query-secret"
+    ),
+    bare_fragment = paste0(
+      "//alice:bare-network-secret@host.invalid",
+      "#bare-fragment-secret"
+    ),
+    unnamed_query = paste0(
+      "bad://alice:unnamed-query-authority@host.invalid",
+      "?=unnamed-query-secret"
+    ),
+    unnamed_fragment = paste0(
+      "//alice:unnamed-fragment-authority@host.invalid",
+      "#=unnamed-fragment-secret"
+    ),
+    rootless = paste0(
+      "https:rootless-secret",
+      "?token=rootless-token#access_token=rootless-fragment"
+    ),
+    path_secret = paste0(
+      "bad://host.invalid/private-token/access-token-secret.csv",
+      "?variant=public"
+    ),
+    encoded_path_secret = paste0(
+      "bad://host.invalid/private-token%2Fpublic.csv",
+      "?variant=public"
+    )
+  )
+  secrets <- paste(
+    "alice|scheme-secret|scheme-token|scheme-fragment",
+    "network-secret|network-token|network-fragment",
+    "bare-authority-secret|bare-query-secret",
+    "bare-network-secret|bare-fragment-secret",
+    "unnamed-query-authority|unnamed-query-secret",
+    "unnamed-fragment-authority|unnamed-fragment-secret",
+    "rootless-secret|rootless-token|rootless-fragment",
+    "private-token|access-token-secret",
+    "private-token%2Fpublic|private-token/public",
+    sep = "|"
+  )
+  surfaces <- character()
+
+  for (name in names(urls)) {
+    url <- urls[[name]]
+    dest <- file.path(
+      cache_dir,
+      "reference",
+      onet2r:::onet_import_cache_name(url)
+    )
+    source <- file.path(cache_dir, paste0(name, "-source.csv"))
+    writeLines("source", source)
+    receipt <- onet2r:::onet_source_receipt(
+      source,
+      source_url = url
+    )
+    onet2r:::onet_atomic_commit_source(source, dest, receipt)
+    stored <- readRDS(onet2r:::onet_receipt_path(dest))
+
+    warning_condition <- NULL
+    withCallingHandlers(
+      onet2r:::onet_warn_download_completed(url, "fixture"),
+      warning = function(cnd) {
+        warning_condition <<- cnd
+        invokeRestart("muffleWarning")
+      }
+    )
+    expect_s3_class(warning_condition, "onet2r_download_warning")
+
+    lock <- paste0(dest, ".lock")
+    dir.create(lock, recursive = TRUE)
+    lock_condition <- tryCatch(
+      onet2r:::onet_acquire_cache_lock(lock, timeout = 0),
+      error = identity
+    )
+    expect_s3_class(lock_condition, "onet2r_cache_lock_timeout")
+
+    error_condition <- testthat::with_mocked_bindings(
+      tryCatch(
+        onet2r:::download_import_file(
+          url,
+          cache_dir = file.path(cache_dir, paste0(name, "-error")),
+          force = TRUE
+        ),
+        error = identity
+      ),
+      onet_download_import_source = function(...) {
+        stop("injected download failure")
+      },
+      .package = "onet2r"
+    )
+    expect_s3_class(error_condition, "onet2r_download_error")
+
+    surfaces <- c(
+      surfaces,
+      dest,
+      lock,
+      stored$source_url,
+      paste(capture.output(str(stored)), collapse = "\n"),
+      conditionMessage(warning_condition),
+      conditionMessage(lock_condition),
+      conditionMessage(error_condition)
+    )
+  }
+  expect_no_match(paste(surfaces, collapse = "\n"), secrets)
+})
+
+test_that("network-path download warnings keep opaque cache identity", {
+  cache_dir <- withr::local_tempdir()
+  url <- paste0(
+    "//alice:warning-secret@host.invalid",
+    "?token=warning-token#access_token=warning-fragment"
+  )
+  warning_condition <- NULL
+
+  snapshot <- testthat::with_mocked_bindings(
+    withCallingHandlers(
+      onet2r:::download_import_file(
+        url,
+        cache_dir = cache_dir,
+        force = TRUE
+      ),
+      warning = function(cnd) {
+        warning_condition <<- cnd
+        invokeRestart("muffleWarning")
+      }
+    ),
+    onet_download_import_source = function(url, destfile) {
+      writeLines("fixture", destfile)
+      warning("injected transport warning")
+      0L
+    },
+    .package = "onet2r"
+  )
+  on.exit(unlink(snapshot, force = TRUE), add = TRUE)
+  receipt <- attr(snapshot, "source_receipt", exact = TRUE)
+  cache_path <- attr(snapshot, "cache_path", exact = TRUE)
+  stored <- readRDS(onet2r:::onet_receipt_path(cache_path))
+
+  expect_s3_class(warning_condition, "onet2r_download_warning")
+  expect_identical(
+    basename(cache_path),
+    onet2r:::onet_import_cache_name(url)
+  )
+  expect_identical(stored$source_url, receipt$source_url)
+  expect_no_match(
+    paste(
+      cache_path,
+      receipt$source_url,
+      paste(capture.output(str(stored)), collapse = "\n"),
+      conditionMessage(warning_condition),
+      sep = "\n"
+    ),
+    "alice|warning-secret|warning-token|warning-fragment"
+  )
+})
+
+test_that("opaque cache names preserve workbook and tabular parsing", {
+  skip_if_not_installed("readxl")
+  skip_if_not_installed("writexl")
+
+  fixture_dir <- withr::local_tempdir()
+  workbook <- file.path(fixture_dir, "fixture.xlsx")
+  writexl::write_xlsx(
+    list(`Appendix A` = data.frame(
+      `SOC Code` = c("15-1252", "29-1141"),
+      AIOE = c(1.08, -0.32),
+      check.names = FALSE
+    )),
+    workbook
+  )
+  workbook_url <- paste0(
+    "//alice:workbook-secret@host.invalid",
+    "?token=workbook-token"
+  )
+  workbook_snapshot <- testthat::with_mocked_bindings(
+    onet2r:::download_import_file(
+      workbook_url,
+      cache_dir = file.path(fixture_dir, "workbook-cache"),
+      force = TRUE
+    ),
+    onet_download_import_source = function(url, destfile) {
+      file.copy(workbook, destfile)
+      0L
+    },
+    .package = "onet2r"
+  )
+  on.exit(unlink(workbook_snapshot, force = TRUE), add = TRUE)
+  workbook_data <- onet2r:::read_import_table(
+    workbook_snapshot,
+    sheet = "Appendix A"
+  )
+  expect_identical(
+    basename(attr(workbook_snapshot, "cache_path", exact = TRUE)),
+    onet2r:::onet_import_cache_name(workbook_url)
+  )
+  expect_named(workbook_data, c("SOC Code", "AIOE"))
+  expect_equal(workbook_data$AIOE, c(1.08, -0.32))
+
+  tabular <- file.path(fixture_dir, "fixture.tsv")
+  writeLines(
+    c(
+      "\"SOC, code\"\tAIOE",
+      "15-1252\t1",
+      "29-1141\t2"
+    ),
+    tabular
+  )
+  tabular_url <- paste0(
+    "https://alice:tabular-secret@host.invalid",
+    "?token=tabular-token"
+  )
+  tabular_snapshot <- testthat::with_mocked_bindings(
+    onet2r:::download_import_file(
+      tabular_url,
+      cache_dir = file.path(fixture_dir, "tabular-cache"),
+      force = TRUE
+    ),
+    onet_download_import_source = function(url, destfile) {
+      file.copy(tabular, destfile)
+      0L
+    },
+    .package = "onet2r"
+  )
+  on.exit(unlink(tabular_snapshot, force = TRUE), add = TRUE)
+  tabular_data <- onet2r:::read_import_table(tabular_snapshot)
+  expect_identical(
+    basename(attr(tabular_snapshot, "cache_path", exact = TRUE)),
+    onet2r:::onet_import_cache_name(tabular_url)
+  )
+  expect_named(tabular_data, c("SOC, code", "AIOE"))
+  expect_equal(tabular_data$AIOE, c("1", "2"))
+})
+
 test_that("local adapters parse the exact bytes recorded by their receipt", {
   extract <- file.path(withr::local_tempdir(), "source.csv")
   write_eloundou_extract(extract)
@@ -714,7 +1052,14 @@ test_that("adapter cache distinguishes credential-scoped URLs with one basename"
   dir.create(reference_dir)
   url_one <- "https://example.invalid/occ_level.csv?token=first-secret"
   url_two <- "https://example.invalid/occ_level.csv?token=second-secret"
-  dest <- file.path(reference_dir, "occ_level.csv")
+  expect_identical(
+    onet2r:::onet_import_cache_name(url_one),
+    onet2r:::onet_import_cache_name(url_two)
+  )
+  dest <- file.path(
+    reference_dir,
+    onet2r:::onet_import_cache_name(url_one)
+  )
   file.copy(extract, dest)
   receipt <- onet2r:::onet_source_receipt(dest, source_url = url_one)
   saveRDS(receipt, paste0(dest, ".receipt.rds"))

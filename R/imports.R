@@ -463,16 +463,70 @@ read_import_measure_file <- function(
   out
 }
 
+onet_import_excel_file <- function(file) {
+  header <- readBin(file, "raw", n = 8L)
+  ole_header <- as.raw(c(
+    0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1
+  ))
+  if (length(header) >= 8L && identical(header[seq_len(8L)], ole_header)) {
+    return(TRUE)
+  }
+  zip_header <- as.raw(c(0x50, 0x4b, 0x03, 0x04))
+  if (
+    length(header) < 4L ||
+      !identical(header[seq_len(4L)], zip_header)
+  ) {
+    return(FALSE)
+  }
+  members <- tryCatch(
+    suppressWarnings(utils::unzip(file, list = TRUE)$Name),
+    error = function(cnd) character()
+  )
+  any(tolower(members) == "xl/workbook.xml")
+}
+
+onet_import_delimiter <- function(file, extension) {
+  if (extension %in% c("tsv", "tab", "txt")) {
+    return("\t")
+  }
+  if (!extension %in% c("", "bin")) {
+    return(",")
+  }
+  first <- readLines(file, n = 1L, warn = FALSE)
+  if (length(first) == 0L) {
+    return(",")
+  }
+  column_count <- function(separator) {
+    parsed <- tryCatch(
+      suppressWarnings(utils::read.delim(
+        file,
+        sep = separator,
+        nrows = 1L,
+        check.names = FALSE,
+        stringsAsFactors = FALSE,
+        colClasses = "character",
+        comment.char = ""
+      )),
+      error = function(cnd) NULL
+    )
+    if (is.null(parsed)) 0L else ncol(parsed)
+  }
+  if (column_count("\t") > column_count(",")) "\t" else ","
+}
+
 read_import_table <- function(file, sheet = NULL) {
   ext <- tolower(tools::file_ext(file))
-  if (ext %in% c("xlsx", "xls", "xlsm")) {
+  if (
+    ext %in% c("xlsx", "xls", "xlsm") ||
+      onet_import_excel_file(file)
+  ) {
     rlang::check_installed("readxl", reason = "to read an Excel import file.")
     sheet_arg <- sheet %||% 1
     return(tibble::as_tibble(
       readxl::read_excel(file, sheet = sheet_arg)
     ))
   }
-  sep <- if (ext %in% c("tsv", "tab", "txt")) "\t" else ","
+  sep <- onet_import_delimiter(file, ext)
   tibble::as_tibble(utils::read.delim(
     file,
     sep = sep,
@@ -502,6 +556,112 @@ detect_import_column <- function(available, candidates, arg) {
   )
 }
 
+onet_import_url_path <- function(url) {
+  authority <- regexpr(
+    "^[[:alpha:]][[:alnum:]+.-]*://",
+    url,
+    perl = TRUE
+  )
+  network_path <- startsWith(url, "//")
+  if (authority[[1]] == 1L || network_path) {
+    start <- if (network_path) {
+      3L
+    } else {
+      attr(authority, "match.length") + 1L
+    }
+    remainder <- substr(url, start, nchar(url))
+    delimiter <- regexpr("[/?#]", remainder, perl = TRUE)[[1]]
+    if (
+      delimiter < 0L ||
+        !identical(substr(remainder, delimiter, delimiter), "/")
+    ) {
+      return("")
+    }
+    path <- substr(remainder, delimiter, nchar(remainder))
+  } else {
+    scheme <- regexpr(
+      "^[[:alpha:]][[:alnum:]+.-]*:",
+      url,
+      perl = TRUE
+    )
+    path <- if (scheme[[1]] == 1L) {
+      scheme_value <- substr(
+        url,
+        attr(scheme, "match.length") + 1L,
+        nchar(url)
+      )
+      if (!startsWith(scheme_value, "/")) {
+        return("")
+      }
+      scheme_value
+    } else {
+      url
+    }
+  }
+  sub("[?#].*$", "", path)
+}
+
+onet_safe_import_filename <- function(path) {
+  if (!nzchar(path) || endsWith(path, "/")) {
+    return(NULL)
+  }
+  encoded <- sub("^.*/", "", path)
+  filename <- tryCatch(
+    utils::URLdecode(encoded),
+    error = function(cnd) NULL
+  )
+  if (
+    is.null(filename) ||
+      length(filename) != 1L ||
+      is.na(filename) ||
+      !nzchar(filename) ||
+      filename %in% c(".", "..") ||
+      nchar(filename, type = "bytes") > 200L ||
+      grepl("[[:cntrl:]<>:\"/\\\\|?*]", filename) ||
+      grepl("[ .]$", filename)
+  ) {
+    return(NULL)
+  }
+  if (onet_url_path_segment_is_sensitive(filename)) {
+    return(NULL)
+  }
+  device_name <- sub("\\..*$", "", filename)
+  device_name <- sub("[ .]+$", "", device_name)
+  superscript_digits <- intToUtf8(
+    c(0x00b9, 0x00b2, 0x00b3),
+    multiple = TRUE
+  )
+  reserved <- c(
+    "CON", "PRN", "AUX", "NUL", "CLOCK$", "CONIN$", "CONOUT$",
+    paste0("COM", 1:9),
+    paste0("LPT", 1:9),
+    paste0("COM", superscript_digits),
+    paste0("LPT", superscript_digits)
+  )
+  device_raw <- charToRaw(toupper(device_name))
+  reserved_name <- any(vapply(
+    reserved,
+    \(name) identical(charToRaw(name), device_raw),
+    logical(1)
+  ))
+  if (reserved_name) {
+    return(NULL)
+  }
+  filename
+}
+
+onet_import_cache_name <- function(url) {
+  filename <- onet_safe_import_filename(onet_import_url_path(url))
+  if (!is.null(filename)) {
+    return(filename)
+  }
+  paste0("source-", onet_source_url_sha256(url), ".bin")
+}
+
+onet_download_import_source <- function(url, destfile) {
+  utils::download.file(url, destfile, mode = "wb", quiet = TRUE)
+}
+
 download_import_file <- function(
     url,
     cache_dir = onet_cache_dir(),
@@ -512,10 +672,7 @@ download_import_file <- function(
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   reference_dir <- file.path(cache_dir, "reference")
 
-  dest_name <- basename(sub("[?#].*$", "", url))
-  if (!nzchar(dest_name)) {
-    dest_name <- paste0("onet-import-", substr(rlang::hash(url), 1, 10))
-  }
+  dest_name <- onet_import_cache_name(url)
   dest <- file.path(reference_dir, dest_name)
   onet_with_cache_transaction(
     dest,
@@ -558,7 +715,7 @@ download_import_transaction <- function(
   download_warned <- FALSE
   status <- tryCatch(
     withCallingHandlers(
-      utils::download.file(url, tmp, mode = "wb", quiet = TRUE),
+      onet_download_import_source(url, tmp),
       warning = function(cnd) {
         download_warned <<- TRUE
         invokeRestart("muffleWarning")
