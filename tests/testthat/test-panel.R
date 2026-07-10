@@ -1,4 +1,4 @@
-tiny_archive_zip <- function() {
+tiny_archive_zip <- function(first_value = 4.12) {
   tmp <- tempfile("onet-archive-fixture-")
   dir.create(tmp)
   withr::defer(unlink(tmp, recursive = TRUE), testthat::teardown_env())
@@ -12,7 +12,7 @@ tiny_archive_zip <- function() {
       `Element ID` = c("1.A.1.a.1", "1.A.1.a.1"),
       `Element Name` = c("Oral Comprehension", "Oral Comprehension"),
       Scale = c("IM", "IM"),
-      `Data Value` = c(4.12, 4.71),
+      `Data Value` = c(first_value, 4.71),
       `N` = c(26L, 29L),
       `Standard Error` = c(0.15, 0.11),
       `Lower CI Bound` = c(3.82, 4.49),
@@ -325,6 +325,15 @@ test_that("archive force redownload replaces a receiptless legacy archive", {
 
 test_that("onet_archive_read normalizes descriptor archive tables", {
   zipfile <- tiny_archive_zip()
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  saveRDS(
+    onet2r:::onet_source_receipt(
+      zipfile,
+      source_url = url,
+      version = "30.3"
+    ),
+    paste0(zipfile, ".receipt.rds")
+  )
 
   local_mocked_bindings(
     onet_archive_download = function(version, dir = onet_cache_dir(), force = FALSE) {
@@ -338,7 +347,7 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
         year = 2026L,
         month = "May",
         soc_vintage = "2019",
-        text_url = "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip",
+        text_url = url,
         dictionary_url = "https://www.onetcenter.org/dictionary/30.3/excel/"
       )
     },
@@ -366,6 +375,102 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
   expect_equal(result$domain, c("Abilities", "Abilities"))
   expect_equal(result$source_date, as.Date(c("2025-07-01", "2025-08-01")))
   expect_equal(result$data_value, c(4.12, 4.71))
+})
+
+test_that("archive reads consume a verified snapshot during cache replacement", {
+  source_a <- tiny_archive_zip(first_value = 4.12)
+  source_b <- tiny_archive_zip(first_value = 9.12)
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(source_a, dest)
+  receipt_a <- onet2r:::onet_source_receipt(
+    dest,
+    source_url = url,
+    version = "30.3"
+  )
+  saveRDS(receipt_a, paste0(dest, ".receipt.rds"))
+  original_member <- onet2r:::onet_archive_member
+  snapshot_path <- NULL
+  replaced <- FALSE
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    onet_releases = function() {
+      tibble::tibble(
+        version = "30.3",
+        release_date = as.Date("2026-05-01"),
+        soc_vintage = "2019",
+        text_url = url
+      )
+    },
+    onet_archive_member = function(archive, table) {
+      snapshot_path <<- archive
+      if (!replaced) {
+        replacement <- tempfile("archive-b-", tmpdir = archive_dir, fileext = ".zip")
+        file.copy(source_b, replacement)
+        receipt_b <- onet2r:::onet_source_receipt(
+          replacement,
+          source_url = url,
+          version = "30.3"
+        )
+        onet2r:::onet_atomic_commit_source(replacement, dest, receipt_b)
+        replaced <<- TRUE
+      }
+      original_member(archive, table)
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet_archive_read("30.3", "Abilities")
+
+  expect_equal(result$data_value[[1]], 4.12)
+  expect_equal(onet2r:::onet_sha256(dest), onet2r:::onet_sha256(source_b))
+  expect_equal(file.exists(snapshot_path), FALSE)
+})
+
+test_that("archive snapshots are removed when archive parsing errors", {
+  source <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(source, dest)
+  saveRDS(
+    onet2r:::onet_source_receipt(
+      dest,
+      source_url = url,
+      version = "30.3"
+    ),
+    paste0(dest, ".receipt.rds")
+  )
+  snapshot_path <- NULL
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    onet_releases = function() {
+      tibble::tibble(
+        version = "30.3",
+        release_date = as.Date("2026-05-01"),
+        soc_vintage = "2019",
+        text_url = url
+      )
+    },
+    onet_archive_member = function(archive, table) {
+      snapshot_path <<- archive
+      stop("injected archive parse failure")
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet_archive_read("30.3", "Abilities"),
+    "injected archive parse failure"
+  )
+  expect_equal(file.exists(snapshot_path), FALSE)
 })
 
 test_that("archive reader resolves spaced table names", {

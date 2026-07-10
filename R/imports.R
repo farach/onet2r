@@ -436,6 +436,9 @@ read_import_measure_file <- function(
     )
   }
   source_receipt <- attr(file, "source_receipt", exact = TRUE)
+  if (isTRUE(attr(file, "cache_snapshot", exact = TRUE))) {
+    on.exit(unlink(file, force = TRUE), add = TRUE)
+  }
 
   data <- read_import_table(file, sheet = sheet)
   if (ncol(data) == 0 || nrow(data) == 0) {
@@ -515,14 +518,13 @@ download_import_file <- function(
   }
   dest <- file.path(reference_dir, dest_name)
   if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
-    receipt <- onet_cached_source_receipt(
+    return(onet_cached_source_snapshot(
       path = dest,
       source_url = url,
       expected_sha256 = expected_sha256,
       version = onet_source_commit(url),
       as_of = as_of
-    )
-    return(structure(dest, source_receipt = receipt))
+    ))
   }
 
   tmp <- tempfile("onet-import-", tmpdir = reference_dir)
@@ -553,12 +555,7 @@ download_import_file <- function(
     }
   )
   if (download_warned && identical(status, 0L)) {
-    safe_url <- onet_redact_url_credentials(url)
-    cli::cli_warn(c(
-      "The import file download completed with a warning.",
-      "i" = "URL: {.url {safe_url}}",
-      "i" = "Verify the downloaded source before use."
-    ))
+    onet_warn_download_completed(url, "import file")
   }
   if (!identical(status, 0L) || file.info(tmp)$size <= 0) {
     safe_url <- onet_redact_url_credentials(url)
@@ -572,8 +569,12 @@ download_import_file <- function(
     version = source_commit,
     as_of = as_of
   )
-  onet_atomic_commit_source(tmp, dest, receipt)
-  structure(dest, source_receipt = receipt)
+  onet_atomic_commit_source(
+    tmp,
+    dest,
+    receipt,
+    return_snapshot = TRUE
+  )
 }
 
 import_abort_missing_score <- function(score, data, key_column) {

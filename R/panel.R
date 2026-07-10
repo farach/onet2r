@@ -139,14 +139,15 @@ onet_archive_download <- function(
   dest <- file.path(archive_dir, dest_name)
 
   if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
-    onet_cached_source_receipt(
+    snapshot <- onet_cached_source_snapshot(
       path = dest,
       source_url = release$text_url[[1]],
       expected_sha256 = expected_sha256,
       version = version,
       as_of = as_of
     )
-    validate_archive_zip(dest)
+    on.exit(unlink(snapshot, force = TRUE), add = TRUE)
+    validate_archive_zip(snapshot)
     return(dest)
   }
 
@@ -177,12 +178,7 @@ onet_archive_download <- function(
     }
   )
   if (download_warned && identical(status, 0L)) {
-    safe_url <- onet_redact_url_credentials(release$text_url[[1]])
-    cli::cli_warn(c(
-      "The O*NET archive download completed with a warning.",
-      "i" = "URL: {.url {safe_url}}",
-      "i" = "Verify the downloaded archive before use."
-    ))
+    onet_warn_download_completed(release$text_url[[1]], "O*NET archive")
   }
   if (!identical(status, 0L)) {
     safe_url <- onet_redact_url_credentials(release$text_url[[1]])
@@ -236,7 +232,20 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
     validate_existing_path(path)
   }
 
-  archive <- path %||% onet_archive_download(version)
+  archive <- if (is.null(path)) {
+    cache_path <- onet_archive_download(version)
+    release <- onet_releases()
+    release <- release[release$version == version, , drop = FALSE]
+    snapshot <- onet_cached_source_snapshot(
+      path = cache_path,
+      source_url = release$text_url[[1]],
+      version = version
+    )
+    on.exit(unlink(snapshot, force = TRUE), add = TRUE)
+    snapshot
+  } else {
+    path
+  }
   member <- onet_archive_member(archive, table)
   member_path <- if (dir.exists(archive)) {
     member

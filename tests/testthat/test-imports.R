@@ -430,6 +430,105 @@ test_that("downloaded adapter sources reuse verified receipts without network", 
   )
 })
 
+test_that("adapter parsing consumes bytes from its verified cache snapshot", {
+  source_a <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(source_a), add = TRUE)
+  cache_dir <- withr::local_tempdir()
+  reference_dir <- file.path(cache_dir, "reference")
+  dir.create(reference_dir)
+  url <- onet2r:::onet_eloundou_url
+  dest <- file.path(reference_dir, basename(url))
+  file.copy(source_a, dest)
+  receipt_a <- onet2r:::onet_source_receipt(
+    dest,
+    source_url = url,
+    version = onet2r:::onet_source_commit(url)
+  )
+  saveRDS(receipt_a, paste0(dest, ".receipt.rds"))
+  source_b <- tempfile("adapter-b-", tmpdir = reference_dir, fileext = ".csv")
+  utils::write.csv(
+    data.frame(
+      `O*NET-SOC Code` = c("15-1252.00", "29-1141.00", "11-1011.00"),
+      human_rating_beta = c(0.99, 0.98, 0.97),
+      check.names = FALSE
+    ),
+    source_b,
+    row.names = FALSE
+  )
+  original_reader <- onet2r:::read_import_table
+  snapshot_path <- NULL
+  replaced <- FALSE
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    read_import_table = function(file, sheet = NULL) {
+      snapshot_path <<- file
+      if (!replaced) {
+        receipt_b <- onet2r:::onet_source_receipt(
+          source_b,
+          source_url = url,
+          version = onet2r:::onet_source_commit(url)
+        )
+        onet2r:::onet_atomic_commit_source(source_b, dest, receipt_b)
+        replaced <<- TRUE
+      }
+      original_reader(file, sheet)
+    },
+    .package = "onet2r"
+  )
+
+  measure <- onet_import_eloundou(make_task_panel())
+
+  software <- measure$data$measure_score[
+    measure$data$onet_soc_code == "15-1252.00"
+  ]
+  expect_equal(unique(software), 0.63)
+  expect_equal(
+    measure$metadata$source_receipt$actual_sha256,
+    receipt_a$actual_sha256
+  )
+  expect_equal(
+    onet2r:::onet_sha256(dest),
+    readRDS(paste0(dest, ".receipt.rds"))$actual_sha256
+  )
+  expect_equal(file.exists(snapshot_path), FALSE)
+})
+
+test_that("adapter snapshots are removed when parsing errors", {
+  source <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(source), add = TRUE)
+  cache_dir <- withr::local_tempdir()
+  reference_dir <- file.path(cache_dir, "reference")
+  dir.create(reference_dir)
+  url <- onet2r:::onet_eloundou_url
+  dest <- file.path(reference_dir, basename(url))
+  file.copy(source, dest)
+  saveRDS(
+    onet2r:::onet_source_receipt(
+      dest,
+      source_url = url,
+      version = onet2r:::onet_source_commit(url)
+    ),
+    paste0(dest, ".receipt.rds")
+  )
+  snapshot_path <- NULL
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    read_import_table = function(file, sheet = NULL) {
+      snapshot_path <<- file
+      stop("injected adapter parse failure")
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet_import_eloundou(make_task_panel()),
+    "injected adapter parse failure"
+  )
+  expect_equal(file.exists(snapshot_path), FALSE)
+})
+
 test_that("adapter cache basename collisions fail closed for legacy bytes", {
   extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
   on.exit(unlink(extract), add = TRUE)
@@ -500,9 +599,21 @@ test_that("adapter force redownload replaces legacy bytes and records provenance
   dir.create(reference_dir)
   dest <- file.path(reference_dir, basename(source))
   writeLines("legacy,bytes", dest)
+  original_reader <- onet2r:::read_import_table
+  original_copy <- onet2r:::onet_copy_cache_snapshot
+  snapshot_path <- NULL
+  snapshot_copied_under_lock <- FALSE
 
   local_mocked_bindings(
     onet_cache_dir = function() cache_dir,
+    onet_copy_cache_snapshot = function(from, to) {
+      snapshot_copied_under_lock <<- dir.exists(paste0(dest, ".lock"))
+      original_copy(from, to)
+    },
+    read_import_table = function(file, sheet = NULL) {
+      snapshot_path <<- file
+      original_reader(file, sheet)
+    },
     .package = "onet2r"
   )
 
@@ -518,4 +629,6 @@ test_that("adapter force redownload replaces legacy bytes and records provenance
   expect_equal(receipt$as_of, "2023-03")
   expect_equal(receipt$provenance_status, "recorded")
   expect_equal(readLines(dest), readLines(source))
+  expect_equal(snapshot_copied_under_lock, TRUE)
+  expect_equal(file.exists(snapshot_path), FALSE)
 })

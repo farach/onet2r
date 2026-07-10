@@ -321,7 +321,7 @@ test_that("source receipts and errors redact URL credentials", {
       "https://example.invalid/source.csv",
       "?token=[REDACTED]&client_secret=[REDACTED]",
       "&X-Amz-Credential=[REDACTED]&X-Amz-Signature=[REDACTED]",
-      "&variant=public#[REDACTED]"
+      "&variant=public#access_token=[REDACTED]"
     )
   )
   expect_no_match(
@@ -417,17 +417,17 @@ test_that("legacy receipts redact stored credentials when fingerprinted", {
   )
 })
 
-test_that("malformed URLs redact their complete query or fragment", {
+test_that("malformed URLs selectively redact query and fragment parameters", {
   query_url <- "http://[bad]?token=querysecret&variant=public"
   fragment_url <- "http://[bad]#access_token=fragmentsecret"
 
   expect_equal(
     onet2r:::onet_redact_url_credentials(query_url),
-    "http://[bad]?[REDACTED]"
+    "http://[bad]?token=[REDACTED]&variant=public"
   )
   expect_equal(
     onet2r:::onet_redact_url_credentials(fragment_url),
-    "http://[bad]#[REDACTED]"
+    "http://[bad]#access_token=[REDACTED]"
   )
 
   cache_dir <- withr::local_tempdir()
@@ -440,6 +440,115 @@ test_that("malformed URLs redact their complete query or fragment", {
     error = identity
   )
   message <- conditionMessage(condition)
-  expect_no_match(message, "querysecret|variant")
+  expect_no_match(message, "querysecret")
+  expect_match(message, "variant=public", fixed = TRUE)
   expect_match(message, "REDACTED", fixed = TRUE)
+})
+
+test_that("OAuth authorization codes are redacted without hiding benign parameters", {
+  url <- paste0(
+    "https://example.invalid/callback?",
+    "co%64e=authorization-secret&state=visible-state&mode=code"
+  )
+  safe_url <- onet2r:::onet_redact_url_credentials(url)
+
+  expect_equal(
+    safe_url,
+    paste0(
+      "https://example.invalid/callback?",
+      "code=[REDACTED]&state=visible-state&mode=code"
+    )
+  )
+  expect_no_match(safe_url, "authorization-secret")
+  expect_match(safe_url, "state=visible-state", fixed = TRUE)
+  expect_match(safe_url, "mode=code", fixed = TRUE)
+
+  fragment_url <- paste0(
+    "https://example.invalid/callback#route?",
+    "co%64e=fragment-secret&state=fragment-state&view=summary"
+  )
+  safe_fragment_url <- onet2r:::onet_redact_url_credentials(fragment_url)
+  expect_no_match(safe_fragment_url, "fragment-secret")
+  expect_match(safe_fragment_url, "REDACTED", fixed = TRUE)
+  expect_match(safe_fragment_url, "state=fragment-state", fixed = TRUE)
+  expect_match(safe_fragment_url, "view=summary", fixed = TRUE)
+
+  path <- tempfile(fileext = ".csv")
+  on.exit(unlink(path), add = TRUE)
+  writeLines("source", path)
+  receipt <- onet2r:::onet_source_receipt(path, source_url = url)
+  expect_equal(receipt$source_url, safe_url)
+
+  warning_message <- NULL
+  withCallingHandlers(
+    onet2r:::onet_warn_download_completed(url, "fixture"),
+    warning = function(cnd) {
+      warning_message <<- conditionMessage(cnd)
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_no_match(warning_message, "authorization-secret")
+  expect_match(warning_message, "state=visible-state", fixed = TRUE)
+
+  cache_dir <- withr::local_tempdir()
+  failing_url <- paste0(
+    "bad://example.invalid/callback?",
+    "code=error-secret&state=visible-state"
+  )
+  condition <- tryCatch(
+    onet2r:::download_import_file(
+      failing_url,
+      cache_dir = cache_dir,
+      force = TRUE
+    ),
+    error = identity
+  )
+  error_message <- conditionMessage(condition)
+  expect_no_match(error_message, "error-secret")
+  expect_match(error_message, "state=visible-state", fixed = TRUE)
+
+  malformed <- "http://[bad]?code=malformed-secret&state=visible-state"
+  expect_equal(
+    onet2r:::onet_redact_url_credentials(malformed),
+    "http://[bad]?code=[REDACTED]&state=visible-state"
+  )
+  malformed_fragment <- paste0(
+    "http://[bad]#route?",
+    "CODE=malformed-fragment-secret&state=visible-state"
+  )
+  expect_equal(
+    onet2r:::onet_redact_url_credentials(malformed_fragment),
+    paste0(
+      "http://[bad]#route?",
+      "CODE=[REDACTED]&state=visible-state"
+    )
+  )
+})
+
+test_that("failed cache snapshot creation removes the private copy", {
+  cache_dir <- withr::local_tempdir()
+  path <- file.path(cache_dir, "source.csv")
+  url <- "https://example.invalid/source.csv"
+  writeLines("verified", path)
+  saveRDS(
+    onet2r:::onet_source_receipt(path, source_url = url),
+    paste0(path, ".receipt.rds")
+  )
+  snapshot_path <- NULL
+
+  local_mocked_bindings(
+    onet_copy_cache_snapshot = function(from, to) {
+      snapshot_path <<- to
+      copied <- file.copy(from, to)
+      writeLines("mutated", to)
+      copied
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet2r:::onet_cached_source_snapshot(path, source_url = url),
+    "changed while its private snapshot"
+  )
+  expect_equal(file.exists(snapshot_path), FALSE)
 })

@@ -187,46 +187,103 @@ onet_receipt_value <- function(x) {
   as.character(x)
 }
 
+onet_url_parameter_is_sensitive <- function(name) {
+  name <- tolower(utils::URLdecode(name))
+  name == "code" || grepl(
+    "auth|credential|key|passwd|password|secret|sig|signature|token",
+    name
+  )
+}
+
+onet_redact_url_parameters <- function(parameters) {
+  if (!nzchar(parameters)) {
+    return(parameters)
+  }
+  parts <- strsplit(parameters, "&", fixed = TRUE)[[1]]
+  vapply(parts, function(part) {
+    equals <- regexpr("=", part, fixed = TRUE)[[1]]
+    if (equals < 0) {
+      if (onet_url_parameter_is_sensitive(part)) {
+        return("[REDACTED]")
+      }
+      return(part)
+    }
+    name <- substr(part, 1, equals - 1L)
+    if (!onet_url_parameter_is_sensitive(name)) {
+      return(part)
+    }
+    paste0(name, "=[REDACTED]")
+  }, character(1), USE.NAMES = FALSE) |>
+    paste(collapse = "&")
+}
+
+onet_redact_url_fragment <- function(fragment) {
+  query_start <- regexpr("?", fragment, fixed = TRUE)[[1]]
+  if (query_start < 0) {
+    return(onet_redact_url_parameters(fragment))
+  }
+  route <- substr(fragment, 1, query_start)
+  parameters <- substr(fragment, query_start + 1L, nchar(fragment))
+  paste0(route, onet_redact_url_parameters(parameters))
+}
+
 onet_redact_url_credentials <- function(url) {
   if (is.null(url) || length(url) != 1 || is.na(url)) {
     return(url)
   }
   parsed <- tryCatch(httr2::url_parse(url), error = function(cnd) NULL)
   if (is.null(parsed)) {
-    url <- sub(
+    fragment <- if (grepl("#", url, fixed = TRUE)) {
+      sub("^[^#]*#", "", url)
+    } else {
+      NULL
+    }
+    url <- sub("#.*$", "", url)
+    query <- if (grepl("?", url, fixed = TRUE)) {
+      sub("^[^?]*\\?", "", url)
+    } else {
+      NULL
+    }
+    url <- sub("\\?.*$", "", url)
+    base <- sub(
       "^([[:alpha:]][[:alnum:]+.-]*://)[^/@]*@",
       "\\1",
       url,
       perl = TRUE
     )
-    return(sub("([?#]).*$", "\\1[REDACTED]", url, perl = TRUE))
+    if (!is.null(query)) {
+      base <- paste0(base, "?", onet_redact_url_parameters(query))
+    }
+    if (!is.null(fragment)) {
+      base <- paste0(base, "#", onet_redact_url_fragment(fragment))
+    }
+    return(base)
   }
   parsed$username <- NULL
   parsed$password <- NULL
   if (length(parsed$query) > 0) {
-    credential_query <- grepl(
-      "auth|credential|key|passwd|password|secret|sig|signature|token",
-      utils::URLdecode(names(parsed$query)),
-      ignore.case = TRUE
+    credential_query <- vapply(
+      names(parsed$query),
+      onet_url_parameter_is_sensitive,
+      logical(1)
     )
     parsed$query[credential_query] <- "[REDACTED]"
   }
+  fragment <- NULL
   if (!is.null(parsed$fragment)) {
-    fragment <- utils::URLdecode(parsed$fragment)
-    if (grepl(
-      "auth|credential|key|passwd|password|secret|sig|signature|token",
-      fragment,
-      ignore.case = TRUE
-    )) {
-      parsed$fragment <- "[REDACTED]"
-    }
+    fragment <- onet_redact_url_fragment(parsed$fragment)
+    parsed$fragment <- NULL
   }
-  gsub(
+  redacted <- gsub(
     "%5BREDACTED%5D",
     "[REDACTED]",
     httr2::url_build(parsed),
     fixed = TRUE
   )
+  if (!is.null(fragment)) {
+    redacted <- paste0(redacted, "#", fragment)
+  }
+  redacted
 }
 
 onet_source_url_sha256 <- function(url) {
@@ -237,6 +294,15 @@ onet_source_url_sha256 <- function(url) {
   on.exit(unlink(tmp, force = TRUE), add = TRUE)
   writeBin(charToRaw(enc2utf8(url)), tmp)
   onet_sha256(tmp)
+}
+
+onet_warn_download_completed <- function(url, label) {
+  safe_url <- onet_redact_url_credentials(url)
+  cli::cli_warn(c(
+    "The {label} download completed with a warning.",
+    "i" = "URL: {.url {safe_url}}",
+    "i" = "Verify the downloaded source before use."
+  ))
 }
 
 onet_source_receipt <- function(
@@ -285,7 +351,11 @@ onet_receipt_path <- function(path) {
   paste0(path, ".receipt.rds")
 }
 
-onet_atomic_commit_source <- function(tmp, dest, receipt) {
+onet_atomic_commit_source <- function(
+    tmp,
+    dest,
+    receipt,
+    return_snapshot = FALSE) {
   receipt_dest <- onet_receipt_path(dest)
   receipt_tmp <- tempfile(
     paste0(".", basename(receipt_dest), "-write-"),
@@ -293,8 +363,22 @@ onet_atomic_commit_source <- function(tmp, dest, receipt) {
   )
   on.exit(unlink(receipt_tmp, force = TRUE), add = TRUE)
   saveRDS(receipt, receipt_tmp)
+  snapshot <- NULL
+  snapshot_success <- FALSE
+  if (isTRUE(return_snapshot)) {
+    extension <- tools::file_ext(dest)
+    snapshot <- tempfile(
+      "onet-cache-snapshot-",
+      fileext = if (nzchar(extension)) paste0(".", extension) else ""
+    )
+    on.exit({
+      if (!snapshot_success) {
+        unlink(snapshot, force = TRUE)
+      }
+    }, add = TRUE)
+  }
 
-  onet_with_cache_lock(dest, {
+  result <- onet_with_cache_lock(dest, {
     old_paths <- c(dest, receipt_dest)
     backups <- rep(NA_character_, length(old_paths))
     installed <- character()
@@ -352,8 +436,14 @@ onet_atomic_commit_source <- function(tmp, dest, receipt) {
     }
 
     unlink(backups[!is.na(backups)], force = TRUE)
-    invisible(dest)
+    if (isTRUE(return_snapshot)) {
+      onet_copy_verified_snapshot(dest, receipt, snapshot)
+    } else {
+      invisible(dest)
+    }
   })
+  snapshot_success <- isTRUE(return_snapshot)
+  result
 }
 
 onet_read_source_receipt <- function(path) {
@@ -404,6 +494,60 @@ onet_cached_source_receipt <- function(
     version = version,
     as_of = as_of
   ))
+}
+
+onet_copy_cache_snapshot <- function(from, to) {
+  file.copy(from, to, overwrite = FALSE, copy.mode = TRUE, copy.date = TRUE)
+}
+
+onet_copy_verified_snapshot <- function(path, receipt, snapshot) {
+  if (!onet_copy_cache_snapshot(path, snapshot)) {
+    cli::cli_abort("Failed to create a private snapshot of the verified cache source.")
+  }
+  snapshot_sha256 <- onet_sha256(snapshot)
+  if (!identical(snapshot_sha256, tolower(receipt$actual_sha256))) {
+    cli::cli_abort(
+      "Verified cache source changed while its private snapshot was being created."
+    )
+  }
+  structure(
+    snapshot,
+    source_receipt = receipt,
+    cache_path = path,
+    cache_snapshot = TRUE
+  )
+}
+
+onet_cached_source_snapshot <- function(
+    path,
+    source_url = NULL,
+    expected_sha256 = NULL,
+    version = NULL,
+    as_of = NULL) {
+  extension <- tools::file_ext(path)
+  snapshot <- tempfile(
+    "onet-cache-snapshot-",
+    fileext = if (nzchar(extension)) paste0(".", extension) else ""
+  )
+  success <- FALSE
+  on.exit({
+    if (!success) {
+      unlink(snapshot, force = TRUE)
+    }
+  }, add = TRUE)
+
+  result <- onet_with_cache_lock(path, {
+    receipt <- onet_cached_source_receipt_unlocked(
+      path = path,
+      source_url = source_url,
+      expected_sha256 = expected_sha256,
+      version = version,
+      as_of = as_of
+    )
+    onet_copy_verified_snapshot(path, receipt, snapshot)
+  })
+  success <- TRUE
+  result
 }
 
 onet_cached_source_receipt_unlocked <- function(
