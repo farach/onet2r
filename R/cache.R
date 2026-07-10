@@ -191,10 +191,12 @@ onet_sensitive_url_parameters <- c(
   "access_key",
   "access_key_id",
   "access_token",
+  "account_key",
   "api_key",
   "apikey",
   "api_secret",
   "api_token",
+  "assertion",
   "auth",
   "auth_key",
   "auth_token",
@@ -203,21 +205,26 @@ onet_sensitive_url_parameters <- c(
   "authorization_code",
   "aws_access_key_id",
   "aws_secret_access_key",
+  "aws_security_token",
+  "aws_session_token",
   "bearer_token",
   "client_assertion",
   "client_secret",
   "code",
   "code_verifier",
+  "connection_string",
   "consumer_key",
   "consumer_secret",
   "credential",
   "credentials",
+  "device_code",
   "hmac",
   "hmac_signature",
   "id_token",
   "jwt",
   "key",
   "key_pair_id",
+  "oauth_signature",
   "oauth_token",
   "ocp_apim_subscription_key",
   "passwd",
@@ -228,15 +235,22 @@ onet_sensitive_url_parameters <- c(
   "private_token",
   "pwd",
   "refresh_token",
+  "saml_response",
+  "sas",
   "sas_token",
   "secret",
+  "secret_access_key",
+  "secret_key",
   "security_token",
   "session_token",
+  "shared_access_key",
   "shared_access_signature",
   "sig",
   "signature",
+  "storage_account_key",
   "subscription_key",
   "token",
+  "user_code",
   "x_amz_credential",
   "x_amz_security_token",
   "x_amz_signature",
@@ -247,9 +261,14 @@ onet_sensitive_url_parameters <- c(
 )
 
 onet_url_parameter_is_sensitive <- function(name) {
-  name <- tolower(utils::URLdecode(name))
-  name <- gsub("[.-]", "_", name)
-  name %in% onet_sensitive_url_parameters
+  name <- utils::URLdecode(name)
+  name <- gsub("([A-Z]+)([A-Z][a-z])", "\\1_\\2", name, perl = TRUE)
+  name <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", name, perl = TRUE)
+  name <- tolower(name)
+  name <- gsub("[-.]", "_", name)
+  name %in% onet_sensitive_url_parameters ||
+    gsub("_", "", name, fixed = TRUE) %in%
+      gsub("_", "", onet_sensitive_url_parameters, fixed = TRUE)
 }
 
 onet_redact_url_parameters <- function(parameters) {

@@ -41,6 +41,9 @@ optional \code{as_of} metadata. The archive URLs are not assumed to be immutable
 supply \code{expected_sha256} when an independently verified digest is available.
 A cached archive without a receipt cannot satisfy the requested URL or
 version provenance. Use \code{force = TRUE} to replace legacy cached bytes.
+The returned path names the shared cache entry, which a later \code{force = TRUE}
+call may replace. Use \code{\link[=onet_archive_read]{onet_archive_read()}} to parse a verified private
+snapshot rather than reopening the shared path.
 }
 \examples{
 if (interactive()) {

@@ -106,6 +106,9 @@ archive_version_from_link <- function(link) {
 #' supply `expected_sha256` when an independently verified digest is available.
 #' A cached archive without a receipt cannot satisfy the requested URL or
 #' version provenance. Use `force = TRUE` to replace legacy cached bytes.
+#' The returned path names the shared cache entry, which a later `force = TRUE`
+#' call may replace. Use [onet_archive_read()] to parse a verified private
+#' snapshot rather than reopening the shared path.
 #' @export
 #'
 #' @examples
@@ -119,7 +122,7 @@ onet_archive_download <- function(
     force = FALSE,
     expected_sha256 = NULL,
     as_of = NULL) {
-  onet_archive_acquire(
+  path <- onet_archive_acquire(
     version = version,
     dir = dir,
     force = force,
@@ -127,6 +130,7 @@ onet_archive_download <- function(
     as_of = as_of,
     return_snapshot = FALSE
   )
+  path
 }
 
 onet_archive_acquire <- function(

@@ -532,10 +532,28 @@ test_that("credential parameter redaction is exact and percent decoded", {
     "tok%65n",
     "api%5Fkey",
     "client-secret",
+    "client.secret",
     "co%64e",
+    "password",
+    "sig",
     "X-Amz-Credential",
     "X-Amz-Signature",
-    "X-Amz-Security-Token"
+    "X-Amz-Security-Token",
+    "x-goog-signature",
+    "authorization",
+    "refresh-token",
+    "oauth_signature",
+    "api_token",
+    "x-api-key",
+    "accessToken",
+    "refreshToken",
+    "clientSecret",
+    "oauthSignature",
+    "SecurityToken",
+    "AWSAccessKeyId",
+    "codeVerifier",
+    "clientAssertion",
+    "SecretAccessKey"
   )
   benign_names <- c(
     "author",
@@ -547,7 +565,9 @@ test_that("credential parameter redaction is exact and percent decoded", {
     "state",
     "st%61te",
     "keynote",
-    "signature_version"
+    "signature_version",
+    "hockey",
+    "keyboard"
   )
 
   expect_true(all(vapply(
@@ -624,6 +644,33 @@ test_that("credential parameter redaction is exact and percent decoded", {
       ),
       secret = "oauth-secret",
       visible = "state=visible-state"
+    ),
+    list(
+      label = "camel case secret",
+      url = paste0(
+        "https://example.invalid/data?",
+        "clientSecret=camel-secret&author=visible-author"
+      ),
+      secret = "camel-secret",
+      visible = "author=visible-author"
+    ),
+    list(
+      label = "compact cloud credential",
+      url = paste0(
+        "https://example.invalid/data?",
+        "AWSAccessKeyId=cloud-secret&state=visible-state"
+      ),
+      secret = "cloud-secret",
+      visible = "state=visible-state"
+    ),
+    list(
+      label = "OAuth signature",
+      url = paste0(
+        "https://example.invalid/data?",
+        "oauth_signature=signature-secret&monkey=visible-monkey"
+      ),
+      secret = "signature-secret",
+      visible = "monkey=visible-monkey"
     )
   )
 
