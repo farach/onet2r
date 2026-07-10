@@ -2,7 +2,7 @@ url: https://farach.github.io/onet2r/
 destination: _pkgdown
 
 development:
-  mode: release
+  mode: devel
 
 template:
   bootstrap: 5

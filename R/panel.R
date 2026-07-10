@@ -85,18 +85,25 @@ archive_version_from_link <- function(link) {
 #' Download an O&#42;NET Archive
 #'
 #' Downloads and caches one O&#42;NET text archive. Existing non-empty cached files
-#' are reused.
+#' are reused only when their recorded provenance and digest still match.
 #'
 #' @param version O&#42;NET database version, for example `"30.3"`.
 #' @param dir Cache directory.
 #' @param force Logical; if `TRUE`, re-download even when a cached archive exists.
+#' @param expected_sha256 Optional expected SHA-256 digest. The digest is checked
+#'   before the archive is parsed and whenever a cached file is reused.
+#' @param as_of Optional source date or label to record in the receipt. A cached
+#'   archive with different `as_of` metadata is not reused.
 #'
 #' @return The path to the cached ZIP file.
 #'
 #' @details
 #' Downloaded archives are cached under `tools::R_user_dir("onet2r", "cache")`
 #' in the `archives` section. Use `onet_cache_clear(what = "archives")` or
-#' `onet_cache_clear(what = "all")` to remove them.
+#' `onet_cache_clear(what = "all")` to remove them. An RDS receipt beside each
+#' archive records its URL, retrieval time, SHA-256 digest, size, version, and
+#' optional `as_of` metadata. The archive URLs are not assumed to be immutable;
+#' supply `expected_sha256` when an independently verified digest is available.
 #' @export
 #'
 #' @examples
@@ -104,9 +111,19 @@ archive_version_from_link <- function(link) {
 #'   path <- onet_archive_download("30.3")
 #'   basename(path)
 #' }
-onet_archive_download <- function(version, dir = onet_cache_dir(), force = FALSE) {
+onet_archive_download <- function(
+    version,
+    dir = onet_cache_dir(),
+    force = FALSE,
+    expected_sha256 = NULL,
+    as_of = NULL) {
   validate_single_string(version, "version")
   validate_single_string(dir, "dir")
+  if (!is.logical(force) || length(force) != 1 || is.na(force)) {
+    cli::cli_abort("{.arg force} must be `TRUE` or `FALSE`.")
+  }
+  expected_sha256 <- onet_normalize_sha256(expected_sha256)
+  as_of <- onet_normalize_as_of(as_of)
 
   releases <- onet_releases()
   release <- releases[releases$version == version, , drop = FALSE]
@@ -116,9 +133,17 @@ onet_archive_download <- function(version, dir = onet_cache_dir(), force = FALSE
 
   archive_dir <- file.path(dir, "archives")
   dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
-  dest <- file.path(archive_dir, basename(release$text_url[[1]]))
+  dest_name <- basename(sub("[?#].*$", "", release$text_url[[1]]))
+  dest <- file.path(archive_dir, dest_name)
 
   if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
+    onet_cached_source_receipt(
+      path = dest,
+      source_url = release$text_url[[1]],
+      expected_sha256 = expected_sha256,
+      version = version,
+      as_of = as_of
+    )
     validate_archive_zip(dest)
     return(dest)
   }
@@ -151,10 +176,15 @@ onet_archive_download <- function(version, dir = onet_cache_dir(), force = FALSE
     )
   }
 
+  receipt <- onet_source_receipt(
+    path = tmp,
+    source_url = release$text_url[[1]],
+    expected_sha256 = expected_sha256,
+    version = version,
+    as_of = as_of
+  )
   validate_archive_zip(tmp)
-  if (!file.rename(tmp, dest)) {
-    cli::cli_abort("Failed to move downloaded O*NET archive into the cache.")
-  }
+  onet_atomic_commit_source(tmp, dest, receipt)
 
   dest
 }

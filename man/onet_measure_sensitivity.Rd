@@ -47,12 +47,22 @@ whether Supplemental tasks are included.}
 }
 \value{
 A tibble with one row per scenario, aggregate results, movement
-fields, and provenance list-column metadata.
+fields, and provenance list-column metadata. The movement fields compare
+scenario aggregates with the selected baseline; they are not rank,
+quintile, variance, or content-drift diagnostics.
 }
 \description{
 Runs the same user-supplied measure through alternative weight panels,
 bridges, and task-handling choices. The package does not create the
 substantive measure. It only changes the plumbing around that measure.
+}
+\details{
+\code{weight_panels} must contain employment weight panels with
+\code{reference_soc_code}, \code{year}, \code{employment}, \code{weight_share}, and provenance
+columns. Output from \code{\link[=onet_content_change]{onet_content_change()}} describes task-content movement
+and is not a weight panel. Pass named lists of single-release \code{task_ratings}
+and matching \code{task_metadata} to compare task-handling scenarios across
+releases.
 }
 \examples{
 scores <- tibble::tibble(

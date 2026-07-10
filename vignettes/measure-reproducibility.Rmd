@@ -220,4 +220,10 @@ diagnostic |>
 ```
 
 The diagnostic will not tell you which task score is right. It reports how far
-the headline number moves when non-substantive plumbing changes.
+the headline aggregate moves when non-substantive plumbing changes. The second
+argument is `weight_panels`; for multi-release task comparisons, pass named
+lists of single-release frames through `task_ratings` and matching
+`task_metadata`. A content-change table is not an employment weight panel and
+is rejected. The returned `movement` fields compare scenario aggregates with
+the baseline. They are not Spearman, rank, quintile, variance, or content-drift
+diagnostics.

@@ -106,3 +106,134 @@ test_that("onet_cache_file uses request URL and cache options", {
   expect_match(path, cache_dir, fixed = TRUE)
   expect_match(path, "\\.rds$")
 })
+
+test_that("onet_perform aborts on a corrupt API cache without requesting", {
+  cache_dir <- withr::local_tempdir()
+  onet_cache_use(enabled = TRUE, cache_dir = cache_dir)
+  on.exit(onet_cache_use(enabled = FALSE, cache_dir = cache_dir), add = TRUE)
+
+  req <- list(url = "https://api-v2.onetcenter.org/about")
+  cache_file <- onet2r:::onet_cache_file(req)
+  dir.create(dirname(cache_file), recursive = TRUE)
+  writeBin(charToRaw("not an RDS file"), cache_file)
+
+  expect_error(
+    onet2r:::onet_perform(req),
+    "Cached O\\*NET API response is corrupt.*onet_cache_clear",
+    class = "onet2r_corrupt_cache"
+  )
+})
+
+test_that("atomic cache writes replace files and remove temporary files", {
+  cache_dir <- withr::local_tempdir()
+  dest <- file.path(cache_dir, "value.rds")
+  saveRDS("old", dest)
+
+  expect_error(
+    onet2r:::onet_atomic_write(dest, function(tmp) {
+      saveRDS("incomplete", tmp)
+      stop("writer failed")
+    }),
+    "writer failed"
+  )
+  expect_equal(readRDS(dest), "old")
+
+  onet2r:::onet_atomic_save_rds("new", dest)
+
+  expect_equal(readRDS(dest), "new")
+
+  rename_calls <- 0L
+  local_mocked_bindings(
+    onet_file_rename = function(from, to) {
+      rename_calls <<- rename_calls + 1L
+      if (rename_calls %in% c(1L, 3L)) {
+        return(FALSE)
+      }
+      base::file.rename(from, to)
+    },
+    .package = "onet2r"
+  )
+  expect_error(
+    onet2r:::onet_atomic_save_rds("replacement", dest),
+    "previous file was preserved"
+  )
+
+  expect_equal(readRDS(dest), "new")
+  expect_equal(list.files(cache_dir, all.files = TRUE, no.. = TRUE), "value.rds")
+})
+
+test_that("source and receipt replacement rolls back as one cache pair", {
+  cache_dir <- withr::local_tempdir()
+  dest <- file.path(cache_dir, "source.csv")
+  receipt_dest <- paste0(dest, ".receipt.rds")
+  writeLines("old", dest)
+  saveRDS(list(actual_sha256 = "old"), receipt_dest)
+  tmp <- tempfile("source-", tmpdir = cache_dir)
+  writeLines("new", tmp)
+
+  local_mocked_bindings(
+    onet_file_rename = function(from, to) {
+      if (
+        identical(to, receipt_dest) &&
+          grepl("-write-", basename(from), fixed = TRUE)
+      ) {
+        return(FALSE)
+      }
+      base::file.rename(from, to)
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet2r:::onet_atomic_commit_source(
+      tmp,
+      dest,
+      list(actual_sha256 = "new")
+    ),
+    "previous pair was preserved"
+  )
+  expect_equal(readLines(dest), "old")
+  expect_equal(readRDS(receipt_dest)$actual_sha256, "old")
+  expect_equal(
+    list.files(cache_dir, all.files = TRUE, no.. = TRUE),
+    c("source.csv", "source.csv.receipt.rds")
+  )
+})
+
+test_that("cache pair backup failure restores the first preserved file", {
+  cache_dir <- withr::local_tempdir()
+  dest <- file.path(cache_dir, "source.csv")
+  receipt_dest <- paste0(dest, ".receipt.rds")
+  writeLines("old", dest)
+  saveRDS(list(actual_sha256 = "old"), receipt_dest)
+  tmp <- tempfile("source-", tmpdir = cache_dir)
+  writeLines("new", tmp)
+
+  local_mocked_bindings(
+    onet_file_rename = function(from, to) {
+      if (identical(from, receipt_dest)) {
+        return(FALSE)
+      }
+      if (grepl("-backup-", basename(from), fixed = TRUE)) {
+        return(FALSE)
+      }
+      base::file.rename(from, to)
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet2r:::onet_atomic_commit_source(
+      tmp,
+      dest,
+      list(actual_sha256 = "new")
+    ),
+    "Failed to preserve the existing cache source and receipt"
+  )
+  expect_equal(readLines(dest), "old")
+  expect_equal(readRDS(receipt_dest)$actual_sha256, "old")
+  expect_equal(
+    list.files(cache_dir, all.files = TRUE, no.. = TRUE),
+    c(basename(tmp), "source.csv", "source.csv.receipt.rds")
+  )
+})

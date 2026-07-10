@@ -56,6 +56,10 @@ onet_felten_aioe_url <- paste0(
 #' @param force Logical; re-download even when a cached copy exists.
 #' @param ... Additional arguments passed to [onet_measure()], such as
 #'   `universe` or `weight_panel`.
+#' @param expected_sha256 Optional expected SHA-256 digest for the local or
+#'   downloaded source. It is verified before parsing and on cache reuse.
+#' @param as_of Optional source date or label recorded in provenance. Cached
+#'   downloads with different `as_of` metadata are not silently reused.
 #'
 #' @return A task-grain `onet_measure` object (`key_type = "task"`) keyed on
 #'   `task_id` and scored on the selected exposure column, with the occupation
@@ -73,7 +77,9 @@ onet_felten_aioe_url <- paste0(
 #' `url`. Downloads are cached under `tools::R_user_dir("onet2r", "cache")` in
 #' the `reference` section and can be cleared with
 #' `onet_cache_clear(what = "reference")`. Cite the source paper when you use the
-#' scores.
+#' scores. The returned measure includes `metadata$source_receipt` with the
+#' source URL or local path, retrieval time, digest, file size, source commit
+#' when inferable from a pinned GitHub raw URL, and version or `as_of` metadata.
 #'
 #' The three exposure definitions follow the paper: alpha counts tasks exposed
 #' by direct model access, beta adds tasks reachable with complementary software
@@ -119,7 +125,9 @@ onet_import_eloundou <- function(
     measure_id = "eloundou_gpt_exposure",
     measure_name = "Eloundou et al. (2023) GPT exposure",
     force = FALSE,
-    ...) {
+    ...,
+    expected_sha256 = NULL,
+    as_of = NULL) {
   validate_single_string(score, "score")
 
   external <- read_import_measure_file(
@@ -128,10 +136,13 @@ onet_import_eloundou <- function(
     key = key,
     sheet = sheet,
     force = force,
+    expected_sha256 = expected_sha256,
+    as_of = as_of,
     key_candidates = onet_soc_key_candidates(),
     key_column = "onet_soc_code",
     key_standardize = standardize_onet_soc_code
   )
+  source_receipt <- attr(external, "source_receipt", exact = TRUE)
   if (!score %in% names(external)) {
     import_abort_missing_score(score, external, "onet_soc_code")
   }
@@ -147,6 +158,7 @@ onet_import_eloundou <- function(
     measure_id = measure_id,
     measure_name = measure_name,
     source = "Eloundou et al. (2023) GPTs are GPTs (MIT License)",
+    source_receipt = source_receipt,
     ...
   )
 }
@@ -182,6 +194,10 @@ onet_import_eloundou <- function(
 #' @param force Logical; re-download even when a cached copy exists.
 #' @param ... Additional arguments passed to [onet_measure()], such as
 #'   `universe` or `weight_panel`.
+#' @param expected_sha256 Optional expected SHA-256 digest for the local or
+#'   downloaded source. It is verified before parsing and on cache reuse.
+#' @param as_of Optional source date or label recorded in provenance. Cached
+#'   downloads with different `as_of` metadata are not silently reused.
 #'
 #' @return A task-grain `onet_measure` object (`key_type = "task"`) keyed on
 #'   `task_id` and scored on the selected AIOE column, with the occupation code
@@ -199,6 +215,9 @@ onet_import_eloundou <- function(
 #' "cache")` in the `reference` section and can be cleared with
 #' `onet_cache_clear(what = "reference")`. The AIOE workbook is provided for
 #' research use; cite Felten, Raj, and Seamans (2021) when you use the scores.
+#' The returned measure includes `metadata$source_receipt` with the source URL
+#' or local path, retrieval time, digest, file size, source commit when
+#' inferable from a pinned GitHub raw URL, and version or `as_of` metadata.
 #' @export
 #'
 #' @examples
@@ -238,7 +257,9 @@ onet_import_felten_aioe <- function(
     measure_id = "felten_aioe",
     measure_name = "Felten, Raj, and Seamans (2021) AIOE",
     force = FALSE,
-    ...) {
+    ...,
+    expected_sha256 = NULL,
+    as_of = NULL) {
   validate_single_string(score, "score")
 
   external <- read_import_measure_file(
@@ -247,10 +268,13 @@ onet_import_felten_aioe <- function(
     key = key,
     sheet = sheet,
     force = force,
+    expected_sha256 = expected_sha256,
+    as_of = as_of,
     key_candidates = soc_key_candidates(),
     key_column = "soc_code",
     key_standardize = standardize_soc_code
   )
+  source_receipt <- attr(external, "source_receipt", exact = TRUE)
   if (!score %in% names(external)) {
     import_abort_missing_score(score, external, "soc_code")
   }
@@ -266,6 +290,7 @@ onet_import_felten_aioe <- function(
     measure_id = measure_id,
     measure_name = measure_name,
     source = "Felten, Raj, and Seamans (2021) AIOE",
+    source_receipt = source_receipt,
     ...
   )
 }
@@ -288,6 +313,7 @@ broadcast_import_to_tasks <- function(
     measure_id,
     measure_name,
     source,
+    source_receipt,
     ...) {
   validate_single_string(occupation_code, "occupation_code")
   validate_single_string(task_id, "task_id")
@@ -330,7 +356,7 @@ broadcast_import_to_tasks <- function(
     )
   }
 
-  onet_measure(
+  measure <- onet_measure(
     joined,
     key = task_id,
     score = score,
@@ -340,6 +366,8 @@ broadcast_import_to_tasks <- function(
     source = source,
     ...
   )
+  measure$metadata$source_receipt <- source_receipt
+  measure
 }
 
 onet_soc_key_candidates <- function() {
@@ -362,6 +390,8 @@ read_import_measure_file <- function(
     key,
     sheet,
     force,
+    expected_sha256,
+    as_of,
     key_candidates,
     key_column,
     key_standardize) {
@@ -371,6 +401,7 @@ read_import_measure_file <- function(
   if (!is.logical(force) || length(force) != 1 || is.na(force)) {
     cli::cli_abort("{.arg force} must be `TRUE` or `FALSE`.")
   }
+  as_of <- onet_normalize_as_of(as_of)
   if (is.null(path) && is.null(url)) {
     cli::cli_abort(
       c(
@@ -385,10 +416,22 @@ read_import_measure_file <- function(
     if (!file.exists(path)) {
       cli::cli_abort("{.arg path} does not exist: {.file {path}}.")
     }
-    path
+    receipt <- onet_source_receipt(
+      path = path,
+      source_path = path,
+      expected_sha256 = expected_sha256,
+      as_of = as_of
+    )
+    structure(path, source_receipt = receipt)
   } else {
-    download_import_file(url, force = force)
+    download_import_file(
+      url,
+      force = force,
+      expected_sha256 = expected_sha256,
+      as_of = as_of
+    )
   }
+  source_receipt <- attr(file, "source_receipt", exact = TRUE)
 
   data <- read_import_table(file, sheet = sheet)
   if (ncol(data) == 0 || nrow(data) == 0) {
@@ -407,7 +450,9 @@ read_import_measure_file <- function(
   data[[key_name]] <- NULL
   out <- tibble::as_tibble(data)
   out[[key_column]] <- standardized
-  out[, c(key_column, setdiff(names(out), key_column)), drop = FALSE]
+  out <- out[, c(key_column, setdiff(names(out), key_column)), drop = FALSE]
+  attr(out, "source_receipt") <- source_receipt
+  out
 }
 
 read_import_table <- function(file, sheet = NULL) {
@@ -449,8 +494,14 @@ detect_import_column <- function(available, candidates, arg) {
   )
 }
 
-download_import_file <- function(url, cache_dir = onet_cache_dir(), force = FALSE) {
+download_import_file <- function(
+    url,
+    cache_dir = onet_cache_dir(),
+    force = FALSE,
+    expected_sha256 = NULL,
+    as_of = NULL) {
   validate_single_string(url, "url")
+  expected_sha256 <- onet_normalize_sha256(expected_sha256)
   reference_dir <- file.path(cache_dir, "reference")
   dir.create(reference_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -460,7 +511,14 @@ download_import_file <- function(url, cache_dir = onet_cache_dir(), force = FALS
   }
   dest <- file.path(reference_dir, dest_name)
   if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
-    return(dest)
+    receipt <- onet_cached_source_receipt(
+      path = dest,
+      source_url = url,
+      expected_sha256 = expected_sha256,
+      version = onet_source_commit(url),
+      as_of = as_of
+    )
+    return(structure(dest, source_receipt = receipt))
   }
 
   tmp <- tempfile("onet-import-", tmpdir = reference_dir)
@@ -486,13 +544,16 @@ download_import_file <- function(url, cache_dir = onet_cache_dir(), force = FALS
   if (!identical(status, 0L) || file.info(tmp)$size <= 0) {
     cli::cli_abort("Failed to download the import file from {.url {url}}.")
   }
-  if (file.exists(dest)) {
-    unlink(dest, force = TRUE)
-  }
-  if (!file.rename(tmp, dest)) {
-    cli::cli_abort("Failed to move the downloaded import file into the cache.")
-  }
-  dest
+  source_commit <- onet_source_commit(url)
+  receipt <- onet_source_receipt(
+    path = tmp,
+    source_url = url,
+    expected_sha256 = expected_sha256,
+    version = source_commit,
+    as_of = as_of
+  )
+  onet_atomic_commit_source(tmp, dest, receipt)
+  structure(dest, source_receipt = receipt)
 }
 
 import_abort_missing_score <- function(score, data, key_column) {

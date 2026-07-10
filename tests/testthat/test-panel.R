@@ -117,6 +117,125 @@ test_that("onet_releases memoises the release page per session", {
   expect_equal(r3$format, "text")
 })
 
+test_that("archive cache verifies digests and records a receipt", {
+  zipfile <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(zipfile, dest)
+  digest <- onet2r:::onet_sha256(dest)
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(
+        version = "30.3",
+        text_url = url
+      )
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet_archive_download(
+    "30.3",
+    dir = cache_dir,
+    expected_sha256 = digest,
+    as_of = "2026-05"
+  )
+  receipt_path <- paste0(result, ".receipt.rds")
+  receipt <- readRDS(receipt_path)
+
+  expect_equal(result, dest)
+  expect_named(
+    receipt,
+    c(
+      "source_url", "source_path", "source_commit", "retrieved_at",
+      "expected_sha256", "actual_sha256", "file_size", "version", "as_of"
+    )
+  )
+  expect_equal(receipt$source_url, url)
+  expect_equal(receipt$expected_sha256, digest)
+  expect_equal(receipt$actual_sha256, digest)
+  expect_equal(receipt$file_size, unname(file.info(dest)$size))
+  expect_equal(receipt$version, "30.3")
+  expect_equal(receipt$as_of, "2026-05")
+  expect_s3_class(receipt$retrieved_at, "POSIXct")
+
+  con <- file(dest, open = "ab")
+  writeBin(as.raw(1), con)
+  close(con)
+  expect_error(
+    onet_archive_download(
+      "30.3",
+      dir = cache_dir,
+      expected_sha256 = digest,
+      as_of = "2026-05"
+    ),
+    "changed after its receipt was recorded"
+  )
+})
+
+test_that("archive cache rejects expected digest and provenance mismatches", {
+  zipfile <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(zipfile, dest)
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(
+        version = "30.3",
+        text_url = url
+      )
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet_archive_download(
+      "30.3",
+      dir = cache_dir,
+      expected_sha256 = strrep("0", 64)
+    ),
+    "SHA-256 digest mismatch"
+  )
+
+  digest <- onet2r:::onet_sha256(dest)
+  onet_archive_download(
+    "30.3",
+    dir = cache_dir,
+    expected_sha256 = digest,
+    as_of = "2026-05"
+  )
+  expect_error(
+    onet_archive_download(
+      "30.3",
+      dir = cache_dir,
+      expected_sha256 = digest,
+      as_of = "2026-06"
+    ),
+    "provenance does not match.*force = TRUE"
+  )
+
+  receipt_path <- paste0(dest, ".receipt.rds")
+  receipt <- readRDS(receipt_path)
+  receipt$version <- "30.2"
+  saveRDS(receipt, receipt_path)
+  expect_error(
+    onet_archive_download(
+      "30.3",
+      dir = cache_dir,
+      expected_sha256 = digest,
+      as_of = "2026-05"
+    ),
+    "provenance does not match.*force = TRUE"
+  )
+})
+
 test_that("onet_archive_read normalizes descriptor archive tables", {
   zipfile <- tiny_archive_zip()
 

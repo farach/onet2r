@@ -86,6 +86,43 @@ test_that("onet_import_eloundou selects an alternate score column", {
   expect_equal(measure$metadata$score, "dv_rating_beta")
 })
 
+test_that("onet_import_eloundou verifies and attaches a local source receipt", {
+  extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(extract), add = TRUE)
+  digest <- onet2r:::onet_sha256(extract)
+
+  measure <- onet_import_eloundou(
+    make_task_panel(),
+    path = extract,
+    expected_sha256 = digest,
+    as_of = as.Date("2023-03-01")
+  )
+  receipt <- measure$metadata$source_receipt
+
+  expect_named(
+    receipt,
+    c(
+      "source_url", "source_path", "source_commit", "retrieved_at",
+      "expected_sha256", "actual_sha256", "file_size", "version", "as_of"
+    )
+  )
+  expect_equal(receipt$source_url, NA_character_)
+  expect_equal(receipt$source_path, normalizePath(extract, winslash = "\\"))
+  expect_equal(receipt$expected_sha256, digest)
+  expect_equal(receipt$actual_sha256, digest)
+  expect_equal(receipt$file_size, unname(file.info(extract)$size))
+  expect_equal(receipt$as_of, "2023-03-01")
+  expect_s3_class(receipt$retrieved_at, "POSIXct")
+  expect_named(measure, c("data", "coverage", "unmatched", "metadata"))
+  expect_named(
+    measure$data,
+    c(
+      "onet_soc_code", "task_id", "human_rating_beta",
+      "measure_key", "measure_score"
+    )
+  )
+})
+
 test_that("onet_import_eloundou errors clearly on a missing score column", {
   extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
   on.exit(unlink(extract), add = TRUE)
@@ -218,6 +255,32 @@ test_that("onet_import_felten_aioe errors clearly on a missing score column", {
   )
 })
 
+test_that("onet_import_felten_aioe verifies and attaches a local source receipt", {
+  extract <- write_aioe_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(extract), add = TRUE)
+  digest <- onet2r:::onet_sha256(extract)
+
+  measure <- onet_import_felten_aioe(
+    make_task_panel(),
+    path = extract,
+    expected_sha256 = digest,
+    as_of = "2021"
+  )
+  receipt <- measure$metadata$source_receipt
+
+  expect_equal(receipt$source_path, normalizePath(extract, winslash = "\\"))
+  expect_equal(receipt$actual_sha256, digest)
+  expect_equal(receipt$as_of, "2021")
+  expect_named(measure, c("data", "coverage", "unmatched", "metadata"))
+  expect_named(
+    measure$data,
+    c(
+      "onet_soc_code", "task_id", "soc_code", "AIOE",
+      "measure_key", "measure_score"
+    )
+  )
+})
+
 test_that("onet_import_felten_aioe reads an Excel workbook sheet", {
   skip_if_not_installed("writexl")
   skip_if_not_installed("readxl")
@@ -288,4 +351,95 @@ test_that("import adapters validate the force flag", {
     onet_import_eloundou(make_task_panel(), path = extract, force = "yes"),
     "force"
   )
+})
+
+test_that("import adapters reject local digest mismatches before parsing", {
+  bad <- tempfile(fileext = ".csv")
+  on.exit(unlink(bad), add = TRUE)
+  writeLines("not,a,valid,adapter,file", bad)
+  wrong_digest <- strrep("0", 64)
+
+  expect_error(
+    onet_import_eloundou(
+      make_task_panel(),
+      path = bad,
+      expected_sha256 = wrong_digest
+    ),
+    "SHA-256 digest mismatch"
+  )
+  expect_error(
+    onet_import_felten_aioe(
+      make_task_panel(),
+      path = bad,
+      expected_sha256 = wrong_digest
+    ),
+    "SHA-256 digest mismatch"
+  )
+})
+
+test_that("downloaded adapter sources reuse verified receipts without network", {
+  extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(extract), add = TRUE)
+  cache_dir <- withr::local_tempdir()
+  reference_dir <- file.path(cache_dir, "reference")
+  dir.create(reference_dir)
+  dest <- file.path(reference_dir, basename(onet2r:::onet_eloundou_url))
+  file.copy(extract, dest)
+  digest <- onet2r:::onet_sha256(dest)
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    .package = "onet2r"
+  )
+
+  measure <- onet_import_eloundou(
+    make_task_panel(),
+    expected_sha256 = digest,
+    as_of = "2023-03"
+  )
+  receipt <- measure$metadata$source_receipt
+
+  expect_equal(receipt$source_url, onet2r:::onet_eloundou_url)
+  expect_equal(
+    receipt$source_commit,
+    "0471612fef3cc22b74fb884d27bff9dbd3770582"
+  )
+  expect_equal(receipt$version, receipt$source_commit)
+  expect_equal(receipt$actual_sha256, digest)
+  expect_equal(receipt$as_of, "2023-03")
+  expect_equal(file.exists(paste0(dest, ".receipt.rds")), TRUE)
+
+  expect_error(
+    onet_import_eloundou(
+      make_task_panel(),
+      url = "https://example.invalid/occ_level.csv",
+      expected_sha256 = digest,
+      as_of = "2023-03"
+    ),
+    "provenance does not match.*force = TRUE"
+  )
+})
+
+test_that("legacy adapter caches do not claim unverified source provenance", {
+  extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(extract), add = TRUE)
+  cache_dir <- withr::local_tempdir()
+  reference_dir <- file.path(cache_dir, "reference")
+  dir.create(reference_dir)
+  dest <- file.path(reference_dir, basename(onet2r:::onet_eloundou_url))
+  file.copy(extract, dest)
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    .package = "onet2r"
+  )
+
+  measure <- onet_import_eloundou(make_task_panel())
+  receipt <- measure$metadata$source_receipt
+
+  expect_true(is.na(receipt$source_url))
+  expect_true(is.na(receipt$source_commit))
+  expect_true(is.na(receipt$version))
+  expect_true(is.na(receipt$as_of))
+  expect_equal(receipt$actual_sha256, onet2r:::onet_sha256(dest))
 })

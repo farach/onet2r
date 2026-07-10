@@ -13,8 +13,16 @@
 ## Bug fixes
 
 * `onet_content_change()` and `onet_task_to_occupation()` now reject duplicate effective keys instead of silently choosing or blending rows. Task rollups coalesce `release_version` and `version` row by row, reject conflicts, and require exactly one non-missing effective release per call when release metadata is present. `onet_measure_sensitivity()` uses explicit release columns before falling back to named-list labels for multi-vintage provenance (reported in release audit).
+* `onet_measure_sensitivity()` now rejects content-change tables and other non-weight inputs at the `weight_panels` boundary with guidance toward employment weight panels and named-list task release inputs. Its documented output contract is scenario aggregate movement, not rank, quintile, variance, or content-drift diagnostics (reported in release audit).
 * `onet_oews()` now detects, validates, and caches matching OEWS ZIP files downloaded in the user's browser, and interactive sessions can open the official BLS URL and wait for the ZIP when BLS rejects automated downloads with HTTP 403 (reported manually).
 * `onet_oews()` now downloads OEWS ZIP files through the package HTTP client, avoiding RStudio's `.rs.downloadFile()` path that can trigger BLS 403 responses (reported manually).
+
+## Improvements
+
+* Cached API responses are written atomically and corrupt RDS files now fail with a specific cache-clear instruction instead of falling through to network access.
+* Clean-install validation now builds a source tarball, installs it into temporary libraries outside the repository, exercises every public export with deterministic offline fixtures, and runs twice in pull-request CI.
+* O&#42;NET archive and external-adapter downloads now support optional `expected_sha256` and `as_of` verification, write atomic source receipts with URL, commit when inferable, retrieval time, digest, size, and version metadata, and reject changed or mismatched cached sources.
+* Pull requests now require installed-package tests with network access blocked plus a complete pkgdown reference check and site build; deployment remains limited to pushes on `main`.
 
 # onet2r 0.4.2
 

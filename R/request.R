@@ -99,7 +99,14 @@ onet_http_error_body <- function(resp) {
 onet_perform <- function(req) {
   cache_file <- onet_cache_file(req)
   if (!is.null(cache_file) && file.exists(cache_file)) {
-    return(readRDS(cache_file))
+    return(onet_read_cached_rds(
+      cache_file,
+      label = "O*NET API response",
+      guidance = paste0(
+        "Clear it with `onet_cache_clear(what = \"api\")` ",
+        "before retrying the request."
+      )
+    ))
   }
 
   onet_rate_limit_pause()
@@ -117,8 +124,7 @@ onet_perform <- function(req) {
   }
 
   if (!is.null(cache_file)) {
-    dir.create(dirname(cache_file), recursive = TRUE, showWarnings = FALSE)
-    saveRDS(body, cache_file)
+    onet_atomic_save_rds(body, cache_file)
   }
 
   body

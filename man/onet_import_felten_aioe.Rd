@@ -16,7 +16,9 @@ onet_import_felten_aioe(
   measure_id = "felten_aioe",
   measure_name = "Felten, Raj, and Seamans (2021) AIOE",
   force = FALSE,
-  ...
+  ...,
+  expected_sha256 = NULL,
+  as_of = NULL
 )
 }
 \arguments{
@@ -49,6 +51,12 @@ common column names such as \code{"SOC Code"} are detected automatically.}
 
 \item{...}{Additional arguments passed to \code{\link[=onet_measure]{onet_measure()}}, such as
 \code{universe} or \code{weight_panel}.}
+
+\item{expected_sha256}{Optional expected SHA-256 digest for the local or
+downloaded source. It is verified before parsing and on cache reuse.}
+
+\item{as_of}{Optional source date or label recorded in provenance. Cached
+downloads with different \code{as_of} metadata are not silently reused.}
 }
 \value{
 A task-grain \code{onet_measure} object (\code{key_type = "task"}) keyed on
@@ -76,6 +84,9 @@ onet2r never bundles or ships the workbook; you must supply \code{path} or downl
 it from \code{url}. Downloads are cached under \code{tools::R_user_dir("onet2r", "cache")} in the \code{reference} section and can be cleared with
 \code{onet_cache_clear(what = "reference")}. The AIOE workbook is provided for
 research use; cite Felten, Raj, and Seamans (2021) when you use the scores.
+The returned measure includes \code{metadata$source_receipt} with the source URL
+or local path, retrieval time, digest, file size, source commit when
+inferable from a pinned GitHub raw URL, and version or \code{as_of} metadata.
 }
 \examples{
 # Offline: broadcast a small local extract onto a tiny panel.

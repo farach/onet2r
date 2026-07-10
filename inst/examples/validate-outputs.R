@@ -1,7 +1,8 @@
 # Practical output validation for onet2r.
 #
-# Run from an installed package or from the source tree with:
-# Rscript inst/examples/validate-outputs.R
+# Run from an installed package with:
+# Rscript -e "library(onet2r); source(system.file('examples',
+#   'validate-outputs.R', package = 'onet2r'))"
 #
 # Live O&#42;NET API calls require ONET_API_KEY. Local archive and OEWS examples use
 # bundled sample files so they are deterministic and do not depend on downloads.
@@ -37,18 +38,7 @@ mark_validated <- function(...) {
   invisible(NULL)
 }
 
-if (
-  file.exists("DESCRIPTION") &&
-    dir.exists("R") &&
-    any(grepl("^Package:\\s+onet2r\\s*$", readLines("DESCRIPTION", warn = FALSE)))
-) {
-  if (!requireNamespace("devtools", quietly = TRUE)) {
-    stop("Install devtools to run this script from the source tree.")
-  }
-  devtools::load_all(quiet = TRUE)
-} else {
-  library(onet2r)
-}
+library(onet2r)
 
 sample_oews <- system.file("extdata", "oews-national-sample.csv", package = "onet2r")
 if (sample_oews == "") {
@@ -79,6 +69,256 @@ stopifnot(identical(onet_cache_clear(cache_dir = cache_dir, what = "api"), cache
 stopifnot(!dir.exists(file.path(cache_dir, "api")))
 onet_cache_use(enabled = FALSE)
 mark_validated("onet_cache_use", "onet_cache_clear")
+
+api_cache_dir <- tempfile("onet2r-validation-api-")
+onet_cache_use(enabled = TRUE, cache_dir = api_cache_dir)
+seeded_old_key <- Sys.getenv("ONET_API_KEY", unset = NA_character_)
+Sys.setenv(ONET_API_KEY = "validation-placeholder-key")
+
+seed_api_cache <- function(path, path_segments = NULL, query = list(), body = list()) {
+  request <- getFromNamespace("onet_request", "onet2r")(
+    path,
+    .path_segments = path_segments,
+    .query = query
+  )
+  cache_file <- getFromNamespace("onet_cache_file", "onet2r")(request)
+  dir.create(dirname(cache_file), recursive = TRUE, showWarnings = FALSE)
+  saveRDS(body, cache_file)
+}
+
+code <- "15-1252.00"
+empty_page <- list(start = 1L, end = 0L, total = 0L)
+seed_api_cache(
+  "online/search",
+  query = list(keyword = "validation", start = 1, end = 1),
+  body = c(list(occupation = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  query = list(start = 1, end = 1),
+  body = list(
+    occupation = list(list(code = code, title = "Software Developers")),
+    start = 1L,
+    end = 1L,
+    total = 1L
+  )
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = code,
+  body = list(
+    code = code,
+    title = "Software Developers",
+    details_contents = list()
+  )
+)
+for (section in c(
+  "skills", "knowledge", "abilities", "work_styles", "interests",
+  "work_context", "work_activities"
+)) {
+  seed_api_cache(
+    "online/occupations",
+    path_segments = c(code, "details", section),
+    query = list(start = 1, end = 1),
+    body = c(list(element = list()), empty_page)
+  )
+}
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "tasks"),
+  query = list(start = 1, end = 1),
+  body = c(list(task = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "detailed_work_activities"),
+  query = list(start = 1, end = 1),
+  body = c(list(activity = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "related_occupations"),
+  query = list(start = 1, end = 1),
+  body = c(list(occupation = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "professional_associations"),
+  query = list(start = 1, end = 1),
+  body = c(list(source = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "apprenticeship"),
+  query = list(start = 1, end = 1),
+  body = c(list(example_title = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "education"),
+  query = list(start = 1, end = 1),
+  body = c(list(response = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "job_zone"),
+  body = list(code = 4L, title = "Job Zone Four")
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "hot_technology"),
+  query = list(start = 1, end = 1),
+  body = c(list(example = list()), empty_page)
+)
+seed_api_cache(
+  "online/occupations",
+  path_segments = c(code, "details", "technology_skills"),
+  query = list(start = 1, end = 1),
+  body = c(list(category = list()), empty_page)
+)
+seed_api_cache("database", body = list())
+seed_api_cache(
+  "database/info",
+  path_segments = "occupation_data",
+  body = list(column = list())
+)
+seed_api_cache(
+  "database/rows",
+  path_segments = "occupation_data",
+  query = list(start = 1, end = 1),
+  body = c(list(row = list()), empty_page)
+)
+seed_api_cache(
+  "online/crosswalks/military",
+  query = list(keyword = "validation", start = 1, end = 1),
+  body = c(list(occupation = list()), empty_page)
+)
+seed_api_cache(
+  "taxonomy/active/2010",
+  path_segments = code,
+  body = list(occupation = list())
+)
+
+inspect_tbl(onet_search("validation", end = 1), c("code", "title"), min_rows = 0)
+inspect_tbl(onet_occupations(end = 1), c("code", "title"), min_rows = 0)
+inspect_tbl(
+  onet_occupations_all(page_size = 1, show_progress = FALSE),
+  c("code", "title"),
+  min_rows = 0
+)
+inspect_list(onet_occupation(code), c("code", "title"))
+inspect_tbl(onet_occupation_details(code), c("title", "href"), min_rows = 0)
+inspect_tbl(onet_skills(code, end = 1), min_rows = 0)
+inspect_tbl(onet_skills_all(code, page_size = 1, show_progress = FALSE), min_rows = 0)
+inspect_tbl(onet_knowledge(code, end = 1), min_rows = 0)
+inspect_tbl(onet_abilities(code, end = 1), min_rows = 0)
+inspect_tbl(onet_work_styles(code, end = 1), min_rows = 0)
+inspect_tbl(onet_interests(code, end = 1), min_rows = 0)
+inspect_tbl(onet_work_context(code, end = 1), min_rows = 0)
+inspect_tbl(
+  onet_work_context_all(code, page_size = 1, show_progress = FALSE),
+  min_rows = 0
+)
+inspect_tbl(onet_work_activities(code, end = 1), min_rows = 0)
+inspect_tbl(
+  onet_work_activities_all(code, page_size = 1, show_progress = FALSE),
+  min_rows = 0
+)
+inspect_tbl(onet_tasks(code, end = 1), min_rows = 0)
+inspect_tbl(onet_detailed_work_activities(code, end = 1), min_rows = 0)
+inspect_tbl(onet_related_occupations(code, end = 1), min_rows = 0)
+inspect_tbl(onet_professional_associations(code, end = 1), min_rows = 0)
+inspect_tbl(onet_apprenticeship(code, end = 1), "example_title", min_rows = 0)
+inspect_tbl(onet_education(code, end = 1), min_rows = 0)
+inspect_list(onet_job_zone(code), c("code", "title"))
+inspect_tbl(onet_hot_technology(code, end = 1), min_rows = 0)
+inspect_tbl(onet_technology(code, end = 1), min_rows = 0)
+inspect_tbl(onet_technology_skills(code, end = 1), min_rows = 0)
+inspect_tbl(onet_in_demand_skills(code, end = 1), min_rows = 0)
+inspect_tbl(onet_tables(), c("id", "title"), min_rows = 0)
+inspect_tbl(
+  onet_table_info("occupation_data"),
+  c("name", "title", "type", "format", "optional", "description"),
+  min_rows = 0
+)
+inspect_tbl(
+  onet_table("occupation_data", page_size = 1, show_progress = FALSE),
+  min_rows = 0
+)
+inspect_tbl(
+  onet_crosswalk_military("validation", end = 1),
+  c("code", "title"),
+  min_rows = 0
+)
+inspect_tbl(
+  onet_taxonomy_map(code, from = "active", to = "2010"),
+  c("code", "title"),
+  min_rows = 0
+)
+mark_validated(
+  "onet_search", "onet_occupations", "onet_occupations_all",
+  "onet_occupation", "onet_occupation_details", "onet_skills",
+  "onet_skills_all", "onet_knowledge", "onet_abilities",
+  "onet_work_styles", "onet_interests", "onet_work_context",
+  "onet_work_context_all", "onet_work_activities",
+  "onet_work_activities_all", "onet_tasks", "onet_detailed_work_activities",
+  "onet_related_occupations", "onet_professional_associations",
+  "onet_apprenticeship", "onet_education", "onet_job_zone",
+  "onet_hot_technology", "onet_technology", "onet_technology_skills",
+  "onet_in_demand_skills", "onet_tables", "onet_table_info",
+  "onet_table", "onet_crosswalk_military", "onet_taxonomy_map"
+)
+onet_cache_use(enabled = FALSE)
+if (is.na(seeded_old_key)) {
+  Sys.unsetenv("ONET_API_KEY")
+} else {
+  Sys.setenv(ONET_API_KEY = seeded_old_key)
+}
+
+release_fixture <- tibble::tibble(
+  version = "30.3",
+  release_date = as.Date("2026-05-01"),
+  year = 2026L,
+  month = "May",
+  soc_vintage = factor("2019"),
+  format = "text",
+  text_url = "https://fixtures.invalid/db_30_3_text.zip",
+  dictionary_url = "https://fixtures.invalid/dictionary/30.3/"
+)
+release_cache <- get(".onet2r_release_cache", envir = asNamespace("onet2r"))
+release_cache$releases <- release_fixture
+inspect_tbl(onet_releases(), c("version", "release_date", "text_url"))
+mark_validated("onet_releases")
+
+archive_cache <- tempfile("onet2r-validation-archive-")
+archive_dir <- file.path(archive_cache, "archives")
+dir.create(archive_dir, recursive = TRUE)
+archive_fixture <- file.path(archive_dir, "db_30_3_text.zip")
+old_wd <- getwd()
+setwd(sample_archive)
+utils::zip(archive_fixture, list.files(".", recursive = TRUE), flags = "-q")
+setwd(old_wd)
+archive_path <- onet_archive_download("30.3", dir = archive_cache, as_of = "2026-05")
+stopifnot(
+  identical(archive_path, archive_fixture),
+  file.exists(paste0(archive_path, ".receipt.rds"))
+)
+mark_validated("onet_archive_download")
+
+rlang::check_installed("writexl", reason = "to build the offline validation workbook.")
+updates_fixture <- tempfile(fileext = ".xlsx")
+writexl::write_xlsx(
+  list(`Incumbent or OE` = data.frame(
+    `O*NET-SOC Code` = "15-1252.00",
+    `O*NET-SOC Title` = "Software Developers",
+    check.names = FALSE
+  )),
+  updates_fixture
+)
+updates <- onet_data_updates(path = updates_fixture)
+inspect_tbl(updates, c("data_update_type", "onet_soc_code", "title"))
+unlink(updates_fixture)
+mark_validated("onet_data_updates")
 
 oews <- onet_oews_national(year = 2024, path = sample_oews)
 inspect_tbl(oews, c("year", "oews_type", "occ_code", "tot_emp", "a_median"))
@@ -201,6 +441,200 @@ inspect_tbl(task_ratings, c("onet_soc_code", "task_id", "scale_id", "data_value"
 weight_panel <- onet_weight_panel_oews(oews, year = 2024)
 inspect_tbl(weight_panel, c("reference_soc_code", "employment", "weight_share"))
 mark_validated("onet_weight_panel_oews")
+
+showcase_release <- function(version, date, values, source_dates) {
+  tibble::tibble(
+    release_version = version,
+    release_date = as.Date(date),
+    soc_vintage = "2019",
+    onet_soc_code = rep(c("15-1252.00", "29-1141.00"), each = 2),
+    soc_code = rep(c("15-1252", "29-1141"), each = 2),
+    title = rep(c("Software Developers", "Registered Nurses"), each = 2),
+    task_id = as.character(1:4),
+    task = c("Design systems", "Review code", "Assess patients", "Document care"),
+    scale_id = "IM",
+    data_value = values,
+    source_date = as.Date(source_dates),
+    domain_source = "Incumbent",
+    recommend_suppress = "N"
+  )
+}
+
+showcase_302 <- showcase_release(
+  "30.2",
+  "2026-02-01",
+  c(4, 2, 1, 3),
+  rep("2025-01-01", 4)
+)
+showcase_303 <- showcase_release(
+  "30.3",
+  "2026-05-01",
+  c(2, 4, 3, 1),
+  c("2026-03-01", "2026-03-01", "2025-01-01", "2025-01-01")
+)
+showcase_panel <- dplyr::bind_rows(showcase_302, showcase_303)
+showcase_metadata <- tibble::tibble(
+  task_id = as.character(1:4),
+  task_type = "Core"
+)
+showcase_weights <- tibble::tibble(
+  reference_soc_code = c("15-1252", "29-1141"),
+  year = 2025L,
+  employment = c(100, 300),
+  weight_share = c(0.25, 0.75),
+  source = "synthetic installed showcase",
+  source_taxonomy = "2018 SOC",
+  reference_taxonomy = "2018 SOC"
+)
+
+showcase_resurvey <- onet_resurvey_panel(showcase_panel)
+showcase_conditioned <- onet_condition_on_resurvey(showcase_resurvey)
+showcase_content <- onet_content_change(showcase_panel)
+inspect_tbl(
+  showcase_resurvey,
+  c("release_version", "task_id", "resurvey_event", "cycle_index")
+)
+inspect_tbl(
+  showcase_conditioned,
+  c("selection_reason", "at_risk")
+)
+inspect_tbl(
+  showcase_content,
+  c("from_release", "to_release", "n_retained", "rating_delta_l2")
+)
+stopifnot(
+  inherits(showcase_resurvey, "onet_resurvey_panel"),
+  nrow(showcase_resurvey) == 8L,
+  identical(
+    showcase_conditioned$at_risk[
+      showcase_conditioned$release_version == "30.3" &
+        showcase_conditioned$onet_soc_code == "15-1252.00"
+    ],
+    c(TRUE, TRUE)
+  ),
+  identical(showcase_content$from_release, rep("30.2", 2)),
+  identical(showcase_content$to_release, rep("30.3", 2)),
+  isTRUE(all.equal(showcase_content$rating_delta_l2, rep(sqrt(8), 2)))
+)
+mark_validated(
+  "onet_resurvey_panel", "onet_condition_on_resurvey", "onet_content_change"
+)
+
+eloundou_extract <- tempfile(fileext = ".csv")
+felten_extract <- tempfile(fileext = ".csv")
+utils::write.csv(
+  data.frame(
+    `O*NET-SOC Code` = c("15-1252.00", "29-1141.00"),
+    human_rating_beta = c(0.6, 0.2),
+    check.names = FALSE
+  ),
+  eloundou_extract,
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    `SOC Code` = c("15-1252", "29-1141"),
+    AIOE = c(1.1, -0.3),
+    check.names = FALSE
+  ),
+  felten_extract,
+  row.names = FALSE
+)
+showcase_pairs <- showcase_302[c("onet_soc_code", "task_id")]
+eloundou_measure <- onet_import_eloundou(
+  showcase_pairs,
+  path = eloundou_extract
+)
+felten_measure <- onet_import_felten_aioe(
+  showcase_pairs,
+  path = felten_extract
+)
+stopifnot(
+  inherits(eloundou_measure, "onet_measure"),
+  inherits(felten_measure, "onet_measure"),
+  identical(eloundou_measure$metadata$key_type, "task"),
+  identical(felten_measure$metadata$key_type, "task"),
+  isTRUE(all.equal(eloundou_measure$data$measure_score, c(0.6, 0.6, 0.2, 0.2))),
+  isTRUE(all.equal(felten_measure$data$measure_score, c(1.1, 1.1, -0.3, -0.3)))
+)
+unlink(c(eloundou_extract, felten_extract))
+mark_validated("onet_import_eloundou", "onet_import_felten_aioe")
+
+showcase_targeted <- onet_measure(
+  showcase_302,
+  items = c("1", "3"),
+  agg = "targeted",
+  release_version = "30.2",
+  measure_id = "stylized_targeted"
+)
+showcase_measure <- onet_measure(
+  showcase_302,
+  agg = "aggregate",
+  release_version = "30.2",
+  measure_id = "stylized_aggregate"
+)
+stopifnot(
+  identical(showcase_targeted$metadata$key_type, "task"),
+  setequal(showcase_targeted$data$measure_key, c("1", "3")),
+  nrow(showcase_measure$data) == 4L
+)
+
+showcase_occupation <- onet_task_to_occupation(
+  showcase_measure,
+  task_ratings = showcase_302,
+  task_metadata = showcase_metadata,
+  weight_scale = "IM"
+)
+showcase_national <- onet_measure_aggregate(
+  showcase_occupation,
+  showcase_weights
+)
+stopifnot(
+  identical(showcase_occupation$measure_release, rep("30.2", 2)),
+  isTRUE(all.equal(showcase_occupation$measure_score, c(10 / 3, 2.5))),
+  isTRUE(all.equal(showcase_national$aggregate, 65 / 24))
+)
+
+showcase_sensitivity <- onet_measure_sensitivity(
+  showcase_measure,
+  weight_panels = list(national = showcase_weights),
+  task_ratings = list(
+    release_302 = showcase_302,
+    release_303 = showcase_303
+  ),
+  task_metadata = list(
+    release_302 = showcase_metadata,
+    release_303 = showcase_metadata
+  ),
+  weight_scale = "IM"
+)
+inspect_tbl(
+  showcase_sensitivity,
+  c("task_release", "aggregate", "movement", "movement_percent")
+)
+stopifnot(
+  inherits(showcase_sensitivity, "onet_sensitivity"),
+  identical(showcase_sensitivity$task_release, c("30.2", "30.3")),
+  isTRUE(all.equal(showcase_sensitivity$aggregate, c(65 / 24, 43 / 24))),
+  isTRUE(all.equal(showcase_sensitivity$movement, c(0, -11 / 12)))
+)
+content_rejection <- tryCatch(
+  {
+    onet_measure_sensitivity(
+      showcase_measure,
+      weight_panels = showcase_content,
+      task_ratings = list(release_302 = showcase_302),
+      task_metadata = list(release_302 = showcase_metadata),
+      weight_scale = "IM"
+    )
+    NULL
+  },
+  error = identity
+)
+stopifnot(
+  inherits(content_rejection, "error"),
+  grepl("content-change output", conditionMessage(content_rejection), fixed = TRUE)
+)
 
 oral_scores <- abilities |>
   dplyr::filter(element_id == "1.A.1.a.1") |>
@@ -383,28 +817,9 @@ if (nzchar(Sys.getenv("ONET_API_KEY"))) {
   message("Skipping live O&#42;NET checks because ONET_API_KEY is not set.")
 }
 
-network_or_external_exports <- c(
-  "onet_archive_download", "onet_data_updates", "onet_releases",
-  "onet_search", "onet_occupations", "onet_occupations_all",
-  "onet_occupation", "onet_occupation_details", "onet_skills",
-  "onet_skills_all", "onet_knowledge", "onet_abilities",
-  "onet_work_styles", "onet_interests", "onet_work_context",
-  "onet_work_context_all", "onet_work_activities",
-  "onet_work_activities_all", "onet_tasks", "onet_detailed_work_activities",
-  "onet_related_occupations", "onet_professional_associations",
-  "onet_apprenticeship", "onet_education", "onet_job_zone",
-  "onet_hot_technology", "onet_technology", "onet_technology_skills",
-  "onet_in_demand_skills", "onet_tables", "onet_table_info",
-  "onet_table", "onet_crosswalk_military", "onet_taxonomy_map"
-)
-
 exports <- getNamespaceExports("onet2r")
-unvalidated <- setdiff(sort(exports), sort(c(validated_exports, network_or_external_exports)))
+unvalidated <- setdiff(sort(exports), sort(validated_exports))
 if (length(unvalidated) > 0) {
   stop("Validation script does not cover exported functions: ", paste(unvalidated, collapse = ", "))
 }
 message("Validated exports: ", paste(sort(validated_exports), collapse = ", "))
-message(
-  "Deferred network/API exports: ",
-  paste(sort(setdiff(network_or_external_exports, validated_exports)), collapse = ", ")
-)
