@@ -226,6 +226,7 @@ onet_sensitive_url_parameters <- c(
   "key",
   "key_pair_id",
   "oauth_signature",
+  "oauth_consumer_key",
   "oauth_token",
   "oauth_verifier",
   "ocp_apim_subscription_key",

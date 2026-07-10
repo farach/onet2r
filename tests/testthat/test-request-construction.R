@@ -544,6 +544,9 @@ test_that("credential parameter redaction is exact and percent decoded", {
     "refresh-token",
     "oauth_signature",
     "oauth_verifier",
+    "OAuthVerifier",
+    "oauthConsumerKey",
+    "oauth%5Fconsumer%5Fkey",
     "api_token",
     "x-api-key",
     "idToken",
@@ -560,6 +563,8 @@ test_that("credential parameter redaction is exact and percent decoded", {
     "GoogleAccessId",
     "accesskey",
     "secretkey",
+    "consumerKey",
+    "consumerSecret",
     "consumerkey",
     "clientsecret"
   )
@@ -876,6 +881,111 @@ test_that("legacy receipt URL migration applies precise credential redaction", {
       )
     }
   }
+})
+
+test_that("OAuth consumer credentials are redacted on every URL surface", {
+  url <- paste0(
+    "https://example.invalid/oauth/callback?",
+    "oauth_verifier=verifier-secret&OAuthVerifier=camel-verifier-secret",
+    "&consumerKey=consumer-key-secret",
+    "&oauthConsumerKey=oauth-consumer-key-secret",
+    "&consumerSecret=consumer-secret",
+    "&oauth%5Fconsumer%5Fkey=encoded-consumer-secret",
+    "&author=alice&monkey=capuchin&state=visible-state",
+    "&signature_version=1.0"
+  )
+  secrets <- paste(
+    "verifier-secret|camel-verifier-secret|consumer-key-secret",
+    "oauth-consumer-key-secret|consumer-secret|encoded-consumer-secret",
+    sep = "|"
+  )
+  safe_url <- onet2r:::onet_redact_url_credentials(url)
+
+  expect_no_match(safe_url, secrets)
+  expect_match(safe_url, "author=alice", fixed = TRUE)
+  expect_match(safe_url, "monkey=capuchin", fixed = TRUE)
+  expect_match(safe_url, "state=visible-state", fixed = TRUE)
+  expect_match(safe_url, "signature_version=1.0", fixed = TRUE)
+
+  fragment_url <- paste0(
+    "https://example.invalid/oauth/callback#route?",
+    "OAuthVerifier=fragment-verifier-secret",
+    "&consumerSecret=fragment-consumer-secret",
+    "&state=fragment-state&author=alice"
+  )
+  safe_fragment <- onet2r:::onet_redact_url_credentials(fragment_url)
+  expect_no_match(
+    safe_fragment,
+    "fragment-verifier-secret|fragment-consumer-secret"
+  )
+  expect_match(safe_fragment, "state=fragment-state", fixed = TRUE)
+  expect_match(safe_fragment, "author=alice", fixed = TRUE)
+
+  malformed_url <- paste0(
+    "http://[bad]?",
+    "oauth%5Fverifier=malformed-verifier-secret",
+    "&oauth%5Fconsumer%5Fkey=malformed-consumer-key-secret",
+    "&consumerSecret=malformed-consumer-secret",
+    "&state=malformed-state&monkey=capuchin"
+  )
+  safe_malformed <- onet2r:::onet_redact_url_credentials(malformed_url)
+  expect_no_match(
+    safe_malformed,
+    paste(
+      "malformed-verifier-secret|malformed-consumer-key-secret",
+      "malformed-consumer-secret",
+      sep = "|"
+    )
+  )
+  expect_match(safe_malformed, "state=malformed-state", fixed = TRUE)
+  expect_match(safe_malformed, "monkey=capuchin", fixed = TRUE)
+
+  path <- tempfile(fileext = ".csv")
+  on.exit(unlink(path), add = TRUE)
+  writeLines("source", path)
+  receipt <- onet2r:::onet_source_receipt(path, source_url = url)
+  expect_equal(receipt$source_url, safe_url)
+  expect_no_match(receipt$source_url, secrets)
+  expect_match(receipt$source_url, "state=visible-state", fixed = TRUE)
+
+  warning_message <- NULL
+  withCallingHandlers(
+    onet2r:::onet_warn_download_completed(url, "OAuth fixture"),
+    warning = function(cnd) {
+      warning_message <<- conditionMessage(cnd)
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_no_match(warning_message, secrets)
+  expect_match(warning_message, "state=visible-state", fixed = TRUE)
+  expect_match(warning_message, "author=alice", fixed = TRUE)
+
+  failing_url <- paste0(
+    "bad://example.invalid/oauth/callback?",
+    "OAuthVerifier=error-verifier-secret",
+    "&oauthConsumerKey=error-consumer-key-secret",
+    "&consumerSecret=error-consumer-secret",
+    "&state=error-state&author=alice"
+  )
+  condition <- tryCatch(
+    onet2r:::download_import_file(
+      failing_url,
+      cache_dir = withr::local_tempdir(),
+      force = TRUE
+    ),
+    error = identity
+  )
+  error_message <- conditionMessage(condition)
+  expect_no_match(
+    error_message,
+    paste(
+      "error-verifier-secret|error-consumer-key-secret",
+      "error-consumer-secret",
+      sep = "|"
+    )
+  )
+  expect_match(error_message, "state=error-state", fixed = TRUE)
+  expect_match(error_message, "author=alice", fixed = TRUE)
 })
 
 test_that("failed cache snapshot creation removes the private copy", {
