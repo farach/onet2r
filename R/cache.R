@@ -1,3 +1,249 @@
+.onet_cache_transaction_state <- new.env(parent = emptyenv())
+
+onet_cache_sections <- function() {
+  c("api", "archives", "crosswalks", "oews", "reference")
+}
+
+onet_lock_token <- function() {
+  paste0("owner-", Sys.getpid(), "-", basename(tempfile()))
+}
+
+onet_acquire_cache_lock <- function(lock, timeout = 10) {
+  dir.create(dirname(lock), recursive = TRUE, showWarnings = FALSE)
+  started <- Sys.time()
+
+  repeat {
+    token <- onet_lock_token()
+    if (dir.create(lock, showWarnings = FALSE)) {
+      owner <- file.path(lock, token)
+      owner_created <- tryCatch(
+        {
+          writeLines(token, owner, useBytes = TRUE)
+          file.exists(owner)
+        },
+        error = function(cnd) FALSE
+      )
+      if (owner_created) {
+        return(structure(
+          list(path = lock, token = token),
+          class = "onet2r_cache_lock"
+        ))
+      }
+      unlink(lock, recursive = TRUE, force = TRUE)
+      cli::cli_abort(
+        "Failed to record cache lock ownership.",
+        class = "onet2r_cache_lock_error"
+      )
+    }
+
+    if (as.numeric(difftime(Sys.time(), started, units = "secs")) >= timeout) {
+      cli::cli_abort(
+        c(
+          "Timed out waiting for a cache lock.",
+          "i" = "Lock directory: {.file {lock}}",
+          "i" = paste(
+            "If no other onet2r process is using this cache file,",
+            "remove the stale lock directory."
+          )
+        ),
+        class = "onet2r_cache_lock_timeout"
+      )
+    }
+    Sys.sleep(0.05)
+  }
+}
+
+onet_release_cache_lock <- function(handle) {
+  owner <- file.path(handle$path, handle$token)
+  if (!file.exists(owner)) {
+    return(FALSE)
+  }
+
+  recorded <- tryCatch(
+    readLines(owner, n = 1L, warn = FALSE),
+    error = function(cnd) character()
+  )
+  entries <- list.files(handle$path, all.files = TRUE, no.. = TRUE)
+  if (
+    !identical(recorded, handle$token) ||
+      !identical(entries, handle$token)
+  ) {
+    return(FALSE)
+  }
+
+  unlink(owner, force = TRUE)
+  if (file.exists(owner)) {
+    return(FALSE)
+  }
+  unlink(handle$path, recursive = TRUE, force = TRUE)
+  !dir.exists(handle$path)
+}
+
+onet_with_raw_cache_lock <- function(lock, code, timeout = 10) {
+  handle <- onet_acquire_cache_lock(lock, timeout = timeout)
+  on.exit(onet_release_cache_lock(handle), add = TRUE)
+  force(code)
+}
+
+onet_cache_section_path <- function(path) {
+  current <- normalizePath(path, winslash = "/", mustWork = FALSE)
+  repeat {
+    if (basename(current) %in% onet_cache_sections()) {
+      return(current)
+    }
+    parent <- dirname(current)
+    if (identical(parent, current)) {
+      return(NULL)
+    }
+    current <- parent
+  }
+}
+
+onet_cache_coordination_paths <- function(section) {
+  root <- file.path(
+    dirname(section),
+    ".onet2r-locks",
+    basename(section)
+  )
+  list(
+    root = root,
+    gate = file.path(root, "gate.lock"),
+    active = file.path(root, "active")
+  )
+}
+
+onet_cache_transaction_key <- function(section) {
+  normalizePath(section, winslash = "/", mustWork = FALSE)
+}
+
+onet_begin_cache_transaction <- function(path, timeout = 10) {
+  section <- onet_cache_section_path(path)
+  if (is.null(section)) {
+    return(NULL)
+  }
+
+  key <- onet_cache_transaction_key(section)
+  if (exists(key, envir = .onet_cache_transaction_state, inherits = FALSE)) {
+    state <- get(key, envir = .onet_cache_transaction_state, inherits = FALSE)
+    state$count <- state$count + 1L
+    assign(key, state, envir = .onet_cache_transaction_state)
+    return(structure(
+      list(key = key),
+      class = "onet2r_cache_transaction"
+    ))
+  }
+
+  coordination <- onet_cache_coordination_paths(section)
+  dir.create(coordination$active, recursive = TRUE, showWarnings = FALSE)
+  gate <- onet_acquire_cache_lock(coordination$gate, timeout = timeout)
+  on.exit(onet_release_cache_lock(gate), add = TRUE)
+
+  token <- onet_lock_token()
+  marker <- file.path(coordination$active, token)
+  if (!file.create(marker)) {
+    cli::cli_abort(
+      "Failed to register an active cache transaction.",
+      class = "onet2r_cache_lock_error"
+    )
+  }
+  writeLines(token, marker, useBytes = TRUE)
+  assign(
+    key,
+    list(count = 1L, marker = marker),
+    envir = .onet_cache_transaction_state
+  )
+  structure(
+    list(key = key),
+    class = "onet2r_cache_transaction"
+  )
+}
+
+onet_end_cache_transaction <- function(handle) {
+  if (is.null(handle)) {
+    return(invisible(TRUE))
+  }
+  if (
+    !exists(
+      handle$key,
+      envir = .onet_cache_transaction_state,
+      inherits = FALSE
+    )
+  ) {
+    return(invisible(FALSE))
+  }
+
+  state <- get(
+    handle$key,
+    envir = .onet_cache_transaction_state,
+    inherits = FALSE
+  )
+  if (state$count > 1L) {
+    state$count <- state$count - 1L
+    assign(handle$key, state, envir = .onet_cache_transaction_state)
+    return(invisible(TRUE))
+  }
+
+  unlink(state$marker, force = TRUE)
+  rm(list = handle$key, envir = .onet_cache_transaction_state)
+  invisible(!file.exists(state$marker))
+}
+
+onet_with_cache_transaction <- function(path, code, timeout = 10) {
+  handle <- onet_begin_cache_transaction(path, timeout = timeout)
+  on.exit(onet_end_cache_transaction(handle), add = TRUE)
+  force(code)
+}
+
+onet_clear_cache_section <- function(section, timeout = 10) {
+  section <- normalizePath(section, winslash = "/", mustWork = FALSE)
+  key <- onet_cache_transaction_key(section)
+  if (exists(key, envir = .onet_cache_transaction_state, inherits = FALSE)) {
+    cli::cli_abort(
+      paste(
+        "Cannot clear a cache section from inside one of its",
+        "active transactions."
+      ),
+      class = "onet2r_cache_clear_conflict"
+    )
+  }
+
+  coordination <- onet_cache_coordination_paths(section)
+  dir.create(coordination$active, recursive = TRUE, showWarnings = FALSE)
+  gate <- onet_acquire_cache_lock(coordination$gate, timeout = timeout)
+  on.exit(onet_release_cache_lock(gate), add = TRUE)
+
+  started <- Sys.time()
+  repeat {
+    active <- list.files(
+      coordination$active,
+      all.files = TRUE,
+      no.. = TRUE
+    )
+    if (length(active) == 0L) {
+      break
+    }
+    if (as.numeric(difftime(Sys.time(), started, units = "secs")) >= timeout) {
+      cli::cli_abort(
+        c(
+          "Timed out waiting to clear an active cache section.",
+          "i" = "Cache section: {.file {section}}"
+        ),
+        class = "onet2r_cache_clear_timeout"
+      )
+    }
+    Sys.sleep(0.05)
+  }
+
+  unlink(section, recursive = TRUE, force = TRUE)
+  if (dir.exists(section) || file.exists(section)) {
+    cli::cli_abort(
+      "Failed to clear cache section {.file {section}}.",
+      class = "onet2r_cache_clear_error"
+    )
+  }
+  invisible(section)
+}
+
 onet_file_rename <- function(from, to) {
   file.rename(from, to)
 }
@@ -63,37 +309,29 @@ onet_atomic_replace <- function(tmp, dest) {
 }
 
 onet_with_cache_lock <- function(path, code, timeout = 10) {
-  lock <- paste0(path, ".lock")
-  started <- Sys.time()
-  repeat {
-    if (dir.create(lock, showWarnings = FALSE)) {
-      break
-    }
-    if (as.numeric(difftime(Sys.time(), started, units = "secs")) >= timeout) {
-      cli::cli_abort(c(
-        "Timed out waiting for a cache lock.",
-        "i" = "Lock directory: {.file {lock}}",
-        "i" = "If no other onet2r process is using this cache file, remove the stale lock directory."
-      ))
-    }
-    Sys.sleep(0.05)
-  }
-  on.exit(unlink(lock, recursive = TRUE, force = TRUE), add = TRUE)
-  force(code)
+  onet_with_cache_transaction(path, {
+    onet_with_raw_cache_lock(
+      paste0(path, ".lock"),
+      force(code),
+      timeout = timeout
+    )
+  }, timeout = timeout)
 }
 
 onet_atomic_write <- function(dest, write) {
-  dir.create(dirname(dest), recursive = TRUE, showWarnings = FALSE)
-  tmp <- tempfile(
-    paste0(".", basename(dest), "-write-"),
-    tmpdir = dirname(dest)
-  )
-  on.exit(unlink(tmp, force = TRUE), add = TRUE)
-  write(tmp)
-  if (!file.exists(tmp)) {
-    cli::cli_abort("Atomic cache writer did not create a file.")
-  }
-  onet_atomic_replace(tmp, dest)
+  onet_with_cache_lock(dest, {
+    dir.create(dirname(dest), recursive = TRUE, showWarnings = FALSE)
+    tmp <- tempfile(
+      paste0(".", basename(dest), "-write-"),
+      tmpdir = dirname(dest)
+    )
+    on.exit(unlink(tmp, force = TRUE), add = TRUE)
+    write(tmp)
+    if (!file.exists(tmp)) {
+      cli::cli_abort("Atomic cache writer did not create a file.")
+    }
+    onet_atomic_replace(tmp, dest)
+  })
 }
 
 onet_atomic_save_rds <- function(object, dest) {
@@ -124,26 +362,38 @@ onet_normalize_sha256 <- function(expected_sha256) {
   validate_single_string(expected_sha256, "expected_sha256")
   if (!grepl("^[[:xdigit:]]{64}$", expected_sha256)) {
     cli::cli_abort(
-      "{.arg expected_sha256} must be a 64-character hexadecimal SHA-256 digest."
+      paste(
+        "{.arg expected_sha256} must be a 64-character hexadecimal",
+        "SHA-256 digest."
+      ),
+      class = "onet2r_invalid_digest"
     )
   }
   tolower(expected_sha256)
 }
 
 onet_sha256 <- function(path) {
-  digest <- tryCatch(
-    unname(tools::sha256sum(path)),
+  sha256 <- tryCatch(
+    digest::digest(
+      file = path,
+      algo = "sha256",
+      serialize = FALSE
+    ),
     error = function(cnd) {
       cli::cli_abort(
         "Failed to calculate SHA-256 for {.file {path}}.",
+        class = "onet2r_sha256_error",
         parent = cnd
       )
     }
   )
-  if (length(digest) != 1 || is.na(digest) || !nzchar(digest)) {
-    cli::cli_abort("Failed to calculate SHA-256 for {.file {path}}.")
+  if (length(sha256) != 1 || is.na(sha256) || !nzchar(sha256)) {
+    cli::cli_abort(
+      "Failed to calculate SHA-256 for {.file {path}}.",
+      class = "onet2r_sha256_error"
+    )
   }
-  tolower(digest)
+  tolower(sha256)
 }
 
 onet_source_commit <- function(url) {
@@ -294,10 +544,50 @@ onet_redact_url_fragment <- function(fragment) {
   paste0(route, onet_redact_url_parameters(parameters))
 }
 
+onet_redact_url_authority <- function(url) {
+  scheme <- regexpr(
+    "^[[:alpha:]][[:alnum:]+.-]*://",
+    url,
+    perl = TRUE
+  )
+  if (scheme[[1]] != 1L) {
+    return(url)
+  }
+
+  authority_start <- attr(scheme, "match.length") + 1L
+  remainder <- substr(url, authority_start, nchar(url))
+  delimiter <- regexpr("[/?#]", remainder, perl = TRUE)[[1]]
+  authority_end <- if (delimiter < 0L) {
+    nchar(remainder)
+  } else {
+    delimiter - 1L
+  }
+  authority <- substr(remainder, 1L, authority_end)
+  at <- gregexpr("@", authority, fixed = TRUE)[[1]]
+  if (identical(at, -1L)) {
+    return(url)
+  }
+
+  host <- substr(authority, max(at) + 1L, nchar(authority))
+  suffix <- if (delimiter < 0L) {
+    ""
+  } else {
+    substr(remainder, delimiter, nchar(remainder))
+  }
+  paste0(
+    substr(url, 1L, authority_start - 1L),
+    host,
+    suffix
+  )
+}
+
 onet_redact_url_credentials <- function(url) {
   if (is.null(url) || length(url) != 1 || is.na(url)) {
     return(url)
   }
+  url <- onet_redact_url_authority(url)
+  literal_at <- "ONET2RLITERALAT9C3E"
+  url <- gsub("@", literal_at, url, fixed = TRUE)
   parsed <- tryCatch(httr2::url_parse(url), error = function(cnd) NULL)
   if (is.null(parsed)) {
     fragment <- if (grepl("#", url, fixed = TRUE)) {
@@ -312,19 +602,14 @@ onet_redact_url_credentials <- function(url) {
       NULL
     }
     url <- sub("\\?.*$", "", url)
-    base <- sub(
-      "^([[:alpha:]][[:alnum:]+.-]*://)[^/@]*@",
-      "\\1",
-      url,
-      perl = TRUE
-    )
+    base <- url
     if (!is.null(query)) {
       base <- paste0(base, "?", onet_redact_url_parameters(query))
     }
     if (!is.null(fragment)) {
       base <- paste0(base, "#", onet_redact_url_fragment(fragment))
     }
-    return(base)
+    return(gsub(literal_at, "@", base, fixed = TRUE))
   }
   parsed$username <- NULL
   parsed$password <- NULL
@@ -350,7 +635,7 @@ onet_redact_url_credentials <- function(url) {
   if (!is.null(fragment)) {
     redacted <- paste0(redacted, "#", fragment)
   }
-  redacted
+  gsub(literal_at, "@", redacted, fixed = TRUE)
 }
 
 onet_source_url_sha256 <- function(url) {
@@ -369,7 +654,7 @@ onet_warn_download_completed <- function(url, label) {
     "The {label} download completed with a warning.",
     "i" = "URL: {.url {safe_url}}",
     "i" = "Verify the downloaded source before use."
-  ))
+  ), class = "onet2r_download_warning")
 }
 
 onet_source_receipt <- function(
@@ -391,7 +676,8 @@ onet_source_receipt <- function(
         "x" = "Expected: {expected_sha256}",
         "x" = "Actual:   {actual_sha256}",
         "i" = "Do not parse this file. Confirm the source and expected digest."
-      )
+      ),
+      class = "onet2r_digest_mismatch"
     )
   }
 
@@ -423,13 +709,6 @@ onet_atomic_commit_source <- function(
     dest,
     receipt,
     return_snapshot = FALSE) {
-  receipt_dest <- onet_receipt_path(dest)
-  receipt_tmp <- tempfile(
-    paste0(".", basename(receipt_dest), "-write-"),
-    tmpdir = dirname(dest)
-  )
-  on.exit(unlink(receipt_tmp, force = TRUE), add = TRUE)
-  saveRDS(receipt, receipt_tmp)
   snapshot <- NULL
   snapshot_success <- FALSE
   if (isTRUE(return_snapshot)) {
@@ -445,72 +724,105 @@ onet_atomic_commit_source <- function(
     }, add = TRUE)
   }
 
-  result <- onet_with_cache_lock(dest, {
-    old_paths <- c(dest, receipt_dest)
-    backups <- rep(NA_character_, length(old_paths))
-    installed <- character()
+  result <- onet_with_cache_lock(
+    dest,
+    onet_commit_source_unlocked(
+      tmp = tmp,
+      dest = dest,
+      receipt = receipt,
+      snapshot = snapshot
+    )
+  )
+  snapshot_success <- isTRUE(return_snapshot)
+  result
+}
 
-    for (i in seq_along(old_paths)) {
-      if (!file.exists(old_paths[[i]])) {
-        next
-      }
-      backups[[i]] <- tempfile(
-        paste0(".", basename(old_paths[[i]]), "-backup-"),
-        tmpdir = dirname(dest)
-      )
-      if (!onet_file_rename(old_paths[[i]], backups[[i]])) {
-        prior <- seq_len(i - 1L)
-        restored <- vapply(prior, \(j) {
-          is.na(backups[[j]]) ||
-            onet_restore_backup(backups[[j]], old_paths[[j]])
-        }, logical(1))
-        if (!all(restored)) {
-          cli::cli_abort(
-            "Failed to preserve the existing cache source and receipt, and the previous pair could not be restored."
-          )
-        }
-        cli::cli_abort(
-          "Failed to preserve the existing cache source and receipt before replacement."
-        )
-      }
+onet_commit_source_unlocked <- function(
+    tmp,
+    dest,
+    receipt,
+    snapshot = NULL) {
+  receipt_dest <- onet_receipt_path(dest)
+  receipt_tmp <- tempfile(
+    paste0(".", basename(receipt_dest), "-write-"),
+    tmpdir = dirname(dest)
+  )
+  on.exit(unlink(receipt_tmp, force = TRUE), add = TRUE)
+  saveRDS(receipt, receipt_tmp)
+
+  old_paths <- c(dest, receipt_dest)
+  backups <- rep(NA_character_, length(old_paths))
+  installed <- character()
+
+  for (i in seq_along(old_paths)) {
+    if (!file.exists(old_paths[[i]])) {
+      next
     }
-
-    committed <- onet_file_rename(tmp, dest)
-    if (committed) {
-      installed <- c(installed, dest)
-      committed <- onet_file_rename(receipt_tmp, receipt_dest)
-      if (committed) {
-        installed <- c(installed, receipt_dest)
-      }
-    }
-
-    if (!committed) {
-      unlink(installed, force = TRUE)
-      restored <- vapply(seq_along(old_paths), \(i) {
-        if (is.na(backups[[i]])) {
-          return(TRUE)
-        }
-        onet_restore_backup(backups[[i]], old_paths[[i]])
+    backups[[i]] <- tempfile(
+      paste0(".", basename(old_paths[[i]]), "-backup-"),
+      tmpdir = dirname(dest)
+    )
+    if (!onet_file_rename(old_paths[[i]], backups[[i]])) {
+      prior <- seq_len(i - 1L)
+      restored <- vapply(prior, \(j) {
+        is.na(backups[[j]]) ||
+          onet_restore_backup(backups[[j]], old_paths[[j]])
       }, logical(1))
       if (!all(restored)) {
         cli::cli_abort(
-          "Cache source replacement failed and the previous source-receipt pair could not be restored."
+          paste(
+            "Failed to preserve the existing cache source and receipt,",
+            "and the previous pair could not be restored."
+          )
         )
       }
       cli::cli_abort(
-        "Failed to replace the cache source and receipt; the previous pair was preserved."
+        paste(
+          "Failed to preserve the existing cache source and receipt",
+          "before replacement."
+        )
       )
     }
+  }
 
-    unlink(backups[!is.na(backups)], force = TRUE)
-    if (isTRUE(return_snapshot)) {
-      onet_copy_verified_snapshot(dest, receipt, snapshot)
-    } else {
-      invisible(dest)
+  committed <- onet_file_rename(tmp, dest)
+  if (committed) {
+    installed <- c(installed, dest)
+    committed <- onet_file_rename(receipt_tmp, receipt_dest)
+    if (committed) {
+      installed <- c(installed, receipt_dest)
     }
-  })
-  snapshot_success <- isTRUE(return_snapshot)
-  result
+  }
+
+  if (!committed) {
+    unlink(installed, force = TRUE)
+    restored <- vapply(seq_along(old_paths), \(i) {
+      if (is.na(backups[[i]])) {
+        return(TRUE)
+      }
+      onet_restore_backup(backups[[i]], old_paths[[i]])
+    }, logical(1))
+    if (!all(restored)) {
+      cli::cli_abort(
+        paste(
+          "Cache source replacement failed and the previous",
+          "source-receipt pair could not be restored."
+        )
+      )
+    }
+    cli::cli_abort(
+      paste(
+        "Failed to replace the cache source and receipt;",
+        "the previous pair was preserved."
+      )
+    )
+  }
+
+  unlink(backups[!is.na(backups)], force = TRUE)
+  if (!is.null(snapshot)) {
+    return(onet_copy_verified_snapshot(dest, receipt, snapshot))
+  }
+  invisible(dest)
 }
 
 onet_read_source_receipt <- function(path) {
@@ -567,14 +879,58 @@ onet_copy_cache_snapshot <- function(from, to) {
   file.copy(from, to, overwrite = FALSE, copy.mode = TRUE, copy.date = TRUE)
 }
 
+onet_local_source_snapshot <- function(
+    path,
+    expected_sha256 = NULL,
+    as_of = NULL) {
+  source_path <- normalizePath(path, winslash = "\\", mustWork = TRUE)
+  extension <- tools::file_ext(path)
+  snapshot <- tempfile(
+    "onet-local-source-",
+    fileext = if (nzchar(extension)) paste0(".", extension) else ""
+  )
+  success <- FALSE
+  on.exit({
+    if (!success) {
+      unlink(snapshot, force = TRUE)
+    }
+  }, add = TRUE)
+
+  if (!onet_copy_cache_snapshot(source_path, snapshot)) {
+    cli::cli_abort(
+      "Failed to create a private snapshot of the local source.",
+      class = "onet2r_local_snapshot_error"
+    )
+  }
+  receipt <- onet_source_receipt(
+    path = snapshot,
+    source_path = source_path,
+    expected_sha256 = expected_sha256,
+    as_of = as_of
+  )
+  success <- TRUE
+  structure(
+    snapshot,
+    source_receipt = receipt,
+    local_snapshot = TRUE
+  )
+}
+
 onet_copy_verified_snapshot <- function(path, receipt, snapshot) {
   if (!onet_copy_cache_snapshot(path, snapshot)) {
-    cli::cli_abort("Failed to create a private snapshot of the verified cache source.")
+    cli::cli_abort(
+      "Failed to create a private snapshot of the verified cache source.",
+      class = "onet2r_cache_snapshot_error"
+    )
   }
   snapshot_sha256 <- onet_sha256(snapshot)
   if (!identical(snapshot_sha256, tolower(receipt$actual_sha256))) {
     cli::cli_abort(
-      "Verified cache source changed while its private snapshot was being created."
+      paste(
+        "Verified cache source changed while its private snapshot",
+        "was being created."
+      ),
+      class = "onet2r_cache_snapshot_mismatch"
     )
   }
   structure(
@@ -770,7 +1126,8 @@ onet_cached_source_receipt_unlocked <- function(
         "x" = "Expected: {expected_sha256}",
         "x" = "Actual:   {actual_sha256}",
         "i" = "Use {.code force = TRUE} only after confirming the expected source."
-      )
+      ),
+      class = "onet2r_digest_mismatch"
     )
   }
 

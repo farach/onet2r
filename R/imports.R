@@ -420,13 +420,11 @@ read_import_measure_file <- function(
     if (!file.exists(path)) {
       cli::cli_abort("{.arg path} does not exist: {.file {path}}.")
     }
-    receipt <- onet_source_receipt(
+    onet_local_source_snapshot(
       path = path,
-      source_path = path,
       expected_sha256 = expected_sha256,
       as_of = as_of
     )
-    structure(path, source_receipt = receipt)
   } else {
     download_import_file(
       url,
@@ -436,7 +434,10 @@ read_import_measure_file <- function(
     )
   }
   source_receipt <- attr(file, "source_receipt", exact = TRUE)
-  if (isTRUE(attr(file, "cache_snapshot", exact = TRUE))) {
+  if (
+    isTRUE(attr(file, "cache_snapshot", exact = TRUE)) ||
+      isTRUE(attr(file, "local_snapshot", exact = TRUE))
+  ) {
     on.exit(unlink(file, force = TRUE), add = TRUE)
   }
 
@@ -510,13 +511,33 @@ download_import_file <- function(
   validate_single_string(url, "url")
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   reference_dir <- file.path(cache_dir, "reference")
-  dir.create(reference_dir, recursive = TRUE, showWarnings = FALSE)
 
   dest_name <- basename(sub("[?#].*$", "", url))
   if (!nzchar(dest_name)) {
     dest_name <- paste0("onet-import-", substr(rlang::hash(url), 1, 10))
   }
   dest <- file.path(reference_dir, dest_name)
+  onet_with_cache_transaction(
+    dest,
+    download_import_transaction(
+      url = url,
+      reference_dir = reference_dir,
+      dest = dest,
+      force = force,
+      expected_sha256 = expected_sha256,
+      as_of = as_of
+    )
+  )
+}
+
+download_import_transaction <- function(
+    url,
+    reference_dir,
+    dest,
+    force,
+    expected_sha256,
+    as_of) {
+  dir.create(reference_dir, recursive = TRUE, showWarnings = FALSE)
   if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
     return(onet_cached_source_snapshot(
       path = dest,
@@ -550,7 +571,8 @@ download_import_file <- function(
           "Failed to download the import file.",
           "i" = "URL: {.url {safe_url}}",
           "i" = "Download it manually and pass {.arg path}."
-        )
+        ),
+        class = "onet2r_download_error"
       )
     }
   )
@@ -559,7 +581,10 @@ download_import_file <- function(
   }
   if (!identical(status, 0L) || file.info(tmp)$size <= 0) {
     safe_url <- onet_redact_url_credentials(url)
-    cli::cli_abort("Failed to download the import file from {.url {safe_url}}.")
+    cli::cli_abort(
+      "Failed to download the import file from {.url {safe_url}}.",
+      class = "onet2r_download_error"
+    )
   }
   source_commit <- onet_source_commit(url)
   receipt <- onet_source_receipt(

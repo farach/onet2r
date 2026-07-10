@@ -318,11 +318,31 @@ validate_oews_year <- function(year) {
 
 download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRUE) {
   cache_dir <- file.path(cache_dir, "oews")
-  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-
   url <- oews_url(type = type, year = year)
   destfile <- file.path(cache_dir, basename(url))
+  onet_with_cache_transaction(
+    destfile,
+    download_oews_file_transaction(
+      type = type,
+      year = year,
+      cache_dir = cache_dir,
+      force = force,
+      quiet = quiet,
+      url = url,
+      destfile = destfile
+    )
+  )
+}
 
+download_oews_file_transaction <- function(
+    type,
+    year,
+    cache_dir,
+    force,
+    quiet,
+    url,
+    destfile) {
+  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
   if (file.exists(destfile) && !isTRUE(force)) {
     validate_oews_zip(destfile)
     return(destfile)
@@ -345,9 +365,7 @@ download_oews_file <- function(type, year, cache_dir, force = FALSE, quiet = TRU
       year = year
     )
     validate_oews_zip(tmpfile)
-    if (!file.rename(tmpfile, destfile)) {
-      cli::cli_abort("Failed to move downloaded OEWS ZIP into the cache.")
-    }
+    onet_with_cache_lock(destfile, onet_atomic_replace(tmpfile, destfile))
   }
 
   destfile
@@ -554,10 +572,12 @@ cache_oews_manual_download <- function(path, destfile, quiet = TRUE) {
     ))
   }
 
-  if (!file.copy(path, destfile, overwrite = TRUE)) {
-    cli::cli_abort("Failed to copy manually downloaded OEWS ZIP into the cache.")
-  }
-  validate_oews_zip(destfile)
+  onet_atomic_write(destfile, function(tmp) {
+    if (!file.copy(path, tmp, overwrite = FALSE)) {
+      cli::cli_abort("Failed to copy manually downloaded OEWS ZIP into the cache.")
+    }
+    validate_oews_zip(tmp)
+  })
   destfile
 }
 

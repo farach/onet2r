@@ -356,27 +356,98 @@ test_that("import adapters validate the force flag", {
 })
 
 test_that("import adapters reject local digest mismatches before parsing", {
-  bad <- tempfile(fileext = ".csv")
-  on.exit(unlink(bad), add = TRUE)
+  bad <- file.path(withr::local_tempdir(), "bad.csv")
   writeLines("not,a,valid,adapter,file", bad)
   wrong_digest <- strrep("0", 64)
+  snapshot_paths <- character()
+  original_copy <- onet2r:::onet_copy_cache_snapshot
+  parsed <- FALSE
 
-  expect_error(
-    onet_import_eloundou(
-      make_task_panel(),
-      path = bad,
-      expected_sha256 = wrong_digest
-    ),
-    "SHA-256 digest mismatch"
+  local_mocked_bindings(
+    onet_copy_cache_snapshot = function(from, to) {
+      snapshot_paths <<- c(snapshot_paths, to)
+      original_copy(from, to)
+    },
+    read_import_table = function(...) {
+      parsed <<- TRUE
+      stop("digest mismatch reached the parser")
+    },
+    .package = "onet2r"
   )
-  expect_error(
-    onet_import_felten_aioe(
-      make_task_panel(),
-      path = bad,
-      expected_sha256 = wrong_digest
-    ),
-    "SHA-256 digest mismatch"
+  conditions <- lapply(
+    list(onet_import_eloundou, onet_import_felten_aioe),
+    function(import) {
+      tryCatch(
+        import(
+          make_task_panel(),
+          path = bad,
+          expected_sha256 = wrong_digest
+        ),
+        error = identity
+      )
+    }
   )
+
+  for (condition in conditions) {
+    expect_s3_class(condition, "onet2r_digest_mismatch")
+    expect_match(conditionMessage(condition), "SHA-256 digest mismatch")
+  }
+  expect_identical(parsed, FALSE)
+  expect_length(snapshot_paths, 2L)
+  expect_identical(file.exists(snapshot_paths), rep(FALSE, 2L))
+})
+
+test_that("local adapters parse the exact bytes recorded by their receipt", {
+  extract <- file.path(withr::local_tempdir(), "source.csv")
+  write_eloundou_extract(extract)
+  verified_digest <- onet2r:::onet_sha256(extract)
+  original_reader <- onet2r:::read_import_table
+  snapshot_path <- NULL
+  parsed_digest <- NULL
+
+  local_mocked_bindings(
+    read_import_table = function(file, sheet = NULL) {
+      snapshot_path <<- file
+      parsed_digest <<- onet2r:::onet_sha256(file)
+      utils::write.csv(
+        data.frame(
+          `O*NET-SOC Code` = c(
+            "15-1252.00",
+            "29-1141.00",
+            "11-1011.00"
+          ),
+          human_rating_beta = c(0.99, 0.98, 0.97),
+          check.names = FALSE
+        ),
+        extract,
+        row.names = FALSE
+      )
+      original_reader(file, sheet)
+    },
+    .package = "onet2r"
+  )
+
+  measure <- onet_import_eloundou(
+    make_task_panel(),
+    path = extract,
+    expected_sha256 = verified_digest,
+    as_of = "2023-03"
+  )
+  receipt <- measure$metadata$source_receipt
+  software <- measure$data$measure_score[
+    measure$data$onet_soc_code == "15-1252.00"
+  ]
+
+  expect_equal(unique(software), 0.63)
+  expect_identical(receipt$actual_sha256, verified_digest)
+  expect_identical(receipt$expected_sha256, verified_digest)
+  expect_identical(
+    receipt$source_path,
+    normalizePath(extract, winslash = "\\")
+  )
+  expect_identical(parsed_digest, verified_digest)
+  expect_identical(onet2r:::onet_sha256(extract) == verified_digest, FALSE)
+  expect_identical(file.exists(snapshot_path), FALSE)
 })
 
 test_that("downloaded adapter sources reuse verified receipts without network", {

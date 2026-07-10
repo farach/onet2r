@@ -95,6 +95,43 @@ test_that("onet_cache_clear removes reference cache files", {
   expect_equal(file.exists(file.path(cache_dir, "reference", "updates.xlsx")), FALSE)
 })
 
+test_that("onet_cache_clear validates and forwards its wait timeout", {
+  cache_dir <- withr::local_tempdir()
+  calls <- list()
+  local_mocked_bindings(
+    onet_clear_cache_section = function(section, timeout) {
+      calls[[length(calls) + 1L]] <<- list(
+        section = section,
+        timeout = timeout
+      )
+      invisible(section)
+    },
+    .package = "onet2r"
+  )
+
+  onet_cache_clear(
+    cache_dir = cache_dir,
+    what = "reference",
+    timeout = 42
+  )
+  expect_length(calls, 1L)
+  expect_identical(calls[[1]]$timeout, 42)
+  expect_identical(
+    calls[[1]]$section,
+    file.path(cache_dir, "reference")
+  )
+
+  condition <- tryCatch(
+    onet_cache_clear(
+      cache_dir = cache_dir,
+      what = "reference",
+      timeout = -1
+    ),
+    error = identity
+  )
+  expect_s3_class(condition, "onet2r_invalid_cache_timeout")
+})
+
 test_that("onet_cache_file uses request URL and cache options", {
   cache_dir <- withr::local_tempdir()
   onet_cache_use(enabled = TRUE, cache_dir = cache_dir)
@@ -443,6 +480,133 @@ test_that("malformed URLs selectively redact query and fragment parameters", {
   expect_no_match(message, "querysecret")
   expect_match(message, "variant=public", fixed = TRUE)
   expect_match(message, "REDACTED", fixed = TRUE)
+})
+
+test_that("multi-at userinfo redacts through the final authority at", {
+  normal_url <- paste0(
+    "https://alice:normal-secret@decoy:decoy-secret@host.invalid/",
+    "path@public?token=query-secret&contact=query@public",
+    "#route@public?access_token=fragment-secret&state=fragment@public"
+  )
+  encoded_url <- paste0(
+    "https://alice%40corp:encoded-secret@host.invalid/",
+    "encoded@public?contact=encoded-query@public"
+  )
+  malformed_url <- paste0(
+    "http://first:first-secret@second:second-secret@[bad]/",
+    "path@public?token=malformed-query-secret&contact=query@public",
+    "#route@public?access_token=malformed-fragment-secret",
+    "&state=fragment@public"
+  )
+  secrets <- paste(
+    "normal-secret|decoy-secret|query-secret|fragment-secret",
+    "encoded-secret|first-secret|second-secret",
+    "malformed-query-secret|malformed-fragment-secret",
+    sep = "|"
+  )
+
+  safe_normal <- onet2r:::onet_redact_url_credentials(normal_url)
+  safe_encoded <- onet2r:::onet_redact_url_credentials(encoded_url)
+  safe_malformed <- onet2r:::onet_redact_url_credentials(malformed_url)
+
+  expect_identical(
+    safe_normal,
+    paste0(
+      "https://host.invalid/path@public?",
+      "token=[REDACTED]&contact=query@public",
+      "#route@public?access_token=[REDACTED]&state=fragment@public"
+    )
+  )
+  expect_identical(
+    safe_encoded,
+    paste0(
+      "https://host.invalid/encoded@public?",
+      "contact=encoded-query@public"
+    )
+  )
+  expect_identical(
+    safe_malformed,
+    paste0(
+      "http://[bad]/path@public?",
+      "token=[REDACTED]&contact=query@public",
+      "#route@public?access_token=[REDACTED]&state=fragment@public"
+    )
+  )
+
+  cache_dir <- withr::local_tempdir()
+  path <- file.path(cache_dir, "source.csv")
+  writeLines("source", path)
+  receipt <- onet2r:::onet_source_receipt(
+    path,
+    source_url = malformed_url
+  )
+  expect_identical(receipt$source_url, safe_malformed)
+
+  legacy <- onet2r:::onet_source_receipt(path)
+  legacy$source_url <- normal_url
+  legacy$source_url_sha256 <- NULL
+  legacy$provenance_status <- "recorded"
+  saveRDS(legacy, onet2r:::onet_receipt_path(path))
+  reused <- onet2r:::onet_cached_source_receipt(
+    path,
+    source_url = normal_url
+  )
+  stored <- readRDS(onet2r:::onet_receipt_path(path))
+  expect_identical(reused$source_url, safe_normal)
+  expect_identical(stored$source_url, safe_normal)
+  expect_identical(
+    stored$source_url_sha256,
+    onet2r:::onet_source_url_sha256(normal_url)
+  )
+
+  warning_condition <- NULL
+  withCallingHandlers(
+    onet2r:::onet_warn_download_completed(normal_url, "fixture"),
+    warning = function(cnd) {
+      warning_condition <<- cnd
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_s3_class(warning_condition, "onet2r_download_warning")
+
+  unverified_path <- file.path(cache_dir, "unverified.csv")
+  writeLines("source", unverified_path)
+  receipt_error <- tryCatch(
+    onet2r:::onet_cached_source_receipt(
+      unverified_path,
+      source_url = malformed_url
+    ),
+    error = identity
+  )
+  expect_s3_class(receipt_error, "onet2r_unverified_legacy_cache")
+
+  download_error <- tryCatch(
+    onet2r:::download_import_file(
+      sub("^http:", "bad:", malformed_url),
+      cache_dir = cache_dir,
+      force = TRUE
+    ),
+    error = identity
+  )
+  expect_s3_class(download_error, "onet2r_download_error")
+
+  surfaces <- paste(
+    safe_normal,
+    safe_encoded,
+    safe_malformed,
+    receipt$source_url,
+    reused$source_url,
+    stored$source_url,
+    conditionMessage(warning_condition),
+    conditionMessage(receipt_error),
+    conditionMessage(download_error),
+    collapse = "\n"
+  )
+  expect_no_match(surfaces, secrets)
+  expect_match(surfaces, "path@public", fixed = TRUE)
+  expect_match(surfaces, "contact=query@public", fixed = TRUE)
+  expect_match(surfaces, "route@public", fixed = TRUE)
+  expect_match(surfaces, "state=fragment@public", fixed = TRUE)
 })
 
 test_that("OAuth authorization codes are redacted without hiding benign parameters", {
