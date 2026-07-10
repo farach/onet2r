@@ -6,7 +6,8 @@
 \usage{
 onet_cache_clear(
   cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
-  what = c("api", "archives", "crosswalks", "oews", "reference", "all")
+  what = c("api", "archives", "crosswalks", "oews", "reference", "all"),
+  timeout = 600
 )
 }
 \arguments{
@@ -16,6 +17,9 @@ onet_cache_clear(
 \code{"archives"} for O*NET database ZIPs, \code{"crosswalks"} for O*NET bridge
 CSVs, \code{"oews"} for BLS OEWS ZIPs, \code{"reference"} for reference workbooks,
 or \code{"all"} for every section.}
+
+\item{timeout}{Maximum number of seconds to wait for active cache
+transactions to finish before aborting the clear operation.}
 }
 \value{
 Invisibly returns the cache directory path.

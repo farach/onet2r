@@ -180,6 +180,16 @@ scale and supplemental-task choices. It returns one row per scenario with:
 - baseline movement fields from `onet_robustness_diagnostic()`;
 - a `provenance` list-column for each scenario.
 
+The second argument is `weight_panels`, not a generic change table. Each entry
+must have employment weight-panel columns including `reference_soc_code`,
+`year`, `employment`, and `weight_share`. Output from
+`onet_content_change()` is rejected because it describes task-content movement,
+not employment weights. Multi-release task sensitivity uses named lists of
+single-release `task_ratings` and matching `task_metadata`; explicit release
+columns supply the output provenance. The result reports movement in scenario
+aggregates. It does not return Spearman correlations, rank or quintile changes,
+variance decompositions, or content-drift diagnostics.
+
 `onet_robustness_diagnostic()` remains a formatter for already computed
 scenario results and returns a tidy table with one row per choice set:
 

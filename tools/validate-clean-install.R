@@ -85,6 +85,22 @@ message("Rounds: ", rounds)
 message("Live O*NET API checks: ", if (live_api) "enabled" else "disabled")
 message("Live archive/release checks: ", if (live_archives) "enabled" else "disabled")
 
+build_dir <- tempfile("onet2r-build-")
+dir.create(build_dir, recursive = TRUE)
+on.exit(unlink(build_dir, recursive = TRUE, force = TRUE), add = TRUE)
+message("")
+message("Building source tarball outside the repository: ", build_dir)
+run_checked(
+  r_bin,
+  c("CMD", "build", "--no-manual", "--no-build-vignettes", shQuote(repo)),
+  cwd = build_dir
+)
+tarballs <- list.files(build_dir, pattern = "\\.tar\\.gz$", full.names = TRUE)
+if (length(tarballs) != 1) {
+  stop("Expected exactly one built package tarball, found ", length(tarballs), ".", call. = FALSE)
+}
+tarball <- normalizePath(tarballs[[1]], winslash = "\\", mustWork = TRUE)
+
 for (round in seq_len(rounds)) {
   lib <- tempfile(sprintf("onet2r-clean-lib-%02d-", round))
   workdir <- tempfile(sprintf("onet2r-clean-work-%02d-", round))
@@ -95,7 +111,7 @@ for (round in seq_len(rounds)) {
   message("Round ", round, ": installing into ", lib)
   run_checked(
     r_bin,
-    c("CMD", "INSTALL", paste0("--library=", shQuote(lib)), shQuote(repo)),
+    c("CMD", "INSTALL", paste0("--library=", shQuote(lib)), shQuote(tarball)),
     cwd = workdir
   )
 

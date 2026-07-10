@@ -4,7 +4,13 @@
 \alias{onet_archive_download}
 \title{Download an O*NET Archive}
 \usage{
-onet_archive_download(version, dir = onet_cache_dir(), force = FALSE)
+onet_archive_download(
+  version,
+  dir = onet_cache_dir(),
+  force = FALSE,
+  expected_sha256 = NULL,
+  as_of = NULL
+)
 }
 \arguments{
 \item{version}{O*NET database version, for example \code{"30.3"}.}
@@ -12,18 +18,32 @@ onet_archive_download(version, dir = onet_cache_dir(), force = FALSE)
 \item{dir}{Cache directory.}
 
 \item{force}{Logical; if \code{TRUE}, re-download even when a cached archive exists.}
+
+\item{expected_sha256}{Optional expected SHA-256 digest. The digest is checked
+before the archive is parsed and whenever a cached file is reused.}
+
+\item{as_of}{Optional source date or label to record in the receipt. A cached
+archive with different \code{as_of} metadata is not reused.}
 }
 \value{
 The path to the cached ZIP file.
 }
 \description{
 Downloads and caches one O*NET text archive. Existing non-empty cached files
-are reused.
+are reused only when their recorded provenance and digest still match.
 }
 \details{
 Downloaded archives are cached under \code{tools::R_user_dir("onet2r", "cache")}
 in the \code{archives} section. Use \code{onet_cache_clear(what = "archives")} or
-\code{onet_cache_clear(what = "all")} to remove them.
+\code{onet_cache_clear(what = "all")} to remove them. An RDS receipt beside each
+archive records its URL, retrieval time, SHA-256 digest, size, version, and
+optional \code{as_of} metadata. The archive URLs are not assumed to be immutable;
+supply \code{expected_sha256} when an independently verified digest is available.
+A cached archive without a receipt cannot satisfy the requested URL or
+version provenance. Use \code{force = TRUE} to replace legacy cached bytes.
+The returned path names the shared cache entry, which a later \code{force = TRUE}
+call may replace. Use \code{\link[=onet_archive_read]{onet_archive_read()}} to parse a verified private
+snapshot rather than reopening the shared path.
 }
 \examples{
 if (interactive()) {

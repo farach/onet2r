@@ -1,16 +1,52 @@
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main, farach-harden-release-gates]
   workflow_dispatch:
 
 name: pkgdown
 
-permissions:
-  contents: write
+permissions: read-all
 
 jobs:
-  pkgdown:
+  pkgdown-check:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgdal-dev libgeos-dev libproj-dev libudunits2-dev
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      - name: Check reference index
+        run: pkgdown::check_pkgdown()
+        shell: Rscript {0}
+
+      - name: Build full site
+        run: pkgdown::build_site(preview = FALSE, new_process = FALSE)
+        shell: Rscript {0}
+
+  pkgdown-deploy:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}

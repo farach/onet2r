@@ -16,7 +16,9 @@ onet_import_eloundou(
   measure_id = "eloundou_gpt_exposure",
   measure_name = "Eloundou et al. (2023) GPT exposure",
   force = FALSE,
-  ...
+  ...,
+  expected_sha256 = NULL,
+  as_of = NULL
 )
 }
 \arguments{
@@ -54,6 +56,12 @@ workbook.}
 
 \item{...}{Additional arguments passed to \code{\link[=onet_measure]{onet_measure()}}, such as
 \code{universe} or \code{weight_panel}.}
+
+\item{expected_sha256}{Optional expected SHA-256 digest for the local or
+downloaded source. It is verified before parsing and on cache reuse.}
+
+\item{as_of}{Optional source date or label recorded in provenance. Cached
+downloads with different \code{as_of} metadata are not silently reused.}
 }
 \value{
 A task-grain \code{onet_measure} object (\code{key_type = "task"}) keyed on
@@ -82,7 +90,11 @@ never bundles or ships the file; you must supply \code{path} or download it from
 \code{url}. Downloads are cached under \code{tools::R_user_dir("onet2r", "cache")} in
 the \code{reference} section and can be cleared with
 \code{onet_cache_clear(what = "reference")}. Cite the source paper when you use the
-scores.
+scores. The returned measure includes \code{metadata$source_receipt} with the
+source URL or local path, retrieval time, digest, file size, source commit
+when inferable from a pinned GitHub raw URL, and version or \code{as_of} metadata.
+A cached download without a receipt cannot satisfy the requested URL
+provenance. Use \code{force = TRUE} to replace legacy cached bytes.
 
 The three exposure definitions follow the paper: alpha counts tasks exposed
 by direct model access, beta adds tasks reachable with complementary software

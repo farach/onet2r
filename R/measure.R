@@ -721,7 +721,17 @@ report_unmatched_weight_panel <- function(weights, collapsed, total_employment) 
 #' @param baseline Optional scenario label used as the movement baseline.
 #'
 #' @return A tibble with one row per scenario, aggregate results, movement
-#'   fields, and provenance list-column metadata.
+#'   fields, and provenance list-column metadata. The movement fields compare
+#'   scenario aggregates with the selected baseline; they are not rank,
+#'   quintile, variance, or content-drift diagnostics.
+#'
+#' @details
+#' `weight_panels` must contain employment weight panels with
+#' `reference_soc_code`, `year`, `employment`, `weight_share`, and provenance
+#' columns. Output from [onet_content_change()] describes task-content movement
+#' and is not a weight panel. Pass named lists of single-release `task_ratings`
+#' and matching `task_metadata` to compare task-handling scenarios across
+#' releases.
 #' @export
 #'
 #' @examples
@@ -753,6 +763,7 @@ onet_measure_sensitivity <- function(
     baseline = NULL) {
   validate_onet_measure(measure)
   weight_panels <- named_data_frame_list(weight_panels, "weight_panels", "weights")
+  validate_sensitivity_weight_panels(weight_panels)
   bridges <- named_bridge_list(bridges)
 
   if (!is.logical(include_supplemental) || anyNA(include_supplemental)) {
@@ -829,6 +840,33 @@ onet_measure_sensitivity <- function(
   out <- onet_robustness_diagnostic(out, baseline = baseline)
   class(out) <- unique(c("onet_sensitivity", class(out)))
   out
+}
+
+validate_sensitivity_weight_panels <- function(weight_panels) {
+  required <- c(
+    "reference_soc_code", "year", "employment", "weight_share",
+    "source", "source_taxonomy", "reference_taxonomy"
+  )
+  for (name in names(weight_panels)) {
+    panel <- weight_panels[[name]]
+    missing <- setdiff(required, names(panel))
+    if (length(missing) == 0) {
+      next
+    }
+    if (all(c("from_release", "to_release", "n_added", "n_dropped") %in% names(panel))) {
+      cli::cli_abort(c(
+        "{.arg weight_panels} must contain employment weight panels, not content-change output.",
+        "x" = "Scenario {.val {name}} is output from {.fun onet_content_change}.",
+        "i" = "Pass a panel from {.fun onet_weight_panel_oews} or {.fun onet_weight_panel_pums}; pass task release panels through {.arg task_ratings}."
+      ))
+    }
+    cli::cli_abort(c(
+      "{.arg weight_panels} scenario {.val {name}} is not a valid employment weight panel.",
+      "x" = "Missing column{?s}: {.var {missing}}.",
+      "i" = "Use output from {.fun onet_weight_panel_oews} or {.fun onet_weight_panel_pums}."
+    ))
+  }
+  invisible(weight_panels)
 }
 
 #' Compare Aggregates Across Plumbing Choices
