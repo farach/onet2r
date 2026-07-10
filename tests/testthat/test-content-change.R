@@ -190,6 +190,37 @@ test_that("content_change errors on a missing required column", {
   expect_error(onet_content_change(panel), "data_value")
 })
 
+test_that("content_change rejects duplicate filtered grain", {
+  panel <- content_fixture()
+  panel <- dplyr::bind_rows(panel, panel[panel$release_version == "22.1", ][1, ])
+
+  expect_snapshot(
+    error = TRUE,
+    onet_content_change(panel)
+  )
+})
+
+test_that("content_change preserves valid fixture output byte for byte", {
+  expected <- readRDS(test_path("fixtures", "content-change-valid.rds"))
+
+  expect_identical(onet_content_change(content_fixture()), expected)
+})
+
+test_that("content_change keeps distinct scales separate when scale is NULL", {
+  panel <- content_fixture() |>
+    dplyr::filter(.data$release_version %in% c("22.1", "23.1"))
+  panel <- dplyr::bind_rows(
+    panel,
+    dplyr::mutate(panel, scale_id = "RT", data_value = 100 - data_value)
+  )
+
+  result <- onet_content_change(panel, scale = NULL)
+
+  expect_equal(result$n_from, 6L)
+  expect_equal(result$n_to, 6L)
+  expect_equal(result$n_retained, 4L)
+})
+
 # ---------------------------------------------------------------------------
 # seams override (additive; default reproduces M1 behavior)
 # ---------------------------------------------------------------------------
@@ -245,4 +276,3 @@ test_that("content_change rejects a malformed seams table", {
     "data frame"
   )
 })
-

@@ -44,13 +44,17 @@ pair_seam <- function(from_date, to_date, from_vintage, to_vintage,
 
 content_change_pair <- function(tasks, item, from_meta, to_meta,
                                 seams = onet_known_seams()) {
+  join_keys <- c("onet_soc_code", item, intersect("scale_id", names(tasks)))
   a <- tasks |>
     dplyr::filter(.data$release_version == from_meta$release_version) |>
-    dplyr::select("onet_soc_code", dplyr::all_of(item), from_value = "data_value")
+    dplyr::select(
+      dplyr::all_of(join_keys),
+      from_value = "data_value"
+    )
   b <- tasks |>
     dplyr::filter(.data$release_version == to_meta$release_version) |>
     dplyr::select(
-      "onet_soc_code", dplyr::all_of(item), to_value = "data_value",
+      dplyr::all_of(join_keys), to_value = "data_value",
       to_title = "title"
     )
 
@@ -59,7 +63,7 @@ content_change_pair <- function(tasks, item, from_meta, to_meta,
     return(empty_content_change())
   }
 
-  joined <- dplyr::full_join(a, b, by = c("onet_soc_code", item)) |>
+  joined <- dplyr::full_join(a, b, by = join_keys) |>
     dplyr::filter(.data$onet_soc_code %in% both) |>
     dplyr::mutate(
       in_a = !is.na(.data$from_value),
@@ -174,6 +178,10 @@ content_change_pair <- function(tasks, item, from_meta, to_meta,
 #'
 #' @details
 #' Set metrics compare the `item` keys an occupation carries in each release.
+#' The filtered input must contain at most one row per occupation, item, release,
+#' and scale. Duplicate keys are rejected rather than resolved by row order.
+#' When `scale = NULL` and `scale_id` is present, item-scale combinations define
+#' membership so ratings from different scales are not joined to each other.
 #' `rating_delta_l2` uses only retained items, so it measures rating drift among
 #' tasks that persist; `cosine` uses the union with zero fill, so it responds to
 #' both membership turnover and rating change. Seam-crossing pairs still receive
@@ -247,14 +255,23 @@ onet_content_change <- function(
     return(empty_content_change())
   }
 
+  grain <- c("onet_soc_code", item, "release_version")
+  if ("scale_id" %in% names(data)) {
+    grain <- c(grain, "scale_id")
+  }
+  duplicates <- duplicate_key_rows(data, grain)
+  if (nrow(duplicates) > 0) {
+    cli::cli_abort(c(
+      "{.arg panel} must contain at most one row per occupation, item, release, and scale after filtering.",
+      "x" = "Duplicate key{?s}: {format_key_rows(duplicates, grain)}.",
+      "i" = "Remove the duplicate rows or aggregate them explicitly before calling {.fun onet_content_change}."
+    ))
+  }
+
   tasks <- data |>
-    dplyr::distinct(
-      .data$onet_soc_code, .data$release_version, .data[[item]],
-      .keep_all = TRUE
-    ) |>
     dplyr::select(
       "onet_soc_code", "release_version", dplyr::all_of(item),
-      "data_value", "title"
+      dplyr::any_of("scale_id"), "data_value", "title"
     )
 
   rel_meta <- data |>

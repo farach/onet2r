@@ -135,7 +135,16 @@ requested aggregation.
 Task-level aggregation rolls task scores to occupation scores with task
 relevance or importance weights from O&#42;NET task files. The default task
 weight scale is `RT`, which is the Task Ratings scale id for Relevance of Task.
-The user chooses Core-only or Core-plus-Supplemental task handling.
+The user chooses Core-only or Core-plus-Supplemental task handling. Effective
+task ratings must contain at most one row per occupation and task. When a
+release column is present, one call accepts exactly one non-missing release.
+Multi-vintage comparisons use a named list of single-release task-rating tables
+with `onet_measure_sensitivity()`.
+
+Content-change inputs must contain at most one row per occupation, item,
+release, and scale after filtering. `onet_content_change()` rejects duplicate
+keys rather than choosing the first row. With `scale = NULL`, item-scale
+combinations remain separate throughout the comparison.
 
 Occupation-level aggregation rolls occupation scores to population aggregates
 using the shared weight-panel object. The output includes:

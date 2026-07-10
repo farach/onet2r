@@ -358,7 +358,8 @@ onet_provenance <- function(x) {
 #' importance, or equal task weights.
 #'
 #' @param measure An `onet_measure` object with `key_type = "task"`.
-#' @param task_ratings A data frame containing occupation task ratings.
+#' @param task_ratings A single-release data frame containing occupation task
+#'   ratings, with at most one row per occupation and task after filtering.
 #' @param task_metadata Optional data frame containing task type by task id.
 #' @param occupation_code Column with O&#42;NET-SOC codes in `task_ratings`.
 #' @param task_id Column with task ids in `task_ratings` and `task_metadata`.
@@ -371,6 +372,13 @@ onet_provenance <- function(x) {
 #'
 #' @return A tibble with occupation-level measure scores, task-count metadata,
 #'   and measure provenance columns.
+#'
+#' @details
+#' When `task_ratings` contains `release_version` or `version`, every effective
+#' row must identify the same non-missing release. Use a named list of
+#' single-release data frames with [onet_measure_sensitivity()] for
+#' multi-vintage analysis. Duplicate occupation-task rows are rejected rather
+#' than deduplicated or aggregated.
 #' @export
 #'
 #' @examples
@@ -463,12 +471,13 @@ onet_task_to_occupation <- function(
       dplyr::filter(tolower(as.character(.data[[task_type]])) == "core")
   }
 
+  validate_task_rating_grain(ratings, occupation_code, task_id)
   ratings$measure_key <- as.character(ratings[[task_id]])
   scored <- dplyr::inner_join(
     ratings,
     measure$data[c("measure_key", "measure_score")],
     by = "measure_key",
-    relationship = "many-to-many"
+    relationship = "many-to-one"
   )
   scored$.task_weight <- parse_onet_number(scored[[value]])
 
@@ -483,6 +492,38 @@ onet_task_to_occupation <- function(
     ) |>
     dplyr::mutate(soc_code = standardize_soc_code(.data[[occupation_code]])) |>
     dplyr::arrange(.data[[occupation_code]])
+}
+
+validate_task_rating_grain <- function(ratings, occupation_code, task_id) {
+  release_columns <- intersect(c("release_version", "version"), names(ratings))
+  if (nrow(ratings) > 0 && length(release_columns) > 0) {
+    release_values <- unlist(
+      lapply(release_columns, \(column) trimws(as.character(ratings[[column]]))),
+      use.names = FALSE
+    )
+    missing_release <- is.na(release_values) | !nzchar(release_values)
+    releases <- unique(release_values[!missing_release])
+    if (any(missing_release) || length(releases) != 1) {
+      found <- if (length(releases) == 0) "<none>" else paste(releases, collapse = ", ")
+      cli::cli_abort(c(
+        "{.arg task_ratings} must contain exactly one non-missing release per call.",
+        "x" = "Release columns {.var {release_columns}} contain {.val {found}} and {sum(missing_release)} missing entries.",
+        "i" = "Pass one release per call. For multi-vintage analysis, pass a named list of single-release {.arg task_ratings} data frames to {.fun onet_measure_sensitivity}."
+      ))
+    }
+  }
+
+  key_columns <- c(occupation_code, task_id)
+  duplicates <- duplicate_key_rows(ratings, key_columns)
+  if (nrow(duplicates) > 0) {
+    cli::cli_abort(c(
+      "{.arg task_ratings} must contain at most one row per occupation-task key after task and scale filters.",
+      "x" = "Duplicate key{?s}: {format_key_rows(duplicates, key_columns)}.",
+      "i" = "Pass one release per call without duplicate task rows. For multi-vintage analysis, pass a named list of single-release {.arg task_ratings} data frames to {.fun onet_measure_sensitivity}."
+    ))
+  }
+
+  invisible(ratings)
 }
 
 #' Aggregate Occupation Measures with Employment Weights

@@ -89,6 +89,90 @@ test_that("onet_task_to_occupation rolls task measures to occupations", {
   expect_equal(result$measure_release, c("30.3", "30.3"))
 })
 
+test_that("onet_task_to_occupation preserves valid single-release output", {
+  measure <- onet_measure(
+    tibble::tibble(task_key = c("1", "2"), score = c(0.1, 0.9)),
+    key = "task_key",
+    score = "score",
+    key_type = "task"
+  )
+  ratings <- tibble::tibble(
+    occupation = c("15-1252.00", "15-1252.00"),
+    task_key = c("1", "2"),
+    rating_scale = "RT",
+    rating_value = c(90, 10),
+    type = "Core"
+  )
+
+  expected <- onet_task_to_occupation(
+    measure,
+    ratings,
+    occupation_code = "occupation",
+    task_id = "task_key",
+    task_type = "type",
+    scale_id = "rating_scale",
+    value = "rating_value"
+  )
+  ratings$version <- "30.3"
+
+  expect_identical(
+    onet_task_to_occupation(
+      measure,
+      ratings,
+      occupation_code = "occupation",
+      task_id = "task_key",
+      task_type = "type",
+      scale_id = "rating_scale",
+      value = "rating_value"
+    ),
+    expected
+  )
+})
+
+test_that("onet_task_to_occupation rejects multiple releases", {
+  measure <- onet_measure(
+    tibble::tibble(task_id = "1", score = 0.1),
+    key = "task_id",
+    score = "score",
+    key_type = "task"
+  )
+  ratings <- tibble::tibble(
+    onet_soc_code = "15-1252.00",
+    task_id = "1",
+    scale_id = "RT",
+    data_value = c(90, 10),
+    task_type = "Core",
+    release_version = c("29.0", "30.0")
+  )
+
+  expect_snapshot(
+    error = TRUE,
+    onet_task_to_occupation(measure, ratings)
+  )
+})
+
+test_that("onet_task_to_occupation rejects duplicate rows within a release", {
+  measure <- onet_measure(
+    tibble::tibble(task_id = "1", score = 0.1),
+    key = "task_id",
+    score = "score",
+    key_type = "task"
+  )
+  ratings <- tibble::tibble(
+    onet_soc_code = "15-1252.00",
+    task_id = "1",
+    scale_id = "RT",
+    data_value = c(90, 90),
+    task_type = "Core",
+    release_version = "30.0"
+  )
+
+  expect_snapshot(
+    error = TRUE,
+    onet_task_to_occupation(measure, ratings)
+  )
+})
+
 test_that("onet_task_to_occupation rejects unsupported task scales", {
   measure <- onet_measure(
     tibble::tibble(task_id = "1001", score = 0.8),
@@ -367,6 +451,43 @@ test_that("onet_measure_sensitivity compares task handling choices", {
   expect_true(all(result$employment_coverage_share == 1))
 })
 
+test_that("onet_measure_sensitivity accepts named single-release task ratings", {
+  measure <- onet_measure(
+    tibble::tibble(task_id = "1", score = 0.4),
+    key = "task_id",
+    score = "score",
+    key_type = "task"
+  )
+  ratings <- tibble::tibble(
+    onet_soc_code = "15-1252.00",
+    task_id = "1",
+    scale_id = "RT",
+    data_value = 100,
+    task_type = "Core"
+  )
+  ratings_29 <- dplyr::mutate(ratings, release_version = "29.0")
+  ratings_30 <- dplyr::mutate(ratings, release_version = "30.0")
+  weights <- tibble::tibble(
+    reference_soc_code = "15-1252",
+    year = 2024L,
+    employment = 100,
+    weight_share = 1,
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+
+  result <- onet_measure_sensitivity(
+    measure,
+    weight_panels = weights,
+    task_ratings = list(`29.0` = ratings_29, `30.0` = ratings_30)
+  )
+
+  expect_equal(nrow(result), 2L)
+  expect_equal(result$task_release, c("29.0", "30.0"))
+  expect_equal(result$aggregate, c(0.4, 0.4))
+})
+
 test_that("onet_robustness_diagnostic compares scenarios to a baseline", {
   results <- tibble::tibble(
     scenario = c("baseline", "alt_weights", "alt_release"),
@@ -567,4 +688,3 @@ test_that("onet_measure key/score path is unchanged by the new arguments", {
   expect_equal(measure$data$measure_score, c(0.7, 0.2))
   expect_equal(measure$metadata$score, "score")
 })
-

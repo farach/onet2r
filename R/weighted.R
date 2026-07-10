@@ -148,3 +148,30 @@ validate_character_columns <- function(data, columns, arg) {
 
   invisible(columns)
 }
+
+duplicate_key_rows <- function(data, columns) {
+  data |>
+    dplyr::summarise(.rows = dplyr::n(), .by = dplyr::all_of(columns)) |>
+    dplyr::filter(.data$.rows > 1)
+}
+
+format_key_rows <- function(data, columns, max_rows = 5L) {
+  shown <- data[seq_len(min(nrow(data), max_rows)), columns, drop = FALSE]
+  labels <- vapply(seq_len(nrow(shown)), function(i) {
+    values <- vapply(columns, function(column) {
+      value <- shown[[column]][[i]]
+      if (is.na(value) || !nzchar(as.character(value))) {
+        return("<missing>")
+      }
+      as.character(value)
+    }, character(1))
+    paste0(columns, "=", values, collapse = ", ")
+  }, character(1))
+
+  suffix <- if (nrow(data) > max_rows) {
+    paste0("; and ", nrow(data) - max_rows, " more")
+  } else {
+    ""
+  }
+  paste0(paste(labels, collapse = "; "), suffix)
+}
