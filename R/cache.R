@@ -206,7 +206,7 @@ onet_normalize_url_parameter_name <- function(name) {
 
 onet_url_parameter_is_sensitive <- function(name) {
   name <- onet_normalize_url_parameter_name(name)
-  name %in% c(
+  sensitive_names <- c(
     "code",
     "access_token",
     "id_token",
@@ -254,6 +254,9 @@ onet_url_parameter_is_sensitive <- function(name) {
     "shared_access_signature",
     "sas_token"
   )
+  name %in% sensitive_names ||
+    gsub("_", "", name, fixed = TRUE) %in%
+      gsub("_", "", sensitive_names, fixed = TRUE)
 }
 
 onet_redact_url_parameters <- function(parameters) {

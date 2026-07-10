@@ -529,8 +529,9 @@ test_that("sensitive URL parameter matching is explicit and normalized", {
   sensitive <- c(
     "code", "access_token", "accessToken", "ID-TOKEN", "idToken",
     "refresh.token", "refreshToken", "token", "api_key", "apiKey", "apikey",
-    "key", "access_key", "secretKey", "consumer-key", "client_secret",
-    "clientSecret", "password", "passwd",
+    "key", "access_key", "accesskey", "secretKey", "secretkey",
+    "consumer-key", "consumerkey", "client_secret", "clientSecret",
+    "clientsecret", "password", "passwd",
     "signature", "sig", "credential", "authorization", "auth",
     "x-amz-credential", "xAmzCredential", "X-Amz-Signature",
     "x-amz-security-token",
@@ -538,7 +539,7 @@ test_that("sensitive URL parameter matching is explicit and normalized", {
     "aws_access_key_id", "aws_secret_access_key"
   )
   benign <- c(
-    "author", "monkey", "hockey", "keyboard", "donkey", "tokenizer",
+    "author", "monkey", "hockey", "keyboard", "key_board", "donkey", "tokenizer",
     "signature_method", "credential_type", "authorization_mode",
     "state", "mode", "variant"
   )
