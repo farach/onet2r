@@ -188,11 +188,74 @@ onet_receipt_value <- function(x) {
 }
 
 onet_url_parameter_is_sensitive <- function(name) {
-  name <- tolower(utils::URLdecode(name))
-  name == "code" || grepl(
-    "auth|credential|key|passwd|password|secret|sig|signature|token",
-    name
+  name <- utils::URLdecode(name)
+  name <- gsub("([A-Z]+)([A-Z][a-z])", "\\1_\\2", name, perl = TRUE)
+  name <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", name, perl = TRUE)
+  name <- tolower(name)
+  name <- gsub("[-.]", "_", name)
+  sensitive_names <- c(
+    "auth",
+    "authorization",
+    "code",
+    "code_verifier",
+    "device_code",
+    "user_code",
+    "credential",
+    "credentials",
+    "key",
+    "api_key",
+    "apikey",
+    "x_api_key",
+    "subscription_key",
+    "ocp_apim_subscription_key",
+    "token",
+    "api_token",
+    "auth_token",
+    "access_token",
+    "id_token",
+    "refresh_token",
+    "oauth_token",
+    "bearer_token",
+    "security_token",
+    "session_token",
+    "client_secret",
+    "client_assertion",
+    "assertion",
+    "jwt",
+    "saml_response",
+    "secret",
+    "secret_key",
+    "secret_access_key",
+    "private_key",
+    "private_token",
+    "personal_access_token",
+    "password",
+    "passwd",
+    "signature",
+    "sig",
+    "oauth_signature",
+    "sas",
+    "shared_access_signature",
+    "access_key",
+    "access_key_id",
+    "aws_access_key_id",
+    "aws_secret_access_key",
+    "aws_session_token",
+    "aws_security_token",
+    "account_key",
+    "storage_account_key",
+    "shared_access_key",
+    "connection_string",
+    "x_amz_credential",
+    "x_amz_signature",
+    "x_amz_security_token",
+    "x_goog_credential",
+    "x_goog_signature",
+    "x_goog_security_token"
   )
+  name %in% sensitive_names ||
+    gsub("_", "", name, fixed = TRUE) %in%
+      gsub("_", "", sensitive_names, fixed = TRUE)
 }
 
 onet_redact_url_parameters <- function(parameters) {

@@ -525,6 +525,104 @@ test_that("OAuth authorization codes are redacted without hiding benign paramete
   )
 })
 
+test_that("credential matching uses explicit normalized parameter names", {
+  names <- c(
+    "code", "ACCESS_TOKEN", "refresh-token", "API%5FKEY",
+    "client.secret", "password", "sig", "X-Amz-Credential",
+    "X-Amz-Security-Token", "x-goog-signature", "authorization",
+    "oauth_signature", "api_token", "x-api-key",
+    "accessToken", "refreshToken", "clientSecret", "oauthSignature",
+    "SecurityToken", "AWSAccessKeyId",
+    "codeVerifier", "clientAssertion", "SecretAccessKey",
+    "author", "monkey", "hockey", "keyboard", "signature_version"
+  )
+  expect_equal(
+    unname(vapply(
+      names,
+      onet2r:::onet_url_parameter_is_sensitive,
+      logical(1)
+    )),
+    c(
+      rep(TRUE, 23),
+      rep(FALSE, 5)
+    )
+  )
+
+  url <- paste0(
+    "https://example.invalid/source.csv?",
+    "author=alice&monkey=capuchin&hockey=ice&keyboard=qwerty",
+    "&signature_version=v4&API%5FKEY=api-secret",
+    "&X-Amz-Security-Token=cloud-secret&CoDe=oauth-secret",
+    "&oauth_signature=signature-secret&x-api-key=gateway-secret",
+    "&api_token=service-secret&clientSecret=client-secret",
+    "&AWSAccessKeyId=access-key-secret&codeVerifier=pkce-secret",
+    "&clientAssertion=assertion-secret&SecretAccessKey=aws-secret"
+  )
+  safe_url <- onet2r:::onet_redact_url_credentials(url)
+
+  expect_match(safe_url, "author=alice", fixed = TRUE)
+  expect_match(safe_url, "monkey=capuchin", fixed = TRUE)
+  expect_match(safe_url, "hockey=ice", fixed = TRUE)
+  expect_match(safe_url, "keyboard=qwerty", fixed = TRUE)
+  expect_match(safe_url, "signature_version=v4", fixed = TRUE)
+  expect_no_match(
+    safe_url,
+    paste(
+      "api-secret|cloud-secret|oauth-secret|signature-secret",
+      "gateway-secret|service-secret|client-secret|access-key-secret",
+      "pkce-secret|assertion-secret|aws-secret",
+      sep = "|"
+    )
+  )
+
+  fragment_url <- paste0(
+    "https://example.invalid/callback#route?",
+    "oauth_signature=fragment-secret&codeVerifier=pkce-fragment-secret",
+    "&author=alice"
+  )
+  safe_fragment <- onet2r:::onet_redact_url_credentials(fragment_url)
+  expect_no_match(safe_fragment, "fragment-secret")
+  expect_match(safe_fragment, "author=alice", fixed = TRUE)
+
+  source <- tempfile(fileext = ".csv")
+  dest <- tempfile(fileext = ".csv")
+  on.exit(unlink(c(source, dest, paste0(dest, ".receipt.rds"))), add = TRUE)
+  writeLines("source", source)
+  receipt <- onet2r:::onet_source_receipt(source, source_url = url)
+  onet2r:::onet_atomic_commit_source(source, dest, receipt)
+  stored <- readRDS(paste0(dest, ".receipt.rds"))
+
+  expect_equal(stored$source_url, safe_url)
+  expect_equal(
+    stored$source_url_sha256,
+    onet2r:::onet_source_url_sha256(url)
+  )
+  expect_no_match(
+    stored$source_url,
+    paste(
+      "api-secret|cloud-secret|oauth-secret|signature-secret",
+      "gateway-secret|service-secret|client-secret|access-key-secret",
+      "pkce-secret|assertion-secret|aws-secret",
+      sep = "|"
+    )
+  )
+  expect_match(stored$source_url, "author=alice", fixed = TRUE)
+
+  malformed <- paste0(
+    "http://[bad]?",
+    "author=alice&monkey=capuchin&api-key=malformed-secret",
+    "&x-api-key=malformed-gateway-secret"
+  )
+  expect_equal(
+    onet2r:::onet_redact_url_credentials(malformed),
+    paste0(
+      "http://[bad]?",
+      "author=alice&monkey=capuchin&api-key=[REDACTED]",
+      "&x-api-key=[REDACTED]"
+    )
+  )
+})
+
 test_that("failed cache snapshot creation removes the private copy", {
   cache_dir <- withr::local_tempdir()
   path <- file.path(cache_dir, "source.csv")
