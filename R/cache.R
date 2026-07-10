@@ -732,10 +732,13 @@ onet_cached_source_receipt_unlocked <- function(
     }
     recorded_url_sha256 <- onet_source_url_sha256(recorded_url)
   }
-  requested <- list(
-    version = expected_version,
-    as_of = expected_as_of
-  )
+  requested <- list()
+  if (!is.null(version)) {
+    requested$version <- expected_version
+  }
+  if (!is.null(as_of)) {
+    requested$as_of <- expected_as_of
+  }
   mismatched <- names(requested)[vapply(
     names(requested),
     \(field) !identical(onet_receipt_value(receipt[[field]]), requested[[field]]),
