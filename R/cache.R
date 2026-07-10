@@ -8,6 +8,48 @@ onet_lock_token <- function() {
   paste0("owner-", Sys.getpid(), "-", basename(tempfile()))
 }
 
+onet_remove_lock_owner_marker <- function(path) {
+  unlink(path, force = TRUE)
+  !file.exists(path)
+}
+
+onet_remove_empty_lock_dir <- function(path) {
+  if (!dir.exists(path)) {
+    return(TRUE)
+  }
+  path <- normalizePath(path, winslash = "\\", mustWork = FALSE)
+  status <- if (.Platform$OS.type == "windows") {
+    system2(
+      Sys.getenv("COMSPEC", "cmd.exe"),
+      c("/d", "/c", "rmdir", shQuote(path)),
+      stdout = FALSE,
+      stderr = FALSE
+    )
+  } else {
+    system2(
+      "rmdir",
+      shQuote(path),
+      stdout = FALSE,
+      stderr = FALSE
+    )
+  }
+  identical(status, 0L) && !dir.exists(path)
+}
+
+onet_cache_lock_is_owned <- function(handle) {
+  owner <- file.path(handle$path, handle$token)
+  if (!file.exists(owner)) {
+    return(FALSE)
+  }
+  recorded <- tryCatch(
+    readLines(owner, n = 1L, warn = FALSE),
+    error = function(cnd) character()
+  )
+  entries <- list.files(handle$path, all.files = TRUE, no.. = TRUE)
+  identical(recorded, handle$token) &&
+    identical(entries, handle$token)
+}
+
 onet_acquire_cache_lock <- function(lock, timeout = 10) {
   dir.create(dirname(lock), recursive = TRUE, showWarnings = FALSE)
   started <- Sys.time()
@@ -29,7 +71,10 @@ onet_acquire_cache_lock <- function(lock, timeout = 10) {
           class = "onet2r_cache_lock"
         ))
       }
-      unlink(lock, recursive = TRUE, force = TRUE)
+      if (file.exists(owner)) {
+        onet_remove_lock_owner_marker(owner)
+      }
+      onet_remove_empty_lock_dir(lock)
       cli::cli_abort(
         "Failed to record cache lock ownership.",
         class = "onet2r_cache_lock_error"
@@ -55,28 +100,20 @@ onet_acquire_cache_lock <- function(lock, timeout = 10) {
 
 onet_release_cache_lock <- function(handle) {
   owner <- file.path(handle$path, handle$token)
-  if (!file.exists(owner)) {
+  if (!onet_cache_lock_is_owned(handle)) {
     return(FALSE)
   }
-
-  recorded <- tryCatch(
-    readLines(owner, n = 1L, warn = FALSE),
-    error = function(cnd) character()
-  )
-  entries <- list.files(handle$path, all.files = TRUE, no.. = TRUE)
-  if (
-    !identical(recorded, handle$token) ||
-      !identical(entries, handle$token)
-  ) {
+  if (!onet_remove_lock_owner_marker(owner) || file.exists(owner)) {
     return(FALSE)
   }
-
-  unlink(owner, force = TRUE)
-  if (file.exists(owner)) {
+  if (!dir.exists(handle$path)) {
+    return(TRUE)
+  }
+  if (length(list.files(handle$path, all.files = TRUE, no.. = TRUE)) > 0L) {
     return(FALSE)
   }
-  unlink(handle$path, recursive = TRUE, force = TRUE)
-  !dir.exists(handle$path)
+  isTRUE(onet_remove_empty_lock_dir(handle$path)) &&
+    !dir.exists(handle$path)
 }
 
 onet_with_raw_cache_lock <- function(lock, code, timeout = 10) {
@@ -116,6 +153,101 @@ onet_cache_transaction_key <- function(section) {
   normalizePath(section, winslash = "/", mustWork = FALSE)
 }
 
+onet_create_tx_marker <- function(path) {
+  file.create(path)
+}
+
+onet_write_tx_marker <- function(token, marker) {
+  writeLines(token, marker, useBytes = TRUE)
+  invisible(TRUE)
+}
+
+onet_remove_tx_marker <- function(marker) {
+  unlink(marker, force = TRUE)
+  !file.exists(marker)
+}
+
+onet_set_tx_state <- function(key, state) {
+  assign(key, state, envir = .onet_cache_transaction_state)
+  invisible(TRUE)
+}
+
+onet_remove_tx_state <- function(key) {
+  rm(list = key, envir = .onet_cache_transaction_state)
+  invisible(
+    !exists(
+      key,
+      envir = .onet_cache_transaction_state,
+      inherits = FALSE
+    )
+  )
+}
+
+onet_transaction_state_matches <- function(key, marker) {
+  if (
+    !exists(
+      key,
+      envir = .onet_cache_transaction_state,
+      inherits = FALSE
+    )
+  ) {
+    return(FALSE)
+  }
+  state <- get(key, envir = .onet_cache_transaction_state, inherits = FALSE)
+  identical(state$marker, marker)
+}
+
+onet_cleanup_cache_transaction <- function(
+    key,
+    state,
+    context,
+    parent = NULL) {
+  state$cleanup_pending <- TRUE
+  assign(key, state, envir = .onet_cache_transaction_state)
+
+  marker_parent <- parent
+  marker_removed <- if (!file.exists(state$marker)) {
+    TRUE
+  } else {
+    tryCatch(
+      onet_remove_tx_marker(state$marker),
+      error = function(cnd) {
+        marker_parent <<- cnd
+        FALSE
+      }
+    )
+  }
+  if (!isTRUE(marker_removed) || file.exists(state$marker)) {
+    cli::cli_abort(
+      "Failed to remove a cache transaction marker during {context}.",
+      class = "onet2r_cache_transaction_cleanup_error",
+      parent = marker_parent
+    )
+  }
+
+  if (onet_transaction_state_matches(key, state$marker)) {
+    state_parent <- NULL
+    state_removed <- tryCatch(
+      onet_remove_tx_state(key),
+      error = function(cnd) {
+        state_parent <<- cnd
+        FALSE
+      }
+    )
+    if (
+      !isTRUE(state_removed) ||
+        onet_transaction_state_matches(key, state$marker)
+    ) {
+      cli::cli_abort(
+        "Failed to remove cache transaction state during {context}.",
+        class = "onet2r_cache_transaction_cleanup_error",
+        parent = state_parent
+      )
+    }
+  }
+  invisible(TRUE)
+}
+
 onet_begin_cache_transaction <- function(path, timeout = 10) {
   section <- onet_cache_section_path(path)
   if (is.null(section)) {
@@ -125,12 +257,20 @@ onet_begin_cache_transaction <- function(path, timeout = 10) {
   key <- onet_cache_transaction_key(section)
   if (exists(key, envir = .onet_cache_transaction_state, inherits = FALSE)) {
     state <- get(key, envir = .onet_cache_transaction_state, inherits = FALSE)
-    state$count <- state$count + 1L
-    assign(key, state, envir = .onet_cache_transaction_state)
-    return(structure(
-      list(key = key),
-      class = "onet2r_cache_transaction"
-    ))
+    if (isTRUE(state$cleanup_pending)) {
+      onet_cleanup_cache_transaction(
+        key,
+        state,
+        context = "transaction retry"
+      )
+    } else {
+      state$count <- state$count + 1L
+      onet_set_tx_state(key, state)
+      return(structure(
+        list(key = key),
+        class = "onet2r_cache_transaction"
+      ))
+    }
   }
 
   coordination <- onet_cache_coordination_paths(section)
@@ -140,18 +280,65 @@ onet_begin_cache_transaction <- function(path, timeout = 10) {
 
   token <- onet_lock_token()
   marker <- file.path(coordination$active, token)
-  if (!file.create(marker)) {
+  state <- list(
+    count = 1L,
+    marker = marker,
+    cleanup_pending = FALSE
+  )
+  marker_created <- FALSE
+  registration_complete <- FALSE
+  on.exit({
+    if (!registration_complete && marker_created) {
+      if (onet_transaction_state_matches(key, marker)) {
+        state <- get(
+          key,
+          envir = .onet_cache_transaction_state,
+          inherits = FALSE
+        )
+      }
+      state$count <- 0L
+      onet_cleanup_cache_transaction(
+        key,
+        state,
+        context = "transaction registration"
+      )
+    }
+  }, add = TRUE)
+
+  if (!isTRUE(onet_create_tx_marker(marker))) {
     cli::cli_abort(
-      "Failed to register an active cache transaction.",
-      class = "onet2r_cache_lock_error"
+      "Failed to create an active cache transaction marker.",
+      class = "onet2r_cache_transaction_registration_error"
     )
   }
-  writeLines(token, marker, useBytes = TRUE)
-  assign(
-    key,
-    list(count = 1L, marker = marker),
-    envir = .onet_cache_transaction_state
+  marker_created <- TRUE
+  tryCatch(
+    onet_write_tx_marker(token, marker),
+    error = function(cnd) {
+      cli::cli_abort(
+        "Failed to write an active cache transaction marker.",
+        class = "onet2r_cache_transaction_registration_error",
+        parent = cnd
+      )
+    }
   )
+  tryCatch(
+    onet_set_tx_state(key, state),
+    error = function(cnd) {
+      cli::cli_abort(
+        "Failed to register in-memory cache transaction state.",
+        class = "onet2r_cache_transaction_state_error",
+        parent = cnd
+      )
+    }
+  )
+  if (!onet_transaction_state_matches(key, marker)) {
+    cli::cli_abort(
+      "Failed to confirm in-memory cache transaction state.",
+      class = "onet2r_cache_transaction_state_error"
+    )
+  }
+  registration_complete <- TRUE
   structure(
     list(key = key),
     class = "onet2r_cache_transaction"
@@ -177,15 +364,44 @@ onet_end_cache_transaction <- function(handle) {
     envir = .onet_cache_transaction_state,
     inherits = FALSE
   )
+  if (isTRUE(state$cleanup_pending)) {
+    return(onet_cleanup_cache_transaction(
+      handle$key,
+      state,
+      context = "transaction teardown retry"
+    ))
+  }
   if (state$count > 1L) {
     state$count <- state$count - 1L
-    assign(handle$key, state, envir = .onet_cache_transaction_state)
+    tryCatch(
+      onet_set_tx_state(handle$key, state),
+      error = function(cnd) {
+        cli::cli_abort(
+          "Failed to update nested cache transaction state.",
+          class = "onet2r_cache_transaction_state_error",
+          parent = cnd
+        )
+      }
+    )
     return(invisible(TRUE))
   }
 
-  unlink(state$marker, force = TRUE)
-  rm(list = handle$key, envir = .onet_cache_transaction_state)
-  invisible(!file.exists(state$marker))
+  state$cleanup_pending <- TRUE
+  tryCatch(
+    onet_set_tx_state(handle$key, state),
+    error = function(cnd) {
+      cli::cli_abort(
+        "Failed to prepare cache transaction teardown.",
+        class = "onet2r_cache_transaction_state_error",
+        parent = cnd
+      )
+    }
+  )
+  onet_cleanup_cache_transaction(
+    handle$key,
+    state,
+    context = "transaction teardown"
+  )
 }
 
 onet_with_cache_transaction <- function(path, code, timeout = 10) {
@@ -198,13 +414,22 @@ onet_clear_cache_section <- function(section, timeout = 10) {
   section <- normalizePath(section, winslash = "/", mustWork = FALSE)
   key <- onet_cache_transaction_key(section)
   if (exists(key, envir = .onet_cache_transaction_state, inherits = FALSE)) {
-    cli::cli_abort(
-      paste(
-        "Cannot clear a cache section from inside one of its",
-        "active transactions."
-      ),
-      class = "onet2r_cache_clear_conflict"
-    )
+    state <- get(key, envir = .onet_cache_transaction_state, inherits = FALSE)
+    if (isTRUE(state$cleanup_pending)) {
+      onet_cleanup_cache_transaction(
+        key,
+        state,
+        context = "cache clear"
+      )
+    } else {
+      cli::cli_abort(
+        paste(
+          "Cannot clear a cache section from inside one of its",
+          "active transactions."
+        ),
+        class = "onet2r_cache_clear_conflict"
+      )
+    }
   }
 
   coordination <- onet_cache_coordination_paths(section)
@@ -550,11 +775,16 @@ onet_redact_url_authority <- function(url) {
     url,
     perl = TRUE
   )
-  if (scheme[[1]] != 1L) {
+  network_path <- startsWith(url, "//")
+  if (scheme[[1]] != 1L && !network_path) {
     return(url)
   }
 
-  authority_start <- attr(scheme, "match.length") + 1L
+  authority_start <- if (network_path) {
+    3L
+  } else {
+    attr(scheme, "match.length") + 1L
+  }
   remainder <- substr(url, authority_start, nchar(url))
   delimiter <- regexpr("[/?#]", remainder, perl = TRUE)[[1]]
   authority_end <- if (delimiter < 0L) {
