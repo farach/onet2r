@@ -525,6 +525,298 @@ test_that("OAuth authorization codes are redacted without hiding benign paramete
   )
 })
 
+test_that("credential parameter redaction is exact and percent decoded", {
+  sensitive_names <- c(
+    "token",
+    "TOKEN",
+    "tok%65n",
+    "api%5Fkey",
+    "client-secret",
+    "co%64e",
+    "X-Amz-Credential",
+    "X-Amz-Signature",
+    "X-Amz-Security-Token"
+  )
+  benign_names <- c(
+    "author",
+    "AUTHOR",
+    "auth%6Fr",
+    "monkey",
+    "MonKey",
+    "mon%6Bey",
+    "state",
+    "st%61te",
+    "keynote",
+    "signature_version"
+  )
+
+  expect_true(all(vapply(
+    sensitive_names,
+    onet2r:::onet_url_parameter_is_sensitive,
+    logical(1)
+  )))
+  expect_false(any(vapply(
+    benign_names,
+    onet2r:::onet_url_parameter_is_sensitive,
+    logical(1)
+  )))
+
+  positive <- list(
+    list(
+      label = "normal query",
+      url = paste0(
+        "https://example.invalid/data?",
+        "token=normal-secret&author=visible-author"
+      ),
+      secret = "normal-secret",
+      visible = "author=visible-author"
+    ),
+    list(
+      label = "fragment",
+      url = paste0(
+        "https://example.invalid/data#",
+        "access_token=fragment-secret&state=visible-state"
+      ),
+      secret = "fragment-secret",
+      visible = "state=visible-state"
+    ),
+    list(
+      label = "hash route",
+      url = paste0(
+        "https://example.invalid/app#/callback?",
+        "client_secret=route-secret&monkey=visible-monkey"
+      ),
+      secret = "route-secret",
+      visible = "monkey=visible-monkey"
+    ),
+    list(
+      label = "malformed URL",
+      url = paste0(
+        "http://[bad]?api%5Fkey=malformed-secret",
+        "&author=visible-author"
+      ),
+      secret = "malformed-secret",
+      visible = "author=visible-author"
+    ),
+    list(
+      label = "case variant",
+      url = paste0(
+        "https://example.invalid/data?",
+        "X-AmZ-SiGnAtUrE=case-secret&state=visible-state"
+      ),
+      secret = "case-secret",
+      visible = "state=visible-state"
+    ),
+    list(
+      label = "encoded key",
+      url = paste0(
+        "https://example.invalid/data?",
+        "cl%69ent%5Fsecret=encoded-secret&mon%6Bey=visible-monkey"
+      ),
+      secret = "encoded-secret",
+      visible = "monkey=visible-monkey"
+    ),
+    list(
+      label = "OAuth code",
+      url = paste0(
+        "https://example.invalid/callback?",
+        "co%64e=oauth-secret&state=visible-state"
+      ),
+      secret = "oauth-secret",
+      visible = "state=visible-state"
+    )
+  )
+
+  for (case in positive) {
+    safe <- onet2r:::onet_redact_url_credentials(case$url)
+    expect_false(
+      grepl(case$secret, safe, fixed = TRUE),
+      info = case$label
+    )
+    expect_true(
+      grepl("[REDACTED]", safe, fixed = TRUE),
+      info = case$label
+    )
+    expect_true(
+      grepl(case$visible, safe, fixed = TRUE),
+      info = case$label
+    )
+  }
+
+  negative <- list(
+    list(
+      label = "normal query",
+      url = paste0(
+        "https://example.invalid/data?",
+        "author=visible-author&monkey=visible-monkey&state=visible-state"
+      ),
+      visible = c("visible-author", "visible-monkey", "visible-state")
+    ),
+    list(
+      label = "fragment",
+      url = paste0(
+        "https://example.invalid/data#",
+        "author=visible-author&state=visible-state"
+      ),
+      visible = c("visible-author", "visible-state")
+    ),
+    list(
+      label = "hash route",
+      url = paste0(
+        "https://example.invalid/app#/route?",
+        "monkey=visible-monkey&mode=code"
+      ),
+      visible = c("visible-monkey", "mode=code")
+    ),
+    list(
+      label = "malformed URL",
+      url = paste0(
+        "http://[bad]?author=visible-author",
+        "&monkey=visible-monkey&state=visible-state"
+      ),
+      visible = c("visible-author", "visible-monkey", "visible-state")
+    ),
+    list(
+      label = "case variants",
+      url = paste0(
+        "https://example.invalid/data?",
+        "AUTHOR=visible-author&MonKey=visible-monkey&STATE=visible-state"
+      ),
+      visible = c("visible-author", "visible-monkey", "visible-state")
+    ),
+    list(
+      label = "encoded benign keys",
+      url = paste0(
+        "https://example.invalid/data?",
+        "auth%6Fr=visible-author&mon%6Bey=visible-monkey",
+        "&st%61te=visible-state"
+      ),
+      visible = c("visible-author", "visible-monkey", "visible-state")
+    ),
+    list(
+      label = "ordinary parameters",
+      url = paste0(
+        "https://example.invalid/data?",
+        "variant=public&mode=code&view=summary"
+      ),
+      visible = c("variant=public", "mode=code", "view=summary")
+    )
+  )
+
+  for (case in negative) {
+    safe <- onet2r:::onet_redact_url_credentials(case$url)
+    expect_false(
+      grepl("[REDACTED]", safe, fixed = TRUE),
+      info = case$label
+    )
+    expect_true(
+      all(vapply(case$visible, grepl, logical(1), x = safe, fixed = TRUE)),
+      info = case$label
+    )
+  }
+})
+
+test_that("legacy receipt URL migration applies precise credential redaction", {
+  cases <- list(
+    list(
+      label = "normal query",
+      url = paste0(
+        "https://example.invalid/data?",
+        "token=legacy-query-secret&author=visible"
+      ),
+      secret = "legacy-query-secret",
+      visible = "author=visible"
+    ),
+    list(
+      label = "fragment",
+      url = paste0(
+        "https://example.invalid/data#",
+        "access_token=legacy-fragment-secret&state=visible"
+      ),
+      secret = "legacy-fragment-secret",
+      visible = "state=visible"
+    ),
+    list(
+      label = "hash route",
+      url = paste0(
+        "https://example.invalid/app#/callback?",
+        "X-Amz-Signature=legacy-route-secret&monkey=visible"
+      ),
+      secret = "legacy-route-secret",
+      visible = "monkey=visible"
+    ),
+    list(
+      label = "malformed encoded key",
+      url = "http://[bad]?api%5Fkey=legacy-malformed-secret&state=visible",
+      secret = "legacy-malformed-secret",
+      visible = "state=visible"
+    ),
+    list(
+      label = "benign query",
+      url = paste0(
+        "https://example.invalid/data?",
+        "author=visible-author&monkey=visible-monkey",
+        "&state=visible-state"
+      ),
+      secret = NULL,
+      visible = "visible-author"
+    ),
+    list(
+      label = "benign malformed encoded keys",
+      url = paste0(
+        "http://[bad]?",
+        "auth%6Fr=visible-author&mon%6Bey=visible-monkey",
+        "&st%61te=visible-state"
+      ),
+      secret = NULL,
+      visible = "visible-monkey"
+    )
+  )
+  cache_dir <- withr::local_tempdir()
+
+  for (i in seq_along(cases)) {
+    case <- cases[[i]]
+    path <- file.path(cache_dir, paste0("source-", i, ".csv"))
+    writeLines("source", path)
+    receipt <- onet2r:::onet_source_receipt(path)
+    receipt$source_url <- case$url
+    receipt$source_url_sha256 <- NULL
+    receipt$provenance_status <- "recorded"
+    saveRDS(receipt, paste0(path, ".receipt.rds"))
+
+    result <- onet2r:::onet_cached_source_receipt(
+      path,
+      source_url = case$url
+    )
+    stored <- readRDS(paste0(path, ".receipt.rds"))
+    expect_equal(
+      stored$source_url_sha256,
+      onet2r:::onet_source_url_sha256(case$url),
+      info = case$label
+    )
+    expect_equal(stored$source_url, result$source_url, info = case$label)
+    expect_true(
+      grepl(case$visible, stored$source_url, fixed = TRUE),
+      info = case$label
+    )
+    if (is.null(case$secret)) {
+      expect_false(
+        grepl("[REDACTED]", stored$source_url, fixed = TRUE),
+        info = case$label
+      )
+    } else {
+      expect_false(
+        grepl(case$secret, stored$source_url, fixed = TRUE),
+        info = case$label
+      )
+      expect_true(
+        grepl("[REDACTED]", stored$source_url, fixed = TRUE),
+        info = case$label
+      )
+    }
+  }
+})
+
 test_that("failed cache snapshot creation removes the private copy", {
   cache_dir <- withr::local_tempdir()
   path <- file.path(cache_dir, "source.csv")

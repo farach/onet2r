@@ -119,10 +119,34 @@ onet_archive_download <- function(
     force = FALSE,
     expected_sha256 = NULL,
     as_of = NULL) {
+  onet_archive_acquire(
+    version = version,
+    dir = dir,
+    force = force,
+    expected_sha256 = expected_sha256,
+    as_of = as_of,
+    return_snapshot = FALSE
+  )
+}
+
+onet_archive_acquire <- function(
+    version,
+    dir = onet_cache_dir(),
+    force = FALSE,
+    expected_sha256 = NULL,
+    as_of = NULL,
+    return_snapshot = FALSE) {
   validate_single_string(version, "version")
   validate_single_string(dir, "dir")
   if (!is.logical(force) || length(force) != 1 || is.na(force)) {
     cli::cli_abort("{.arg force} must be `TRUE` or `FALSE`.")
+  }
+  if (
+    !is.logical(return_snapshot) ||
+      length(return_snapshot) != 1 ||
+      is.na(return_snapshot)
+  ) {
+    cli::cli_abort("{.arg return_snapshot} must be `TRUE` or `FALSE`.")
   }
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   as_of <- onet_normalize_as_of(as_of)
@@ -146,8 +170,17 @@ onet_archive_download <- function(
       version = version,
       as_of = as_of
     )
-    on.exit(unlink(snapshot, force = TRUE), add = TRUE)
+    keep_snapshot <- FALSE
+    on.exit({
+      if (!keep_snapshot) {
+        unlink(snapshot, force = TRUE)
+      }
+    }, add = TRUE)
     validate_archive_zip(snapshot)
+    if (isTRUE(return_snapshot)) {
+      keep_snapshot <- TRUE
+      return(snapshot)
+    }
     return(dest)
   }
 
@@ -198,7 +231,23 @@ onet_archive_download <- function(
     as_of = as_of
   )
   validate_archive_zip(tmp)
-  onet_atomic_commit_source(tmp, dest, receipt)
+  result <- onet_atomic_commit_source(
+    tmp,
+    dest,
+    receipt,
+    return_snapshot = return_snapshot
+  )
+  if (isTRUE(return_snapshot)) {
+    keep_snapshot <- FALSE
+    on.exit({
+      if (!keep_snapshot) {
+        unlink(result, force = TRUE)
+      }
+    }, add = TRUE)
+    validate_archive_zip(result)
+    keep_snapshot <- TRUE
+    return(result)
+  }
 
   dest
 }
@@ -233,13 +282,9 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
   }
 
   archive <- if (is.null(path)) {
-    cache_path <- onet_archive_download(version)
-    release <- onet_releases()
-    release <- release[release$version == version, , drop = FALSE]
-    snapshot <- onet_cached_source_snapshot(
-      path = cache_path,
-      source_url = release$text_url[[1]],
-      version = version
+    snapshot <- onet_archive_acquire(
+      version = version,
+      return_snapshot = TRUE
     )
     on.exit(unlink(snapshot, force = TRUE), add = TRUE)
     snapshot

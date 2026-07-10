@@ -325,21 +325,23 @@ test_that("archive force redownload replaces a receiptless legacy archive", {
 
 test_that("onet_archive_read normalizes descriptor archive tables", {
   zipfile <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
   url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(zipfile, dest)
   saveRDS(
     onet2r:::onet_source_receipt(
-      zipfile,
+      dest,
       source_url = url,
       version = "30.3"
     ),
-    paste0(zipfile, ".receipt.rds")
+    paste0(dest, ".receipt.rds")
   )
 
   local_mocked_bindings(
-    onet_archive_download = function(version, dir = onet_cache_dir(), force = FALSE) {
-      expect_equal(version, "30.3")
-      zipfile
-    },
+    onet_cache_dir = function() cache_dir,
     onet_releases = function() {
       tibble::tibble(
         version = "30.3",
@@ -377,25 +379,31 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
   expect_equal(result$data_value, c(4.12, 4.71))
 })
 
-test_that("archive reads consume a verified snapshot during cache replacement", {
+test_that("archive reader retains its snapshot across a forced refresh", {
   source_a <- tiny_archive_zip(first_value = 4.12)
   source_b <- tiny_archive_zip(first_value = 9.12)
   cache_dir <- withr::local_tempdir()
   archive_dir <- file.path(cache_dir, "archives")
   dir.create(archive_dir)
-  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
-  dest <- file.path(archive_dir, basename(url))
-  file.copy(source_a, dest)
-  receipt_a <- onet2r:::onet_source_receipt(
-    dest,
-    source_url = url,
-    version = "30.3",
-    as_of = "2026-05"
+  source_a_url <- paste0(
+    "file:///",
+    sub("^/", "", normalizePath(source_a, winslash = "/"))
   )
-  saveRDS(receipt_a, paste0(dest, ".receipt.rds"))
-  original_member <- onet2r:::onet_archive_member
+  source_b_url <- paste0(
+    "file:///",
+    sub("^/", "", normalizePath(source_b, winslash = "/"))
+  )
+  active_url <- source_a_url
+  dest <- file.path(archive_dir, basename(source_a))
+  original_acquire <- onet2r:::onet_archive_acquire
+  original_copy <- onet2r:::onet_copy_cache_snapshot
+  original_rename <- onet2r:::onet_file_rename
   snapshot_path <- NULL
-  replaced <- FALSE
+  snapshot_receipt <- NULL
+  snapshot_copied_under_lock <- FALSE
+  force_commit_under_lock <- FALSE
+  race_enabled <- FALSE
+  refreshed <- FALSE
 
   local_mocked_bindings(
     onet_cache_dir = function() cache_dir,
@@ -404,35 +412,79 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
         version = "30.3",
         release_date = as.Date("2026-05-01"),
         soc_vintage = "2019",
-        text_url = url
+        text_url = active_url
       )
     },
-    onet_archive_member = function(archive, table) {
-      snapshot_path <<- archive
-      if (!replaced) {
-        replacement <- tempfile("archive-b-", tmpdir = archive_dir, fileext = ".zip")
-        file.copy(source_b, replacement)
-        receipt_b <- onet2r:::onet_source_receipt(
-          replacement,
-          source_url = url,
-          version = "30.3",
-          as_of = "2026-05"
-        )
-        onet2r:::onet_atomic_commit_source(replacement, dest, receipt_b)
-        replaced <<- TRUE
+    onet_copy_cache_snapshot = function(from, to) {
+      snapshot_copied_under_lock <<-
+        snapshot_copied_under_lock || dir.exists(paste0(dest, ".lock"))
+      original_copy(from, to)
+    },
+    onet_file_rename = function(from, to) {
+      if (
+        race_enabled &&
+          identical(to, dest) &&
+          startsWith(basename(from), "onet-archive-")
+      ) {
+        force_commit_under_lock <<- dir.exists(paste0(dest, ".lock"))
       }
-      original_member(archive, table)
+      original_rename(from, to)
+    },
+    onet_archive_acquire = function(
+        version,
+        dir = cache_dir,
+        force = FALSE,
+        expected_sha256 = NULL,
+        as_of = NULL,
+        return_snapshot = FALSE) {
+      archive <- original_acquire(
+        version = version,
+        dir = dir,
+        force = force,
+        expected_sha256 = expected_sha256,
+        as_of = as_of,
+        return_snapshot = return_snapshot
+      )
+      if (race_enabled && isTRUE(return_snapshot) && !refreshed) {
+        snapshot_path <<- archive
+        snapshot_receipt <<- attr(archive, "source_receipt", exact = TRUE)
+        active_url <<- source_b_url
+        original_acquire(
+          version = version,
+          dir = dir,
+          force = TRUE,
+          as_of = "2026-05",
+          return_snapshot = FALSE
+        )
+        refreshed <<- TRUE
+      }
+      archive
     },
     .package = "onet2r"
   )
 
+  onet_archive_download(
+    "30.3",
+    dir = cache_dir,
+    force = TRUE,
+    as_of = "2026-05"
+  )
+  receipt_a <- readRDS(paste0(dest, ".receipt.rds"))
+  race_enabled <- TRUE
+
   result <- onet_archive_read("30.3", "Abilities")
-  snapshot_receipt <- attr(snapshot_path, "source_receipt", exact = TRUE)
+  receipt_b <- readRDS(paste0(dest, ".receipt.rds"))
 
   expect_equal(result$data_value[[1]], 4.12)
+  expect_equal(refreshed, TRUE)
   expect_equal(snapshot_receipt$actual_sha256, receipt_a$actual_sha256)
   expect_equal(snapshot_receipt$as_of, "2026-05")
   expect_equal(onet2r:::onet_sha256(dest), onet2r:::onet_sha256(source_b))
+  expect_equal(receipt_b$source_url, source_b_url)
+  expect_equal(receipt_b$actual_sha256, onet2r:::onet_sha256(dest))
+  expect_false(identical(receipt_a$actual_sha256, receipt_b$actual_sha256))
+  expect_equal(snapshot_copied_under_lock, TRUE)
+  expect_equal(force_commit_under_lock, TRUE)
   expect_equal(file.exists(snapshot_path), FALSE)
   expect_equal(dir.exists(paste0(dest, ".lock")), FALSE)
 })

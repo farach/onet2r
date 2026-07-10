@@ -187,12 +187,69 @@ onet_receipt_value <- function(x) {
   as.character(x)
 }
 
+onet_sensitive_url_parameters <- c(
+  "access_key",
+  "access_key_id",
+  "access_token",
+  "api_key",
+  "apikey",
+  "api_secret",
+  "api_token",
+  "auth",
+  "auth_key",
+  "auth_token",
+  "authentication",
+  "authorization",
+  "authorization_code",
+  "aws_access_key_id",
+  "aws_secret_access_key",
+  "bearer_token",
+  "client_assertion",
+  "client_secret",
+  "code",
+  "code_verifier",
+  "consumer_key",
+  "consumer_secret",
+  "credential",
+  "credentials",
+  "hmac",
+  "hmac_signature",
+  "id_token",
+  "jwt",
+  "key",
+  "key_pair_id",
+  "oauth_token",
+  "ocp_apim_subscription_key",
+  "passwd",
+  "password",
+  "pat",
+  "personal_access_token",
+  "private_key",
+  "private_token",
+  "pwd",
+  "refresh_token",
+  "sas_token",
+  "secret",
+  "security_token",
+  "session_token",
+  "shared_access_signature",
+  "sig",
+  "signature",
+  "subscription_key",
+  "token",
+  "x_amz_credential",
+  "x_amz_security_token",
+  "x_amz_signature",
+  "x_api_key",
+  "x_goog_credential",
+  "x_goog_security_token",
+  "x_goog_signature"
+)
+
 onet_url_parameter_is_sensitive <- function(name) {
   name <- tolower(utils::URLdecode(name))
-  name == "code" || grepl(
-    "auth|credential|key|passwd|password|secret|sig|signature|token",
-    name
-  )
+  name <- gsub("[.-]", "_", name)
+  name %in% onet_sensitive_url_parameters
 }
 
 onet_redact_url_parameters <- function(parameters) {
