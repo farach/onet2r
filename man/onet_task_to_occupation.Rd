@@ -49,9 +49,10 @@ Rolls a task-level measure up to occupations using O*NET task relevance,
 importance, or equal task weights.
 }
 \details{
-When \code{task_ratings} contains \code{release_version} or \code{version}, every effective
-row must identify the same non-missing release. Use a named list of
-single-release data frames with \code{\link[=onet_measure_sensitivity]{onet_measure_sensitivity()}} for
+When \code{task_ratings} contains \code{release_version} or \code{version}, the columns are
+coalesced row by row and must agree wherever both are populated. Every
+effective row must identify the same non-missing release. Use a named list
+of single-release data frames with \code{\link[=onet_measure_sensitivity]{onet_measure_sensitivity()}} for
 multi-vintage analysis. Duplicate occupation-task rows are rejected rather
 than deduplicated or aggregated.
 }

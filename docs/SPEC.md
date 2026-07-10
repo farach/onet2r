@@ -137,9 +137,12 @@ relevance or importance weights from O&#42;NET task files. The default task
 weight scale is `RT`, which is the Task Ratings scale id for Relevance of Task.
 The user chooses Core-only or Core-plus-Supplemental task handling. Effective
 task ratings must contain at most one row per occupation and task. When a
-release column is present, one call accepts exactly one non-missing release.
-Multi-vintage comparisons use a named list of single-release task-rating tables
-with `onet_measure_sensitivity()`.
+release column is present, one call accepts exactly one non-missing effective
+release. `release_version` and `version` are coalesced row by row and must agree
+where both are populated. Multi-vintage comparisons use a named list of
+single-release task-rating tables with `onet_measure_sensitivity()`. Explicit
+release columns take precedence over list names; a list name supplies release
+provenance only when neither release column exists.
 
 Content-change inputs must contain at most one row per occupation, item,
 release, and scale after filtering. `onet_content_change()` rejects duplicate

@@ -129,6 +129,62 @@ test_that("onet_task_to_occupation preserves valid single-release output", {
   )
 })
 
+test_that("onet_task_to_occupation coalesces supported release columns", {
+  measure <- onet_measure(
+    tibble::tibble(task_id = c("1", "2"), score = c(0.1, 0.9)),
+    key = "task_id",
+    score = "score",
+    key_type = "task"
+  )
+  ratings <- tibble::tibble(
+    onet_soc_code = c("15-1252.00", "15-1252.00"),
+    task_id = c("1", "2"),
+    scale_id = "RT",
+    data_value = c(90, 10),
+    task_type = "Core"
+  )
+  expected <- onet_task_to_occupation(measure, ratings)
+
+  version_only <- dplyr::mutate(ratings, version = "30.0")
+  one_populated <- dplyr::mutate(
+    ratings,
+    release_version = c(NA_character_, "30.0"),
+    version = c("30.0", NA_character_)
+  )
+  agreeing <- dplyr::mutate(
+    ratings,
+    release_version = "30.0",
+    version = "30.0"
+  )
+
+  expect_identical(onet_task_to_occupation(measure, version_only), expected)
+  expect_identical(onet_task_to_occupation(measure, one_populated), expected)
+  expect_identical(onet_task_to_occupation(measure, agreeing), expected)
+})
+
+test_that("onet_task_to_occupation rejects conflicting release columns", {
+  measure <- onet_measure(
+    tibble::tibble(task_id = "1", score = 0.1),
+    key = "task_id",
+    score = "score",
+    key_type = "task"
+  )
+  ratings <- tibble::tibble(
+    onet_soc_code = "15-1252.00",
+    task_id = "1",
+    scale_id = "RT",
+    data_value = 90,
+    task_type = "Core",
+    release_version = "30.0",
+    version = "29.0"
+  )
+
+  expect_snapshot(
+    error = TRUE,
+    onet_task_to_occupation(measure, ratings)
+  )
+})
+
 test_that("onet_task_to_occupation rejects multiple releases", {
   measure <- onet_measure(
     tibble::tibble(task_id = "1", score = 0.1),
@@ -465,8 +521,18 @@ test_that("onet_measure_sensitivity accepts named single-release task ratings", 
     data_value = 100,
     task_type = "Core"
   )
-  ratings_29 <- dplyr::mutate(ratings, release_version = "29.0")
-  ratings_30 <- dplyr::mutate(ratings, release_version = "30.0")
+  ratings_29 <- ratings
+  ratings_30 <- dplyr::mutate(ratings, version = "30.0")
+  ratings_31 <- dplyr::mutate(
+    ratings,
+    release_version = NA_character_,
+    version = "31.0"
+  )
+  ratings_32 <- dplyr::mutate(
+    ratings,
+    release_version = "32.0",
+    version = "32.0"
+  )
   weights <- tibble::tibble(
     reference_soc_code = "15-1252",
     year = 2024L,
@@ -480,12 +546,17 @@ test_that("onet_measure_sensitivity accepts named single-release task ratings", 
   result <- onet_measure_sensitivity(
     measure,
     weight_panels = weights,
-    task_ratings = list(`29.0` = ratings_29, `30.0` = ratings_30)
+    task_ratings = list(
+      `29.0` = ratings_29,
+      version_only = ratings_30,
+      one_populated = ratings_31,
+      agreeing = ratings_32
+    )
   )
 
-  expect_equal(nrow(result), 2L)
-  expect_equal(result$task_release, c("29.0", "30.0"))
-  expect_equal(result$aggregate, c(0.4, 0.4))
+  expect_equal(nrow(result), 4L)
+  expect_equal(result$task_release, c("29.0", "30.0", "31.0", "32.0"))
+  expect_equal(result$aggregate, rep(0.4, 4))
 })
 
 test_that("onet_robustness_diagnostic compares scenarios to a baseline", {
