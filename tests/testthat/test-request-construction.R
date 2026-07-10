@@ -529,7 +529,8 @@ test_that("sensitive URL parameter matching is explicit and normalized", {
   sensitive <- c(
     "code", "access_token", "accessToken", "ID-TOKEN", "idToken",
     "refresh.token", "refreshToken", "token", "api_key", "apiKey", "apikey",
-    "key", "client_secret", "clientSecret", "password", "passwd",
+    "key", "access_key", "secretKey", "consumer-key", "client_secret",
+    "clientSecret", "password", "passwd",
     "signature", "sig", "credential", "authorization", "auth",
     "x-amz-credential", "xAmzCredential", "X-Amz-Signature",
     "x-amz-security-token",
@@ -568,13 +569,13 @@ test_that("URL redaction preserves benign parameters in all reporting paths", {
   url <- paste0(
     "https://example.invalid/source.csv?",
     "author=alice&monkey=capuchin&keyboard=qwerty&api%5Fkey=query-secret&",
-    "clientSecret=camel-secret",
+    "clientSecret=camel-secret&secretKey=key-secret",
     "#route?state=visible&AUTH=fragment-secret&hockey=ice"
   )
   safe_url <- paste0(
     "https://example.invalid/source.csv?",
     "author=alice&monkey=capuchin&keyboard=qwerty&api_key=[REDACTED]&",
-    "clientSecret=[REDACTED]",
+    "clientSecret=[REDACTED]&secretKey=[REDACTED]",
     "#route?state=visible&AUTH=[REDACTED]&hockey=ice"
   )
   path <- tempfile(fileext = ".csv")
@@ -586,7 +587,7 @@ test_that("URL redaction preserves benign parameters in all reporting paths", {
   expect_equal(receipt$source_url, safe_url)
   expect_no_match(
     receipt$source_url,
-    "query-secret|camel-secret|fragment-secret"
+    "query-secret|camel-secret|key-secret|fragment-secret"
   )
   expect_match(
     receipt$source_url,
@@ -604,7 +605,7 @@ test_that("URL redaction preserves benign parameters in all reporting paths", {
   )
   expect_no_match(
     warning_message,
-    "query-secret|camel-secret|fragment-secret"
+    "query-secret|camel-secret|key-secret|fragment-secret"
   )
   expect_match(warning_message, "author=alice", fixed = TRUE)
   expect_match(warning_message, "hockey=ice", fixed = TRUE)
