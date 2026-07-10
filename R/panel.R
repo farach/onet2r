@@ -160,10 +160,33 @@ onet_archive_acquire <- function(
   }
 
   archive_dir <- file.path(dir, "archives")
-  dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
   dest_name <- basename(sub("[?#].*$", "", release$text_url[[1]]))
   dest <- file.path(archive_dir, dest_name)
+  onet_with_cache_transaction(
+    dest,
+    onet_archive_transaction(
+      release = release,
+      version = version,
+      archive_dir = archive_dir,
+      dest = dest,
+      force = force,
+      expected_sha256 = expected_sha256,
+      as_of = as_of,
+      return_snapshot = return_snapshot
+    )
+  )
+}
 
+onet_archive_transaction <- function(
+    release,
+    version,
+    archive_dir,
+    dest,
+    force,
+    expected_sha256,
+    as_of,
+    return_snapshot) {
+  dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
   if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
     snapshot <- onet_cached_source_snapshot(
       path = dest,
@@ -208,7 +231,8 @@ onet_archive_acquire <- function(
         c(
           "Failed to download O*NET archive.",
           "i" = "URL: {.url {safe_url}}"
-        )
+        ),
+        class = "onet2r_download_error"
       )
     }
   )
@@ -221,7 +245,8 @@ onet_archive_acquire <- function(
       c(
         "Failed to download O*NET archive.",
         "i" = "URL: {.url {safe_url}}"
-      )
+      ),
+      class = "onet2r_download_error"
     )
   }
 
@@ -1013,8 +1038,15 @@ vintage_path <- function(from_vintage, to_vintage) {
 
 download_crosswalk_file <- function(url, cache_dir = onet_cache_dir()) {
   crosswalk_dir <- file.path(cache_dir, "crosswalks")
-  dir.create(crosswalk_dir, recursive = TRUE, showWarnings = FALSE)
   dest <- file.path(crosswalk_dir, sub("\\?.*$", "", basename(url)))
+  onet_with_cache_transaction(
+    dest,
+    download_crosswalk_transaction(url, crosswalk_dir, dest)
+  )
+}
+
+download_crosswalk_transaction <- function(url, crosswalk_dir, dest) {
+  dir.create(crosswalk_dir, recursive = TRUE, showWarnings = FALSE)
   if (file.exists(dest) && file.info(dest)$size > 0) {
     return(dest)
   }
@@ -1048,10 +1080,7 @@ download_crosswalk_file <- function(url, cache_dir = onet_cache_dir()) {
   if (file.info(tmp)$size <= 0) {
     cli::cli_abort("Downloaded O*NET crosswalk was empty.")
   }
-  if (!file.rename(tmp, dest)) {
-    cli::cli_abort("Failed to move downloaded O*NET crosswalk into the cache.")
-  }
-  dest
+  onet_with_cache_lock(dest, onet_atomic_replace(tmp, dest))
 }
 
 read_adjacent_crosswalk <- function(from_vintage, to_vintage) {

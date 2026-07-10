@@ -98,6 +98,16 @@ onet_http_error_body <- function(resp) {
 #' @noRd
 onet_perform <- function(req) {
   cache_file <- onet_cache_file(req)
+  if (is.null(cache_file)) {
+    return(onet_perform_transaction(req, cache_file = NULL))
+  }
+  onet_with_cache_transaction(
+    cache_file,
+    onet_perform_transaction(req, cache_file)
+  )
+}
+
+onet_perform_transaction <- function(req, cache_file) {
   if (!is.null(cache_file) && file.exists(cache_file)) {
     return(onet_read_cached_rds(
       cache_file,
@@ -145,7 +155,8 @@ onet_perform <- function(req) {
 #' Cached Web Services responses are reused until the caller disables caching
 #' or clears them with [onet_cache_clear()]. The package does not attach a
 #' time-to-live, so enable caching only when stale O&#42;NET API responses are
-#' acceptable for the analysis.
+#' acceptable for the analysis. Cache clearing waits for active writes and
+#' verified source-receipt transactions to finish before removing a section.
 #' @export
 #'
 #' @examples
@@ -175,6 +186,8 @@ onet_cache_use <- function(
 #'   `"archives"` for O&#42;NET database ZIPs, `"crosswalks"` for O&#42;NET bridge
 #'   CSVs, `"oews"` for BLS OEWS ZIPs, `"reference"` for reference workbooks,
 #'   or `"all"` for every section.
+#' @param timeout Maximum number of seconds to wait for active cache
+#'   transactions to finish before aborting the clear operation.
 #'
 #' @return Invisibly returns the cache directory path.
 #' @export
@@ -185,15 +198,32 @@ onet_cache_use <- function(
 #' onet_cache_clear(cache_dir = tmp)
 onet_cache_clear <- function(
     cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
-    what = c("api", "archives", "crosswalks", "oews", "reference", "all")) {
+    what = c("api", "archives", "crosswalks", "oews", "reference", "all"),
+    timeout = 600) {
   validate_single_string(cache_dir, "cache_dir")
   what <- match.arg(what)
+  if (
+    !is.numeric(timeout) ||
+      length(timeout) != 1L ||
+      is.na(timeout) ||
+      timeout < 0
+  ) {
+    cli::cli_abort(
+      "{.arg timeout} must be a single non-negative number.",
+      class = "onet2r_invalid_cache_timeout"
+    )
+  }
   sections <- if (what == "all") {
     c("api", "archives", "crosswalks", "oews", "reference")
   } else {
     what
   }
-  unlink(file.path(cache_dir, sections), recursive = TRUE, force = TRUE)
+  for (section in sections) {
+    onet_clear_cache_section(
+      file.path(cache_dir, section),
+      timeout = timeout
+    )
+  }
   invisible(cache_dir)
 }
 

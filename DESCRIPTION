@@ -19,6 +19,7 @@ Depends:
     R (>= 4.1.0)
 Imports:
     cli,
+    digest,
     dplyr (>= 1.1.0),
     httr2 (>= 1.0.0),
     lifecycle,
@@ -29,10 +30,12 @@ Imports:
     tools,
     utils
 Suggests:
+    callr,
     curl,
     ggplot2,
     jsonlite,
     knitr,
+    pkgload,
     readxl,
     rmarkdown,
     scales,

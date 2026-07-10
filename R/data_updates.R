@@ -68,8 +68,15 @@ download_data_updates_file <- function(cache_dir = onet_cache_dir(), force = FAL
   }
 
   reference_dir <- file.path(cache_dir, "reference")
-  dir.create(reference_dir, recursive = TRUE, showWarnings = FALSE)
   dest <- file.path(reference_dir, basename(onet_data_updates_url))
+  onet_with_cache_transaction(
+    dest,
+    download_updates_transaction(reference_dir, dest, force)
+  )
+}
+
+download_updates_transaction <- function(reference_dir, dest, force) {
+  dir.create(reference_dir, recursive = TRUE, showWarnings = FALSE)
   if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
     return(dest)
   }
@@ -97,13 +104,7 @@ download_data_updates_file <- function(cache_dir = onet_cache_dir(), force = FAL
   if (!identical(status, 0L) || file.info(tmp)$size <= 0) {
     cli::cli_abort("Failed to download the O*NET data updates workbook.")
   }
-  if (file.exists(dest)) {
-    unlink(dest, force = TRUE)
-  }
-  if (!file.rename(tmp, dest)) {
-    cli::cli_abort("Failed to move the data updates workbook into the cache.")
-  }
-  dest
+  onet_with_cache_lock(dest, onet_atomic_replace(tmp, dest))
 }
 
 parse_data_updates <- function(data) {

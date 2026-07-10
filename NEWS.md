@@ -12,16 +12,20 @@
 
 ## Bug fixes
 
+* `onet_cache_clear()` now coordinates with active cache transactions, accepts a configurable wait `timeout`, and uses ownership-checked nonrecursive lock cleanup, preventing concurrent clears and refreshes from deleting replacement locks or separating cached sources from their receipts. Failed transaction registration and teardown retain recoverable state instead of silently leaking markers.
 * `onet_content_change()` and `onet_task_to_occupation()` now reject duplicate effective keys instead of silently choosing or blending rows. Task rollups coalesce `release_version` and `version` row by row, reject conflicts, and require exactly one non-missing effective release per call when release metadata is present. `onet_measure_sensitivity()` uses explicit release columns before falling back to named-list labels for multi-vintage provenance (reported in release audit).
+* `onet_import_eloundou()` and `onet_import_felten_aioe()` now verify and parse private snapshots of local files, so mutations to the original path cannot separate parsed values from their receipt digest. Download URLs without a safe path filename use an opaque name derived from the raw URL fingerprint, preventing credentials from entering cache and lock paths while preserving source identity and content-based workbook or tab-delimited parsing.
 * `onet_measure_sensitivity()` now rejects content-change tables and other non-weight inputs at the `weight_panels` boundary with guidance toward employment weight panels and named-list task release inputs. Its documented output contract is scenario aggregate movement, not rank, quintile, variance, or content-drift diagnostics (reported in release audit).
 * `onet_oews()` now detects, validates, and caches matching OEWS ZIP files downloaded in the user's browser, and interactive sessions can open the official BLS URL and wait for the ZIP when BLS rejects automated downloads with HTTP 403 (reported manually).
 * `onet_oews()` now downloads OEWS ZIP files through the package HTTP client, avoiding RStudio's `.rs.downloadFile()` path that can trigger BLS 403 responses (reported manually).
+* SHA-256 verification now uses a supported cryptographic file implementation on every declared R version, including R 4.1 through R 4.4.
 
 ## Improvements
 
 * Cached API responses are written atomically and corrupt RDS files now fail with a specific cache-clear instruction instead of falling through to network access.
 * Cached archive and adapter files without provenance receipts now fail closed when a URL, version, `as_of`, or expected digest is requested. Unconstrained internal reuse warns and records a `legacy_unverified` receipt, while `force = TRUE` replaces the legacy bytes without exposing URL credentials.
 * Cached archive and adapter readers now copy verified bytes to a private snapshot while holding the cache lock, so a concurrent refresh cannot separate parsed data from its source receipt. Omitted provenance fields remain unconstrained when a verified snapshot is reused. OAuth and cloud credential parameters are matched by explicit normalized names, including authorization `code`, OAuth verifier and consumer credentials, without hiding benign names such as `author` or `monkey`.
+* Credential redaction now removes malformed multi-`@` user information through the final authority separator for absolute and `//` network-path URLs while preserving benign `@` characters in paths, queries, and fragments.
 * Clean-install validation now builds a source tarball, installs it into temporary libraries outside the repository, exercises every public export with deterministic offline fixtures, and runs twice in pull-request CI.
 * O&#42;NET archive and external-adapter downloads now support optional `expected_sha256` and `as_of` verification, write atomic source receipts with URL, commit when inferable, retrieval time, digest, size, and version metadata, and reject changed or mismatched cached sources.
 * Pull requests now require installed-package tests with network access blocked plus a complete pkgdown reference check and site build; deployment remains limited to pushes on `main`.
