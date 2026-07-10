@@ -134,6 +134,7 @@ test_that("archive cache verifies digests and records a receipt", {
     as_of = "2026-05"
   )
   saveRDS(receipt, paste0(dest, ".receipt.rds"))
+  original_validate <- onet2r:::validate_archive_zip
 
   local_mocked_bindings(
     onet_releases = function() {
@@ -144,6 +145,10 @@ test_that("archive cache verifies digests and records a receipt", {
     },
     onet_copy_cache_snapshot = function(...) {
       stop("public archive download created a private snapshot")
+    },
+    validate_archive_zip = function(path, remove_invalid = TRUE) {
+      expect_equal(remove_invalid, FALSE)
+      original_validate(path, remove_invalid = remove_invalid)
     },
     .package = "onet2r"
   )

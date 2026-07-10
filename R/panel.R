@@ -193,7 +193,7 @@ onet_archive_acquire <- function(
             version = version,
             as_of = as_of
           )
-          validate_archive_zip(dest)
+          validate_archive_zip(dest, remove_invalid = FALSE)
           result <- dest
         }
       } else {
@@ -810,11 +810,13 @@ onet_archive_member <- function(archive, table) {
   match[[1]]
 }
 
-validate_archive_zip <- function(path) {
+validate_archive_zip <- function(path, remove_invalid = TRUE) {
   tryCatch(
     utils::unzip(path, list = TRUE),
     error = function(cnd) {
-      unlink(path, force = TRUE)
+      if (isTRUE(remove_invalid)) {
+        unlink(path, force = TRUE)
+      }
       cli::cli_abort("Downloaded archive is not a readable ZIP file.", parent = cnd)
     }
   )
