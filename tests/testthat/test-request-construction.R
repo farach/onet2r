@@ -543,17 +543,25 @@ test_that("credential parameter redaction is exact and percent decoded", {
     "authorization",
     "refresh-token",
     "oauth_signature",
+    "oauth_verifier",
     "api_token",
     "x-api-key",
+    "idToken",
     "accessToken",
     "refreshToken",
     "clientSecret",
     "oauthSignature",
     "SecurityToken",
+    "xAmzCredential",
     "AWSAccessKeyId",
     "codeVerifier",
     "clientAssertion",
-    "SecretAccessKey"
+    "SecretAccessKey",
+    "GoogleAccessId",
+    "accesskey",
+    "secretkey",
+    "consumerkey",
+    "clientsecret"
   )
   benign_names <- c(
     "author",
@@ -565,9 +573,15 @@ test_that("credential parameter redaction is exact and percent decoded", {
     "state",
     "st%61te",
     "keynote",
+    "key_board",
     "signature_version",
+    "signature_method",
+    "credential_type",
+    "authorization_mode",
     "hockey",
-    "keyboard"
+    "keyboard",
+    "donkey",
+    "tokenizer"
   )
 
   expect_true(all(vapply(

@@ -122,15 +122,15 @@ onet_archive_download <- function(
     force = FALSE,
     expected_sha256 = NULL,
     as_of = NULL) {
-  path <- onet_archive_acquire(
+  acquired <- onet_archive_acquire(
     version = version,
     dir = dir,
     force = force,
     expected_sha256 = expected_sha256,
-    as_of = as_of,
-    return_snapshot = FALSE
+    as_of = as_of
   )
-  path
+  on.exit(unlink(acquired$snapshot, force = TRUE), add = TRUE)
+  acquired$cache_path
 }
 
 onet_archive_acquire <- function(
@@ -138,19 +138,11 @@ onet_archive_acquire <- function(
     dir = onet_cache_dir(),
     force = FALSE,
     expected_sha256 = NULL,
-    as_of = NULL,
-    return_snapshot = FALSE) {
+    as_of = NULL) {
   validate_single_string(version, "version")
   validate_single_string(dir, "dir")
   if (!is.logical(force) || length(force) != 1 || is.na(force)) {
     cli::cli_abort("{.arg force} must be `TRUE` or `FALSE`.")
-  }
-  if (
-    !is.logical(return_snapshot) ||
-      length(return_snapshot) != 1 ||
-      is.na(return_snapshot)
-  ) {
-    cli::cli_abort("{.arg return_snapshot} must be `TRUE` or `FALSE`.")
   }
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   as_of <- onet_normalize_as_of(as_of)
@@ -166,36 +158,56 @@ onet_archive_acquire <- function(
   dest_name <- basename(sub("[?#].*$", "", release$text_url[[1]]))
   dest <- file.path(archive_dir, dest_name)
 
-  if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
-    snapshot <- onet_cached_source_snapshot(
-      path = dest,
-      source_url = release$text_url[[1]],
-      expected_sha256 = expected_sha256,
-      version = version,
-      as_of = as_of
-    )
-    keep_snapshot <- FALSE
-    on.exit({
-      if (!keep_snapshot) {
-        unlink(snapshot, force = TRUE)
+  onet_with_cache_lock(
+    dest,
+    {
+      if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
+        snapshot <- onet_cached_source_snapshot_unlocked(
+          path = dest,
+          source_url = release$text_url[[1]],
+          expected_sha256 = expected_sha256,
+          version = version,
+          as_of = as_of
+        )
+        snapshot <- onet_validate_archive_snapshot(snapshot)
+        receipt <- attr(snapshot, "source_receipt", exact = TRUE)
+      } else {
+        tmp <- tempfile("onet-archive-", tmpdir = archive_dir, fileext = ".zip")
+        on.exit(unlink(tmp, force = TRUE), add = TRUE)
+        onet_archive_download_file(release$text_url[[1]], tmp)
+        receipt <- onet_source_receipt(
+          path = tmp,
+          source_url = release$text_url[[1]],
+          expected_sha256 = expected_sha256,
+          version = version,
+          as_of = as_of
+        )
+        validate_archive_zip(tmp)
+        snapshot <- onet_atomic_commit_source_unlocked(
+          tmp,
+          dest,
+          receipt,
+          return_snapshot = TRUE
+        )
+        snapshot <- onet_validate_archive_snapshot(snapshot)
       }
-    }, add = TRUE)
-    validate_archive_zip(snapshot)
-    if (isTRUE(return_snapshot)) {
-      keep_snapshot <- TRUE
-      return(snapshot)
-    }
-    return(dest)
-  }
+      list(
+        snapshot = snapshot,
+        receipt = receipt,
+        cache_path = dest
+      )
+    },
+    timeout = max(300, getOption("timeout", 60))
+  )
+}
 
-  tmp <- tempfile("onet-archive-", tmpdir = archive_dir, fileext = ".zip")
-  on.exit(unlink(tmp, force = TRUE), add = TRUE)
+onet_archive_download_file <- function(url, dest) {
   download_warned <- FALSE
   status <- tryCatch(
     withCallingHandlers(
       utils::download.file(
-        url = release$text_url[[1]],
-        destfile = tmp,
+        url = url,
+        destfile = dest,
         mode = "wb",
         quiet = TRUE
       ),
@@ -205,7 +217,7 @@ onet_archive_acquire <- function(
       }
     ),
     error = function(cnd) {
-      safe_url <- onet_redact_url_credentials(release$text_url[[1]])
+      safe_url <- onet_redact_url_credentials(url)
       cli::cli_abort(
         c(
           "Failed to download O*NET archive.",
@@ -215,10 +227,10 @@ onet_archive_acquire <- function(
     }
   )
   if (download_warned && identical(status, 0L)) {
-    onet_warn_download_completed(release$text_url[[1]], "O*NET archive")
+    onet_warn_download_completed(url, "O*NET archive")
   }
   if (!identical(status, 0L)) {
-    safe_url <- onet_redact_url_credentials(release$text_url[[1]])
+    safe_url <- onet_redact_url_credentials(url)
     cli::cli_abort(
       c(
         "Failed to download O*NET archive.",
@@ -226,34 +238,19 @@ onet_archive_acquire <- function(
       )
     )
   }
+  invisible(dest)
+}
 
-  receipt <- onet_source_receipt(
-    path = tmp,
-    source_url = release$text_url[[1]],
-    expected_sha256 = expected_sha256,
-    version = version,
-    as_of = as_of
-  )
-  validate_archive_zip(tmp)
-  result <- onet_atomic_commit_source(
-    tmp,
-    dest,
-    receipt,
-    return_snapshot = return_snapshot
-  )
-  if (isTRUE(return_snapshot)) {
-    keep_snapshot <- FALSE
-    on.exit({
-      if (!keep_snapshot) {
-        unlink(result, force = TRUE)
-      }
-    }, add = TRUE)
-    validate_archive_zip(result)
-    keep_snapshot <- TRUE
-    return(result)
-  }
-
-  dest
+onet_validate_archive_snapshot <- function(snapshot) {
+  success <- FALSE
+  on.exit({
+    if (!success) {
+      unlink(snapshot, force = TRUE)
+    }
+  }, add = TRUE)
+  validate_archive_zip(snapshot)
+  success <- TRUE
+  snapshot
 }
 
 #' Read an O&#42;NET Archive Table
@@ -286,12 +283,9 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
   }
 
   archive <- if (is.null(path)) {
-    snapshot <- onet_archive_acquire(
-      version = version,
-      return_snapshot = TRUE
-    )
-    on.exit(unlink(snapshot, force = TRUE), add = TRUE)
-    snapshot
+    acquired <- onet_archive_acquire(version)
+    on.exit(unlink(acquired$snapshot, force = TRUE), add = TRUE)
+    acquired$snapshot
   } else {
     path
   }

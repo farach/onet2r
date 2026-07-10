@@ -218,6 +218,7 @@ onet_sensitive_url_parameters <- c(
   "credential",
   "credentials",
   "device_code",
+  "google_access_id",
   "hmac",
   "hmac_signature",
   "id_token",
@@ -226,6 +227,7 @@ onet_sensitive_url_parameters <- c(
   "key_pair_id",
   "oauth_signature",
   "oauth_token",
+  "oauth_verifier",
   "ocp_apim_subscription_key",
   "passwd",
   "password",
@@ -432,6 +434,19 @@ onet_atomic_commit_source <- function(
     dest,
     receipt,
     return_snapshot = FALSE) {
+  onet_with_cache_lock(dest, onet_atomic_commit_source_unlocked(
+    tmp = tmp,
+    dest = dest,
+    receipt = receipt,
+    return_snapshot = return_snapshot
+  ))
+}
+
+onet_atomic_commit_source_unlocked <- function(
+    tmp,
+    dest,
+    receipt,
+    return_snapshot = FALSE) {
   receipt_dest <- onet_receipt_path(dest)
   receipt_tmp <- tempfile(
     paste0(".", basename(receipt_dest), "-write-"),
@@ -454,7 +469,7 @@ onet_atomic_commit_source <- function(
     }, add = TRUE)
   }
 
-  result <- onet_with_cache_lock(dest, {
+  commit <- function() {
     old_paths <- c(dest, receipt_dest)
     backups <- rep(NA_character_, length(old_paths))
     installed <- character()
@@ -517,7 +532,8 @@ onet_atomic_commit_source <- function(
     } else {
       invisible(dest)
     }
-  })
+  }
+  result <- commit()
   snapshot_success <- isTRUE(return_snapshot)
   result
 }
@@ -600,6 +616,21 @@ onet_cached_source_snapshot <- function(
     expected_sha256 = NULL,
     version = NULL,
     as_of = NULL) {
+  onet_with_cache_lock(path, onet_cached_source_snapshot_unlocked(
+    path = path,
+    source_url = source_url,
+    expected_sha256 = expected_sha256,
+    version = version,
+    as_of = as_of
+  ))
+}
+
+onet_cached_source_snapshot_unlocked <- function(
+    path,
+    source_url = NULL,
+    expected_sha256 = NULL,
+    version = NULL,
+    as_of = NULL) {
   extension <- tools::file_ext(path)
   snapshot <- tempfile(
     "onet-cache-snapshot-",
@@ -612,16 +643,14 @@ onet_cached_source_snapshot <- function(
     }
   }, add = TRUE)
 
-  result <- onet_with_cache_lock(path, {
-    receipt <- onet_cached_source_receipt_unlocked(
-      path = path,
-      source_url = source_url,
-      expected_sha256 = expected_sha256,
-      version = version,
-      as_of = as_of
-    )
-    onet_copy_verified_snapshot(path, receipt, snapshot)
-  })
+  receipt <- onet_cached_source_receipt_unlocked(
+    path = path,
+    source_url = source_url,
+    expected_sha256 = expected_sha256,
+    version = version,
+    as_of = as_of
+  )
+  result <- onet_copy_verified_snapshot(path, receipt, snapshot)
   success <- TRUE
   result
 }
