@@ -389,7 +389,8 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
   receipt_a <- onet2r:::onet_source_receipt(
     dest,
     source_url = url,
-    version = "30.3"
+    version = "30.3",
+    as_of = "2026-05"
   )
   saveRDS(receipt_a, paste0(dest, ".receipt.rds"))
   original_member <- onet2r:::onet_archive_member
@@ -414,7 +415,8 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
         receipt_b <- onet2r:::onet_source_receipt(
           replacement,
           source_url = url,
-          version = "30.3"
+          version = "30.3",
+          as_of = "2026-05"
         )
         onet2r:::onet_atomic_commit_source(replacement, dest, receipt_b)
         replaced <<- TRUE
@@ -425,10 +427,14 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
   )
 
   result <- onet_archive_read("30.3", "Abilities")
+  snapshot_receipt <- attr(snapshot_path, "source_receipt", exact = TRUE)
 
   expect_equal(result$data_value[[1]], 4.12)
+  expect_equal(snapshot_receipt$actual_sha256, receipt_a$actual_sha256)
+  expect_equal(snapshot_receipt$as_of, "2026-05")
   expect_equal(onet2r:::onet_sha256(dest), onet2r:::onet_sha256(source_b))
   expect_equal(file.exists(snapshot_path), FALSE)
+  expect_equal(dir.exists(paste0(dest, ".lock")), FALSE)
 })
 
 test_that("archive snapshots are removed when archive parsing errors", {
@@ -471,6 +477,7 @@ test_that("archive snapshots are removed when archive parsing errors", {
     "injected archive parse failure"
   )
   expect_equal(file.exists(snapshot_path), FALSE)
+  expect_equal(dir.exists(paste0(dest, ".lock")), FALSE)
 })
 
 test_that("archive reader resolves spaced table names", {
