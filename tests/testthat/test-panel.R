@@ -126,6 +126,14 @@ test_that("archive cache verifies digests and records a receipt", {
   dest <- file.path(archive_dir, basename(url))
   file.copy(zipfile, dest)
   digest <- onet2r:::onet_sha256(dest)
+  receipt <- onet2r:::onet_source_receipt(
+    dest,
+    source_url = url,
+    expected_sha256 = digest,
+    version = "30.3",
+    as_of = "2026-05"
+  )
+  saveRDS(receipt, paste0(dest, ".receipt.rds"))
 
   local_mocked_bindings(
     onet_releases = function() {
@@ -150,8 +158,10 @@ test_that("archive cache verifies digests and records a receipt", {
   expect_named(
     receipt,
     c(
-      "source_url", "source_path", "source_commit", "retrieved_at",
-      "expected_sha256", "actual_sha256", "file_size", "version", "as_of"
+      "source_url", "source_url_sha256", "source_path", "source_commit",
+      "retrieved_at",
+      "expected_sha256", "actual_sha256", "file_size", "version", "as_of",
+      "provenance_status"
     )
   )
   expect_equal(receipt$source_url, url)
@@ -184,6 +194,13 @@ test_that("archive cache rejects expected digest and provenance mismatches", {
   url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
   dest <- file.path(archive_dir, basename(url))
   file.copy(zipfile, dest)
+  receipt <- onet2r:::onet_source_receipt(
+    dest,
+    source_url = url,
+    version = "30.3",
+    as_of = "2026-05"
+  )
+  saveRDS(receipt, paste0(dest, ".receipt.rds"))
 
   local_mocked_bindings(
     onet_releases = function() {
@@ -199,7 +216,8 @@ test_that("archive cache rejects expected digest and provenance mismatches", {
     onet_archive_download(
       "30.3",
       dir = cache_dir,
-      expected_sha256 = strrep("0", 64)
+      expected_sha256 = strrep("0", 64),
+      as_of = "2026-05"
     ),
     "SHA-256 digest mismatch"
   )
@@ -234,6 +252,75 @@ test_that("archive cache rejects expected digest and provenance mismatches", {
     ),
     "provenance does not match.*force = TRUE"
   )
+})
+
+test_that("archive cache rejects receiptless version, as_of, and digest constraints", {
+  zipfile <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(zipfile, dest)
+  digest <- onet2r:::onet_sha256(dest)
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(version = "30.3", text_url = url)
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet_archive_download("30.3", dir = cache_dir),
+    "source_url.*version.*force = TRUE",
+    class = "onet2r_unverified_legacy_cache"
+  )
+  expect_error(
+    onet_archive_download("30.3", dir = cache_dir, as_of = "2026-05"),
+    "source_url.*version.*as_of.*force = TRUE",
+    class = "onet2r_unverified_legacy_cache"
+  )
+  expect_error(
+    onet_archive_download("30.3", dir = cache_dir, expected_sha256 = digest),
+    "source_url.*version.*expected_sha256.*force = TRUE",
+    class = "onet2r_unverified_legacy_cache"
+  )
+  expect_equal(file.exists(paste0(dest, ".receipt.rds")), FALSE)
+})
+
+test_that("archive force redownload replaces a receiptless legacy archive", {
+  source <- tiny_archive_zip()
+  source_url <- paste0(
+    "file:///",
+    sub("^/", "", normalizePath(source, winslash = "/"))
+  )
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  dest <- file.path(archive_dir, basename(source))
+  writeBin(charToRaw("legacy bytes"), dest)
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(version = "30.3", text_url = source_url)
+    },
+    .package = "onet2r"
+  )
+
+  result <- onet_archive_download(
+    "30.3",
+    dir = cache_dir,
+    force = TRUE,
+    as_of = "2026-05"
+  )
+  receipt <- readRDS(paste0(result, ".receipt.rds"))
+
+  expect_equal(onet2r:::onet_sha256(result), onet2r:::onet_sha256(source))
+  expect_equal(receipt$source_url, source_url)
+  expect_equal(receipt$version, "30.3")
+  expect_equal(receipt$as_of, "2026-05")
+  expect_equal(receipt$provenance_status, "recorded")
 })
 
 test_that("onet_archive_read normalizes descriptor archive tables", {

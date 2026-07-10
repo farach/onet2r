@@ -39,6 +39,8 @@ in the \code{archives} section. Use \code{onet_cache_clear(what = "archives")} o
 archive records its URL, retrieval time, SHA-256 digest, size, version, and
 optional \code{as_of} metadata. The archive URLs are not assumed to be immutable;
 supply \code{expected_sha256} when an independently verified digest is available.
+A cached archive without a receipt cannot satisfy the requested URL or
+version provenance. Use \code{force = TRUE} to replace legacy cached bytes.
 }
 \examples{
 if (interactive()) {

@@ -104,6 +104,8 @@ archive_version_from_link <- function(link) {
 #' archive records its URL, retrieval time, SHA-256 digest, size, version, and
 #' optional `as_of` metadata. The archive URLs are not assumed to be immutable;
 #' supply `expected_sha256` when an independently verified digest is available.
+#' A cached archive without a receipt cannot satisfy the requested URL or
+#' version provenance. Use `force = TRUE` to replace legacy cached bytes.
 #' @export
 #'
 #' @examples
@@ -150,28 +152,44 @@ onet_archive_download <- function(
 
   tmp <- tempfile("onet-archive-", tmpdir = archive_dir, fileext = ".zip")
   on.exit(unlink(tmp, force = TRUE), add = TRUE)
+  download_warned <- FALSE
   status <- tryCatch(
-    utils::download.file(
-      url = release$text_url[[1]],
-      destfile = tmp,
-      mode = "wb",
-      quiet = TRUE
+    withCallingHandlers(
+      utils::download.file(
+        url = release$text_url[[1]],
+        destfile = tmp,
+        mode = "wb",
+        quiet = TRUE
+      ),
+      warning = function(cnd) {
+        download_warned <<- TRUE
+        invokeRestart("muffleWarning")
+      }
     ),
     error = function(cnd) {
+      safe_url <- onet_redact_url_credentials(release$text_url[[1]])
       cli::cli_abort(
         c(
           "Failed to download O*NET archive.",
-          "i" = "URL: {.url {release$text_url[[1]]}}"
-        ),
-        parent = cnd
+          "i" = "URL: {.url {safe_url}}"
+        )
       )
     }
   )
+  if (download_warned && identical(status, 0L)) {
+    safe_url <- onet_redact_url_credentials(release$text_url[[1]])
+    cli::cli_warn(c(
+      "The O*NET archive download completed with a warning.",
+      "i" = "URL: {.url {safe_url}}",
+      "i" = "Verify the downloaded archive before use."
+    ))
+  }
   if (!identical(status, 0L)) {
+    safe_url <- onet_redact_url_credentials(release$text_url[[1]])
     cli::cli_abort(
       c(
         "Failed to download O*NET archive.",
-        "i" = "URL: {.url {release$text_url[[1]]}}"
+        "i" = "URL: {.url {safe_url}}"
       )
     )
   }

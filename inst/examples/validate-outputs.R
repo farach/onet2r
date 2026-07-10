@@ -298,6 +298,22 @@ old_wd <- getwd()
 setwd(sample_archive)
 utils::zip(archive_fixture, list.files(".", recursive = TRUE), flags = "-q")
 setwd(old_wd)
+archive_digest <- unname(tools::sha256sum(archive_fixture))
+saveRDS(
+  list(
+    source_url = release_fixture$text_url[[1]],
+    source_path = NA_character_,
+    source_commit = NA_character_,
+    retrieved_at = file.info(archive_fixture)$mtime,
+    expected_sha256 = NA_character_,
+    actual_sha256 = archive_digest,
+    file_size = unname(file.info(archive_fixture)$size),
+    version = "30.3",
+    as_of = "2026-05",
+    provenance_status = "recorded"
+  ),
+  paste0(archive_fixture, ".receipt.rds")
+)
 archive_path <- onet_archive_download("30.3", dir = archive_cache, as_of = "2026-05")
 stopifnot(
   identical(archive_path, archive_fixture),

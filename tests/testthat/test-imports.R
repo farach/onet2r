@@ -102,8 +102,10 @@ test_that("onet_import_eloundou verifies and attaches a local source receipt", {
   expect_named(
     receipt,
     c(
-      "source_url", "source_path", "source_commit", "retrieved_at",
-      "expected_sha256", "actual_sha256", "file_size", "version", "as_of"
+      "source_url", "source_url_sha256", "source_path", "source_commit",
+      "retrieved_at",
+      "expected_sha256", "actual_sha256", "file_size", "version", "as_of",
+      "provenance_status"
     )
   )
   expect_equal(receipt$source_url, NA_character_)
@@ -386,6 +388,14 @@ test_that("downloaded adapter sources reuse verified receipts without network", 
   dest <- file.path(reference_dir, basename(onet2r:::onet_eloundou_url))
   file.copy(extract, dest)
   digest <- onet2r:::onet_sha256(dest)
+  receipt <- onet2r:::onet_source_receipt(
+    dest,
+    source_url = onet2r:::onet_eloundou_url,
+    expected_sha256 = digest,
+    version = onet2r:::onet_source_commit(onet2r:::onet_eloundou_url),
+    as_of = "2023-03"
+  )
+  saveRDS(receipt, paste0(dest, ".receipt.rds"))
 
   local_mocked_bindings(
     onet_cache_dir = function() cache_dir,
@@ -420,13 +430,15 @@ test_that("downloaded adapter sources reuse verified receipts without network", 
   )
 })
 
-test_that("legacy adapter caches do not claim unverified source provenance", {
+test_that("adapter cache basename collisions fail closed for legacy bytes", {
   extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
   on.exit(unlink(extract), add = TRUE)
   cache_dir <- withr::local_tempdir()
   reference_dir <- file.path(cache_dir, "reference")
   dir.create(reference_dir)
-  dest <- file.path(reference_dir, basename(onet2r:::onet_eloundou_url))
+  url_one <- "https://one.example.invalid/occ_level.csv"
+  url_two <- "https://two.example.invalid/occ_level.csv"
+  dest <- file.path(reference_dir, basename(url_one))
   file.copy(extract, dest)
 
   local_mocked_bindings(
@@ -434,12 +446,76 @@ test_that("legacy adapter caches do not claim unverified source provenance", {
     .package = "onet2r"
   )
 
-  measure <- onet_import_eloundou(make_task_panel())
+  expect_error(
+    onet_import_eloundou(make_task_panel(), url = url_one),
+    "no trustworthy provenance receipt.*source_url.*force = TRUE",
+    class = "onet2r_unverified_legacy_cache"
+  )
+  expect_error(
+    onet_import_eloundou(make_task_panel(), url = url_two),
+    "no trustworthy provenance receipt.*source_url.*force = TRUE",
+    class = "onet2r_unverified_legacy_cache"
+  )
+  expect_equal(readLines(dest), readLines(extract))
+  expect_equal(file.exists(paste0(dest, ".receipt.rds")), FALSE)
+})
+
+test_that("adapter cache distinguishes credential-scoped URLs with one basename", {
+  extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(extract), add = TRUE)
+  cache_dir <- withr::local_tempdir()
+  reference_dir <- file.path(cache_dir, "reference")
+  dir.create(reference_dir)
+  url_one <- "https://example.invalid/occ_level.csv?token=first-secret"
+  url_two <- "https://example.invalid/occ_level.csv?token=second-secret"
+  dest <- file.path(reference_dir, "occ_level.csv")
+  file.copy(extract, dest)
+  receipt <- onet2r:::onet_source_receipt(dest, source_url = url_one)
+  saveRDS(receipt, paste0(dest, ".receipt.rds"))
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    .package = "onet2r"
+  )
+
+  condition <- tryCatch(
+    onet_import_eloundou(make_task_panel(), url = url_two),
+    error = identity
+  )
+  message <- conditionMessage(condition)
+  expect_match(message, "provenance does not match.*source_url.*force = TRUE")
+  expect_no_match(message, "first-secret|second-secret")
+  expect_equal(readLines(dest), readLines(extract))
+})
+
+test_that("adapter force redownload replaces legacy bytes and records provenance", {
+  source_dir <- withr::local_tempdir()
+  source <- write_eloundou_extract(file.path(source_dir, "occ_level.csv"))
+  source_url <- paste0(
+    "file:///",
+    sub("^/", "", normalizePath(source, winslash = "/"))
+  )
+  cache_dir <- withr::local_tempdir()
+  reference_dir <- file.path(cache_dir, "reference")
+  dir.create(reference_dir)
+  dest <- file.path(reference_dir, basename(source))
+  writeLines("legacy,bytes", dest)
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    .package = "onet2r"
+  )
+
+  measure <- onet_import_eloundou(
+    make_task_panel(),
+    url = source_url,
+    force = TRUE,
+    as_of = "2023-03"
+  )
   receipt <- measure$metadata$source_receipt
 
-  expect_true(is.na(receipt$source_url))
-  expect_true(is.na(receipt$source_commit))
-  expect_true(is.na(receipt$version))
-  expect_true(is.na(receipt$as_of))
-  expect_equal(receipt$actual_sha256, onet2r:::onet_sha256(dest))
+  expect_equal(receipt$source_url, source_url)
+  expect_equal(receipt$as_of, "2023-03")
+  expect_equal(receipt$provenance_status, "recorded")
+  expect_equal(readLines(dest), readLines(source))
 })

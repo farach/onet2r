@@ -187,6 +187,58 @@ onet_receipt_value <- function(x) {
   as.character(x)
 }
 
+onet_redact_url_credentials <- function(url) {
+  if (is.null(url) || length(url) != 1 || is.na(url)) {
+    return(url)
+  }
+  parsed <- tryCatch(httr2::url_parse(url), error = function(cnd) NULL)
+  if (is.null(parsed)) {
+    url <- sub(
+      "^([[:alpha:]][[:alnum:]+.-]*://)[^/@]*@",
+      "\\1",
+      url,
+      perl = TRUE
+    )
+    return(sub("([?#]).*$", "\\1[REDACTED]", url, perl = TRUE))
+  }
+  parsed$username <- NULL
+  parsed$password <- NULL
+  if (length(parsed$query) > 0) {
+    credential_query <- grepl(
+      "auth|credential|key|passwd|password|secret|sig|signature|token",
+      utils::URLdecode(names(parsed$query)),
+      ignore.case = TRUE
+    )
+    parsed$query[credential_query] <- "[REDACTED]"
+  }
+  if (!is.null(parsed$fragment)) {
+    fragment <- utils::URLdecode(parsed$fragment)
+    if (grepl(
+      "auth|credential|key|passwd|password|secret|sig|signature|token",
+      fragment,
+      ignore.case = TRUE
+    )) {
+      parsed$fragment <- "[REDACTED]"
+    }
+  }
+  gsub(
+    "%5BREDACTED%5D",
+    "[REDACTED]",
+    httr2::url_build(parsed),
+    fixed = TRUE
+  )
+}
+
+onet_source_url_sha256 <- function(url) {
+  if (is.null(url) || length(url) != 1 || is.na(url)) {
+    return(NA_character_)
+  }
+  tmp <- tempfile("onet-source-url-")
+  on.exit(unlink(tmp, force = TRUE), add = TRUE)
+  writeBin(charToRaw(enc2utf8(url)), tmp)
+  onet_sha256(tmp)
+}
+
 onet_source_receipt <- function(
     path,
     source_url = NULL,
@@ -194,7 +246,8 @@ onet_source_receipt <- function(
     expected_sha256 = NULL,
     version = NULL,
     as_of = NULL,
-    retrieved_at = Sys.time()) {
+    retrieved_at = Sys.time(),
+    provenance_status = "recorded") {
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   as_of <- onet_normalize_as_of(as_of)
   actual_sha256 <- onet_sha256(path)
@@ -210,7 +263,8 @@ onet_source_receipt <- function(
   }
 
   list(
-    source_url = onet_receipt_value(source_url),
+    source_url = onet_receipt_value(onet_redact_url_credentials(source_url)),
+    source_url_sha256 = onet_source_url_sha256(source_url),
     source_path = if (is.null(source_path)) {
       NA_character_
     } else {
@@ -222,7 +276,8 @@ onet_source_receipt <- function(
     actual_sha256 = actual_sha256,
     file_size = unname(file.info(path)$size),
     version = onet_receipt_value(version),
-    as_of = onet_receipt_value(as_of)
+    as_of = onet_receipt_value(as_of),
+    provenance_status = provenance_status
   )
 }
 
@@ -320,12 +375,25 @@ onet_read_source_receipt <- function(path) {
       )
     )
   }
+  if (!"provenance_status" %in% names(receipt)) {
+    legacy_unverified <- all(is.na(c(
+      onet_receipt_value(receipt$source_url),
+      onet_receipt_value(receipt$version),
+      onet_receipt_value(receipt$as_of),
+      onet_receipt_value(receipt$expected_sha256)
+    )))
+    receipt$provenance_status <- if (legacy_unverified) {
+      "legacy_unverified"
+    } else {
+      "recorded"
+    }
+  }
   receipt
 }
 
 onet_cached_source_receipt <- function(
     path,
-    source_url,
+    source_url = NULL,
     expected_sha256 = NULL,
     version = NULL,
     as_of = NULL) {
@@ -340,58 +408,115 @@ onet_cached_source_receipt <- function(
 
 onet_cached_source_receipt_unlocked <- function(
     path,
-    source_url,
+    source_url = NULL,
     expected_sha256 = NULL,
     version = NULL,
     as_of = NULL) {
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   as_of <- onet_normalize_as_of(as_of)
   receipt_path <- onet_receipt_path(path)
-  expected_url <- onet_receipt_value(source_url)
   expected_version <- onet_receipt_value(version)
   expected_as_of <- onet_receipt_value(as_of)
+  constraints <- c(
+    source_url = !is.null(source_url),
+    version = !is.null(version),
+    as_of = !is.null(as_of),
+    expected_sha256 = !is.null(expected_sha256)
+  )
 
   if (!file.exists(receipt_path)) {
-    if (is.null(expected_sha256)) {
-      receipt <- onet_source_receipt(
-        path = path,
-        source_path = path,
-        retrieved_at = file.info(path)$mtime
+    if (any(constraints)) {
+      cli::cli_abort(
+        c(
+          "Cached source has no trustworthy provenance receipt.",
+          "x" = "Legacy cached bytes cannot satisfy requested provenance constraint{?s}: {.field {names(constraints)[constraints]}}.",
+          "i" = "Use {.code force = TRUE} to download the requested source and create a receipt."
+        ),
+        class = "onet2r_unverified_legacy_cache"
       )
-      onet_atomic_save_rds(receipt, receipt_path)
-      return(receipt)
     }
     receipt <- onet_source_receipt(
       path = path,
-      source_url = source_url,
-      expected_sha256 = expected_sha256,
-      version = version,
-      as_of = as_of,
-      retrieved_at = file.info(path)$mtime
+      source_path = path,
+      retrieved_at = file.info(path)$mtime,
+      provenance_status = "legacy_unverified"
     )
     onet_atomic_save_rds(receipt, receipt_path)
+    cli::cli_warn(
+      c(
+        "Reusing a legacy cached source without verified provenance.",
+        "i" = "Cache file: {.file {path}}",
+        "i" = "A {.val legacy_unverified} receipt was recorded. Redownload before making provenance-sensitive claims."
+      ),
+      class = "onet2r_unverified_legacy_cache"
+    )
     return(receipt)
   }
 
   receipt <- onet_read_source_receipt(receipt_path)
-  legacy_unverified <- all(is.na(c(
-    onet_receipt_value(receipt$source_url),
-    onet_receipt_value(receipt$version),
-    onet_receipt_value(receipt$as_of)
-  )))
+  receipt_changed <- FALSE
+  recorded_url_raw <- onet_receipt_value(receipt$source_url)
+  recorded_url_sha256 <- onet_receipt_value(receipt$source_url_sha256)
+  if (
+    is.na(recorded_url_sha256) &&
+      !is.na(recorded_url_raw) &&
+      !grepl("[REDACTED]", recorded_url_raw, fixed = TRUE)
+  ) {
+    receipt$source_url_sha256 <- onet_source_url_sha256(recorded_url_raw)
+    receipt_changed <- TRUE
+  }
+  recorded_url_safe <- onet_receipt_value(
+    onet_redact_url_credentials(recorded_url_raw)
+  )
+  if (!identical(recorded_url_raw, recorded_url_safe)) {
+    receipt$source_url <- recorded_url_safe
+    receipt_changed <- TRUE
+  }
+  if (receipt_changed) {
+    onet_atomic_save_rds(receipt, receipt_path)
+  }
+  legacy_unverified <- identical(
+    onet_receipt_value(receipt$provenance_status),
+    "legacy_unverified"
+  )
+  if (legacy_unverified && any(constraints)) {
+    cli::cli_abort(
+      c(
+        "Cached source provenance is explicitly unverified.",
+        "x" = "Legacy cached bytes cannot satisfy requested provenance constraint{?s}: {.field {names(constraints)[constraints]}}.",
+        "i" = "Use {.code force = TRUE} to download the requested source and replace the legacy receipt."
+      ),
+      class = "onet2r_unverified_legacy_cache"
+    )
+  }
+  expected_url_sha256 <- onet_source_url_sha256(source_url)
+  recorded_url_sha256 <- onet_receipt_value(receipt$source_url_sha256)
+  if (!is.null(source_url) && is.na(recorded_url_sha256)) {
+    recorded_url <- onet_receipt_value(receipt$source_url)
+    if (is.na(recorded_url) || grepl("[REDACTED]", recorded_url, fixed = TRUE)) {
+      cli::cli_abort(
+        c(
+          "Cached source receipt cannot prove the requested URL identity.",
+          "i" = "Use {.code force = TRUE} to redownload and record a URL fingerprint."
+        )
+      )
+    }
+    recorded_url_sha256 <- onet_source_url_sha256(recorded_url)
+  }
   requested <- list(
-    source_url = expected_url,
     version = expected_version,
     as_of = expected_as_of
   )
-  mismatched <- if (legacy_unverified) {
-    character()
-  } else {
-    names(requested)[vapply(
-      names(requested),
-      \(field) !identical(onet_receipt_value(receipt[[field]]), requested[[field]]),
-      logical(1)
-    )]
+  mismatched <- names(requested)[vapply(
+    names(requested),
+    \(field) !identical(onet_receipt_value(receipt[[field]]), requested[[field]]),
+    logical(1)
+  )]
+  if (
+    !is.null(source_url) &&
+      !identical(recorded_url_sha256, expected_url_sha256)
+  ) {
+    mismatched <- c("source_url", mismatched)
   }
   if (length(mismatched) > 0) {
     cli::cli_abort(
@@ -435,16 +560,19 @@ onet_cached_source_receipt_unlocked <- function(
     )
   }
 
-  if (!is.null(expected_sha256) && legacy_unverified) {
-    receipt$source_url <- expected_url
-    receipt$source_commit <- onet_source_commit(source_url)
-    receipt$version <- expected_version
-    receipt$as_of <- expected_as_of
+  if (!is.null(expected_sha256) && is.na(recorded_expected)) {
     receipt$expected_sha256 <- expected_sha256
     onet_atomic_save_rds(receipt, receipt_path)
-  } else if (!is.null(expected_sha256) && is.na(recorded_expected)) {
-    receipt$expected_sha256 <- expected_sha256
-    onet_atomic_save_rds(receipt, receipt_path)
+  }
+  if (legacy_unverified) {
+    cli::cli_warn(
+      c(
+        "Reusing a legacy cached source without verified provenance.",
+        "i" = "Cache file: {.file {path}}",
+        "i" = "Redownload before making provenance-sensitive claims."
+      ),
+      class = "onet2r_unverified_legacy_cache"
+    )
   }
   receipt
 }

@@ -87,6 +87,8 @@ research use; cite Felten, Raj, and Seamans (2021) when you use the scores.
 The returned measure includes \code{metadata$source_receipt} with the source URL
 or local path, retrieval time, digest, file size, source commit when
 inferable from a pinned GitHub raw URL, and version or \code{as_of} metadata.
+A cached download without a receipt cannot satisfy the requested URL
+provenance. Use \code{force = TRUE} to replace legacy cached bytes.
 }
 \examples{
 # Offline: broadcast a small local extract onto a tiny panel.

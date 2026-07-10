@@ -237,3 +237,209 @@ test_that("cache pair backup failure restores the first preserved file", {
     c(basename(tmp), "source.csv", "source.csv.receipt.rds")
   )
 })
+
+test_that("receiptless cache constraints fail closed without writing provenance", {
+  cache_dir <- withr::local_tempdir()
+  path <- file.path(cache_dir, "legacy.csv")
+  writeLines("legacy", path)
+  digest <- onet2r:::onet_sha256(path)
+
+  constrained_calls <- list(
+    source_url = function() {
+      onet2r:::onet_cached_source_receipt(
+        path,
+        source_url = "https://example.invalid/legacy.csv"
+      )
+    },
+    version = function() {
+      onet2r:::onet_cached_source_receipt(path, version = "30.3")
+    },
+    as_of = function() {
+      onet2r:::onet_cached_source_receipt(path, as_of = "2026-05")
+    },
+    expected_sha256 = function() {
+      onet2r:::onet_cached_source_receipt(path, expected_sha256 = digest)
+    }
+  )
+
+  for (constraint in names(constrained_calls)) {
+    expect_error(
+      constrained_calls[[constraint]](),
+      paste0("constraint.*", constraint, ".*force = TRUE"),
+      class = "onet2r_unverified_legacy_cache"
+    )
+    expect_equal(file.exists(paste0(path, ".receipt.rds")), FALSE)
+  }
+})
+
+test_that("unconstrained legacy cache reuse warns and remains unverified", {
+  cache_dir <- withr::local_tempdir()
+  path <- file.path(cache_dir, "legacy.csv")
+  writeLines("legacy", path)
+
+  expect_warning(
+    receipt <- onet2r:::onet_cached_source_receipt(path),
+    "legacy cached source without verified provenance",
+    class = "onet2r_unverified_legacy_cache"
+  )
+
+  expect_equal(receipt$provenance_status, "legacy_unverified")
+  expect_equal(receipt$source_url, NA_character_)
+  expect_equal(receipt$version, NA_character_)
+  expect_equal(receipt$as_of, NA_character_)
+  expect_equal(receipt$actual_sha256, onet2r:::onet_sha256(path))
+  expect_equal(file.exists(paste0(path, ".receipt.rds")), TRUE)
+
+  expect_error(
+    onet2r:::onet_cached_source_receipt(
+      path,
+      source_url = "https://example.invalid/legacy.csv"
+    ),
+    "explicitly unverified.*source_url.*force = TRUE",
+    class = "onet2r_unverified_legacy_cache"
+  )
+})
+
+test_that("source receipts and errors redact URL credentials", {
+  cache_dir <- withr::local_tempdir()
+  path <- file.path(cache_dir, "source.csv")
+  writeLines("source", path)
+  credential_url <- paste0(
+    "https://alice:supersecret@example.invalid/source.csv",
+    "?tok%65n=querysecret&client_secret=oauthsecret",
+    "&X-Amz-Credential=awscredential&X-Amz-Signature=awssignature",
+    "&variant=public#access_token=fragmentsecret"
+  )
+
+  receipt <- onet2r:::onet_source_receipt(
+    path,
+    source_url = credential_url
+  )
+  expect_equal(
+    receipt$source_url,
+    paste0(
+      "https://example.invalid/source.csv",
+      "?token=[REDACTED]&client_secret=[REDACTED]",
+      "&X-Amz-Credential=[REDACTED]&X-Amz-Signature=[REDACTED]",
+      "&variant=public#[REDACTED]"
+    )
+  )
+  expect_no_match(
+    receipt$source_url,
+    paste(
+      "alice|supersecret|querysecret|oauthsecret",
+      "awscredential|awssignature|fragmentsecret",
+      sep = "|"
+    )
+  )
+  expect_equal(
+    receipt$source_url_sha256,
+    onet2r:::onet_source_url_sha256(credential_url)
+  )
+
+  condition <- tryCatch(
+    onet2r:::onet_cached_source_receipt(
+      path,
+      source_url = credential_url
+    ),
+    error = identity
+  )
+  message <- conditionMessage(condition)
+  expect_no_match(
+    message,
+    paste(
+      "alice|supersecret|querysecret|oauthsecret",
+      "awscredential|awssignature|fragmentsecret",
+      sep = "|"
+    )
+  )
+  expect_s3_class(condition, "onet2r_unverified_legacy_cache")
+
+  download_warnings <- character()
+  download_condition <- tryCatch(
+    withCallingHandlers(
+      onet2r:::download_import_file(
+        paste0(
+          "bad://alice:supersecret@example.invalid/source.csv",
+          "?token=querysecret"
+        ),
+        cache_dir = cache_dir,
+        force = TRUE
+      ),
+      warning = function(cnd) {
+        download_warnings <<- c(
+          download_warnings,
+          conditionMessage(cnd)
+        )
+        invokeRestart("muffleWarning")
+      }
+    ),
+    error = identity
+  )
+  download_message <- conditionMessage(download_condition)
+  expect_length(download_warnings, 0)
+  expect_no_match(download_message, "alice|supersecret|querysecret")
+  expect_match(download_message, "bad://example.invalid/source.csv")
+})
+
+test_that("legacy receipts redact stored credentials when fingerprinted", {
+  cache_dir <- withr::local_tempdir()
+  path <- file.path(cache_dir, "source.csv")
+  writeLines("source", path)
+  credential_url <- paste0(
+    "https://alice:supersecret@example.invalid/source.csv",
+    "?token=querysecret"
+  )
+  receipt <- onet2r:::onet_source_receipt(path)
+  receipt$source_url <- credential_url
+  receipt$source_url_sha256 <- NULL
+  receipt$provenance_status <- "recorded"
+  saveRDS(receipt, paste0(path, ".receipt.rds"))
+
+  result <- onet2r:::onet_cached_source_receipt(
+    path,
+    source_url = credential_url
+  )
+  stored <- readRDS(paste0(path, ".receipt.rds"))
+
+  expect_equal(
+    result$source_url,
+    "https://example.invalid/source.csv?token=[REDACTED]"
+  )
+  expect_equal(stored$source_url, result$source_url)
+  expect_equal(
+    stored$source_url_sha256,
+    onet2r:::onet_source_url_sha256(credential_url)
+  )
+  expect_no_match(
+    paste(capture.output(str(stored)), collapse = "\n"),
+    "alice|supersecret|querysecret"
+  )
+})
+
+test_that("malformed URLs redact their complete query or fragment", {
+  query_url <- "http://[bad]?token=querysecret&variant=public"
+  fragment_url <- "http://[bad]#access_token=fragmentsecret"
+
+  expect_equal(
+    onet2r:::onet_redact_url_credentials(query_url),
+    "http://[bad]?[REDACTED]"
+  )
+  expect_equal(
+    onet2r:::onet_redact_url_credentials(fragment_url),
+    "http://[bad]#[REDACTED]"
+  )
+
+  cache_dir <- withr::local_tempdir()
+  condition <- tryCatch(
+    onet2r:::download_import_file(
+      query_url,
+      cache_dir = cache_dir,
+      force = TRUE
+    ),
+    error = identity
+  )
+  message <- conditionMessage(condition)
+  expect_no_match(message, "querysecret|variant")
+  expect_match(message, "REDACTED", fixed = TRUE)
+})

@@ -80,6 +80,8 @@ onet_felten_aioe_url <- paste0(
 #' scores. The returned measure includes `metadata$source_receipt` with the
 #' source URL or local path, retrieval time, digest, file size, source commit
 #' when inferable from a pinned GitHub raw URL, and version or `as_of` metadata.
+#' A cached download without a receipt cannot satisfy the requested URL
+#' provenance. Use `force = TRUE` to replace legacy cached bytes.
 #'
 #' The three exposure definitions follow the paper: alpha counts tasks exposed
 #' by direct model access, beta adds tasks reachable with complementary software
@@ -218,6 +220,8 @@ onet_import_eloundou <- function(
 #' The returned measure includes `metadata$source_receipt` with the source URL
 #' or local path, retrieval time, digest, file size, source commit when
 #' inferable from a pinned GitHub raw URL, and version or `as_of` metadata.
+#' A cached download without a receipt cannot satisfy the requested URL
+#' provenance. Use `force = TRUE` to replace legacy cached bytes.
 #' @export
 #'
 #' @examples
@@ -528,21 +532,37 @@ download_import_file <- function(
     timeout = max(300, getOption("timeout"))
   )
   on.exit(options(old_options), add = TRUE)
+  download_warned <- FALSE
   status <- tryCatch(
-    utils::download.file(url, tmp, mode = "wb", quiet = TRUE),
+    withCallingHandlers(
+      utils::download.file(url, tmp, mode = "wb", quiet = TRUE),
+      warning = function(cnd) {
+        download_warned <<- TRUE
+        invokeRestart("muffleWarning")
+      }
+    ),
     error = function(cnd) {
+      safe_url <- onet_redact_url_credentials(url)
       cli::cli_abort(
         c(
           "Failed to download the import file.",
-          "i" = "URL: {.url {url}}",
+          "i" = "URL: {.url {safe_url}}",
           "i" = "Download it manually and pass {.arg path}."
-        ),
-        parent = cnd
+        )
       )
     }
   )
+  if (download_warned && identical(status, 0L)) {
+    safe_url <- onet_redact_url_credentials(url)
+    cli::cli_warn(c(
+      "The import file download completed with a warning.",
+      "i" = "URL: {.url {safe_url}}",
+      "i" = "Verify the downloaded source before use."
+    ))
+  }
   if (!identical(status, 0L) || file.info(tmp)$size <= 0) {
-    cli::cli_abort("Failed to download the import file from {.url {url}}.")
+    safe_url <- onet_redact_url_credentials(url)
+    cli::cli_abort("Failed to download the import file from {.url {safe_url}}.")
   }
   source_commit <- onet_source_commit(url)
   receipt <- onet_source_receipt(
