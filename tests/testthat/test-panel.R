@@ -142,6 +142,9 @@ test_that("archive cache verifies digests and records a receipt", {
         text_url = url
       )
     },
+    onet_copy_cache_snapshot = function(...) {
+      stop("public archive download created a private snapshot")
+    },
     .package = "onet2r"
   )
 
@@ -305,6 +308,9 @@ test_that("archive force redownload replaces a receiptless legacy archive", {
     onet_releases = function() {
       tibble::tibble(version = "30.3", text_url = source_url)
     },
+    onet_copy_cache_snapshot = function(...) {
+      stop("public archive download created a private snapshot")
+    },
     .package = "onet2r"
   )
 
@@ -362,7 +368,8 @@ test_that("archive force acquisition returns matching private bytes and receipt"
     "30.3",
     dir = cache_dir,
     force = TRUE,
-    as_of = "2026-05"
+    as_of = "2026-05",
+    return_snapshot = TRUE
   )
   on.exit(unlink(acquired$snapshot, force = TRUE), add = TRUE)
 
@@ -397,8 +404,10 @@ test_that("onet_archive_read normalizes descriptor archive tables", {
         dir = onet_cache_dir(),
         force = FALSE,
         expected_sha256 = NULL,
-        as_of = NULL) {
+        as_of = NULL,
+        return_snapshot = FALSE) {
       expect_equal(version, "30.3")
+      expect_equal(return_snapshot, TRUE)
       list(
         snapshot = structure(snapshot, source_receipt = receipt),
         receipt = receipt,
@@ -592,7 +601,11 @@ test_that("failed archive acquisition removes snapshots and cache locks", {
   )
 
   expect_error(
-    onet2r:::onet_archive_acquire("30.3", dir = cache_dir),
+    onet2r:::onet_archive_acquire(
+      "30.3",
+      dir = cache_dir,
+      return_snapshot = TRUE
+    ),
     "injected archive validation failure"
   )
   expect_equal(file.exists(snapshot_path), FALSE)

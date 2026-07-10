@@ -127,10 +127,10 @@ onet_archive_download <- function(
     dir = dir,
     force = force,
     expected_sha256 = expected_sha256,
-    as_of = as_of
+    as_of = as_of,
+    return_snapshot = FALSE
   )
-  on.exit(unlink(acquired$snapshot, force = TRUE), add = TRUE)
-  acquired$cache_path
+  acquired
 }
 
 onet_archive_acquire <- function(
@@ -138,11 +138,19 @@ onet_archive_acquire <- function(
     dir = onet_cache_dir(),
     force = FALSE,
     expected_sha256 = NULL,
-    as_of = NULL) {
+    as_of = NULL,
+    return_snapshot = FALSE) {
   validate_single_string(version, "version")
   validate_single_string(dir, "dir")
   if (!is.logical(force) || length(force) != 1 || is.na(force)) {
     cli::cli_abort("{.arg force} must be `TRUE` or `FALSE`.")
+  }
+  if (
+    !is.logical(return_snapshot) ||
+      length(return_snapshot) != 1 ||
+      is.na(return_snapshot)
+  ) {
+    cli::cli_abort("{.arg return_snapshot} must be `TRUE` or `FALSE`.")
   }
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   as_of <- onet_normalize_as_of(as_of)
@@ -162,15 +170,32 @@ onet_archive_acquire <- function(
     dest,
     {
       if (file.exists(dest) && file.info(dest)$size > 0 && !isTRUE(force)) {
-        snapshot <- onet_cached_source_snapshot_unlocked(
-          path = dest,
-          source_url = release$text_url[[1]],
-          expected_sha256 = expected_sha256,
-          version = version,
-          as_of = as_of
-        )
-        snapshot <- onet_validate_archive_snapshot(snapshot)
-        receipt <- attr(snapshot, "source_receipt", exact = TRUE)
+        if (isTRUE(return_snapshot)) {
+          snapshot <- onet_cached_source_snapshot_unlocked(
+            path = dest,
+            source_url = release$text_url[[1]],
+            expected_sha256 = expected_sha256,
+            version = version,
+            as_of = as_of
+          )
+          snapshot <- onet_validate_archive_snapshot(snapshot)
+          receipt <- attr(snapshot, "source_receipt", exact = TRUE)
+          result <- list(
+            snapshot = snapshot,
+            receipt = receipt,
+            cache_path = dest
+          )
+        } else {
+          onet_cached_source_receipt_unlocked(
+            path = dest,
+            source_url = release$text_url[[1]],
+            expected_sha256 = expected_sha256,
+            version = version,
+            as_of = as_of
+          )
+          validate_archive_zip(dest)
+          result <- dest
+        }
       } else {
         tmp <- tempfile("onet-archive-", tmpdir = archive_dir, fileext = ".zip")
         on.exit(unlink(tmp, force = TRUE), add = TRUE)
@@ -183,19 +208,24 @@ onet_archive_acquire <- function(
           as_of = as_of
         )
         validate_archive_zip(tmp)
-        snapshot <- onet_atomic_commit_source_unlocked(
+        committed <- onet_atomic_commit_source_unlocked(
           tmp,
           dest,
           receipt,
-          return_snapshot = TRUE
+          return_snapshot = return_snapshot
         )
-        snapshot <- onet_validate_archive_snapshot(snapshot)
+        if (isTRUE(return_snapshot)) {
+          snapshot <- onet_validate_archive_snapshot(committed)
+          result <- list(
+            snapshot = snapshot,
+            receipt = receipt,
+            cache_path = dest
+          )
+        } else {
+          result <- committed
+        }
       }
-      list(
-        snapshot = snapshot,
-        receipt = receipt,
-        cache_path = dest
-      )
+      result
     },
     timeout = max(300, getOption("timeout", 60))
   )
@@ -283,7 +313,7 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
   }
 
   archive <- if (is.null(path)) {
-    acquired <- onet_archive_acquire(version)
+    acquired <- onet_archive_acquire(version, return_snapshot = TRUE)
     on.exit(unlink(acquired$snapshot, force = TRUE), add = TRUE)
     acquired$snapshot
   } else {
