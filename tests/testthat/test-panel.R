@@ -308,12 +308,16 @@ test_that("archive force redownload replaces a receiptless legacy archive", {
     .package = "onet2r"
   )
 
-  result <- onet_archive_download(
-    "30.3",
-    dir = cache_dir,
-    force = TRUE,
-    as_of = "2026-05"
+  visible_result <- withVisible(
+    onet_archive_download(
+      "30.3",
+      dir = cache_dir,
+      force = TRUE,
+      as_of = "2026-05"
+    )
   )
+  expect_equal(visible_result$visible, TRUE)
+  result <- visible_result$value
   receipt <- readRDS(paste0(result, ".receipt.rds"))
 
   expect_equal(onet2r:::onet_sha256(result), onet2r:::onet_sha256(source))
@@ -464,6 +468,9 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
 
   local_mocked_bindings(
     onet_cache_dir = function() cache_dir,
+    onet_archive_download = function(...) {
+      stop("archive_read reopened the shared cache path")
+    },
     onet_releases = function() {
       tibble::tibble(
         version = "30.3",
@@ -498,8 +505,6 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
   )
 
   result <- onet_archive_read("30.3", "Abilities")
-  snapshot_receipt <- attr(snapshot_path, "source_receipt", exact = TRUE)
-
   expect_equal(result$data_value[[1]], 4.12)
   expect_equal(snapshot_copied_under_lock, TRUE)
   expect_equal(snapshot_digest, receipt_a$actual_sha256)
