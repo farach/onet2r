@@ -494,6 +494,82 @@ test_that("adapter parsing consumes bytes from its verified cache snapshot", {
   expect_equal(file.exists(snapshot_path), FALSE)
 })
 
+test_that("Felten parsing consumes bytes from its verified workbook snapshot", {
+  skip_if_not_installed("readxl")
+  skip_if_not_installed("writexl")
+
+  write_workbook <- function(path, score) {
+    writexl::write_xlsx(
+      list(`Appendix A` = data.frame(
+        `SOC Code` = c("15-1252", "29-1141", "11-1011"),
+        `Occupation Title` = c(
+          "Software Developers",
+          "Registered Nurses",
+          "Chief Executives"
+        ),
+        AIOE = c(score, -0.32, 0.44),
+        check.names = FALSE
+      )),
+      path
+    )
+    path
+  }
+
+  cache_dir <- withr::local_tempdir()
+  reference_dir <- file.path(cache_dir, "reference")
+  dir.create(reference_dir)
+  url <- onet2r:::onet_felten_aioe_url
+  dest <- file.path(reference_dir, basename(url))
+  source_a <- write_workbook(tempfile(fileext = ".xlsx"), 1.08)
+  file.copy(source_a, dest)
+  receipt_a <- onet2r:::onet_source_receipt(
+    dest,
+    source_url = url,
+    version = onet2r:::onet_source_commit(url)
+  )
+  saveRDS(receipt_a, paste0(dest, ".receipt.rds"))
+  source_b <- write_workbook(
+    tempfile("felten-b-", tmpdir = reference_dir, fileext = ".xlsx"),
+    9.99
+  )
+  digest_b <- onet2r:::onet_sha256(source_b)
+  original_reader <- onet2r:::read_import_table
+  snapshot_path <- NULL
+  replaced <- FALSE
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    read_import_table = function(file, sheet = NULL) {
+      snapshot_path <<- file
+      if (!replaced) {
+        receipt_b <- onet2r:::onet_source_receipt(
+          source_b,
+          source_url = url,
+          version = onet2r:::onet_source_commit(url)
+        )
+        onet2r:::onet_atomic_commit_source(source_b, dest, receipt_b)
+        replaced <<- TRUE
+      }
+      original_reader(file, sheet)
+    },
+    .package = "onet2r"
+  )
+
+  measure <- onet_import_felten_aioe(make_task_panel())
+  software <- measure$data$measure_score[
+    measure$data$onet_soc_code == "15-1252.00"
+  ]
+
+  expect_equal(unique(software), 1.08)
+  expect_equal(
+    measure$metadata$source_receipt$actual_sha256,
+    receipt_a$actual_sha256
+  )
+  expect_equal(onet2r:::onet_sha256(dest), digest_b)
+  expect_equal(file.exists(snapshot_path), FALSE)
+  expect_equal(dir.exists(paste0(dest, ".lock")), FALSE)
+})
+
 test_that("adapter snapshots are removed when parsing errors", {
   source <- write_eloundou_extract(tempfile(fileext = ".csv"))
   on.exit(unlink(source), add = TRUE)
