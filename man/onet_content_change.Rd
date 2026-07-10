@@ -64,6 +64,10 @@ counted as content churn.
 }
 \details{
 Set metrics compare the \code{item} keys an occupation carries in each release.
+The filtered input must contain at most one row per occupation, item, release,
+and scale. Duplicate keys are rejected rather than resolved by row order.
+When \code{scale = NULL} and \code{scale_id} is present, item-scale combinations define
+membership so ratings from different scales are not joined to each other.
 \code{rating_delta_l2} uses only retained items, so it measures rating drift among
 tasks that persist; \code{cosine} uses the union with zero fill, so it responds to
 both membership turnover and rating change. Seam-crossing pairs still receive

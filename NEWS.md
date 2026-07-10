@@ -12,6 +12,7 @@
 
 ## Bug fixes
 
+* `onet_content_change()` and `onet_task_to_occupation()` now reject duplicate effective keys instead of silently choosing or blending rows. Task rollups coalesce `release_version` and `version` row by row, reject conflicts, and require exactly one non-missing effective release per call when release metadata is present. `onet_measure_sensitivity()` uses explicit release columns before falling back to named-list labels for multi-vintage provenance (reported in release audit).
 * `onet_oews()` now detects, validates, and caches matching OEWS ZIP files downloaded in the user's browser, and interactive sessions can open the official BLS URL and wait for the ZIP when BLS rejects automated downloads with HTTP 403 (reported manually).
 * `onet_oews()` now downloads OEWS ZIP files through the package HTTP client, avoiding RStudio's `.rs.downloadFile()` path that can trigger BLS 403 responses (reported manually).
 

@@ -20,7 +20,8 @@ onet_task_to_occupation(
 \arguments{
 \item{measure}{An \code{onet_measure} object with \code{key_type = "task"}.}
 
-\item{task_ratings}{A data frame containing occupation task ratings.}
+\item{task_ratings}{A single-release data frame containing occupation task
+ratings, with at most one row per occupation and task after filtering.}
 
 \item{task_metadata}{Optional data frame containing task type by task id.}
 
@@ -46,6 +47,14 @@ and measure provenance columns.
 \description{
 Rolls a task-level measure up to occupations using O*NET task relevance,
 importance, or equal task weights.
+}
+\details{
+When \code{task_ratings} contains \code{release_version} or \code{version}, the columns are
+coalesced row by row and must agree wherever both are populated. Every
+effective row must identify the same non-missing release. Use a named list
+of single-release data frames with \code{\link[=onet_measure_sensitivity]{onet_measure_sensitivity()}} for
+multi-vintage analysis. Duplicate occupation-task rows are rejected rather
+than deduplicated or aggregated.
 }
 \examples{
 task_measure <- onet_measure(

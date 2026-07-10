@@ -26,7 +26,9 @@ data frames.}
 \item{bridges}{Optional bridge data frame, \code{NULL}, or named list of bridges.}
 
 \item{task_ratings}{For task-level measures, a task-ratings data frame or
-named list of task-ratings data frames.}
+named list of task-ratings data frames. Release provenance uses
+\code{release_version}, then row-wise \code{version} where \code{release_version} is
+missing. When neither column exists, an explicit list name is used.}
 
 \item{task_metadata}{Optional task metadata data frame or named list matching
 \code{task_ratings}.}
