@@ -187,11 +187,69 @@ onet_receipt_value <- function(x) {
   as.character(x)
 }
 
+onet_normalize_url_parameter_name <- function(name) {
+  name <- utils::URLdecode(name)
+  name <- gsub(
+    "([[:upper:]]+)([[:upper:]][[:lower:]])",
+    "\\1_\\2",
+    name,
+    perl = TRUE
+  )
+  name <- gsub(
+    "([[:lower:][:digit:]])([[:upper:]])",
+    "\\1_\\2",
+    name,
+    perl = TRUE
+  )
+  tolower(gsub("[.-]+", "_", name))
+}
+
 onet_url_parameter_is_sensitive <- function(name) {
-  name <- tolower(utils::URLdecode(name))
-  name == "code" || grepl(
-    "auth|credential|key|passwd|password|secret|sig|signature|token",
-    name
+  name <- onet_normalize_url_parameter_name(name)
+  name %in% c(
+    "code",
+    "access_token",
+    "id_token",
+    "refresh_token",
+    "token",
+    "api_key",
+    "apikey",
+    "x_api_key",
+    "subscription_key",
+    "ocp_apim_subscription_key",
+    "key",
+    "client_secret",
+    "consumer_secret",
+    "secret",
+    "password",
+    "passwd",
+    "pwd",
+    "signature",
+    "sig",
+    "credential",
+    "credentials",
+    "authorization",
+    "auth",
+    "oauth_token",
+    "oauth_verifier",
+    "auth_token",
+    "bearer_token",
+    "security_token",
+    "session_token",
+    "private_key",
+    "client_assertion",
+    "aws_access_key_id",
+    "aws_secret_access_key",
+    "aws_session_token",
+    "x_amz_credential",
+    "x_amz_signature",
+    "x_amz_security_token",
+    "x_goog_credential",
+    "x_goog_signature",
+    "x_goog_security_token",
+    "google_access_id",
+    "shared_access_signature",
+    "sas_token"
   )
 }
 
@@ -356,6 +414,19 @@ onet_atomic_commit_source <- function(
     dest,
     receipt,
     return_snapshot = FALSE) {
+  onet_with_cache_lock(dest, onet_atomic_commit_source_unlocked(
+    tmp = tmp,
+    dest = dest,
+    receipt = receipt,
+    return_snapshot = return_snapshot
+  ))
+}
+
+onet_atomic_commit_source_unlocked <- function(
+    tmp,
+    dest,
+    receipt,
+    return_snapshot = FALSE) {
   receipt_dest <- onet_receipt_path(dest)
   receipt_tmp <- tempfile(
     paste0(".", basename(receipt_dest), "-write-"),
@@ -378,7 +449,7 @@ onet_atomic_commit_source <- function(
     }, add = TRUE)
   }
 
-  result <- onet_with_cache_lock(dest, {
+  commit <- function() {
     old_paths <- c(dest, receipt_dest)
     backups <- rep(NA_character_, length(old_paths))
     installed <- character()
@@ -441,7 +512,8 @@ onet_atomic_commit_source <- function(
     } else {
       invisible(dest)
     }
-  })
+  }
+  result <- commit()
   snapshot_success <- isTRUE(return_snapshot)
   result
 }
@@ -524,6 +596,21 @@ onet_cached_source_snapshot <- function(
     expected_sha256 = NULL,
     version = NULL,
     as_of = NULL) {
+  onet_with_cache_lock(path, onet_cached_source_snapshot_unlocked(
+    path = path,
+    source_url = source_url,
+    expected_sha256 = expected_sha256,
+    version = version,
+    as_of = as_of
+  ))
+}
+
+onet_cached_source_snapshot_unlocked <- function(
+    path,
+    source_url = NULL,
+    expected_sha256 = NULL,
+    version = NULL,
+    as_of = NULL) {
   extension <- tools::file_ext(path)
   snapshot <- tempfile(
     "onet-cache-snapshot-",
@@ -536,16 +623,14 @@ onet_cached_source_snapshot <- function(
     }
   }, add = TRUE)
 
-  result <- onet_with_cache_lock(path, {
-    receipt <- onet_cached_source_receipt_unlocked(
-      path = path,
-      source_url = source_url,
-      expected_sha256 = expected_sha256,
-      version = version,
-      as_of = as_of
-    )
-    onet_copy_verified_snapshot(path, receipt, snapshot)
-  })
+  receipt <- onet_cached_source_receipt_unlocked(
+    path = path,
+    source_url = source_url,
+    expected_sha256 = expected_sha256,
+    version = version,
+    as_of = as_of
+  )
+  result <- onet_copy_verified_snapshot(path, receipt, snapshot)
   success <- TRUE
   result
 }

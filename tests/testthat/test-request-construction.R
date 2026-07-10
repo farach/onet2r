@@ -525,6 +525,121 @@ test_that("OAuth authorization codes are redacted without hiding benign paramete
   )
 })
 
+test_that("sensitive URL parameter matching is explicit and normalized", {
+  sensitive <- c(
+    "code", "access_token", "accessToken", "ID-TOKEN", "idToken",
+    "refresh.token", "refreshToken", "token", "api_key", "apiKey", "apikey",
+    "key", "client_secret", "clientSecret", "password", "passwd",
+    "signature", "sig", "credential", "authorization", "auth",
+    "x-amz-credential", "xAmzCredential", "X-Amz-Signature",
+    "x-amz-security-token",
+    "oauth_token", "auth-token", "bearer.token", "session_token",
+    "aws_access_key_id", "aws_secret_access_key"
+  )
+  benign <- c(
+    "author", "monkey", "hockey", "keyboard", "donkey", "tokenizer",
+    "signature_method", "credential_type", "authorization_mode",
+    "state", "mode", "variant"
+  )
+
+  expect_equal(
+    unname(vapply(
+      sensitive,
+      onet2r:::onet_url_parameter_is_sensitive,
+      logical(1)
+    )),
+    rep(TRUE, length(sensitive))
+  )
+  expect_equal(
+    unname(vapply(
+      benign,
+      onet2r:::onet_url_parameter_is_sensitive,
+      logical(1)
+    )),
+    rep(FALSE, length(benign))
+  )
+  expect_equal(
+    onet2r:::onet_url_parameter_is_sensitive("access%5Ftoken"),
+    TRUE
+  )
+})
+
+test_that("URL redaction preserves benign parameters in all reporting paths", {
+  url <- paste0(
+    "https://example.invalid/source.csv?",
+    "author=alice&monkey=capuchin&keyboard=qwerty&api%5Fkey=query-secret&",
+    "clientSecret=camel-secret",
+    "#route?state=visible&AUTH=fragment-secret&hockey=ice"
+  )
+  safe_url <- paste0(
+    "https://example.invalid/source.csv?",
+    "author=alice&monkey=capuchin&keyboard=qwerty&api_key=[REDACTED]&",
+    "clientSecret=[REDACTED]",
+    "#route?state=visible&AUTH=[REDACTED]&hockey=ice"
+  )
+  path <- tempfile(fileext = ".csv")
+  on.exit(unlink(path), add = TRUE)
+  writeLines("source", path)
+
+  expect_equal(onet2r:::onet_redact_url_credentials(url), safe_url)
+  receipt <- onet2r:::onet_source_receipt(path, source_url = url)
+  expect_equal(receipt$source_url, safe_url)
+  expect_no_match(
+    receipt$source_url,
+    "query-secret|camel-secret|fragment-secret"
+  )
+  expect_match(
+    receipt$source_url,
+    "author=alice&monkey=capuchin&keyboard=qwerty",
+    fixed = TRUE
+  )
+
+  warning_message <- NULL
+  withCallingHandlers(
+    onet2r:::onet_warn_download_completed(url, "fixture"),
+    warning = function(cnd) {
+      warning_message <<- conditionMessage(cnd)
+      invokeRestart("muffleWarning")
+    }
+  )
+  expect_no_match(
+    warning_message,
+    "query-secret|camel-secret|fragment-secret"
+  )
+  expect_match(warning_message, "author=alice", fixed = TRUE)
+  expect_match(warning_message, "hockey=ice", fixed = TRUE)
+
+  malformed <- paste0(
+    "http://[bad]?author=alice&monkey=capuchin&",
+    "X-Amz-Security-Token=error-secret#route?",
+    "hockey=ice&signature=fragment-error-secret"
+  )
+  expect_equal(
+    onet2r:::onet_redact_url_credentials(malformed),
+    paste0(
+      "http://[bad]?author=alice&monkey=capuchin&",
+      "X-Amz-Security-Token=[REDACTED]#route?",
+      "hockey=ice&signature=[REDACTED]"
+    )
+  )
+
+  cache_dir <- withr::local_tempdir()
+  condition <- tryCatch(
+    onet2r:::download_import_file(
+      paste0(
+        "bad://example.invalid/source.csv?",
+        "author=alice&signature=error-secret"
+      ),
+      cache_dir = cache_dir,
+      force = TRUE
+    ),
+    error = identity
+  )
+  message <- conditionMessage(condition)
+  expect_no_match(message, "error-secret")
+  expect_match(message, "author=alice", fixed = TRUE)
+})
+
 test_that("failed cache snapshot creation removes the private copy", {
   cache_dir <- withr::local_tempdir()
   path <- file.path(cache_dir, "source.csv")

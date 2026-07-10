@@ -323,22 +323,83 @@ test_that("archive force redownload replaces a receiptless legacy archive", {
   expect_equal(receipt$provenance_status, "recorded")
 })
 
+test_that("archive force acquisition returns matching private bytes and receipt", {
+  source <- tiny_archive_zip(first_value = 7.12)
+  source_url <- paste0(
+    "file:///",
+    sub("^/", "", normalizePath(source, winslash = "/"))
+  )
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  dest <- file.path(archive_dir, basename(source))
+  writeBin(charToRaw("legacy bytes"), dest)
+  original_copy <- onet2r:::onet_copy_cache_snapshot
+  original_lock <- onet2r:::onet_with_cache_lock
+  copied_under_lock <- FALSE
+  lock_timeout <- NULL
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(version = "30.3", text_url = source_url)
+    },
+    onet_copy_cache_snapshot = function(from, to) {
+      copied_under_lock <<- dir.exists(paste0(dest, ".lock"))
+      original_copy(from, to)
+    },
+    onet_with_cache_lock = function(path, code, timeout = 10) {
+      lock_timeout <<- timeout
+      original_lock(path, force(code), timeout = timeout)
+    },
+    .package = "onet2r"
+  )
+
+  acquired <- onet2r:::onet_archive_acquire(
+    "30.3",
+    dir = cache_dir,
+    force = TRUE,
+    as_of = "2026-05"
+  )
+  on.exit(unlink(acquired$snapshot, force = TRUE), add = TRUE)
+
+  expect_equal(copied_under_lock, TRUE)
+  expect_gte(lock_timeout, 300)
+  expect_equal(acquired$cache_path, dest)
+  expect_equal(
+    onet2r:::onet_sha256(acquired$snapshot),
+    acquired$receipt$actual_sha256
+  )
+  expect_equal(
+    attr(acquired$snapshot, "source_receipt", exact = TRUE),
+    acquired$receipt
+  )
+  expect_equal(acquired$receipt$as_of, "2026-05")
+})
+
 test_that("onet_archive_read normalizes descriptor archive tables", {
   zipfile <- tiny_archive_zip()
   url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
-  saveRDS(
-    onet2r:::onet_source_receipt(
-      zipfile,
-      source_url = url,
-      version = "30.3"
-    ),
-    paste0(zipfile, ".receipt.rds")
+  receipt <- onet2r:::onet_source_receipt(
+    zipfile,
+    source_url = url,
+    version = "30.3"
   )
+  snapshot <- tempfile(fileext = ".zip")
+  file.copy(zipfile, snapshot)
 
   local_mocked_bindings(
-    onet_archive_download = function(version, dir = onet_cache_dir(), force = FALSE) {
+    onet_archive_acquire = function(
+        version,
+        dir = onet_cache_dir(),
+        force = FALSE,
+        expected_sha256 = NULL,
+        as_of = NULL) {
       expect_equal(version, "30.3")
-      zipfile
+      list(
+        snapshot = structure(snapshot, source_receipt = receipt),
+        receipt = receipt,
+        cache_path = zipfile
+      )
     },
     onet_releases = function() {
       tibble::tibble(
@@ -393,7 +454,11 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
   )
   saveRDS(receipt_a, paste0(dest, ".receipt.rds"))
   original_member <- onet2r:::onet_archive_member
+  original_copy <- onet2r:::onet_copy_cache_snapshot
   snapshot_path <- NULL
+  snapshot_receipt <- NULL
+  snapshot_digest <- NULL
+  snapshot_copied_under_lock <- FALSE
   replaced <- FALSE
 
   local_mocked_bindings(
@@ -406,8 +471,14 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
         text_url = url
       )
     },
+    onet_copy_cache_snapshot = function(from, to) {
+      snapshot_copied_under_lock <<- dir.exists(paste0(dest, ".lock"))
+      original_copy(from, to)
+    },
     onet_archive_member = function(archive, table) {
       snapshot_path <<- archive
+      snapshot_receipt <<- attr(archive, "source_receipt", exact = TRUE)
+      snapshot_digest <<- onet2r:::onet_sha256(archive)
       if (!replaced) {
         replacement <- tempfile("archive-b-", tmpdir = archive_dir, fileext = ".zip")
         file.copy(source_b, replacement)
@@ -427,7 +498,14 @@ test_that("archive reads consume a verified snapshot during cache replacement", 
   result <- onet_archive_read("30.3", "Abilities")
 
   expect_equal(result$data_value[[1]], 4.12)
+  expect_equal(snapshot_copied_under_lock, TRUE)
+  expect_equal(snapshot_digest, receipt_a$actual_sha256)
+  expect_equal(snapshot_receipt$actual_sha256, receipt_a$actual_sha256)
   expect_equal(onet2r:::onet_sha256(dest), onet2r:::onet_sha256(source_b))
+  expect_equal(
+    readRDS(paste0(dest, ".receipt.rds"))$actual_sha256,
+    onet2r:::onet_sha256(source_b)
+  )
   expect_equal(file.exists(snapshot_path), FALSE)
 })
 
@@ -471,6 +549,44 @@ test_that("archive snapshots are removed when archive parsing errors", {
     "injected archive parse failure"
   )
   expect_equal(file.exists(snapshot_path), FALSE)
+  expect_equal(dir.exists(paste0(dest, ".lock")), FALSE)
+})
+
+test_that("failed archive acquisition removes snapshots and cache locks", {
+  source <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(source, dest)
+  saveRDS(
+    onet2r:::onet_source_receipt(
+      dest,
+      source_url = url,
+      version = "30.3"
+    ),
+    paste0(dest, ".receipt.rds")
+  )
+  snapshot_path <- NULL
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(version = "30.3", text_url = url)
+    },
+    validate_archive_zip = function(path) {
+      snapshot_path <<- path
+      stop("injected archive validation failure")
+    },
+    .package = "onet2r"
+  )
+
+  expect_error(
+    onet2r:::onet_archive_acquire("30.3", dir = cache_dir),
+    "injected archive validation failure"
+  )
+  expect_equal(file.exists(snapshot_path), FALSE)
+  expect_equal(dir.exists(paste0(dest, ".lock")), FALSE)
 })
 
 test_that("archive reader resolves spaced table names", {
