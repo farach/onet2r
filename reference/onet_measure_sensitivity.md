@@ -38,7 +38,9 @@ onet_measure_sensitivity(
 - task_ratings:
 
   For task-level measures, a task-ratings data frame or named list of
-  task-ratings data frames.
+  task-ratings data frames. Release provenance uses `release_version`,
+  then row-wise `version` where `release_version` is missing. When
+  neither column exists, an explicit list name is used.
 
 - task_metadata:
 

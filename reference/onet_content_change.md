@@ -79,14 +79,18 @@ over the item union, missing items filled with zero); and the seam flags
 ## Details
 
 Set metrics compare the `item` keys an occupation carries in each
-release. `rating_delta_l2` uses only retained items, so it measures
-rating drift among tasks that persist; `cosine` uses the union with zero
-fill, so it responds to both membership turnover and rating change.
-Seam-crossing pairs still receive metrics but are marked
-`safely_comparable = FALSE`; include them only in a clearly labeled
-seam-inclusive row. Occupations are matched on `onet_soc_code`, so
-cross-taxonomy pairs generally share few codes and should be bridged
-with
+release. The filtered input must contain at most one row per occupation,
+item, release, and scale. Duplicate keys are rejected rather than
+resolved by row order. When `scale = NULL` and `scale_id` is present,
+item-scale combinations define membership so ratings from different
+scales are not joined to each other. `rating_delta_l2` uses only
+retained items, so it measures rating drift among tasks that persist;
+`cosine` uses the union with zero fill, so it responds to both
+membership turnover and rating change. Seam-crossing pairs still receive
+metrics but are marked `safely_comparable = FALSE`; include them only in
+a clearly labeled seam-inclusive row. Occupations are matched on
+`onet_soc_code`, so cross-taxonomy pairs generally share few codes and
+should be bridged with
 [`onet_crosswalk_bridge()`](https://farach.github.io/onet2r/reference/onet_crosswalk_bridge.md)
 before interpretation.
 

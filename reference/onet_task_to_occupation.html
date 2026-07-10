@@ -81,7 +81,8 @@ importance, or equal task weights.</p>
 
 
 <dt id="arg-task-ratings">task_ratings<a class="anchor" aria-label="anchor" href="#arg-task-ratings"></a></dt>
-<dd><p>A data frame containing occupation task ratings.</p></dd>
+<dd><p>A single-release data frame containing occupation task
+ratings, with at most one row per occupation and task after filtering.</p></dd>
 
 
 <dt id="arg-task-metadata">task_metadata<a class="anchor" aria-label="anchor" href="#arg-task-metadata"></a></dt>
@@ -122,6 +123,15 @@ default.</p></dd>
     <p>A tibble with occupation-level measure scores, task-count metadata,
 and measure provenance columns.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>When <code>task_ratings</code> contains <code>release_version</code> or <code>version</code>, the columns are
+coalesced row by row and must agree wherever both are populated. Every
+effective row must identify the same non-missing release. Use a named list
+of single-release data frames with <code><a href="onet_measure_sensitivity.html">onet_measure_sensitivity()</a></code> for
+multi-vintage analysis. Duplicate occupation-task rows are rejected rather
+than deduplicated or aggregated.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -155,7 +165,7 @@ and measure provenance columns.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

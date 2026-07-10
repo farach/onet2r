@@ -28,7 +28,8 @@ onet_task_to_occupation(
 
 - task_ratings:
 
-  A data frame containing occupation task ratings.
+  A single-release data frame containing occupation task ratings, with
+  at most one row per occupation and task after filtering.
 
 - task_metadata:
 
@@ -66,6 +67,16 @@ onet_task_to_occupation(
 
 A tibble with occupation-level measure scores, task-count metadata, and
 measure provenance columns.
+
+## Details
+
+When `task_ratings` contains `release_version` or `version`, the columns
+are coalesced row by row and must agree wherever both are populated.
+Every effective row must identify the same non-missing release. Use a
+named list of single-release data frames with
+[`onet_measure_sensitivity()`](https://farach.github.io/onet2r/reference/onet_measure_sensitivity.md)
+for multi-vintage analysis. Duplicate occupation-task rows are rejected
+rather than deduplicated or aggregated.
 
 ## Examples
 

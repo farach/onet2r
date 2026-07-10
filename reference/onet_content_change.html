@@ -140,6 +140,10 @@ and the seam flags <code>seam</code>, <code>seam_type</code>, and <code>safely_c
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Set metrics compare the <code>item</code> keys an occupation carries in each release.
+The filtered input must contain at most one row per occupation, item, release,
+and scale. Duplicate keys are rejected rather than resolved by row order.
+When <code>scale = NULL</code> and <code>scale_id</code> is present, item-scale combinations define
+membership so ratings from different scales are not joined to each other.
 <code>rating_delta_l2</code> uses only retained items, so it measures rating drift among
 tasks that persist; <code>cosine</code> uses the union with zero fill, so it responds to
 both membership turnover and rating change. Seam-crossing pairs still receive
@@ -181,7 +185,7 @@ be bridged with <code><a href="onet_crosswalk_bridge.html">onet_crosswalk_bridge
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

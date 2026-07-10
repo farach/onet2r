@@ -60,6 +60,16 @@
 
 ### Bug fixes
 
+- [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
+  and
+  [`onet_task_to_occupation()`](https://farach.github.io/onet2r/reference/onet_task_to_occupation.md)
+  now reject duplicate effective keys instead of silently choosing or
+  blending rows. Task rollups coalesce `release_version` and `version`
+  row by row, reject conflicts, and require exactly one non-missing
+  effective release per call when release metadata is present.
+  [`onet_measure_sensitivity()`](https://farach.github.io/onet2r/reference/onet_measure_sensitivity.md)
+  uses explicit release columns before falling back to named-list labels
+  for multi-vintage provenance (reported in release audit).
 - [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)
   now detects, validates, and caches matching OEWS ZIP files downloaded
   in the user’s browser, and interactive sessions can open the official
