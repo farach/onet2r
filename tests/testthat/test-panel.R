@@ -117,7 +117,7 @@ test_that("onet_releases memoises the release page per session", {
   expect_equal(r3$format, "text")
 })
 
-test_that("archive cache verifies digests and records a receipt", {
+test_that("receiptless archive caches fail closed for constrained requests", {
   zipfile <- tiny_archive_zip()
   cache_dir <- withr::local_tempdir()
   archive_dir <- file.path(cache_dir, "archives")
@@ -137,9 +137,50 @@ test_that("archive cache verifies digests and records a receipt", {
     .package = "onet2r"
   )
 
+  expect_error(
+    onet_archive_download("30.3", dir = cache_dir),
+    "no provenance receipt.*source_url.*version.*force = TRUE"
+  )
+  expect_error(
+    onet_archive_download("30.3", dir = cache_dir, as_of = "2026-05"),
+    "no provenance receipt.*as_of.*force = TRUE"
+  )
+  expect_error(
+    onet_archive_download(
+      "30.3",
+      dir = cache_dir,
+      expected_sha256 = digest
+    ),
+    "no provenance receipt.*expected_sha256.*force = TRUE"
+  )
+  expect_false(file.exists(paste0(dest, ".receipt.rds")))
+})
+
+test_that("archive force refresh replaces bytes and writes a verified receipt", {
+  zipfile <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  writeLines("legacy bytes", dest)
+  digest <- onet2r:::onet_sha256(zipfile)
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(version = "30.3", text_url = url)
+    },
+    onet_download_file = function(url, destfile, ...) {
+      file.copy(zipfile, destfile, overwrite = TRUE)
+      0L
+    },
+    .package = "onet2r"
+  )
+
   result <- onet_archive_download(
     "30.3",
     dir = cache_dir,
+    force = TRUE,
     expected_sha256 = digest,
     as_of = "2026-05"
   )
@@ -147,11 +188,13 @@ test_that("archive cache verifies digests and records a receipt", {
   receipt <- readRDS(receipt_path)
 
   expect_equal(result, dest)
+  expect_equal(onet2r:::onet_sha256(result), digest)
   expect_named(
     receipt,
     c(
-      "source_url", "source_path", "source_commit", "retrieved_at",
-      "expected_sha256", "actual_sha256", "file_size", "version", "as_of"
+      "source_url", "source_url_hash", "source_path", "source_commit",
+      "retrieved_at", "expected_sha256", "actual_sha256", "file_size",
+      "version", "as_of"
     )
   )
   expect_equal(receipt$source_url, url)
@@ -176,38 +219,30 @@ test_that("archive cache verifies digests and records a receipt", {
   )
 })
 
-test_that("archive cache rejects expected digest and provenance mismatches", {
+test_that("archive cache rejects URL, version, as-of, and digest mismatches", {
   zipfile <- tiny_archive_zip()
   cache_dir <- withr::local_tempdir()
-  archive_dir <- file.path(cache_dir, "archives")
-  dir.create(archive_dir)
-  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
-  dest <- file.path(archive_dir, basename(url))
-  file.copy(zipfile, dest)
+  current_url <- "https://one.invalid/database/db_30_3_text.zip"
+  digest <- onet2r:::onet_sha256(zipfile)
 
   local_mocked_bindings(
     onet_releases = function() {
       tibble::tibble(
-        version = "30.3",
-        text_url = url
+        version = c("30.3", "30.2"),
+        text_url = c(current_url, current_url)
       )
+    },
+    onet_download_file = function(url, destfile, ...) {
+      file.copy(zipfile, destfile, overwrite = TRUE)
+      0L
     },
     .package = "onet2r"
   )
 
-  expect_error(
-    onet_archive_download(
-      "30.3",
-      dir = cache_dir,
-      expected_sha256 = strrep("0", 64)
-    ),
-    "SHA-256 digest mismatch"
-  )
-
-  digest <- onet2r:::onet_sha256(dest)
   onet_archive_download(
     "30.3",
     dir = cache_dir,
+    force = TRUE,
     expected_sha256 = digest,
     as_of = "2026-05"
   )
@@ -220,11 +255,26 @@ test_that("archive cache rejects expected digest and provenance mismatches", {
     ),
     "provenance does not match.*force = TRUE"
   )
+  expect_error(
+    onet_archive_download(
+      "30.2",
+      dir = cache_dir,
+      expected_sha256 = digest,
+      as_of = "2026-05"
+    ),
+    "provenance does not match.*force = TRUE"
+  )
+  expect_error(
+    onet_archive_download(
+      "30.3",
+      dir = cache_dir,
+      expected_sha256 = strrep("0", 64),
+      as_of = "2026-05"
+    ),
+    "SHA-256 digest mismatch"
+  )
 
-  receipt_path <- paste0(dest, ".receipt.rds")
-  receipt <- readRDS(receipt_path)
-  receipt$version <- "30.2"
-  saveRDS(receipt, receipt_path)
+  current_url <- "https://two.invalid/database/db_30_3_text.zip"
   expect_error(
     onet_archive_download(
       "30.3",

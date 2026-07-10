@@ -146,6 +146,35 @@ onet_sha256 <- function(path) {
   tolower(digest)
 }
 
+onet_redact_url <- function(url) {
+  if (is.null(url) || length(url) != 1 || is.na(url)) {
+    return(NA_character_)
+  }
+  safe <- sub(
+    "^([[:alpha:]][[:alnum:]+.-]*://)[^/@]*@",
+    "\\1<redacted>@",
+    url
+  )
+  if (grepl("?", safe, fixed = TRUE)) {
+    return(paste0(sub("[?#].*$", "", safe), "?<redacted>"))
+  }
+  if (grepl("#", safe, fixed = TRUE)) {
+    return(paste0(sub("#.*$", "", safe), "#<redacted>"))
+  }
+  safe
+}
+
+onet_url_identity <- function(url) {
+  if (is.null(url) || length(url) != 1 || is.na(url)) {
+    return(NA_character_)
+  }
+  rlang::hash(enc2utf8(url))
+}
+
+onet_download_file <- function(url, destfile, ...) {
+  utils::download.file(url = url, destfile = destfile, ...)
+}
+
 onet_source_commit <- function(url) {
   if (is.null(url) || is.na(url)) {
     return(NA_character_)
@@ -210,7 +239,8 @@ onet_source_receipt <- function(
   }
 
   list(
-    source_url = onet_receipt_value(source_url),
+    source_url = onet_redact_url(source_url),
+    source_url_hash = onet_url_identity(source_url),
     source_path = if (is.null(source_path)) {
       NA_character_
     } else {
@@ -320,6 +350,16 @@ onet_read_source_receipt <- function(path) {
       )
     )
   }
+  raw_url <- onet_receipt_value(receipt$source_url)
+  safe_url <- onet_redact_url(raw_url)
+  changed <- !identical(raw_url, safe_url) || !"source_url_hash" %in% names(receipt)
+  if (!"source_url_hash" %in% names(receipt)) {
+    receipt$source_url_hash <- onet_url_identity(raw_url)
+  }
+  receipt$source_url <- safe_url
+  if (changed) {
+    onet_atomic_save_rds(receipt, path)
+  }
   receipt
 }
 
@@ -347,26 +387,36 @@ onet_cached_source_receipt_unlocked <- function(
   expected_sha256 <- onet_normalize_sha256(expected_sha256)
   as_of <- onet_normalize_as_of(as_of)
   receipt_path <- onet_receipt_path(path)
-  expected_url <- onet_receipt_value(source_url)
+  expected_url_hash <- onet_url_identity(source_url)
   expected_version <- onet_receipt_value(version)
   expected_as_of <- onet_receipt_value(as_of)
+  constrained <- c(
+    source_url = !is.null(source_url) && !is.na(source_url),
+    version = !is.null(version) && !is.na(version),
+    as_of = !is.null(as_of),
+    expected_sha256 = !is.null(expected_sha256)
+  )
 
   if (!file.exists(receipt_path)) {
-    if (is.null(expected_sha256)) {
-      receipt <- onet_source_receipt(
-        path = path,
-        source_path = path,
-        retrieved_at = file.info(path)$mtime
+    if (any(constrained)) {
+      cli::cli_abort(
+        c(
+          "Cached source has no provenance receipt and cannot satisfy this constrained request.",
+          "x" = "Unverified field{?s}: {.field {names(constrained)[constrained]}}.",
+          "i" = "Use {.code force = TRUE} to download the requested source and write a verified receipt."
+        )
       )
-      onet_atomic_save_rds(receipt, receipt_path)
-      return(receipt)
     }
+    cli::cli_warn(
+      c(
+        "Reusing a legacy cached source without verified provenance.",
+        "i" = "Cache file: {.file {path}}",
+        "i" = "Use the caller's explicit refresh path to replace it with a verified download."
+      )
+    )
     receipt <- onet_source_receipt(
       path = path,
-      source_url = source_url,
-      expected_sha256 = expected_sha256,
-      version = version,
-      as_of = as_of,
+      source_path = path,
       retrieved_at = file.info(path)$mtime
     )
     onet_atomic_save_rds(receipt, receipt_path)
@@ -374,13 +424,48 @@ onet_cached_source_receipt_unlocked <- function(
   }
 
   receipt <- onet_read_source_receipt(receipt_path)
-  legacy_unverified <- all(is.na(c(
+  legacy_unverified <- !is.na(onet_receipt_value(receipt$source_path)) ||
+    all(is.na(c(
+      onet_receipt_value(receipt$source_url),
+      onet_receipt_value(receipt$version),
+      onet_receipt_value(receipt$as_of)
+    )))
+  if (legacy_unverified && any(!is.na(c(
     onet_receipt_value(receipt$source_url),
+    onet_receipt_value(receipt$source_url_hash),
+    onet_receipt_value(receipt$source_commit),
+    onet_receipt_value(receipt$expected_sha256),
     onet_receipt_value(receipt$version),
     onet_receipt_value(receipt$as_of)
-  )))
+  )))) {
+    receipt$source_url <- NA_character_
+    receipt$source_url_hash <- NA_character_
+    receipt$source_commit <- NA_character_
+    receipt$expected_sha256 <- NA_character_
+    receipt$version <- NA_character_
+    receipt$as_of <- NA_character_
+    onet_atomic_save_rds(receipt, receipt_path)
+  }
+  if (legacy_unverified && any(constrained)) {
+    cli::cli_abort(
+      c(
+        "Cached source has legacy-unverified provenance and cannot satisfy this constrained request.",
+        "x" = "Unverified field{?s}: {.field {names(constrained)[constrained]}}.",
+        "i" = "Use {.code force = TRUE} to download the requested source and write a verified receipt."
+      )
+    )
+  }
+  if (legacy_unverified) {
+    cli::cli_warn(
+      c(
+        "Reusing a legacy cached source without verified provenance.",
+        "i" = "Cache file: {.file {path}}",
+        "i" = "Use the caller's explicit refresh path to replace it with a verified download."
+      )
+    )
+  }
   requested <- list(
-    source_url = expected_url,
+    source_url_hash = expected_url_hash,
     version = expected_version,
     as_of = expected_as_of
   )
@@ -393,6 +478,7 @@ onet_cached_source_receipt_unlocked <- function(
       logical(1)
     )]
   }
+  mismatched[mismatched == "source_url_hash"] <- "source_url"
   if (length(mismatched) > 0) {
     cli::cli_abort(
       c(
@@ -435,14 +521,7 @@ onet_cached_source_receipt_unlocked <- function(
     )
   }
 
-  if (!is.null(expected_sha256) && legacy_unverified) {
-    receipt$source_url <- expected_url
-    receipt$source_commit <- onet_source_commit(source_url)
-    receipt$version <- expected_version
-    receipt$as_of <- expected_as_of
-    receipt$expected_sha256 <- expected_sha256
-    onet_atomic_save_rds(receipt, receipt_path)
-  } else if (!is.null(expected_sha256) && is.na(recorded_expected)) {
+  if (!is.null(expected_sha256) && is.na(recorded_expected)) {
     receipt$expected_sha256 <- expected_sha256
     onet_atomic_save_rds(receipt, receipt_path)
   }

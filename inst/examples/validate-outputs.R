@@ -298,6 +298,14 @@ old_wd <- getwd()
 setwd(sample_archive)
 utils::zip(archive_fixture, list.files(".", recursive = TRUE), flags = "-q")
 setwd(old_wd)
+archive_receipt <- onet2r:::onet_source_receipt(
+  archive_fixture,
+  source_url = release_fixture$text_url[[1]],
+  version = release_fixture$version[[1]],
+  as_of = "2026-05",
+  retrieved_at = file.info(archive_fixture)$mtime
+)
+saveRDS(archive_receipt, paste0(archive_fixture, ".receipt.rds"))
 archive_path <- onet_archive_download("30.3", dir = archive_cache, as_of = "2026-05")
 stopifnot(
   identical(archive_path, archive_fixture),

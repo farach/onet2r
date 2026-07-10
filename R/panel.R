@@ -104,6 +104,9 @@ archive_version_from_link <- function(link) {
 #' archive records its URL, retrieval time, SHA-256 digest, size, version, and
 #' optional `as_of` metadata. The archive URLs are not assumed to be immutable;
 #' supply `expected_sha256` when an independently verified digest is available.
+#' A legacy cached archive without a receipt cannot satisfy a request constrained
+#' by URL, version, `as_of`, or digest; use `force = TRUE` to replace it with a
+#' verified download. Receipt URLs omit credentials and query values.
 #' @export
 #'
 #' @examples
@@ -151,7 +154,7 @@ onet_archive_download <- function(
   tmp <- tempfile("onet-archive-", tmpdir = archive_dir, fileext = ".zip")
   on.exit(unlink(tmp, force = TRUE), add = TRUE)
   status <- tryCatch(
-    utils::download.file(
+    onet_download_file(
       url = release$text_url[[1]],
       destfile = tmp,
       mode = "wb",
@@ -161,9 +164,8 @@ onet_archive_download <- function(
       cli::cli_abort(
         c(
           "Failed to download O*NET archive.",
-          "i" = "URL: {.url {release$text_url[[1]]}}"
-        ),
-        parent = cnd
+          "i" = "URL: {.url {onet_redact_url(release$text_url[[1]])}}"
+        )
       )
     }
   )
@@ -171,7 +173,7 @@ onet_archive_download <- function(
     cli::cli_abort(
       c(
         "Failed to download O*NET archive.",
-        "i" = "URL: {.url {release$text_url[[1]]}}"
+        "i" = "URL: {.url {onet_redact_url(release$text_url[[1]])}}"
       )
     )
   }

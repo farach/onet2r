@@ -80,6 +80,9 @@ onet_felten_aioe_url <- paste0(
 #' scores. The returned measure includes `metadata$source_receipt` with the
 #' source URL or local path, retrieval time, digest, file size, source commit
 #' when inferable from a pinned GitHub raw URL, and version or `as_of` metadata.
+#' A legacy cached download without a receipt cannot satisfy a request
+#' constrained by URL, version, `as_of`, or digest; use `force = TRUE` to
+#' replace it. Receipt URLs omit credentials and query values.
 #'
 #' The three exposure definitions follow the paper: alpha counts tasks exposed
 #' by direct model access, beta adds tasks reachable with complementary software
@@ -218,6 +221,9 @@ onet_import_eloundou <- function(
 #' The returned measure includes `metadata$source_receipt` with the source URL
 #' or local path, retrieval time, digest, file size, source commit when
 #' inferable from a pinned GitHub raw URL, and version or `as_of` metadata.
+#' A legacy cached download without a receipt cannot satisfy a request
+#' constrained by URL, version, `as_of`, or digest; use `force = TRUE` to
+#' replace it. Receipt URLs omit credentials and query values.
 #' @export
 #'
 #' @examples
@@ -529,20 +535,21 @@ download_import_file <- function(
   )
   on.exit(options(old_options), add = TRUE)
   status <- tryCatch(
-    utils::download.file(url, tmp, mode = "wb", quiet = TRUE),
+    onet_download_file(url, tmp, mode = "wb", quiet = TRUE),
     error = function(cnd) {
       cli::cli_abort(
         c(
           "Failed to download the import file.",
-          "i" = "URL: {.url {url}}",
+          "i" = "URL: {.url {onet_redact_url(url)}}",
           "i" = "Download it manually and pass {.arg path}."
-        ),
-        parent = cnd
+        )
       )
     }
   )
   if (!identical(status, 0L) || file.info(tmp)$size <= 0) {
-    cli::cli_abort("Failed to download the import file from {.url {url}}.")
+    cli::cli_abort(
+      "Failed to download the import file from {.url {onet_redact_url(url)}}."
+    )
   }
   source_commit <- onet_source_commit(url)
   receipt <- onet_source_receipt(

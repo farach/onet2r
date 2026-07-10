@@ -16,6 +16,14 @@ does not ship a substantive AI exposure score or task score.
   an accessor-readable column, not only as a fragile attribute.
 - Multi-year or multi-cell weight panels must be filtered before aggregation.
 
+Downloaded source caches are reusable only with a receipt whose URL identity,
+version, optional `as_of`, and digest agree with the request. Receiptless or
+legacy-unverified files fail closed when any such provenance constraint is
+present; `force = TRUE` replaces the source and receipt atomically. Fully
+unconstrained legacy reuse may warn for compatibility, but it records only the
+local path, current-byte digest, size, and modification time. Receipt and error
+rendering removes URL credentials and query values.
+
 ## Longitudinal panel contract
 
 `onet_archive_read()` returns one row per archive observation with:

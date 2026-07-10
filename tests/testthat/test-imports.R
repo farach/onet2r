@@ -102,8 +102,9 @@ test_that("onet_import_eloundou verifies and attaches a local source receipt", {
   expect_named(
     receipt,
     c(
-      "source_url", "source_path", "source_commit", "retrieved_at",
-      "expected_sha256", "actual_sha256", "file_size", "version", "as_of"
+      "source_url", "source_url_hash", "source_path", "source_commit",
+      "retrieved_at", "expected_sha256", "actual_sha256", "file_size",
+      "version", "as_of"
     )
   )
   expect_equal(receipt$source_url, NA_character_)
@@ -381,21 +382,27 @@ test_that("downloaded adapter sources reuse verified receipts without network", 
   extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
   on.exit(unlink(extract), add = TRUE)
   cache_dir <- withr::local_tempdir()
-  reference_dir <- file.path(cache_dir, "reference")
-  dir.create(reference_dir)
-  dest <- file.path(reference_dir, basename(onet2r:::onet_eloundou_url))
-  file.copy(extract, dest)
-  digest <- onet2r:::onet_sha256(dest)
+  digest <- onet2r:::onet_sha256(extract)
 
   local_mocked_bindings(
     onet_cache_dir = function() cache_dir,
+    onet_download_file = function(url, destfile, ...) {
+      file.copy(extract, destfile, overwrite = TRUE)
+      0L
+    },
     .package = "onet2r"
   )
 
   measure <- onet_import_eloundou(
     make_task_panel(),
+    force = TRUE,
     expected_sha256 = digest,
     as_of = "2023-03"
+  )
+  dest <- file.path(
+    cache_dir,
+    "reference",
+    basename(onet2r:::onet_eloundou_url)
   )
   receipt <- measure$metadata$source_receipt
 
@@ -418,28 +425,202 @@ test_that("downloaded adapter sources reuse verified receipts without network", 
     ),
     "provenance does not match.*force = TRUE"
   )
+  expect_error(
+    onet_import_eloundou(
+      make_task_panel(),
+      expected_sha256 = digest,
+      as_of = "2023-04"
+    ),
+    "provenance does not match.*force = TRUE"
+  )
+  expect_error(
+    onet_import_eloundou(
+      make_task_panel(),
+      expected_sha256 = strrep("0", 64),
+      as_of = "2023-03"
+    ),
+    "SHA-256 digest mismatch"
+  )
 })
 
-test_that("legacy adapter caches do not claim unverified source provenance", {
-  extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
-  on.exit(unlink(extract), add = TRUE)
+test_that("receiptless adapter caches fail closed across basename collisions", {
+  old_extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  new_extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(c(old_extract, new_extract)), add = TRUE)
+  replacement <- utils::read.csv(new_extract, check.names = FALSE)
+  replacement$human_rating_beta[[1]] <- 0.91
+  utils::write.csv(replacement, new_extract, row.names = FALSE, quote = FALSE)
+
   cache_dir <- withr::local_tempdir()
   reference_dir <- file.path(cache_dir, "reference")
   dir.create(reference_dir)
-  dest <- file.path(reference_dir, basename(onet2r:::onet_eloundou_url))
-  file.copy(extract, dest)
+  dest <- file.path(reference_dir, "occ_level.csv")
+  file.copy(old_extract, dest)
+  old_digest <- onet2r:::onet_sha256(dest)
+  new_digest <- onet2r:::onet_sha256(new_extract)
+  first_url <- paste0(
+    "https://raw.githubusercontent.com/example/source/",
+    strrep("1", 40),
+    "/occ_level.csv"
+  )
+  second_url <- paste0(
+    "https://raw.githubusercontent.com/example/source/",
+    strrep("2", 40),
+    "/occ_level.csv"
+  )
 
   local_mocked_bindings(
     onet_cache_dir = function() cache_dir,
+    onet_download_file = function(url, destfile, ...) {
+      file.copy(new_extract, destfile, overwrite = TRUE)
+      0L
+    },
     .package = "onet2r"
   )
 
-  measure <- onet_import_eloundou(make_task_panel())
-  receipt <- measure$metadata$source_receipt
+  expect_error(
+    onet_import_eloundou(make_task_panel(), url = first_url),
+    "no provenance receipt.*force = TRUE"
+  )
+  expect_equal(onet2r:::onet_sha256(dest), old_digest)
+  expect_false(file.exists(paste0(dest, ".receipt.rds")))
 
+  refreshed <- onet_import_eloundou(
+    make_task_panel(),
+    url = second_url,
+    force = TRUE,
+    expected_sha256 = new_digest,
+    as_of = "replacement"
+  )
+  receipt <- refreshed$metadata$source_receipt
+  expect_equal(onet2r:::onet_sha256(dest), new_digest)
+  expect_equal(
+    unique(
+      refreshed$data$measure_score[
+        refreshed$data$onet_soc_code == "15-1252.00"
+      ]
+    ),
+    0.91
+  )
+  expect_equal(receipt$source_url, second_url)
+  expect_equal(receipt$version, strrep("2", 40))
+  expect_equal(receipt$expected_sha256, new_digest)
+  expect_equal(receipt$as_of, "replacement")
+
+  expect_error(
+    onet_import_eloundou(
+      make_task_panel(),
+      url = first_url,
+      expected_sha256 = new_digest,
+      as_of = "replacement"
+    ),
+    "provenance does not match.*force = TRUE"
+  )
+})
+
+test_that("fully unconstrained legacy reuse warns without claiming provenance", {
+  path <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(c(path, paste0(path, ".receipt.rds"))), add = TRUE)
+
+  expect_warning(
+    receipt <- onet2r:::onet_cached_source_receipt(path, source_url = NULL),
+    "legacy cached source without verified provenance"
+  )
   expect_true(is.na(receipt$source_url))
+  expect_true(is.na(receipt$source_url_hash))
   expect_true(is.na(receipt$source_commit))
   expect_true(is.na(receipt$version))
   expect_true(is.na(receipt$as_of))
-  expect_equal(receipt$actual_sha256, onet2r:::onet_sha256(dest))
+  expect_true(is.na(receipt$expected_sha256))
+
+  expect_warning(
+    reused <- onet2r:::onet_cached_source_receipt(path, source_url = NULL),
+    "legacy cached source without verified provenance"
+  )
+  expect_true(is.na(reused$source_url))
+  expect_true(is.na(readRDS(paste0(path, ".receipt.rds"))$source_url))
+})
+
+test_that("previously auto-adopted legacy receipts are demoted and rejected", {
+  path <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  receipt_path <- paste0(path, ".receipt.rds")
+  on.exit(unlink(c(path, receipt_path)), add = TRUE)
+  digest <- onet2r:::onet_sha256(path)
+  receipt <- onet2r:::onet_source_receipt(
+    path,
+    source_url = "https://example.invalid/occ_level.csv",
+    source_path = path,
+    expected_sha256 = digest,
+    version = "claimed-version",
+    as_of = "claimed-date"
+  )
+  saveRDS(receipt, receipt_path)
+
+  expect_error(
+    onet2r:::onet_cached_source_receipt(
+      path,
+      source_url = "https://example.invalid/occ_level.csv",
+      expected_sha256 = digest,
+      version = "claimed-version",
+      as_of = "claimed-date"
+    ),
+    "legacy-unverified provenance.*force = TRUE"
+  )
+  demoted <- readRDS(receipt_path)
+  expect_true(is.na(demoted$source_url))
+  expect_true(is.na(demoted$source_url_hash))
+  expect_true(is.na(demoted$source_commit))
+  expect_true(is.na(demoted$expected_sha256))
+  expect_true(is.na(demoted$version))
+  expect_true(is.na(demoted$as_of))
+  expect_equal(demoted$actual_sha256, digest)
+})
+
+test_that("adapter receipts and download errors redact URL secrets", {
+  extract <- write_eloundou_extract(tempfile(fileext = ".csv"))
+  on.exit(unlink(extract), add = TRUE)
+  cache_dir <- withr::local_tempdir()
+  secret_url <- paste0(
+    "https://user:password@example.invalid/occ_level.csv",
+    "?token=top-secret#private"
+  )
+
+  local_mocked_bindings(
+    onet_cache_dir = function() cache_dir,
+    onet_download_file = function(url, destfile, ...) {
+      file.copy(extract, destfile, overwrite = TRUE)
+      0L
+    },
+    .package = "onet2r"
+  )
+  measure <- onet_import_eloundou(
+    make_task_panel(),
+    url = secret_url,
+    force = TRUE
+  )
+  receipt <- measure$metadata$source_receipt
+  rendered <- paste(capture.output(str(receipt)), collapse = "\n")
+
+  expect_equal(
+    receipt$source_url,
+    "https://<redacted>@example.invalid/occ_level.csv?<redacted>"
+  )
+  expect_false(grepl("password|top-secret|token=", rendered))
+
+  local_mocked_bindings(
+    onet_download_file = function(url, destfile, ...) {
+      stop("cannot open URL ", url)
+    },
+    .package = "onet2r"
+  )
+  error <- expect_error(
+    onet_import_eloundou(
+      make_task_panel(),
+      url = secret_url,
+      force = TRUE
+    )
+  )
+  rendered_error <- conditionMessage(error)
+  expect_match(rendered_error, "<redacted>", fixed = TRUE)
+  expect_false(grepl("password|top-secret|token=", rendered_error))
 })

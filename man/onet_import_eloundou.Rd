@@ -93,6 +93,9 @@ the \code{reference} section and can be cleared with
 scores. The returned measure includes \code{metadata$source_receipt} with the
 source URL or local path, retrieval time, digest, file size, source commit
 when inferable from a pinned GitHub raw URL, and version or \code{as_of} metadata.
+A legacy cached download without a receipt cannot satisfy a request
+constrained by URL, version, \code{as_of}, or digest; use \code{force = TRUE} to
+replace it. Receipt URLs omit credentials and query values.
 
 The three exposure definitions follow the paper: alpha counts tasks exposed
 by direct model access, beta adds tasks reachable with complementary software

@@ -12,6 +12,7 @@
 
 ## Bug fixes
 
+* Receiptless or legacy-unverified archive and adapter cache files no longer inherit caller-supplied URL, version, `as_of`, or digest provenance. Constrained reuse now fails with `force = TRUE` guidance, explicit refresh replaces the source-receipt pair atomically, unconstrained legacy reuse warns without claiming provenance, and receipt and error URLs redact credentials and query values.
 * `onet_content_change()` and `onet_task_to_occupation()` now reject duplicate effective keys instead of silently choosing or blending rows. Task rollups coalesce `release_version` and `version` row by row, reject conflicts, and require exactly one non-missing effective release per call when release metadata is present. `onet_measure_sensitivity()` uses explicit release columns before falling back to named-list labels for multi-vintage provenance (reported in release audit).
 * `onet_measure_sensitivity()` now rejects content-change tables and other non-weight inputs at the `weight_panels` boundary with guidance toward employment weight panels and named-list task release inputs. Its documented output contract is scenario aggregate movement, not rank, quintile, variance, or content-drift diagnostics (reported in release audit).
 * `onet_oews()` now detects, validates, and caches matching OEWS ZIP files downloaded in the user's browser, and interactive sessions can open the official BLS URL and wait for the ZIP when BLS rejects automated downloads with HTTP 403 (reported manually).
