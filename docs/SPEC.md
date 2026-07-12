@@ -70,8 +70,13 @@ row per occupation and release pair (adjacent pairs by default) with `n_from`,
 `n_to`, `n_added`, `n_dropped`, `n_retained`, `jaccard` (set similarity),
 `churn_rate` (`1 - jaccard`), `rating_delta_l2` (Euclidean norm of rating
 change over retained items), and `cosine` (cosine similarity over the item
-union with zero fill). Pairs crossing the v21.0 or v25.1 seam carry metrics but
-are flagged `seam`, `seam_type`, and `safely_comparable == FALSE`.
+union with zero fill). By default, only pairs crossing the v25.1 SOC-2010 to
+SOC-2018 taxonomy seam carry metrics flagged `seam`, `seam_type`, and
+`safely_comparable == FALSE`; v21.0 is not a package-verified default seam.
+Callers with channel-specific evidence can supply a custom `seams` table
+(to `onet_content_change()` or `onet_resurvey_panel()`) to add seam dates such
+as v21.0, but such overrides require external justification and are not
+package defaults.
 
 ## Reference-SOC resolver contract
 

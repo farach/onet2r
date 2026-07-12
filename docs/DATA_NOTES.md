@@ -46,24 +46,27 @@ Verified from O&#42;NET release and taxonomy pages:
 
 - O&#42;NET 15.1, released in February 2011, introduced the O&#42;NET-SOC 2010
   taxonomy.
-- O&#42;NET 21.0, released in August 2016, changed how supplemental-task
-  relevance and inclusion were handled in Task Ratings. Tasks that were
-  previously carried can enter or leave an occupation on this boundary for
-  reasons unrelated to survey re-rating, which inflates apparent task additions
-  around the 2016 releases. This is treated as a scale or relevance seam rather
-  than content change, and is mitigated downstream by filtering tasks on an
-  Importance floor (for example `min_importance = 2`). The `RT`
-  Relevance of Task scale itself still ships in later dictionaries; the seam is
-  about supplemental-task inclusion, not removal of the scale.
+- O&#42;NET 21.0, released in August 2016, is sometimes cited as changing how
+  supplemental-task relevance and inclusion were handled in Task Ratings.
+  Independent reconstruction found this is not established as a proven global
+  O&#42;NET content or method seam, so the package does not treat v21.0 as a
+  package-verified default seam and does not claim it retired the Task
+  Relevance scale. v21.0 remains at most a diagnostic release date. A caller
+  with channel-specific evidence that a comparison spanning v21.0 needs seam
+  treatment can supply a custom row through the `seams = ` argument of
+  `onet_resurvey_panel()` or `onet_content_change()`; such custom seams
+  require external justification and are not package-verified defaults.
 - O&#42;NET 25.1, released in November 2020, introduced the O&#42;NET-SOC 2019
-  taxonomy, aligned with 2018 SOC.
+  taxonomy, aligned with 2018 SOC. This is the package's one verified, global
+  default seam.
 - O&#42;NET marks data aggregated from predecessor occupations at the 2019 seam
   with `Domain Source` equal to `Analyst - Transition`.
 - Transition rows should not be interpreted as fresh data collection updates.
-- The resurvey and content-change verbs treat two seams explicitly: a scale or
-  relevance seam at 2016-08-01 (v21.0) and a taxonomy seam at 2020-11-01
-  (v25.1). Comparisons crossing either boundary are flagged and marked not
-  safely comparable so taxonomy churn is not counted as content churn.
+- The resurvey and content-change verbs treat one seam by default: the
+  taxonomy seam at 2020-11-01 (v25.1). Comparisons crossing that boundary are
+  flagged and marked not safely comparable so taxonomy churn is not counted as
+  content churn. A default v20.1 -> v21.x comparison with unchanged SOC
+  vintage is not seam-flagged merely for crossing v21.0.
 
 Sources:
 
