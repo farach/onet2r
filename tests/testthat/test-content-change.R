@@ -4,8 +4,9 @@
 
 # Software (15-1132.00) spans 22.1, 23.1, 25.1: task 3 is dropped and task 4
 # added at 23.1, and 23.1 -> 25.1 crosses the v25.1 SOC seam with no content
-# change. Nurse (29-1141.00) spans 20.1 -> 21.1, which crosses the v21.0 Task
-# Relevance (scale) seam. The 21.1 -> 22.1 pair shares no occupation.
+# change. Nurse (29-1141.00) spans 20.1 -> 21.1. v21.0 is not a package-verified
+# default seam, so this pair is safely comparable by default. The 21.1 -> 22.1
+# pair shares no occupation.
 content_fixture <- function() {
   tibble::tibble(
     onet_soc_code = c(
@@ -91,8 +92,22 @@ test_that("content_change flags the v25.1 SOC seam but still reports metrics", {
   expect_equal(pair$cosine, 1)
 })
 
-test_that("content_change flags the v21.0 Task Relevance scale seam", {
+test_that("content_change does not seam-flag a v20.1 -> v21.x pair by default", {
   cc <- onet_content_change(content_fixture())
+  pair <- cc |>
+    dplyr::filter(.data$from_release == "20.1", .data$to_release == "21.1")
+  expect_equal(nrow(pair), 1L)
+  expect_false(pair$seam)
+  expect_true(is.na(pair$seam_type))
+  expect_true(pair$safely_comparable)
+})
+
+test_that("a caller-supplied v21.0 seam still flags the v20.1 -> v21.x pair", {
+  custom <- tibble::tibble(
+    seam_type = "scale_seam",
+    seam_date = as.Date("2016-08-01")
+  )
+  cc <- onet_content_change(content_fixture(), seams = custom)
   pair <- cc |>
     dplyr::filter(.data$from_release == "20.1", .data$to_release == "21.1")
   expect_equal(nrow(pair), 1L)
@@ -232,14 +247,14 @@ test_that("content_change seams = NULL reproduces the default output exactly", {
   )
 })
 
-test_that("an empty seams table disables the date-based scale seam", {
+test_that("an empty seams table still leaves the v20.1 -> v21.x pair unflagged", {
   no_date_seams <- tibble::tibble(
     seam_type = character(),
     seam_date = as.Date(character())
   )
   cc <- onet_content_change(content_fixture(), seams = no_date_seams)
 
-  # The v21.0 Task Relevance scale seam no longer masks the nurse pair.
+  # Matches the default: no date-based seam applies to the nurse pair either way.
   nurse <- cc |>
     dplyr::filter(.data$from_release == "20.1", .data$to_release == "21.1")
   expect_equal(nrow(nurse), 1L)

@@ -4,26 +4,36 @@
 
 #' Known O&#42;NET Longitudinal Seams
 #'
-#' Internal lookup of the two taxonomy/scale seams that must not be counted as
-#' content change. Verified against O&#42;NET release documentation:
-#' v21.0 (August 2016) retired the Task Relevance scale, and v25.1
-#' (November 2020) moved from O&#42;NET-SOC 2010 to O&#42;NET-SOC 2019 / SOC 2018.
+#' Internal lookup of the taxonomy/scale seam that is a package-verified
+#' default and must not be counted as content change. Only v25.1
+#' (November 2020, O&#42;NET-SOC 2010 to O&#42;NET-SOC 2019 / SOC 2018) is included.
+#' v21.0 (August 2016) is not included: independent reconstruction found no
+#' support for treating it as a proven global O&#42;NET content or method seam
+#' (it does not retire the Task Relevance scale), so v21.0 remains at most a
+#' diagnostic release date rather than a package default. Callers with
+#' channel-specific evidence that a comparison spanning v21.0, or any other
+#' date, needs seam treatment can supply their own row through the `seams`
+#' argument of [onet_content_change()] or [onet_resurvey_panel()]; such
+#' custom seams require external justification and are not package-verified
+#' defaults.
 #'
 #' @return A tibble with `seam_type` and the first-day-of-month `seam_date`.
 #' @keywords internal
 #' @noRd
 onet_known_seams <- function() {
   tibble::tibble(
-    seam_type = c("scale_seam", "soc_seam"),
-    seam_date = as.Date(c("2016-08-01", "2020-11-01"))
+    seam_type = c("soc_seam"),
+    seam_date = as.Date(c("2020-11-01"))
   )
 }
 
 # Resolve the seam table used to flag date-based longitudinal seams. `NULL`
-# keeps the default Task-Ratings-scoped table from onet_known_seams() so
-# existing calls are unchanged. A supplied table lets non-Task-Ratings inputs
-# (Work Activities, Work Context, Abilities) drop the v21.0 Task Relevance
-# scale seam, which does not apply to them, or provide their own seam dates.
+# keeps the default table from onet_known_seams(), which currently contains
+# only the verified v25.1 SOC taxonomy seam, so existing calls are unchanged.
+# A supplied table lets callers add source-specific or channel-specific seam
+# dates not verified by the package as defaults (for example, a v21.0 row for
+# a Task Ratings sensitivity check), or clear the default table entirely with
+# an empty data frame.
 resolve_seams <- function(seams) {
   if (is.null(seams)) {
     return(onet_known_seams())
@@ -181,17 +191,21 @@ empty_resurvey_panel <- function(item = "task_id") {
 #'   Expert. Matching is case-insensitive and by substring.
 #' @param min_importance Optional numeric floor applied to `data_value` (on the
 #'   selected `scale`). Rows below the floor, or with missing `data_value`, are
-#'   dropped. Use it to reproduce the Importance filter that removes the
-#'   post-v21.0 Task Relevance artifact.
+#'   dropped. Use it to apply an Importance floor for any channel-specific
+#'   artifact a caller has external evidence for, for example near a specific
+#'   release boundary.
 #' @param seams Optional data frame with `seam_type` and `seam_date` columns that
-#'   overrides the default Task-Ratings seam table returned by
-#'   `onet_known_seams()`. Use it for non-Task-Ratings inputs such as Work
-#'   Activities, Work Context, or Abilities, where the v21.0 Task Relevance scale
-#'   seam does not apply. A row is a date-based seam when its `seam_date` falls in
-#'   the interval between a release and its prior release. Supply an empty table
-#'   to disable date-based seams entirely. `NULL` keeps the default table, so
-#'   Task Ratings output is unchanged. Cross-vintage SOC seams are always
-#'   detected from `soc_vintage` regardless of this table.
+#'   overrides the default seam table returned by `onet_known_seams()`, which
+#'   currently contains only the verified v25.1 SOC-2010 to SOC-2018 taxonomy
+#'   seam. Use it to supply channel-specific or source-specific seam dates,
+#'   such as a v21.0 row, when a caller has external evidence that a
+#'   comparison spanning that date needs seam treatment; v21.0 is not a
+#'   package-verified default seam. A row is a date-based seam when its
+#'   `seam_date` falls in the interval between a release and its prior
+#'   release. Supply an empty table to disable date-based seams entirely.
+#'   `NULL` keeps the default table, so Task Ratings output is unchanged.
+#'   Cross-vintage SOC seams are always detected from `soc_vintage` regardless
+#'   of this table.
 #'
 #' @return A tibble with one row per occupation, item, and release. Alongside
 #'   the identifier and rating columns it carries the resurvey clock:

@@ -2,6 +2,20 @@
 # Fixtures
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Default seam registry
+# ---------------------------------------------------------------------------
+
+test_that("the default seam registry contains only the verified v25.1 taxonomy seam", {
+  seams <- onet_known_seams()
+  expect_equal(nrow(seams), 1L)
+  expect_equal(seams$seam_type, "soc_seam")
+  expect_equal(seams$seam_date, as.Date("2020-11-01"))
+  # v21.0 / 2016-08-01 is not a package-verified default seam.
+  expect_false("scale_seam" %in% seams$seam_type)
+  expect_false(as.Date("2016-08-01") %in% seams$seam_date)
+})
+
 # Two occupations over three same-vintage releases plus a fourth release that
 # crosses the v25.1 SOC seam. Software (15-1132.00) is re-surveyed once, at
 # 24.1; the nurse (29-1141.00) is re-surveyed once, at 23.1.
@@ -181,10 +195,11 @@ test_that("selection_reason uses the full factor level set", {
 # seams override (additive; default reproduces M1 behavior)
 # ---------------------------------------------------------------------------
 
-# One occupation observed on either side of the August 2016 (v21.0) scale seam.
-# The survey clock advances across the gap, so absent the scale seam this is a
-# resurvey. This mirrors a Work Activities / Abilities call that should not be
-# masked by the Task Relevance retirement.
+# One occupation observed on either side of the August 2016 (v21.0) release
+# date. The survey clock advances across the gap, and v21.0 is not a
+# package-verified default seam, so this reads as a resurvey by default. This
+# mirrors a Work Activities / Abilities call, or any caller without
+# channel-specific evidence of a v21.0 seam.
 scale_span_fixture <- function() {
   tibble::tibble(
     release_version = c("21.1", "22.0"),
@@ -208,14 +223,33 @@ test_that("resurvey_panel seams = NULL reproduces the default output exactly", {
   )
 })
 
-test_that("the default scale seam masks a survey step across August 2016", {
+test_that("by default a survey step across August 2016 is not seam-masked", {
   rp <- onet_resurvey_panel(scale_span_fixture(), item = "element_id")
+  step <- rp |> dplyr::filter(.data$release_version == "22.0")
+  expect_false(step$seam_in)
+  expect_true(is.na(step$seam_type))
+  # The advancing clock reads as a genuine resurvey, since v21.0 is not
+  # treated as a default seam.
+  expect_true(step$resurvey_event)
+})
+
+test_that("a caller-supplied v21.0 seam still masks the survey step", {
+  custom <- tibble::tibble(
+    seam_type = "scale_seam",
+    seam_date = as.Date("2016-08-01")
+  )
+  rp <- onet_resurvey_panel(
+    scale_span_fixture(),
+    item = "element_id",
+    seams = custom
+  )
   step <- rp |> dplyr::filter(.data$release_version == "22.0")
   expect_true(step$seam_in)
   expect_equal(step$seam_type, "scale_seam")
+  expect_false(dplyr::coalesce(step$resurvey_event, FALSE))
 })
 
-test_that("an empty seams table unmasks a non-Task-Ratings survey step", {
+test_that("an empty seams table matches the default: no v21.0 masking", {
   no_date_seams <- tibble::tibble(
     seam_type = character(),
     seam_date = as.Date(character())
@@ -227,7 +261,6 @@ test_that("an empty seams table unmasks a non-Task-Ratings survey step", {
   )
   step <- rp |> dplyr::filter(.data$release_version == "22.0")
   expect_false(step$seam_in)
-  # With the scale seam removed, the advancing clock reads as a resurvey.
   expect_true(step$resurvey_event)
 })
 
