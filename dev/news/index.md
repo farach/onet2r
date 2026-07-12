@@ -16,9 +16,9 @@
 - [`onet_content_change()`](https://farach.github.io/onet2r/dev/reference/onet_content_change.md)
   is the single, seam-aware source of content metrics between releases:
   `n_added`, `n_dropped`, `n_retained`, `jaccard`, `churn_rate`,
-  `rating_delta_l2`, and `cosine`. Pairs crossing the v21.0 or v25.1
-  seam are flagged `safely_comparable = FALSE` so taxonomy churn is not
-  counted as content churn.
+  `rating_delta_l2`, and `cosine`. Pairs crossing the v25.1 SOC-2010 to
+  SOC-2018 seam are flagged `safely_comparable = FALSE` by default so
+  taxonomy churn is not counted as content churn.
 - [`onet_import_eloundou()`](https://farach.github.io/onet2r/dev/reference/onet_import_eloundou.md)
   ingests the occupation-level GPT-exposure table from Eloundou et
   al. (2023), “GPTs are GPTs”, and broadcasts it onto the tasks of a
@@ -50,16 +50,31 @@
 - [`onet_resurvey_panel()`](https://farach.github.io/onet2r/dev/reference/onet_resurvey_panel.md)
   and
   [`onet_content_change()`](https://farach.github.io/onet2r/dev/reference/onet_content_change.md)
-  gain an optional `seams =` argument to override the default
-  Task-Ratings-scoped seam table. The default (`NULL`) reproduces
-  existing output exactly; supplying a table lets non-Task-Ratings
-  inputs such as Work Activities, Work Context, or Abilities drop the
-  v21.0 Task Relevance scale seam that does not apply to them.
-  Cross-vintage SOC seams are still detected from `soc_vintage`
-  regardless.
+  gain an optional `seams =` argument to override the default seam
+  table, which contains only the verified v25.1 SOC-2010 to SOC-2018
+  taxonomy seam. The default (`NULL`) reproduces existing output
+  exactly; supplying a table lets callers add channel-specific or
+  source-specific seam dates, such as a v21.0 row, when they have
+  external evidence a comparison spanning that date needs seam
+  treatment. Cross-vintage SOC seams are still detected from
+  `soc_vintage` regardless.
 
 ### Bug fixes
 
+- `onet_known_seams()` no longer includes a v21.0 / 2016-08-01 row. This
+  corrects unsupported default metadata: independent verification found
+  no evidence that O\*NET v21.0 is a proven global content or method
+  seam, and the package’s prior description of it as retiring the Task
+  Relevance scale was incorrect. The only package-verified default seam
+  is now the v25.1 SOC-2010 to SOC-2018 taxonomy transition. A default
+  v20.1 -\> v21.x comparison with unchanged SOC vintage is no longer
+  seam-flagged solely for crossing that release. Callers with
+  channel-specific evidence can still supply a custom v21.0 row through
+  `seams =` on
+  [`onet_content_change()`](https://farach.github.io/onet2r/dev/reference/onet_content_change.md)
+  or
+  [`onet_resurvey_panel()`](https://farach.github.io/onet2r/dev/reference/onet_resurvey_panel.md);
+  such custom seams are not package-verified defaults.
 - [`onet_cache_clear()`](https://farach.github.io/onet2r/dev/reference/onet_cache_clear.md)
   now coordinates with active cache transactions, accepts a configurable
   wait `timeout`, and uses ownership-checked nonrecursive lock cleanup,
