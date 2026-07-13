@@ -662,6 +662,52 @@ onet_receipt_value <- function(x) {
   as.character(x)
 }
 
+onet_receipt_uses_cache_path <- function(receipt, receipt_path) {
+  source_path <- onet_receipt_value(receipt$source_path)
+  if (is.na(source_path)) {
+    return(FALSE)
+  }
+  cache_path <- sub("\\.receipt\\.rds$", "", receipt_path)
+  identical(
+    normalizePath(source_path, winslash = "\\", mustWork = FALSE),
+    normalizePath(cache_path, winslash = "\\", mustWork = FALSE)
+  )
+}
+
+onet_receipt_claimed_provenance_fields <- function(receipt) {
+  fields <- intersect(
+    c(
+      "source_url",
+      "source_url_sha256",
+      "source_url_hash",
+      "source_commit",
+      "expected_sha256",
+      "version",
+      "as_of"
+    ),
+    names(receipt)
+  )
+  fields[!vapply(
+    fields,
+    \(field) is.na(onet_receipt_value(receipt[[field]])),
+    logical(1)
+  )]
+}
+
+onet_demote_legacy_cache_receipt <- function(receipt) {
+  receipt$source_url <- NA_character_
+  receipt$source_url_sha256 <- NA_character_
+  if ("source_url_hash" %in% names(receipt)) {
+    receipt$source_url_hash <- NA_character_
+  }
+  receipt$source_commit <- NA_character_
+  receipt$expected_sha256 <- NA_character_
+  receipt$version <- NA_character_
+  receipt$as_of <- NA_character_
+  receipt$provenance_status <- "legacy_unverified"
+  receipt
+}
+
 onet_url_parameter_is_sensitive <- function(name) {
   name <- utils::URLdecode(name)
   name <- gsub("([A-Z]+)([A-Z][a-z])", "\\1_\\2", name, perl = TRUE)
@@ -1390,6 +1436,19 @@ onet_cached_source_receipt_unlocked <- function(
 
   receipt <- onet_read_source_receipt(receipt_path)
   receipt_changed <- FALSE
+  if (onet_receipt_uses_cache_path(receipt, receipt_path)) {
+    claimed_fields <- onet_receipt_claimed_provenance_fields(receipt)
+    if (
+      length(claimed_fields) > 0L ||
+        !identical(
+          onet_receipt_value(receipt$provenance_status),
+          "legacy_unverified"
+        )
+    ) {
+      receipt <- onet_demote_legacy_cache_receipt(receipt)
+      receipt_changed <- TRUE
+    }
+  }
   recorded_url_raw <- onet_receipt_value(receipt$source_url)
   recorded_url_sha256 <- onet_receipt_value(receipt$source_url_sha256)
   if (

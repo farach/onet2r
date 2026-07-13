@@ -337,6 +337,56 @@ test_that("unconstrained legacy cache reuse warns and remains unverified", {
   )
 })
 
+test_that("legacy cache-path receipts from old branches are demoted and rejected", {
+  cache_dir <- withr::local_tempdir()
+  path <- file.path(cache_dir, "legacy.csv")
+  writeLines("legacy", path)
+  digest <- onet2r:::onet_sha256(path)
+  url <- "https://example.invalid/legacy.csv"
+  receipt <- onet2r:::onet_source_receipt(
+    path,
+    source_url = url,
+    source_path = path,
+    expected_sha256 = digest,
+    version = "claimed-version",
+    as_of = "claimed-date"
+  )
+  receipt$source_url_hash <- receipt$source_url_sha256
+  receipt$source_url_sha256 <- NULL
+  receipt$provenance_status <- NULL
+  saveRDS(receipt, paste0(path, ".receipt.rds"))
+
+  condition <- tryCatch(
+    onet2r:::onet_cached_source_receipt(
+      path,
+      source_url = url,
+      expected_sha256 = digest,
+      version = "claimed-version",
+      as_of = "claimed-date"
+    ),
+    error = identity
+  )
+  demoted <- readRDS(paste0(path, ".receipt.rds"))
+
+  expect_s3_class(condition, "onet2r_unverified_legacy_cache")
+  expect_match(conditionMessage(condition), "explicitly unverified")
+  expect_match(
+    conditionMessage(condition),
+    "source_url, version, as_of, and expected_sha256"
+  )
+  expect_match(conditionMessage(condition), "force = TRUE", fixed = TRUE)
+  expect_equal(demoted$provenance_status, "legacy_unverified")
+  expect_equal(demoted$source_url, NA_character_)
+  expect_equal(demoted$source_url_sha256, NA_character_)
+  expect_equal(demoted$source_url_hash, NA_character_)
+  expect_equal(demoted$source_commit, NA_character_)
+  expect_equal(demoted$expected_sha256, NA_character_)
+  expect_equal(demoted$version, NA_character_)
+  expect_equal(demoted$as_of, NA_character_)
+  expect_equal(demoted$source_path, normalizePath(path, winslash = "\\"))
+  expect_equal(demoted$actual_sha256, digest)
+})
+
 test_that("source receipts and errors redact URL credentials", {
   cache_dir <- withr::local_tempdir()
   path <- file.path(cache_dir, "source.csv")

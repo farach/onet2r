@@ -497,6 +497,54 @@ test_that("forced archive acquisition snapshots committed bytes under one lock",
   expect_equal(attr(snapshot, "cache_path", exact = TRUE), dest)
 })
 
+test_that("failed archive validation removes snapshots and preserves the shared cache", {
+  source <- tiny_archive_zip()
+  cache_dir <- withr::local_tempdir()
+  archive_dir <- file.path(cache_dir, "archives")
+  dir.create(archive_dir)
+  url <- "https://www.onetcenter.org/dl_files/database/db_30_3_text.zip"
+  dest <- file.path(archive_dir, basename(url))
+  file.copy(source, dest)
+  receipt <- onet2r:::onet_source_receipt(
+    dest,
+    source_url = url,
+    version = "30.3"
+  )
+  saveRDS(receipt, paste0(dest, ".receipt.rds"))
+  digest_before <- onet2r:::onet_sha256(dest)
+  snapshot_path <- NULL
+
+  local_mocked_bindings(
+    onet_releases = function() {
+      tibble::tibble(version = "30.3", text_url = url)
+    },
+    validate_archive_zip = function(path) {
+      snapshot_path <<- path
+      stop("injected archive validation failure")
+    },
+    .package = "onet2r"
+  )
+
+  condition <- tryCatch(
+    onet2r:::onet_archive_acquire(
+      "30.3",
+      dir = cache_dir,
+      return_snapshot = TRUE
+    ),
+    error = identity
+  )
+
+  expect_match(conditionMessage(condition), "injected archive validation failure")
+  expect_false(is.null(snapshot_path))
+  expect_equal(file.exists(snapshot_path), FALSE)
+  expect_equal(dir.exists(paste0(dest, ".lock")), FALSE)
+  expect_equal(onet2r:::onet_sha256(dest), digest_before)
+  expect_equal(
+    readRDS(paste0(dest, ".receipt.rds"))$actual_sha256,
+    receipt$actual_sha256
+  )
+})
+
 test_that("archive snapshots are removed when archive parsing errors", {
   source <- tiny_archive_zip()
   cache_dir <- withr::local_tempdir()
