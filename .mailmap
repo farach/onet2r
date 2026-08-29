@@ -1,6 +1,11 @@
-# Collapse repository contributor display to package-relevant identities.
-Alex Farach <alexfarach@microsoft.com> Alex Farach <farach@users.noreply.github.com>
-Alex Farach <alexfarach@microsoft.com> github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-Alex Farach <alexfarach@microsoft.com> GitHub <noreply@github.com>
+# Normalise Alex Farach's commit identities to the canonical GitHub noreply
+# address. Independent work should not be attributed to an employer address.
+# Display-only: this does not rewrite commit objects.
+Alex Farach <1520139+farach@users.noreply.github.com> <alexfarach@microsoft.com>
+Alex Farach <1520139+farach@users.noreply.github.com> <alexfarach@gmail.com>
+Alex Farach <1520139+farach@users.noreply.github.com> <alex@workforcefutures.net>
+Alex Farach <1520139+farach@users.noreply.github.com> <farach@users.noreply.github.com>
+Alex Farach <1520139+farach@users.noreply.github.com> github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Alex Farach <1520139+farach@users.noreply.github.com> GitHub <noreply@github.com>
 GitHub Copilot <198982749+Copilot@users.noreply.github.com> copilot-swe-agent[bot] <198982749+Copilot@users.noreply.github.com>
 GitHub Copilot <198982749+Copilot@users.noreply.github.com> Copilot App <223556219+Copilot@users.noreply.github.com>
