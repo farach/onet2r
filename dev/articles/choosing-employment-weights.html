@@ -352,7 +352,7 @@ weights usually start with employed civilians,
 <code>SOCP</code>; <code>OCCP</code> is a Census occupation recode, not
 a six-digit SOC code.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tidycensus</span><span class="fu">::</span><span class="fu"><a href="https://walker-data.com/tidycensus/reference/get_pums.html" class="external-link">get_pums</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tidycensus</span><span class="fu">::</span><span class="fu">get_pums</span><span class="op">(</span></span>
 <span>  variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOCP"</span>, <span class="st">"PWGTP"</span>, <span class="st">"ESR"</span>, <span class="st">"AGEP"</span><span class="op">)</span>,</span>
 <span>  year <span class="op">=</span> <span class="fl">2023</span>,</span>
 <span>  survey <span class="op">=</span> <span class="st">"acs1"</span></span>
