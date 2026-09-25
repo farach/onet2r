@@ -88,6 +88,31 @@ The output has one row per occupation, element, scale, and release. The
 important longitudinal fields are `release_version`, `soc_vintage`,
 `onet_soc_code`, `data_value`, `source_date`, and `domain_source`.
 
+## Look Up Names in Reference Tables
+
+The text archives keep repeated names out of their linking and rating files.
+In the 30.2, 30.3, and 31.0 text archives, `Tasks to DWAs.txt` carries DWA IDs
+but no DWA titles, and `Task Ratings.txt` carries task IDs but no task text.
+Task text comes from `Task Statements`, which `onet_archive_read()` reads. DWA
+titles and scale names live in reference tables that have no O&#42;NET-SOC
+column, which `onet_archive_reference()` reads with their published columns.
+
+```{r read-reference-table}
+dwa_titles <- onet_archive_reference(
+  "30.3",
+  "GWAs to IWAs to DWAs",
+  path = example_archive("30.3"),
+  release_date = "2026-05-01"
+)
+
+dwa_titles |>
+  select(dwa_element_id, dwa_element_name, iwa_element_id) |>
+  knitr::kable(align = "l")
+```
+
+Join them to a linking table by `dwa_element_id`. The same reader returns
+`Scales Reference`, `Task Categories`, `Job Zones`, and the other lookup files.
+
 ## Assemble a Same-Vintage Panel
 
 `onet_panel()` applies the same reader across releases and row-binds the

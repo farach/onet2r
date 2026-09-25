@@ -295,6 +295,83 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
     validate_existing_path(path)
   }
 
+  data <- read_archive_table_file(version, table, path)
+  release_date <- resolve_archive_release_date(version, path, release_date)
+
+  onet_standardize_archive_table(data, version, table, release_date)
+}
+
+#' Read an O&#42;NET Archive Reference Table
+#'
+#' Reads a table from an O&#42;NET text archive with its published columns.
+#' Use it for reference and lookup tables that have no O&#42;NET-SOC code
+#' column, such as `"GWAs to IWAs to DWAs"`, `"Scales Reference"`,
+#' `"Task Categories"`, and `"Content Model Reference"`, which
+#' [onet_archive_read()] does not read. It also returns columns that the
+#' longitudinal panel schema does not keep, such as `job_zone` in
+#' `"Job Zones"`.
+#'
+#' @inheritParams onet_archive_read
+#' @param table Archive table name, for example `"GWAs to IWAs to DWAs"` or
+#'   `"Scales Reference"`.
+#'
+#' @return A tibble with `release_version`, `release_date`, and the table's
+#'   published columns renamed to snake case, with `O*NET` written as `onet`.
+#'   Columns whose names end in `_id` or `_code` stay character so they join
+#'   to [onet_archive_read()] output. Other columns are converted with
+#'   [utils::type.convert()].
+#'
+#' @details
+#' Recent tab-delimited text archives (30.2 through 31.0 were checked) keep
+#' repeated names out of linking and rating files. `Tasks to DWAs.txt` and
+#' `Task Ratings.txt` carry codes but not the names found in the Excel files, so
+#' [onet_archive_read()] returns `NA` for fields such as `dwa_element_name`,
+#' `scale_name`, and `title`. Occupation titles and task text can be joined back
+#' from `Occupation Data` and `Task Statements`, which [onet_archive_read()]
+#' reads. Scale names are only in `Scales Reference.txt`, and DWA titles only in
+#' `GWAs to IWAs to DWAs.txt` (release 30.3 onward) or `DWA Reference.txt`
+#' (earlier releases). Read those with `onet_archive_reference()`. For example:
+#'
+#' ```r
+#' dwa_titles <- onet_archive_reference("31.0", "GWAs to IWAs to DWAs", path = zip)
+#' tasks_to_dwas <- onet_archive_read("31.0", "Tasks to DWAs", path = zip) |>
+#'   dplyr::select(-"dwa_element_name") |>
+#'   dplyr::left_join(
+#'     dplyr::distinct(dwa_titles, dwa_element_id, dwa_element_name),
+#'     by = "dwa_element_id",
+#'     relationship = "many-to-one"
+#'   )
+#' ```
+#' @export
+#'
+#' @examples
+#' archive_dir <- system.file(
+#'   "extdata",
+#'   "onet-mini",
+#'   "db_30_3_text",
+#'   package = "onet2r"
+#' )
+#' onet_archive_reference(
+#'   "30.3",
+#'   "GWAs to IWAs to DWAs",
+#'   path = archive_dir,
+#'   release_date = "2026-05-01"
+#' )
+onet_archive_reference <- function(version, table, path = NULL, release_date = NULL) {
+  validate_single_string(version, "version")
+  validate_single_string(table, "table")
+  if (!is.null(path)) {
+    validate_single_string(path, "path")
+    validate_existing_path(path)
+  }
+
+  data <- read_archive_table_file(version, table, path, col_classes = "character")
+  release_date <- resolve_archive_release_date(version, path, release_date)
+
+  standardize_archive_reference(data, version, release_date)
+}
+
+read_archive_table_file <- function(version, table, path, col_classes = NA) {
   archive <- if (is.null(path)) {
     snapshot <- onet_archive_acquire(
       version = version,
@@ -315,18 +392,41 @@ onet_archive_read <- function(version, table, path = NULL, release_date = NULL) 
     utils::unzip(archive, files = member, exdir = tmpdir)
     file.path(tmpdir, member)
   }
-  data <- utils::read.delim(
+  utils::read.delim(
     member_path,
     check.names = FALSE,
     stringsAsFactors = FALSE,
     quote = "",
     fileEncoding = "UTF-8",
-    na.strings = c("NA", "n/a", "N/A")
+    na.strings = c("NA", "n/a", "N/A"),
+    colClasses = col_classes
   )
+}
 
-  release_date <- resolve_archive_release_date(version, path, release_date)
+standardize_archive_reference <- function(data, version, release_date) {
+  data <- tibble::as_tibble(data, .name_repair = "minimal")
+  names(data) <- clean_archive_reference_names(names(data))
+  if (nrow(data) > 0) {
+    for (column in names(data)) {
+      if (!grepl("_(id|code)$", column)) {
+        data[[column]] <- utils::type.convert(data[[column]], as.is = TRUE)
+      }
+    }
+  }
+  release <- tibble::tibble(
+    release_version = rep(as.character(version), nrow(data)),
+    release_date = as.Date(rep(release_date, nrow(data)), origin = "1970-01-01")
+  )
+  dplyr::bind_cols(release, data)
+}
 
-  onet_standardize_archive_table(data, version, table, release_date)
+clean_archive_reference_names <- function(x) {
+  x <- gsub("O\\*NET", "onet", x, ignore.case = TRUE)
+  x <- tolower(x)
+  x <- gsub("[^a-z0-9]+", "_", x)
+  x <- gsub("^_+|_+$", "", x)
+  x[!nzchar(x)] <- "column"
+  make.unique(x, sep = "_")
 }
 
 #' Assemble an O&#42;NET Longitudinal Panel
@@ -867,7 +967,8 @@ onet_standardize_archive_table <- function(data, version, table, release_date) {
     cli::cli_abort(c(
       "Archive table {.val {table}} (version {.val {version}}) has no {.val O*NET-SOC Code} column.",
       "i" = "Columns found: {.val {names(data)}}.",
-      "i" = "This release's file layout is not supported for panel assembly."
+      "i" = "{.fun onet_archive_read} only reads occupation-level tables into the panel schema.",
+      "i" = "Read reference tables such as {.val GWAs to IWAs to DWAs} with {.fun onet_archive_reference}."
     ))
   }
   task_id <- as.character(col_or_na(data, "Task ID", n_rows))

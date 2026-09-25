@@ -145,6 +145,7 @@ reference:
       - onet_releases
       - onet_archive_download
       - onet_archive_read
+      - onet_archive_reference
       - onet_panel
       - onet_panel_reconcile
       - onet_change_summary
@@ -166,6 +167,7 @@ reference:
       - onet_oews_industry
       - onet_reference_soc_resolve
       - onet_weight_panel_oews
+      - onet_oews_bridge
       - onet_weight_panel_pums
   - title: Older weighting helpers
     desc: Soft-deprecated helpers retained for compatibility.

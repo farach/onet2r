@@ -25,7 +25,13 @@ onet_measure_aggregate(
 
 \item{score}{Score column when \code{measure} is a data frame.}
 
-\item{bridge}{Optional bridge from O*NET-SOC to \code{reference_soc_code}.}
+\item{bridge}{Optional bridge from O*NET-SOC codes to weight-panel
+reference SOC codes, with \code{from_onet_soc_code} and \code{reference_soc_code}
+columns and an optional \code{crosswalk_weight} (default 1). Output from
+\code{\link[=onet_oews_bridge]{onet_oews_bridge()}} has this shape. Output from \code{\link[=onet_crosswalk_bridge]{onet_crosswalk_bridge()}}
+is also accepted, with \code{to_soc_code} used as the reference SOC. Measure
+occupations without a bridge row are left out of the aggregate with a
+message.}
 
 \item{measure_id}{Identifier used when \code{measure} is a data frame.}
 
@@ -43,11 +49,19 @@ Aggregates an occupation-level measure using a normalized weight panel.
 }
 \details{
 When multiple O*NET detail occupations map to the same reference SOC,
-\code{onet_measure_aggregate()} first averages those detail scores within the SOC.
+\code{onet_measure_aggregate()} first averages those detail scores within the SOC,
+weighting them by \code{crosswalk_weight} when a bridge is supplied.
 Employment coverage is then counted once per reference SOC, so coverage shares
 cannot exceed 100 percent because of detail-code duplication.
+\code{n_occupations} and \code{n_reference_soc} count the O*NET occupations and
+reference SOCs that contribute to the aggregate, meaning they have a score and
+a row in the weight panel after the \code{year} and \code{cell} filters.
 If more than 5 percent of filtered weight-panel employment has no matching
 measure score, the function reports the largest unmatched reference SOCs.
+OEWS publishes some detailed SOCs only inside combined codes such as
+\code{31-1120}, Home Health and Personal Care Aides. For OEWS panels from May 2021
+on, pass \code{bridge = onet_oews_bridge(measure, weight_panel)} to map O*NET
+occupations into those codes.
 }
 \examples{
 measure <- onet_measure(

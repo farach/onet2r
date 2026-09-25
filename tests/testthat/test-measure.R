@@ -416,6 +416,245 @@ test_that("onet_measure_aggregate requires a single weight period and cell", {
   expect_equal(filtered$covered_employment, 400)
 })
 
+stylized_combination_weights <- function() {
+  tibble::tibble(
+    reference_soc_code = c("31-1120", "29-1141"),
+    year = 2024L,
+    employment = c(300, 100),
+    weight_share = c(0.75, 0.25),
+    source = "OEWS",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+}
+
+stylized_combination_measure <- function() {
+  onet_measure(
+    tibble::tibble(
+      onet_soc_code = c("31-1121.00", "31-1122.00", "29-1141.00"),
+      score = c(0.2, 0.6, 0.9)
+    ),
+    "onet_soc_code",
+    "score",
+    measure_id = "stylized_bridge"
+  )
+}
+
+test_that("onet_measure_aggregate accepts a minimal O*NET-SOC to reference SOC bridge", {
+  measure <- stylized_combination_measure()
+  weights <- stylized_combination_weights()
+  bridge <- tibble::tibble(
+    from_onet_soc_code = c("31-1121.00", "31-1122.00", "29-1141.00"),
+    reference_soc_code = c("31-1120", "31-1120", "29-1141")
+  )
+
+  unbridged_messages <- capture_messages(
+    unbridged <- onet_measure_aggregate(measure, weights)
+  )
+  expect_match(paste(unbridged_messages, collapse = "\n"), "31-1120")
+  expect_match(paste(unbridged_messages, collapse = "\n"), "onet_oews_bridge")
+  expect_equal(unbridged$aggregate, 0.9)
+  expect_equal(unbridged$employment_coverage_share, 0.25)
+  expect_equal(unbridged$n_occupations, 1L)
+  expect_equal(unbridged$n_reference_soc, 1L)
+
+  expect_no_message(
+    result <- onet_measure_aggregate(measure, weights, bridge = bridge)
+  )
+  expect_equal(result$aggregate, 0.75 * 0.4 + 0.25 * 0.9)
+  expect_equal(result$covered_employment, 400)
+  expect_equal(result$employment_coverage_share, 1)
+  expect_equal(result$n_occupations, 3L)
+  expect_equal(result$n_reference_soc, 2L)
+  expect_identical(onet_provenance(result)$bridge_used, TRUE)
+  expect_equal(onet_provenance(result)$crosswalk_path, "custom bridge")
+})
+
+test_that("the unmatched report suggests onet_oews_bridge only for May 2021+ OEWS panels", {
+  measure <- stylized_combination_measure()
+  hint_for <- function(weights) {
+    messages <- capture_messages(onet_measure_aggregate(measure, weights))
+    grepl("onet_oews_bridge", paste(messages, collapse = "\n"), fixed = TRUE)
+  }
+  pums <- stylized_combination_weights()
+  pums$source <- "PUMS"
+  hybrid <- stylized_combination_weights()
+  hybrid$year <- 2020L
+
+  expect_true(hint_for(stylized_combination_weights()))
+  expect_false(hint_for(pums))
+  expect_false(hint_for(hybrid))
+})
+
+test_that("onet_measure_aggregate weights bridge rows and reports unbridged occupations", {
+  measure <- stylized_combination_measure()
+  weights <- stylized_combination_weights()
+  bridge <- tibble::tibble(
+    from_onet_soc_code = c("311121", "31-1122.00"),
+    reference_soc_code = c("31-1120", "311120"),
+    crosswalk_weight = c(3, 1)
+  )
+
+  messages <- capture_messages(
+    result <- onet_measure_aggregate(measure, weights, bridge = bridge)
+  )
+
+  expect_match(paste(messages, collapse = "\n"), "no row in")
+  expect_match(paste(messages, collapse = "\n"), "29-1141.00")
+  expect_equal(result$aggregate, (3 * 0.2 + 1 * 0.6) / 4)
+  expect_equal(result$covered_employment, 300)
+  expect_equal(result$n_occupations, 2L)
+  expect_equal(result$n_reference_soc, 1L)
+})
+
+test_that("onet_measure_aggregate accepts onet_crosswalk_bridge style bridges", {
+  measure <- onet_measure(
+    tibble::tibble(
+      onet_soc_code = c("15-1132.00", "15-1133.00", "29-1141.00"),
+      score = c(0.6, 0.8, 0.2)
+    ),
+    "onet_soc_code",
+    "score",
+    measure_id = "stylized_2010_codes"
+  )
+  weights <- tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141"),
+    year = 2024L,
+    employment = c(100, 300),
+    weight_share = c(0.25, 0.75),
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+  bridge <- tibble::tibble(
+    from_vintage = "2010",
+    to_vintage = "2019",
+    from_onet_soc_code = c("15-1132.00", "15-1133.00", "29-1141.00"),
+    to_onet_soc_code = c("15-1252.00", "15-1252.00", "29-1141.00"),
+    from_soc_code = c("15-1132", "15-1133", "29-1141"),
+    to_soc_code = c("15-1252", "15-1252", "29-1141"),
+    map_type = c("merge", "merge", "one_to_one"),
+    crosswalk_weight = 1
+  )
+
+  result <- onet_measure_aggregate(measure, weights, bridge = bridge)
+
+  expect_equal(result$aggregate, 0.25 * 0.7 + 0.75 * 0.2)
+  expect_equal(result$employment_coverage_share, 1)
+  expect_equal(result$n_occupations, 3L)
+  expect_equal(result$n_reference_soc, 2L)
+  expect_equal(onet_provenance(result)$crosswalk_path, "2010 -> 2019")
+})
+
+test_that("onet_measure_aggregate rejects malformed bridges", {
+  measure <- stylized_combination_measure()
+  weights <- stylized_combination_weights()
+
+  expect_error(
+    onet_measure_aggregate(measure, weights, bridge = tibble::tibble(code = "31-1121.00")),
+    "must map O\\*NET-SOC codes"
+  )
+  expect_error(
+    onet_measure_aggregate(measure, weights, bridge = "31-1120"),
+    "must be a data frame"
+  )
+  expect_error(
+    onet_measure_aggregate(
+      measure,
+      weights,
+      bridge = tibble::tibble(
+        from_onet_soc_code = "31-1121.00",
+        reference_soc_code = "31-1120",
+        crosswalk_weight = -1
+      )
+    ),
+    "must not be negative"
+  )
+})
+
+test_that("onet_measure_aggregate coverage counts follow the year and cell filters", {
+  scores <- tibble::tibble(
+    onet_soc_code = c("15-1252.00", "15-1252.01", "29-1141.00", "11-1011.00"),
+    measure_score = c(0.7, 0.5, 0.2, 0.9)
+  )
+  weights <- tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141", "29-1141", "15-1252"),
+    state = c("WA", "WA", "OR", "OR"),
+    year = c(2024L, 2024L, 2024L, 2025L),
+    employment = c(100, 300, 50, 80),
+    weight_share = c(0.25, 0.75, 1, 1),
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+
+  washington <- onet_measure_aggregate(
+    scores,
+    weights,
+    measure_id = "stylized_counts",
+    year = 2024,
+    cell = list(state = "WA")
+  )
+  oregon <- onet_measure_aggregate(
+    scores,
+    weights,
+    measure_id = "stylized_counts",
+    year = 2024,
+    cell = list(state = "OR")
+  )
+
+  expect_equal(washington$aggregate, 0.25 * 0.6 + 0.75 * 0.2)
+  expect_equal(washington$n_occupations, 3L)
+  expect_equal(washington$n_reference_soc, 2L)
+  expect_equal(oregon$aggregate, 0.2)
+  expect_equal(oregon$n_occupations, 1L)
+  expect_equal(oregon$n_reference_soc, 1L)
+  expect_equal(onet_coverage(oregon)$n_occupations, 1L)
+})
+
+test_that("onet_measure_aggregate treats missing scores as unmatched employment", {
+  scores <- tibble::tibble(
+    onet_soc_code = c("15-1252.00", "29-1141.00"),
+    measure_score = c(0.7, NA)
+  )
+  weights <- tibble::tibble(
+    reference_soc_code = c("15-1252", "29-1141"),
+    year = 2024L,
+    employment = c(100, 300),
+    weight_share = c(0.25, 0.75),
+    source = "fixture",
+    source_taxonomy = "2018 SOC",
+    reference_taxonomy = "2018 SOC"
+  )
+
+  expect_message(
+    result <- onet_measure_aggregate(scores, weights, measure_id = "stylized_missing"),
+    "29-1141"
+  )
+  expect_equal(result$aggregate, 0.7)
+  expect_equal(result$employment_coverage_share, 0.25)
+  expect_equal(result$n_occupations, 1L)
+  expect_equal(result$n_reference_soc, 1L)
+})
+
+test_that("onet_measure_sensitivity compares bridge scenarios", {
+  measure <- stylized_combination_measure()
+  weights <- stylized_combination_weights()
+  bridge <- suppressMessages(onet_oews_bridge(measure, weights))
+
+  result <- suppressMessages(onet_measure_sensitivity(
+    measure,
+    weight_panels = list(oews = weights),
+    bridges = list(no_bridge = NULL, oews_combinations = bridge)
+  ))
+
+  expect_equal(nrow(result), 2L)
+  expect_equal(result$bridge, c("no_bridge", "oews_combinations"))
+  expect_equal(result$employment_coverage_share, c(0.25, 1))
+  expect_equal(result$aggregate, c(0.9, 0.525))
+  expect_equal(onet_provenance(result)$bridge_used, c(FALSE, TRUE))
+})
+
 test_that("onet_measure_sensitivity compares occupation plumbing scenarios", {
   scores <- tibble::tibble(
     onet_soc_code = c("15-1252.00", "29-1141.00"),

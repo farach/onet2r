@@ -154,6 +154,203 @@ onet_weight_panel_oews <- function(
   weight_panel_summarise(out, year, "OEWS")
 }
 
+#' Bridge O&#42;NET Occupations to OEWS Reference Codes
+#'
+#' Builds a bridge from O&#42;NET-SOC codes to the reference SOC codes of an OEWS
+#' weight panel, including the combined codes OEWS publishes in place of some
+#' detailed SOC occupations. Pass the result to the `bridge` argument of
+#' [onet_measure_aggregate()] or [onet_measure_sensitivity()].
+#'
+#' @param occupations O&#42;NET-SOC codes to bridge: a character vector, a data
+#'   frame with an `occupation_code` column, or an occupation-level
+#'   [onet_measure()]. Usually the occupation scores you are aggregating.
+#' @param weight_panel A weight panel from [onet_weight_panel_oews()] built from
+#'   May 2021 or later OEWS estimates, or any data frame with
+#'   `reference_soc_code` and `year` columns. National, state, metropolitan, and
+#'   industry panels all work.
+#' @param occupation_code Occupation code column when `occupations` is a data
+#'   frame.
+#'
+#' @return A tibble with one row per O&#42;NET-SOC code and columns
+#'   `from_onet_soc_code`, `from_soc_code`, `reference_soc_code`, `map_type`,
+#'   `crosswalk_weight`, and `crosswalk_path`. `map_type` is `"direct"` when
+#'   the occupation's SOC is in the panel, `"oews_combination"` when OEWS
+#'   publishes the occupation inside a combined code that is in the panel, and
+#'   `"not_in_panel"` otherwise. Rows other than `"oews_combination"` keep the
+#'   occupation's own SOC as `reference_soc_code`, so aggregation treats them as
+#'   it would without a bridge. [onet_provenance()] reports `crosswalk_path` for
+#'   aggregates that use the bridge.
+#'
+#' @details
+#' Beginning with the May 2021 estimates, OEWS publishes most detailed 2018 SOC
+#' occupations but combines some of them, either at the broad-occupation level
+#' (for example `31-1120`, Home Health and Personal Care Aides, which holds
+#' `31-1121` and `31-1122`) or as OEWS-specific codes (for example `25-9045`,
+#' Teaching Assistants, Except Postsecondary). Without a bridge, O&#42;NET
+#' occupations inside those codes cannot match the panel, and their employment
+#' is left out of `covered_employment`.
+#'
+#' The bridge uses the 12 combined codes, and the SOC occupations each one
+#' includes, listed in the BLS May 2021 OEWS occupation definitions. The May
+#' 2023 through May 2025 national files publish the same 12 codes. Because the
+#' list comes from those definitions rather than from the rows of
+#' `weight_panel`, an occupation missing from a state, metropolitan, or industry
+#' panel, for example because its estimate is suppressed, is never merged into a
+#' neighboring combined code. It stays `"not_in_panel"`.
+#'
+#' Occupations inside one combination are averaged with equal weight, the same
+#' way [onet_measure_aggregate()] averages several O&#42;NET detail codes that
+#' share one SOC. OEWS publishes no employment split among them.
+#'
+#' May 2019 and May 2020 OEWS estimates use a hybrid of the 2010 and 2018 SOC
+#' with different combined codes, and earlier estimates use older SOC versions,
+#' so `weight_panel` must contain only years from 2021 on. Build a bridge by
+#' hand for earlier panels.
+#' @export
+#'
+#' @examples
+#' weights <- tibble::tibble(
+#'   reference_soc_code = c("29-1141", "31-1120"),
+#'   year = 2024L,
+#'   employment = c(3000, 4000),
+#'   weight_share = c(3, 4) / 7,
+#'   source = "OEWS",
+#'   source_taxonomy = "2018 SOC",
+#'   reference_taxonomy = "2018 SOC"
+#' )
+#' # Stylized scores for illustration only.
+#' scores <- tibble::tibble(
+#'   onet_soc_code = c("29-1141.00", "31-1121.00", "31-1122.00"),
+#'   measure_score = c(0.2, 0.4, 0.6)
+#' )
+#' bridge <- onet_oews_bridge(scores, weights)
+#' bridge
+#' onet_measure_aggregate(scores, weights, bridge = bridge, measure_id = "stylized")
+onet_oews_bridge <- function(
+    occupations,
+    weight_panel,
+    occupation_code = "onet_soc_code") {
+  codes <- oews_bridge_codes(occupations, occupation_code)
+  validate_columns_present(weight_panel, c("reference_soc_code", "year"), "weight_panel")
+  validate_oews_bridge_years(weight_panel$year)
+
+  panel_codes <- unique(standardize_soc_code(weight_panel$reference_soc_code))
+  panel_codes <- panel_codes[!is.na(panel_codes)]
+  parts <- oews_combination_parts()
+  parts <- parts[parts$reference_soc_code %in% panel_codes, , drop = FALSE]
+
+  from_soc <- standardize_soc_code(codes)
+  combined_into <- parts$reference_soc_code[match(from_soc, parts$part_soc_code)]
+  map_type <- dplyr::case_when(
+    from_soc %in% panel_codes ~ "direct",
+    !is.na(combined_into) ~ "oews_combination",
+    .default = "not_in_panel"
+  )
+  combined <- map_type == "oews_combination"
+  reference_soc_code <- from_soc
+  reference_soc_code[combined] <- combined_into[combined]
+
+  if (any(combined)) {
+    targets <- sort(unique(reference_soc_code[combined]))
+    cli::cli_inform(
+      "Mapped {sum(combined)} O*NET occupation{?s} into {length(targets)} OEWS combination code{?s}: {.val {targets}}."
+    )
+  }
+
+  taxonomy <- if ("reference_taxonomy" %in% names(weight_panel)) {
+    collapse_unique(weight_panel$reference_taxonomy)
+  } else {
+    NA_character_
+  }
+  if (is.na(taxonomy)) {
+    taxonomy <- "OEWS SOC"
+  }
+
+  out <- tibble::tibble(
+    from_onet_soc_code = codes,
+    from_soc_code = from_soc,
+    reference_soc_code = reference_soc_code,
+    map_type = map_type,
+    crosswalk_weight = rep(1, length(codes)),
+    crosswalk_path = rep(
+      paste0("O*NET-SOC -> ", taxonomy, " with OEWS combinations"),
+      length(codes)
+    )
+  )
+  out[order(out$from_onet_soc_code), , drop = FALSE]
+}
+
+oews_bridge_codes <- function(occupations, occupation_code) {
+  if (inherits(occupations, "onet_measure")) {
+    if (!identical(occupations$metadata$key_type, "occupation")) {
+      cli::cli_abort(c(
+        "{.arg occupations} must be an occupation-level {.cls onet_measure}.",
+        "i" = "Roll task measures up with {.fun onet_task_to_occupation} first."
+      ))
+    }
+    codes <- occupations$data$measure_key
+  } else if (is.data.frame(occupations)) {
+    validate_single_string(occupation_code, "occupation_code")
+    if (!occupation_code %in% names(occupations)) {
+      cli::cli_abort(
+        "{.arg occupation_code} must name a column in {.arg occupations}: {.val {occupation_code}} was not found."
+      )
+    }
+    codes <- occupations[[occupation_code]]
+  } else if (is.character(occupations)) {
+    codes <- occupations
+  } else {
+    cli::cli_abort(
+      "{.arg occupations} must be a character vector of O*NET-SOC codes, a data frame, or an occupation-level {.cls onet_measure}."
+    )
+  }
+  codes <- standardize_onet_soc_code(as.character(codes))
+  unique(codes[!is.na(codes) & nzchar(codes)])
+}
+
+validate_oews_bridge_years <- function(year) {
+  years <- suppressWarnings(as.integer(year))
+  if (length(years) == 0) {
+    cli::cli_abort("{.arg weight_panel} has no rows.")
+  }
+  if (anyNA(years) || any(years < 2021L)) {
+    found <- unique(ifelse(is.na(years), "NA", as.character(years)))
+    cli::cli_abort(c(
+      "{.arg weight_panel} must contain only OEWS estimate years from 2021 on.",
+      "x" = "Years found: {.val {found}}.",
+      "i" = "OEWS has used the same combined codes since May 2021. May 2019 and May 2020 use hybrid 2010/2018 SOC combinations, and earlier years use older SOC versions.",
+      "i" = "Build a bridge by hand for earlier years."
+    ))
+  }
+  invisible(years)
+}
+
+# OEWS codes that combine detailed 2018 SOC occupations, with the occupations
+# each one includes, from the BLS May 2021 OEWS occupation definitions
+# (occupation_definitions_m2021.xlsx). The May 2023 through May 2025 national
+# files publish the same 12 codes. See docs/DATA_NOTES.md.
+oews_combination_parts <- function() {
+  parts <- list(
+    `13-1020` = c("13-1021", "13-1022", "13-1023"),
+    `13-2020` = c("13-2022", "13-2023"),
+    `21-1018` = c("21-1011", "21-1014"),
+    `25-2052` = c("25-2055", "25-2056"),
+    # BLS also lists the 2010 SOC occupation 25-9041 Teacher Assistants.
+    `25-9045` = c("25-9041", "25-9042", "25-9043", "25-9049"),
+    `29-2010` = c("29-2011", "29-2012"),
+    `31-1120` = c("31-1121", "31-1122"),
+    `39-7010` = c("39-7011", "39-7012"),
+    `47-4090` = c("47-4091", "47-4099"),
+    `51-2028` = c("51-2022", "51-2023"),
+    `51-2090` = c("51-2092", "51-2099"),
+    `53-1047` = c("53-1042", "53-1043", "53-1044", "53-1049")
+  )
+  tibble::tibble(
+    reference_soc_code = rep(names(parts), lengths(parts)),
+    part_soc_code = unlist(parts, use.names = FALSE)
+  )
+}
+
 #' Create a PUMS Weight Panel
 #'
 #' @param pums ACS PUMS microdata or already-filtered person records.
