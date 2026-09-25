@@ -561,6 +561,7 @@
 <td align="left">2018 SOC -&gt; 2018 SOC</td>
 </tr></tbody>
 </table>
+<p>OEWS publishes a few occupations only as combined codes, such as <code>31-1120</code> Home Health and Personal Care Aides. Build a bridge with <code>onet_oews_bridge(occupation_scores, weights)</code> and pass it as <code>bridge</code> to <code><a href="reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code> so O*NET occupations inside those codes count toward coverage.</p>
 </div>
 <div class="section level2">
 <h2 id="stress-test-the-plumbing">Stress Test the Plumbing<a class="anchor" aria-label="anchor" href="#stress-test-the-plumbing"></a>
@@ -716,8 +717,8 @@
 </h2>
 <ul>
 <li>Current O*NET API data: <code><a href="reference/onet_search.html">onet_search()</a></code>, <code><a href="reference/onet_occupation.html">onet_occupation()</a></code>, <code><a href="reference/onet_skills.html">onet_skills()</a></code>, <code><a href="reference/onet_tasks.html">onet_tasks()</a></code>, <code><a href="reference/onet_table.html">onet_table()</a></code>.</li>
-<li>Archived O*NET data: <code><a href="reference/onet_releases.html">onet_releases()</a></code>, <code><a href="reference/onet_archive_download.html">onet_archive_download()</a></code>, <code><a href="reference/onet_archive_read.html">onet_archive_read()</a></code>, <code><a href="reference/onet_panel.html">onet_panel()</a></code>, <code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code>.</li>
-<li>Wage and employment context: <code><a href="reference/onet_oews_national.html">onet_oews_national()</a></code>, <code><a href="reference/onet_weight_panel_oews.html">onet_weight_panel_oews()</a></code>, <code><a href="reference/onet_weight_panel_pums.html">onet_weight_panel_pums()</a></code>.</li>
+<li>Archived O*NET data: <code><a href="reference/onet_releases.html">onet_releases()</a></code>, <code><a href="reference/onet_archive_download.html">onet_archive_download()</a></code>, <code><a href="reference/onet_archive_read.html">onet_archive_read()</a></code>, <code><a href="reference/onet_archive_reference.html">onet_archive_reference()</a></code>, <code><a href="reference/onet_panel.html">onet_panel()</a></code>, <code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code>.</li>
+<li>Wage and employment context: <code><a href="reference/onet_oews_national.html">onet_oews_national()</a></code>, <code><a href="reference/onet_weight_panel_oews.html">onet_weight_panel_oews()</a></code>, <code><a href="reference/onet_oews_bridge.html">onet_oews_bridge()</a></code>, <code><a href="reference/onet_weight_panel_pums.html">onet_weight_panel_pums()</a></code>.</li>
 <li>User-measure plumbing: <code><a href="reference/onet_measure.html">onet_measure()</a></code>, <code><a href="reference/onet_task_to_occupation.html">onet_task_to_occupation()</a></code>, <code><a href="reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code>, <code><a href="reference/onet_measure_sensitivity.html">onet_measure_sensitivity()</a></code>, <code><a href="reference/onet_provenance.html">onet_provenance()</a></code>, <code><a href="reference/onet_coverage.html">onet_coverage()</a></code>, <code><a href="reference/onet_decompose_change.html">onet_decompose_change()</a></code>.</li>
 </ul>
 </div>

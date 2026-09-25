@@ -244,6 +244,13 @@ onet_provenance(aggregate) |>
 |:--------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
 | stylized_task_score | 30.3            | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
+OEWS publishes a few occupations only as combined codes, such as
+`31-1120` Home Health and Personal Care Aides. Build a bridge with
+`onet_oews_bridge(occupation_scores, weights)` and pass it as `bridge`
+to
+[`onet_measure_aggregate()`](https://farach.github.io/onet2r/dev/reference/onet_measure_aggregate.md)
+so O\*NET occupations inside those codes count toward coverage.
+
 ## Stress Test the Plumbing
 
 ``` r
@@ -340,11 +347,13 @@ onet_coverage(decomp) |>
   [`onet_releases()`](https://farach.github.io/onet2r/dev/reference/onet_releases.md),
   [`onet_archive_download()`](https://farach.github.io/onet2r/dev/reference/onet_archive_download.md),
   [`onet_archive_read()`](https://farach.github.io/onet2r/dev/reference/onet_archive_read.md),
+  [`onet_archive_reference()`](https://farach.github.io/onet2r/dev/reference/onet_archive_reference.md),
   [`onet_panel()`](https://farach.github.io/onet2r/dev/reference/onet_panel.md),
   [`onet_panel_reconcile()`](https://farach.github.io/onet2r/dev/reference/onet_panel_reconcile.md).
 - Wage and employment context:
   [`onet_oews_national()`](https://farach.github.io/onet2r/dev/reference/onet_oews_national.md),
   [`onet_weight_panel_oews()`](https://farach.github.io/onet2r/dev/reference/onet_weight_panel_oews.md),
+  [`onet_oews_bridge()`](https://farach.github.io/onet2r/dev/reference/onet_oews_bridge.md),
   [`onet_weight_panel_pums()`](https://farach.github.io/onet2r/dev/reference/onet_weight_panel_pums.md).
 - User-measure plumbing:
   [`onet_measure()`](https://farach.github.io/onet2r/dev/reference/onet_measure.md),

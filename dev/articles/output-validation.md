@@ -105,7 +105,7 @@ aggregate |>
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
 |:---------------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
-| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 4             | 4               |
+| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 3             | 3               |
 
 ## Example: Live Validation Status
 

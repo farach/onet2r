@@ -4,6 +4,28 @@
 
 ### New features
 
+- [`onet_oews_bridge()`](https://farach.github.io/onet2r/dev/reference/onet_oews_bridge.md)
+  maps O\*NET-SOC codes into the 12 combined codes OEWS has published
+  since May 2021 in place of some detailed occupations, such as
+  `31-1120` Home Health and Personal Care Aides and `25-9045` Teaching
+  Assistants, Except Postsecondary. Pass it as `bridge` to
+  [`onet_measure_aggregate()`](https://farach.github.io/onet2r/dev/reference/onet_measure_aggregate.md)
+  or
+  [`onet_measure_sensitivity()`](https://farach.github.io/onet2r/dev/reference/onet_measure_sensitivity.md).
+  The mapping comes from the BLS occupation definitions, so it is the
+  same for national, state, metropolitan, and industry panels, and
+  panels from before May 2021 are rejected. With O\*NET 31.0 task
+  ratings and May 2025 national OEWS weights, it raises covered
+  employment from about 92 percent to about 98 percent, and Healthcare
+  Support from about 46 percent to 100 percent (reported in the
+  task-time EDA review).
+- [`onet_archive_reference()`](https://farach.github.io/onet2r/dev/reference/onet_archive_reference.md)
+  reads O\*NET archive reference tables such as `GWAs to IWAs to DWAs`,
+  `Scales Reference`, and `Task Categories`, which have no O\*NET-SOC
+  column and cannot be read by
+  [`onet_archive_read()`](https://farach.github.io/onet2r/dev/reference/onet_archive_read.md).
+  In the text archives, DWA titles and scale names appear only in those
+  tables (reported in the task-time EDA review).
 - [`onet_resurvey_panel()`](https://farach.github.io/onet2r/dev/reference/onet_resurvey_panel.md)
   restructures a Task Ratings panel into a task by resurvey-cycle frame
   keyed on the incumbent-survey `source_date`, exposing the occupation
@@ -61,6 +83,29 @@
 
 ### Bug fixes
 
+- [`onet_oews()`](https://farach.github.io/onet2r/dev/reference/onet_oews.md)
+  now finds a browser-downloaded OEWS ZIP by checking its exact file
+  name and numbered copies, such as `oesm25nat (1).zip`, before listing
+  the folder. On Windows,
+  [`list.files()`](https://rdrr.io/r/base/list.files.html) can stop
+  early without an error when the R session cannot represent another
+  file name in the folder, so the Downloads fallback could miss ZIPs
+  that were there (reported in the task-time EDA review).
+- [`onet_measure_aggregate()`](https://farach.github.io/onet2r/dev/reference/onet_measure_aggregate.md)
+  now accepts a minimal `bridge` with `from_onet_soc_code` and
+  `reference_soc_code` columns, as documented, instead of failing with a
+  tibble recycling error. Bridge codes and measure keys are standardized
+  before the join, a negative `crosswalk_weight` is rejected, and
+  measure occupations without a bridge row are reported instead of
+  silently left out (reported in the task-time EDA review).
+- [`onet_measure_aggregate()`](https://farach.github.io/onet2r/dev/reference/onet_measure_aggregate.md)
+  now counts `n_occupations` and `n_reference_soc` over the occupations
+  and reference SOCs that contribute to the aggregate after the `year`
+  and `cell` filters. They previously counted every measure key, so
+  every cell of a multi-cell panel reported the national count.
+  Employment of reference SOCs whose score is missing now counts toward
+  the unmatched-employment report (reported in the task-time EDA
+  review).
 - `onet_known_seams()` no longer includes a v21.0 / 2016-08-01 row. This
   corrects unsupported default metadata: independent verification found
   no evidence that O\*NET v21.0 is a proven global content or method
@@ -122,6 +167,15 @@
 
 ### Improvements
 
+- [`onet_archive_read()`](https://farach.github.io/onet2r/dev/reference/onet_archive_read.md)
+  now points reference tables without an O\*NET-SOC column to
+  [`onet_archive_reference()`](https://farach.github.io/onet2r/dev/reference/onet_archive_reference.md),
+  and for May 2021 or later OEWS panels the unmatched-employment report
+  from
+  [`onet_measure_aggregate()`](https://farach.github.io/onet2r/dev/reference/onet_measure_aggregate.md)
+  suggests
+  [`onet_oews_bridge()`](https://farach.github.io/onet2r/dev/reference/onet_oews_bridge.md)
+  when no bridge was supplied.
 - Cached API responses are written atomically and corrupt RDS files now
   fail with a specific cache-clear instruction instead of falling
   through to network access.

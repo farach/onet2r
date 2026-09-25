@@ -63,6 +63,41 @@ The output has one row per occupation, element, scale, and release. The
 important longitudinal fields are `release_version`, `soc_vintage`,
 `onet_soc_code`, `data_value`, `source_date`, and `domain_source`.
 
+## Look Up Names in Reference Tables
+
+The text archives keep repeated names out of their linking and rating
+files. In the 30.2, 30.3, and 31.0 text archives, `Tasks to DWAs.txt`
+carries DWA IDs but no DWA titles, and `Task Ratings.txt` carries task
+IDs but no task text. Task text comes from `Task Statements`, which
+[`onet_archive_read()`](https://farach.github.io/onet2r/dev/reference/onet_archive_read.md)
+reads. DWA titles and scale names live in reference tables that have no
+O\*NET-SOC column, which
+[`onet_archive_reference()`](https://farach.github.io/onet2r/dev/reference/onet_archive_reference.md)
+reads with their published columns.
+
+``` r
+dwa_titles <- onet_archive_reference(
+  "30.3",
+  "GWAs to IWAs to DWAs",
+  path = example_archive("30.3"),
+  release_date = "2026-05-01"
+)
+
+dwa_titles |>
+  select(dwa_element_id, dwa_element_name, iwa_element_id) |>
+  knitr::kable(align = "l")
+```
+
+| dwa_element_id | dwa_element_name                              | iwa_element_id |
+|:---------------|:----------------------------------------------|:---------------|
+| 4.A.2.a.1.a.1  | Analyze data to inform operational decisions. | 4.A.2.a.1.a    |
+| 4.A.4.a.4.a.1  | Prepare technical reports.                    | 4.A.4.a.4.a    |
+| 4.A.2.a.3.a.1  | Monitor health or safety conditions.          | 4.A.2.a.3.a    |
+
+Join them to a linking table by `dwa_element_id`. The same reader
+returns `Scales Reference`, `Task Categories`, `Job Zones`, and the
+other lookup files.
+
 ## Assemble a Same-Vintage Panel
 
 [`onet_panel()`](https://farach.github.io/onet2r/dev/reference/onet_panel.md)
