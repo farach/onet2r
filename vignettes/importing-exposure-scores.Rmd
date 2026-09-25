@@ -1,0 +1,305 @@
+---
+title: "Importing Published Exposure Scores"
+output: rmarkdown::html_vignette
+bibliography: ../inst/REFERENCES.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Importing Published Exposure Scores}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+options(tibble.print_min = 4, tibble.print_max = 8)
+options(
+  cli.num_colors = 1,
+  crayon.enabled = FALSE,
+  pillar.bold = FALSE,
+  pillar.subtle = FALSE
+)
+```
+
+```{r setup, include = FALSE}
+library(onet2r)
+library(dplyr)
+helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
+  "inst/vignette-helpers.R",
+  "../inst/vignette-helpers.R",
+  "vignette-helpers.R"
+)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
+
+archive_303 <- onet2r_inst_path("extdata", "onet-mini", "db_30_3_text")
+oews_path <- onet2r_inst_path("extdata", "oews-national-sample.csv")
+```
+
+`onet2r` does not ship or endorse an exposure measure. When you want to work
+with a published one, two adapters read the authors' occupation-level files and
+turn them into the same task-grain `onet_measure()` object that a hand-built
+score would produce:
+
+- `onet_import_eloundou()` reads the GPT exposure table from Eloundou et al.
+  [-@eloundou2023gpts], keyed on 8-digit O&#42;NET-SOC codes.
+- `onet_import_felten_aioe()` reads the AI Occupational Exposure (AIOE) scores
+  from Felten, Raj, and Seamans [-@felten2021aioe], keyed on 6-digit SOC codes.
+
+Both are thin adapters. They select a score column, standardize the occupation
+code, join it to the tasks of a panel you supply, and record where the file came
+from. They do not rescale, average, or otherwise transform the published values,
+and the package never bundles the files.
+
+<div class="onet-callout onet-callout-warning">
+<strong>Stylized values.</strong>
+To keep this article offline, it writes small local extracts with the published
+column names and made-up values. None of the numbers below are the published
+exposure scores.
+</div>
+
+## Choose the Task Panel
+
+The panel sets the grain of the result: every distinct occupation and task pair
+in it receives a score. Here it comes from the relevance ratings of a pinned
+release in the bundled fixtures.
+
+```{r task-panel}
+tasks <- onet_archive_read(
+  "30.3",
+  "Task Statements",
+  path = archive_303,
+  release_date = "2026-05-01"
+)
+ratings <- onet_archive_read(
+  "30.3",
+  "Task Ratings",
+  path = archive_303,
+  release_date = "2026-05-01"
+)
+
+task_panel <- distinct(ratings, onet_soc_code, task_id)
+
+task_panel |>
+  knitr::kable(align = "l")
+```
+
+## Import an Occupation-Level Score
+
+```{r stylized-extract}
+eloundou_extract <- tempfile(fileext = ".csv")
+utils::write.csv(
+  data.frame(
+    `O*NET-SOC Code` = c("15-1252.00", "29-1141.00", "11-1011.00"),
+    human_rating_beta = c(0.60, 0.20, 0.40),
+    dv_rating_beta = c(0.70, 0.30, 0.50),
+    check.names = FALSE
+  ),
+  eloundou_extract,
+  row.names = FALSE
+)
+
+exposure <- onet_import_eloundou(
+  task_panel,
+  path = eloundou_extract,
+  score = "human_rating_beta",
+  as_of = "stylized extract for this article",
+  release_version = "30.3"
+)
+
+exposure$data |>
+  select(onet_soc_code, task_id, measure_key, measure_score) |>
+  knitr::kable(digits = 3, align = "l")
+```
+
+Every task inherits its occupation's published score. Both Software Developers
+tasks get the same value, because the source is occupation-level. This is the
+structurally blind construction that task-aware measures are usually contrasted
+against, so treat it as a benchmark rather than a task-level estimate. The
+published file offers several definitions, such as `human_rating_beta` and the
+model-labeled `dv_rating_beta`; `score` selects one, and choosing it is your
+decision.
+
+## Check the Source Receipt
+
+Each imported measure records a receipt with the file's SHA-256 digest, size,
+retrieval time, and any `as_of` label.
+
+```{r receipt}
+receipt <- exposure$metadata$source_receipt
+
+tibble::tibble(
+  field = c("provenance_status", "as_of", "file_size", "actual_sha256"),
+  value = c(
+    receipt$provenance_status,
+    receipt$as_of,
+    format(receipt$file_size),
+    receipt$actual_sha256
+  )
+) |>
+  knitr::kable(align = "l")
+```
+
+Record the digest the first time you read a file, and pass it back as
+`expected_sha256` in later runs. A changed file is rejected before it is parsed.
+
+```{r digest-check}
+recorded_digest <- receipt$actual_sha256
+
+verified <- onet_import_eloundou(
+  task_panel,
+  path = eloundou_extract,
+  expected_sha256 = recorded_digest,
+  release_version = "30.3"
+)
+rejected <- tryCatch(
+  onet_import_eloundou(
+    task_panel,
+    path = eloundou_extract,
+    expected_sha256 = strrep("0", 64)
+  ),
+  error = conditionMessage
+)
+
+tibble::tibble(
+  check = c("Recorded digest accepted", "Wrong digest rejected"),
+  result = c(
+    inherits(verified, "onet_measure"),
+    grepl("digest mismatch", rejected, fixed = TRUE)
+  )
+) |>
+  knitr::kable(align = "l")
+```
+
+## Roll Up and Weight
+
+The imported object is an ordinary task-grain measure, so the usual plumbing
+applies.
+
+```{r rollup}
+occupation_exposure <- onet_task_to_occupation(
+  exposure,
+  task_ratings = ratings,
+  task_metadata = tasks
+)
+
+occupation_exposure |>
+  select(onet_soc_code, n_tasks, total_task_weight, measure_score) |>
+  knitr::kable(digits = 3, align = "l")
+
+weights <- onet_weight_panel_oews(
+  onet_oews_national(2024, path = oews_path),
+  year = 2024
+)
+
+national <- onet_measure_aggregate(occupation_exposure, weights)
+
+national |>
+  select(-coverage, -provenance) |>
+  knitr::kable(digits = 3, align = "l")
+```
+
+Because every task of an occupation carries the same score, the rollup returns
+the published occupation score for each occupation with rated core tasks. Chief
+Executives have a score in the extract but no tasks in the fixture panel, so
+their employment stays in the denominator as unmatched, and coverage is below 1.
+
+## Compare Definitions and Sources
+
+```{r compare-sources}
+model_exposure <- onet_import_eloundou(
+  task_panel,
+  path = eloundou_extract,
+  score = "dv_rating_beta",
+  measure_id = "eloundou_dv_beta",
+  release_version = "30.3"
+)
+
+felten_extract <- tempfile(fileext = ".csv")
+utils::write.csv(
+  data.frame(
+    `SOC Code` = c("15-1252", "29-1141", "11-1011"),
+    AIOE = c(1.10, -0.30, 0.80),
+    check.names = FALSE
+  ),
+  felten_extract,
+  row.names = FALSE
+)
+aioe <- onet_import_felten_aioe(
+  task_panel,
+  path = felten_extract,
+  release_version = "30.3"
+)
+
+aggregate_measure <- function(measure) {
+  measure |>
+    onet_task_to_occupation(task_ratings = ratings, task_metadata = tasks) |>
+    onet_measure_aggregate(weights)
+}
+
+list(
+  `Human-rated beta` = exposure,
+  `Model-rated beta` = model_exposure,
+  AIOE = aioe
+) |>
+  purrr::map(aggregate_measure) |>
+  purrr::list_rbind(names_to = "source") |>
+  select(source, measure_id, aggregate, employment_coverage_share) |>
+  knitr::kable(digits = 3, align = "l")
+```
+
+The AIOE adapter joins on the 6-digit SOC code, so every O&#42;NET detail code
+under one SOC inherits the same score. The two sources are on different scales:
+the beta scores are shares of exposed tasks, while AIOE is a standardized index.
+Compare orderings across sources, not levels.
+
+## Occupations without a Score
+
+Tasks whose occupation has no score in the file are dropped with a warning
+rather than scored as zero.
+
+```{r unmatched-occupation}
+partial_panel <- tibble::tibble(
+  onet_soc_code = c("15-1252.00", "51-2092.00"),
+  task_id = c("1001", "9001")
+)
+
+partial <- onet_import_eloundou(partial_panel, path = eloundou_extract)
+
+partial$data |>
+  select(onet_soc_code, task_id, measure_score) |>
+  knitr::kable(digits = 3, align = "l")
+```
+
+## Reading the Published Files
+
+With no `path`, each adapter downloads the authors' file from a URL pinned to a
+specific commit and caches it in the `reference` section of the package cache.
+Pinning the digest and an `as_of` label makes a rerun fail loudly if the source
+ever changes.
+
+```{r online-import, eval = FALSE}
+exposure <- onet_import_eloundou(
+  task_panel,
+  as_of = "GPTs-are-GPTs commit 0471612",
+  expected_sha256 = "<digest recorded on first download>"
+)
+
+aioe <- onet_import_felten_aioe(task_panel)
+
+# Remove cached reference downloads.
+onet_cache_clear(what = "reference")
+```
+
+The Eloundou et al. table is distributed under the MIT License. The AIOE workbook
+is provided for research use. Cite the source papers when you use either score.
+
+## References

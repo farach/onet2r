@@ -1,7 +1,8 @@
-% onet2r longitudinal module: verified references
-% Entries below correspond to the verified sections of the longitudinal
-% further-reading guide. Adjacent cross-system tools are intentionally omitted
-% until they are verified to citation standard.
+% onet2r articles: verified references
+% Entries below correspond to verified sources cited in the package articles,
+% including the longitudinal further-reading guide and the published exposure
+% sources read by the import adapters. Adjacent cross-system tools are
+% intentionally omitted until they are verified to citation standard.
 
 @article{hosseinioun2025skill,
  author = {Hosseinioun, Moh and Neffke, Frank and Zhang, Letian and Youn, Hyejin},
@@ -124,4 +125,25 @@
  howpublished = {O*NET Resource Center},
  url = {https://www.onetcenter.org/taxonomy.html},
  note = {The official consecutive crosswalks that the bridge layer composes}
+}
+
+@misc{eloundou2023gpts,
+ author = {Eloundou, Tyna and Manning, Sam and Mishkin, Pamela and Rock, Daniel},
+ title = {{GPTs} are {GPTs}: An Early Look at the Labor Market Impact Potential of Large Language Models},
+ year = {2023},
+ howpublished = {arXiv:2303.10130},
+ url = {https://arxiv.org/abs/2303.10130},
+ note = {Source of the occupation-level exposure table read by onet_import_eloundou(), pinned to commit 0471612 of the authors' GPTs-are-GPTs repository. A revised version appeared in Science 384(6702):1306--1308 (2024), doi:10.1126/science.adj0998}
+}
+
+@article{felten2021aioe,
+ author = {Felten, Edward and Raj, Manav and Seamans, Robert},
+ title = {Occupational, industry, and geographic exposure to artificial intelligence: A novel dataset and its potential uses},
+ journal = {Strategic Management Journal},
+ year = {2021},
+ volume = {42},
+ number = {12},
+ pages = {2195--2217},
+ doi = {10.1002/smj.3286},
+ note = {Source of the AI Occupational Exposure (AIOE) scores read by onet_import_felten_aioe()}
 }

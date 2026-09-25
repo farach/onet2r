@@ -164,7 +164,9 @@ analyst-rated domains are therefore not independent re-measurements; treat
 small movements as measurement persistence, not signal. The official
 [Longitudinal Data Updates record](https://www.onetcenter.org/dataUpdates.html)
 (see `onet_data_updates()`) tells you which occupations were actually re-rated
-in each cycle.
+in each cycle. For Task Ratings, `onet_resurvey_panel()` and
+`onet_condition_on_resurvey()` turn the source dates into a survey clock and an
+at-risk set; see `vignette("resurvey-and-content-change", package = "onet2r")`.
 
 ## How This Differs from the Standard Task Approach
 

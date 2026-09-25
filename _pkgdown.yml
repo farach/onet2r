@@ -2,7 +2,7 @@ url: https://farach.github.io/onet2r/
 destination: _pkgdown
 
 development:
-  mode: devel
+  mode: unreleased
 
 template:
   bootstrap: 5
@@ -64,11 +64,15 @@ navbar:
           href: articles/longitudinal-archives.html
         - text: How to Fool Yourself over Time
           href: articles/how-to-fool-yourself-with-onet-over-time.html
+        - text: Resurvey Cycles and Content Change
+          href: articles/resurvey-and-content-change.html
         - text: Measures and Weights
         - text: From Tasks to Occupations
           href: articles/from-tasks-to-occupations.html
         - text: Reproducible Measures
           href: articles/measure-reproducibility.html
+        - text: Importing Published Exposure Scores
+          href: articles/importing-exposure-scores.html
         - text: Stress-Testing an Exposure Measure
           href: articles/stress-testing-exposure-measure.html
         - text: Choosing Employment Weights
@@ -205,11 +209,13 @@ articles:
     contents:
       - longitudinal-archives
       - how-to-fool-yourself-with-onet-over-time
+      - resurvey-and-content-change
   - title: Measures and weights
     navbar: ~
     contents:
       - from-tasks-to-occupations
       - measure-reproducibility
+      - importing-exposure-scores
       - stress-testing-exposure-measure
       - choosing-employment-weights
       - oews-wage-context

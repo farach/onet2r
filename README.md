@@ -106,13 +106,13 @@ changes |>
   knitr::kable(digits = 3, align = "l")
 ```
 
-| from_onet_soc_code | to_onet_soc_code | element_name        | from_value | to_value | value_change | change_type     | safely_comparable |
-|:-------------------|:-----------------|:--------------------|:-----------|:---------|:-------------|:----------------|:------------------|
-| 15-1132.00         | 15-1252.00       | Oral Comprehension  | 4.2        | 4.48     | 0.28         | transition_data | FALSE             |
-| 15-1132.00         | 15-1253.00       | Oral Comprehension  | 4.2        | 4.30     | 0.10         | transition_data | FALSE             |
-| 29-1141.00         | 29-1141.00       | Oral Comprehension  | 4.6        | 4.66     | 0.06         | real_update     | TRUE              |
-| 15-1132.00         | 15-1252.00       | Problem Sensitivity | 4.4        | NA       | NA           | dropped         | FALSE             |
-| 15-1132.00         | 15-1253.00       | Problem Sensitivity | 4.4        | NA       | NA           | dropped         | FALSE             |
+| from_onet_soc_code | to_onet_soc_code | element_name | from_value | to_value | value_change | change_type | safely_comparable |
+|:---|:---|:---|:---|:---|:---|:---|:---|
+| 15-1132.00 | 15-1252.00 | Oral Comprehension | 4.2 | 4.48 | 0.28 | transition_data | FALSE |
+| 15-1132.00 | 15-1253.00 | Oral Comprehension | 4.2 | 4.30 | 0.10 | transition_data | FALSE |
+| 29-1141.00 | 29-1141.00 | Oral Comprehension | 4.6 | 4.66 | 0.06 | real_update | TRUE |
+| 15-1132.00 | 15-1252.00 | Problem Sensitivity | 4.4 | NA | NA | dropped | FALSE |
+| 15-1132.00 | 15-1253.00 | Problem Sensitivity | 4.4 | NA | NA | dropped | FALSE |
 
 ``` r
 changes |>
@@ -171,8 +171,8 @@ onet_coverage(measure) |>
 ```
 
 | key_type | n_input | n_universe | n_matched | coverage_share | employment_coverage_share |
-|:---------|:--------|:-----------|:----------|:---------------|:--------------------------|
-| task     | 3       | 3          | 3         | 1              | NA                        |
+|:---|:---|:---|:---|:---|:---|
+| task | 3 | 3 | 3 | 1 | NA |
 
 ``` r
 occupation_scores <- onet_task_to_occupation(
@@ -214,10 +214,10 @@ weights |>
 ```
 
 | reference_soc_code | year | employment | weight_share | source | source_taxonomy | reference_taxonomy |
-|:-------------------|:-----|:-----------|:-------------|:-------|:----------------|:-------------------|
-| 11-1011            | 2024 | 211230     | 0.040        | OEWS   | 2018 SOC        | 2018 SOC           |
-| 15-1252            | 2024 | 1847900    | 0.353        | OEWS   | 2018 SOC        | 2018 SOC           |
-| 29-1141            | 2024 | 3175400    | 0.607        | OEWS   | 2018 SOC        | 2018 SOC           |
+|:---|:---|:---|:---|:---|:---|:---|
+| 11-1011 | 2024 | 211230 | 0.040 | OEWS | 2018 SOC | 2018 SOC |
+| 15-1252 | 2024 | 1847900 | 0.353 | OEWS | 2018 SOC | 2018 SOC |
+| 29-1141 | 2024 | 3175400 | 0.607 | OEWS | 2018 SOC | 2018 SOC |
 
 ``` r
 aggregate <- onet_measure_aggregate(
@@ -230,9 +230,9 @@ aggregate |>
   knitr::kable(digits = 3, align = "l")
 ```
 
-| measure_id          | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
-|:--------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
-| stylized_task_score | 0.421     | 5234530          | 5023300            | 0.96                      | 2             | 2               |
+| measure_id | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
+|:---|:---|:---|:---|:---|:---|:---|
+| stylized_task_score | 0.421 | 5234530 | 5023300 | 0.96 | 2 | 2 |
 
 ``` r
 
@@ -240,9 +240,9 @@ onet_provenance(aggregate) |>
   knitr::kable(digits = 3, align = "l")
 ```
 
-| measure_id          | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path        |
-|:--------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
-| stylized_task_score | 30.3            | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
+| measure_id | measure_release | weight_source | weight_year | source_taxonomy | reference_taxonomy | bridge_used | crosswalk_path |
+|:---|:---|:---|:---|:---|:---|:---|:---|
+| stylized_task_score | 30.3 | OEWS | 2024 | 2018 SOC | 2018 SOC | FALSE | 2018 SOC -\> 2018 SOC |
 
 OEWS publishes a few occupations only as combined codes, such as
 `31-1120` Home Health and Personal Care Aides. Build a bridge with
@@ -280,12 +280,12 @@ sensitivity |>
   knitr::kable(digits = 3, align = "l")
 ```
 
-| scenario                                                    | aggregate | employment_coverage_share | movement | movement_percent |
-|:------------------------------------------------------------|:----------|:--------------------------|:---------|:-----------------|
-| RT_core / task_release / oews / no_bridge                   | 0.421     | 0.96                      | 0.000    | 0.000            |
-| RT_core / task_release / pums / no_bridge                   | 0.450     | 1.00                      | 0.029    | 0.070            |
-| RT_core_plus_supplemental / task_release / oews / no_bridge | 0.373     | 0.96                      | -0.047   | -0.112           |
-| RT_core_plus_supplemental / task_release / pums / no_bridge | 0.396     | 1.00                      | -0.024   | -0.058           |
+| scenario | aggregate | employment_coverage_share | movement | movement_percent |
+|:---|:---|:---|:---|:---|
+| RT_core / task_release / oews / no_bridge | 0.421 | 0.96 | 0.000 | 0.000 |
+| RT_core / task_release / pums / no_bridge | 0.450 | 1.00 | 0.029 | 0.070 |
+| RT_core_plus_supplemental / task_release / oews / no_bridge | 0.373 | 0.96 | -0.047 | -0.112 |
+| RT_core_plus_supplemental / task_release / pums / no_bridge | 0.396 | 1.00 | -0.024 | -0.058 |
 
 ## Decompose Aggregate Change
 
@@ -341,12 +341,16 @@ onet_coverage(decomp) |>
 - Archived O\*NET data: `onet_releases()`, `onet_archive_download()`,
   `onet_archive_read()`, `onet_archive_reference()`, `onet_panel()`,
   `onet_panel_reconcile()`.
+- Resurvey cycles and content change: `onet_resurvey_panel()`,
+  `onet_condition_on_resurvey()`, `onet_content_change()`.
 - Wage and employment context: `onet_oews_national()`,
   `onet_weight_panel_oews()`, `onet_oews_bridge()`,
   `onet_weight_panel_pums()`.
 - User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
   `onet_measure_aggregate()`, `onet_measure_sensitivity()`,
   `onet_provenance()`, `onet_coverage()`, `onet_decompose_change()`.
+- Published exposure adapters: `onet_import_eloundou()`,
+  `onet_import_felten_aioe()`.
 
 ## Related tools
 

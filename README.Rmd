@@ -311,11 +311,15 @@ onet_coverage(decomp) |>
 - Archived O&#42;NET data: `onet_releases()`, `onet_archive_download()`,
   `onet_archive_read()`, `onet_archive_reference()`, `onet_panel()`,
   `onet_panel_reconcile()`.
+- Resurvey cycles and content change: `onet_resurvey_panel()`,
+  `onet_condition_on_resurvey()`, `onet_content_change()`.
 - Wage and employment context: `onet_oews_national()`,
   `onet_weight_panel_oews()`, `onet_oews_bridge()`, `onet_weight_panel_pums()`.
 - User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
   `onet_measure_aggregate()`, `onet_measure_sensitivity()`,
   `onet_provenance()`, `onet_coverage()`, `onet_decompose_change()`.
+- Published exposure adapters: `onet_import_eloundou()`,
+  `onet_import_felten_aioe()`.
 
 ## Related tools
 
