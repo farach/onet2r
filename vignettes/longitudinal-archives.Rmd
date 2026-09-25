@@ -308,3 +308,7 @@ onet_change_summary(changes, by = "job_family") |>
 4. Reconcile with `onet_panel_reconcile()`.
 5. Filter, weight, or model only after checking `change_type`, `method_break`,
    `crosswalk_uncertain`, and `safely_comparable`.
+6. For Task Ratings panels, restrict change estimates to resurveyed occupations
+   with `onet_resurvey_panel()` and `onet_condition_on_resurvey()`, and measure
+   task-set change with `onet_content_change()`. See
+   `vignette("resurvey-and-content-change", package = "onet2r")`.

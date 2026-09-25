@@ -164,3 +164,6 @@ seam |>
 Before making a historical claim, ask: Did the value change? Did the source date
 change? Did the occupation cross a taxonomy seam? Was either row transition data
 or suppressed? The package gives you those fields so the caveats do not get lost.
+For task content, `vignette("resurvey-and-content-change", package = "onet2r")`
+shows how to keep only the comparisons where the occupation was actually
+resurveyed.

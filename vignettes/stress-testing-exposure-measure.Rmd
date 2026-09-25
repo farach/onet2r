@@ -201,7 +201,7 @@ ggplot2::ggplot(plot_sensitivity, ggplot2::aes(
 
 ```{r provenance}
 onet_provenance(sensitivity) |>
-  select(any_of(c("weight_source", "weight_year", "bridge", "measure_id"))) |>
+  select(any_of(c("measure_id", "weight_source", "weight_year", "bridge_used", "crosswalk_path"))) |>
   head(8) |>
   knitr::kable(digits = 3, align = "l")
 ```

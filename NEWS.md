@@ -28,6 +28,8 @@
 
 ## Improvements
 
+* The pkgdown site is again published at <https://farach.github.io/onet2r/> in pkgdown's `unreleased` mode, which marks the package as not yet on CRAN. Since July 2026 the site had been built only into `/dev/`, which is not indexed by search engines, leaving the canonical URL on a stale build. The leftover `/dev/` copy is removed.
+* New articles cover resurvey cycles and content change (`vignette("resurvey-and-content-change")`) and importing published exposure scores (`vignette("importing-exposure-scores")`). Existing articles now show the `onet_measure()` `items`/`agg` path, source digests for downloaded files, and the current validation workflow, and they link to the resurvey verbs where change is interpreted.
 * `onet_archive_read()` now points reference tables without an O&#42;NET-SOC column to `onet_archive_reference()`, and for May 2021 or later OEWS panels the unmatched-employment report from `onet_measure_aggregate()` suggests `onet_oews_bridge()` when no bridge was supplied.
 * Cached API responses are written atomically and corrupt RDS files now fail with a specific cache-clear instruction instead of falling through to network access.
 * Cached archive and adapter files without provenance receipts now fail closed when a URL, version, `as_of`, or expected digest is requested. Unconstrained internal reuse warns and records a `legacy_unverified` receipt, while `force = TRUE` replaces the legacy bytes without exposing URL credentials.

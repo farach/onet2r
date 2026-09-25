@@ -209,7 +209,11 @@ changes |>
   interpreting cross-release changes.
 - Read `vignette("longitudinal-archives", package = "onet2r")` to assemble and
   reconcile archive panels.
+- Read `vignette("resurvey-and-content-change", package = "onet2r")` to restrict
+  change estimates to occupations that were actually re-rated.
 - Read `vignette("oews-wage-context", package = "onet2r")` to choose and apply
   employment weights.
+- Read `vignette("importing-exposure-scores", package = "onet2r")` to work with
+  published exposure scores.
 - Read `vignette("stress-testing-exposure-measure", package = "onet2r")` to
   stress test a user-supplied measure.
