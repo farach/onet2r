@@ -30,6 +30,14 @@ does not ship a substantive AI exposure score or task score.
 `onet_soc_code` is the native key. `soc_code` exists only for OEWS, PUMS, and
 other employment-weight joins.
 
+`onet_archive_reference()` reads reference and lookup tables that have no
+O&#42;NET-SOC column, such as `GWAs to IWAs to DWAs`, `Scales Reference`, and
+`Task Categories`. It returns `release_version`, `release_date`, and the
+published columns in snake case. Identifier and code columns stay character so
+they join to `onet_archive_read()` output. Text archives keep repeated names out
+of linking and rating files, so DWA titles, scale names, and task text come from
+these tables or from `Task Statements`.
+
 `onet_panel_reconcile()` compares adjacent releases. Its output includes
 ordinary matched comparisons and coverage rows:
 
@@ -110,7 +118,9 @@ the package-managed cache sections.
 
 If BLS blocks automated OEWS ZIP downloads, `onet_oews()` may use a matching
 browser-downloaded ZIP from the user's Downloads folder or from
-`options(onet2r.oews_download_dir = ...)`. User-supplied ZIPs are validated before
+`options(onet2r.oews_download_dir = ...)`. The lookup checks the exact ZIP name
+and numbered browser copies before listing the folder, because a folder listing
+can stop early on Windows. User-supplied ZIPs are validated before
 they are copied into the package-managed OEWS cache and are never deleted by
 validation.
 
@@ -119,6 +129,27 @@ cell at a time. If a panel contains more than one `year`, callers must pass
 `year`. If a panel contains multiple non-standard cell columns, callers must
 pass `cell` as a named list or vector. A filtered panel must contain at most one
 row per `reference_soc_code`.
+
+An aggregation `bridge` maps `from_onet_soc_code` to `reference_soc_code`, with
+an optional `crosswalk_weight` that defaults to 1. `onet_crosswalk_bridge()`
+output is also accepted, with `to_soc_code` as the reference SOC. Scores that
+share a reference SOC are averaged by `crosswalk_weight`, and measure
+occupations without a bridge row are reported and left out. A bridge
+`crosswalk_path` column is recorded as the aggregate's crosswalk path.
+`onet_oews_bridge()` builds a bridge for an OEWS panel from May 2021 or later.
+An O&#42;NET occupation maps to its own SOC when the panel publishes that SOC.
+Otherwise, if the occupation is part of one of the 12 combined codes in the BLS
+May 2021 OEWS occupation definitions and that combined code is in the panel, it
+maps to the combined code. Anything else keeps its own SOC as `"not_in_panel"`.
+Membership comes from the BLS definitions, not from the panel rows, so an
+occupation suppressed in a state, metropolitan, or industry panel is never
+merged into a neighboring combined code. Panels with a year before 2021, or a
+missing year, are rejected because the May 2019 and May 2020 hybrid releases
+and older SOC releases use different combined codes.
+
+`n_occupations` and `n_reference_soc` count the O&#42;NET occupations and
+reference SOCs that contribute to an aggregate after the `year` and `cell`
+filters.
 
 ## Measure object contract
 

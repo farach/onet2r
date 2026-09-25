@@ -548,8 +548,27 @@ oews_manual_download_candidates <- function(dir, file) {
   }
 
   stem <- tools::file_path_sans_ext(file)
+  # Probe the names a browser writes before listing the folder. On Windows,
+  # list.files() can stop early without an error when the session locale cannot
+  # represent another file name in the folder, so a listing alone can miss the ZIP.
+  expected <- file.path(
+    dir,
+    c(file, sprintf("%s (%d).zip", stem, seq_len(oews_manual_download_copies())))
+  )
   pattern <- sprintf("^%s( \\([0-9]+\\))?\\.zip$", stem)
+  candidates <- unique(c(
+    expected[file.exists(expected)],
+    oews_list_download_dir(dir, pattern)
+  ))
+  candidates[!dir.exists(candidates)]
+}
+
+oews_list_download_dir <- function(dir, pattern) {
   list.files(dir, pattern = pattern, full.names = TRUE, ignore.case = TRUE)
+}
+
+oews_manual_download_copies <- function() {
+  20L
 }
 
 oews_manual_download_dirs <- function() {

@@ -39,11 +39,12 @@ These instructions apply to all package work in this repository.
 - R/oews.R - BLS OEWS flat-file download/parse. `o_group` filtering, topcode
   and suppression flags, atomic cached downloads.
 - R/census.R (deprecated), R/weights.R, R/weighted.R - employment weight panels
-  from user-supplied PUMS/OEWS data. No Census fetcher by design.
+  from user-supplied PUMS/OEWS data, plus `onet_oews_bridge()` for OEWS
+  combination codes. No Census fetcher by design.
 - R/panel.R - longitudinal archives: releases scrape (memoised), archive
-  download/read, panel assembly, crosswalk bridges, reconciliation truth table
-  (`stale_carryforward`, `real_update`, `resampled_stable`, and related
-  states).
+  download/read, reference-table reader, panel assembly, crosswalk bridges,
+  reconciliation truth table (`stale_carryforward`, `real_update`,
+  `resampled_stable`, and related states).
 - R/measure.R, R/decomposition.R - bring-your-own-measure validation,
   employment-weighted aggregation, sensitivity grids, shift-share decomposition.
 - R/data_updates.R - official O&#42;NET longitudinal update record.
@@ -55,3 +56,9 @@ These instructions apply to all package work in this repository.
 - Never mock above the JSON-parse layer when a realistic-body fixture can
   exercise it (see tests/testthat/test-parse-layer.R).
 - Windows dev quirk: do not pipe `Rscript -e` output; write a script file.
+- Windows on ARM quirk: x64 R processes that load cli exit with 0xC00000FF
+  after finishing, which makes `R CMD INSTALL` and `R CMD check` report
+  failures. Set `CLI_NO_THREAD=true` in the environment before starting R.
+  If `LC_CTYPE` is set to an unsupported value such as `C.UTF-8`, R falls back
+  to the C locale and `list.files()` can silently return a partial listing;
+  unset it for local runs.

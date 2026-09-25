@@ -650,6 +650,169 @@ test_that("onet_archive_read preserves task and DWA native fields", {
   expect_equal(dwa$element_name[[1]], "Analyze user needs and software requirements.")
 })
 
+write_normalized_archive <- function(dir) {
+  write_tsv <- function(data, file) {
+    utils::write.table(
+      data,
+      file = file.path(dir, file),
+      sep = "\t",
+      row.names = FALSE,
+      quote = FALSE,
+      na = ""
+    )
+  }
+  write_tsv(
+    data.frame(
+      `O*NET-SOC Code` = c("15-1252.00", "15-1252.00", "29-1141.00"),
+      `Task ID` = c("1001", "1001", "2001"),
+      `DWA Element ID` = c("4.A.2.a.1.a.1", "4.A.4.a.4.a.1", "4.A.2.a.3.a.1"),
+      Date = "08/2026",
+      `Domain Source` = "Analyst",
+      check.names = FALSE
+    ),
+    "Tasks to DWAs.txt"
+  )
+  write_tsv(
+    data.frame(
+      `GWA Element ID` = c("4.A.2", "4.A.4", "4.A.2"),
+      `IWA Element ID` = c("4.A.2.a.1.a", "4.A.4.a.4.a", "4.A.2.a.3.a"),
+      `DWA Element ID` = c("4.A.2.a.1.a.1", "4.A.4.a.4.a.1", "4.A.2.a.3.a.1"),
+      `DWA Element Name` = c(
+        "Analyze data to inform operational decisions.",
+        "Prepare technical reports.",
+        "Monitor health or safety conditions."
+      ),
+      check.names = FALSE
+    ),
+    "GWAs to IWAs to DWAs.txt"
+  )
+  write_tsv(
+    data.frame(
+      `Scale ID` = c("IM", "RT"),
+      `Scale Name` = c("Importance", "Relevance of Task"),
+      Minimum = c(1, 0),
+      Maximum = c(5, 100),
+      check.names = FALSE
+    ),
+    "Scales Reference.txt"
+  )
+  write_tsv(
+    data.frame(
+      `O*NET-SOC Code` = c("15-1252.00", "29-1141.00"),
+      `Job Zone` = c(4L, 3L),
+      Date = "08/2026",
+      `Domain Source` = "Analyst",
+      check.names = FALSE
+    ),
+    "Job Zones.txt"
+  )
+  dir
+}
+
+test_that("onet_archive_reference reads reference tables with published columns", {
+  archive_dir <- system.file(
+    "extdata",
+    "onet-mini",
+    "db_30_3_text",
+    package = "onet2r"
+  )
+
+  dwa <- onet_archive_reference(
+    "30.3",
+    "GWAs to IWAs to DWAs",
+    path = archive_dir,
+    release_date = "2026-05-01"
+  )
+
+  expect_s3_class(dwa, "tbl_df")
+  expect_named(
+    dwa,
+    c(
+      "release_version", "release_date", "gwa_element_id", "gwa_element_name",
+      "iwa_element_id", "iwa_element_name", "dwa_element_id", "dwa_element_name"
+    )
+  )
+  expect_equal(nrow(dwa), 3L)
+  expect_equal(unique(dwa$release_version), "30.3")
+  expect_equal(unique(dwa$release_date), as.Date("2026-05-01"))
+  expect_equal(dwa$dwa_element_name[[2]], "Prepare technical reports.")
+})
+
+test_that("onet_archive_reference fills names missing from normalized text files", {
+  archive_dir <- write_normalized_archive(withr::local_tempdir())
+
+  tasks_to_dwas <- onet_archive_read(
+    "31.0",
+    "Tasks to DWAs",
+    path = archive_dir,
+    release_date = "2026-08-01"
+  )
+  dwa_titles <- onet_archive_reference(
+    "31.0",
+    "GWAs to IWAs to DWAs",
+    path = archive_dir,
+    release_date = "2026-08-01"
+  )
+  named <- tasks_to_dwas |>
+    dplyr::select(-"dwa_element_name") |>
+    dplyr::left_join(
+      dplyr::distinct(dwa_titles, dwa_element_id, dwa_element_name),
+      by = "dwa_element_id",
+      relationship = "many-to-one"
+    )
+
+  expect_true(all(is.na(tasks_to_dwas$dwa_element_name)))
+  expect_equal(
+    named$dwa_element_name,
+    c(
+      "Analyze data to inform operational decisions.",
+      "Prepare technical reports.",
+      "Monitor health or safety conditions."
+    )
+  )
+  expect_named(
+    dwa_titles,
+    c("release_version", "release_date", "gwa_element_id", "iwa_element_id", "dwa_element_id", "dwa_element_name")
+  )
+
+  scales <- onet_archive_reference("31.0", "Scales Reference", path = archive_dir)
+  expect_type(scales$scale_id, "character")
+  expect_type(scales$minimum, "integer")
+  expect_equal(scales$maximum, c(5L, 100L))
+  expect_equal(scales$release_date, as.Date(c(NA, NA)))
+
+  zones <- onet_archive_reference("31.0", "Job Zones", path = archive_dir)
+  expect_type(zones$onet_soc_code, "character")
+  expect_equal(zones$job_zone, c(4L, 3L))
+  expect_equal(zones$domain_source, c("Analyst", "Analyst"))
+})
+
+test_that("onet_archive_read points reference tables to onet_archive_reference", {
+  archive_dir <- write_normalized_archive(withr::local_tempdir())
+
+  expect_error(
+    onet_archive_read(
+      "31.0",
+      "GWAs to IWAs to DWAs",
+      path = archive_dir,
+      release_date = "2026-08-01"
+    ),
+    "onet_archive_reference"
+  )
+})
+
+test_that("onet_archive_reference keeps character columns for empty tables", {
+  archive_dir <- withr::local_tempdir()
+  writeLines("Scale ID\tCategory\tCategory Description", file.path(archive_dir, "Task Categories.txt"))
+
+  empty <- onet_archive_reference("31.0", "Task Categories", path = archive_dir)
+
+  expect_equal(nrow(empty), 0L)
+  expect_named(empty, c("release_version", "release_date", "scale_id", "category", "category_description"))
+  expect_type(empty$category, "character")
+  expect_s3_class(empty$release_date, "Date")
+})
+
 test_that("onet_archive_read accepts a local extracted archive directory", {
   archive_dir <- system.file(
     "extdata",

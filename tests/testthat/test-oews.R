@@ -261,6 +261,50 @@ test_that("download_oews_file can open the browser and wait for a manual ZIP", {
   expect_equal(readBin(result, "raw", file.info(result)$size), charToRaw("zip"))
 })
 
+test_that("manual OEWS lookup probes expected names when the folder listing is incomplete", {
+  manual_dir <- withr::local_tempdir()
+  exact <- file.path(manual_dir, "oesm24nat.zip")
+  copy <- file.path(manual_dir, "oesm24nat (2).zip")
+  writeBin(charToRaw("zip"), exact)
+  writeBin(charToRaw("zip"), copy)
+  Sys.setFileTime(exact, Sys.time() - 3600)
+
+  # On Windows, list.files() can stop early when the session locale cannot
+  # represent another file name in the folder. Simulate that empty listing.
+  local_mocked_bindings(
+    oews_manual_download_dirs = function() manual_dir,
+    oews_list_download_dir = function(dir, pattern) character(),
+    is_readable_oews_zip = function(path) file.exists(path),
+    .package = "onet2r"
+  )
+
+  candidates <- onet2r:::oews_manual_download_candidates(manual_dir, "oesm24nat.zip")
+  expect_setequal(normalizePath(candidates), normalizePath(c(exact, copy)))
+
+  found <- onet2r:::find_oews_manual_download("national", 2024)
+  expect_equal(normalizePath(found), normalizePath(copy))
+})
+
+test_that("manual OEWS lookup keeps listed copies and ignores other files", {
+  manual_dir <- withr::local_tempdir()
+  late_copy <- file.path(manual_dir, "oesm24nat (37).zip")
+  writeBin(charToRaw("zip"), late_copy)
+  writeBin(charToRaw("zip"), file.path(manual_dir, "oesm24st.zip"))
+  writeBin(charToRaw("zip"), file.path(manual_dir, "oesm24nat-old.zip"))
+  dir.create(file.path(manual_dir, "oesm24nat (3).zip"))
+
+  candidates <- onet2r:::oews_manual_download_candidates(manual_dir, "oesm24nat.zip")
+
+  expect_equal(normalizePath(candidates), normalizePath(late_copy))
+  expect_identical(
+    onet2r:::oews_manual_download_candidates(
+      file.path(manual_dir, "missing"),
+      "oesm24nat.zip"
+    ),
+    character()
+  )
+})
+
 test_that("onet_oews reads local extracted files", {
   path <- withr::local_tempfile(fileext = ".csv")
   writeLines(

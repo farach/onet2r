@@ -364,6 +364,19 @@ abilities <- onet_archive_read(
 inspect_tbl(abilities, c("onet_soc_code", "element_id", "data_value", "source_date"))
 mark_validated("onet_archive_read")
 
+dwa_reference <- onet_archive_reference(
+  "30.3",
+  "GWAs to IWAs to DWAs",
+  path = sample_archive,
+  release_date = "2026-05-01"
+)
+inspect_tbl(dwa_reference, c("release_version", "dwa_element_id", "dwa_element_name"))
+stopifnot(
+  identical(unique(dwa_reference$release_version), "30.3"),
+  is.character(dwa_reference$dwa_element_id)
+)
+mark_validated("onet_archive_reference")
+
 panel_archives <- c(
   `30.2` = file.path(sample_archive_base, "db_30_2_text"),
   `30.3` = file.path(sample_archive_base, "db_30_3_text")
@@ -457,6 +470,36 @@ inspect_tbl(task_ratings, c("onet_soc_code", "task_id", "scale_id", "data_value"
 weight_panel <- onet_weight_panel_oews(oews, year = 2024)
 inspect_tbl(weight_panel, c("reference_soc_code", "employment", "weight_share"))
 mark_validated("onet_weight_panel_oews")
+
+combination_weights <- tibble::tibble(
+  reference_soc_code = c("29-1141", "31-1120"),
+  year = 2024L,
+  employment = c(100, 300),
+  weight_share = c(0.25, 0.75),
+  source = "OEWS",
+  source_taxonomy = "2018 SOC",
+  reference_taxonomy = "2018 SOC"
+)
+combination_scores <- tibble::tibble(
+  onet_soc_code = c("29-1141.00", "31-1121.00", "31-1122.00"),
+  measure_score = c(0.9, 0.2, 0.6)
+)
+oews_bridge <- onet_oews_bridge(combination_scores, combination_weights)
+inspect_tbl(oews_bridge, c("from_onet_soc_code", "reference_soc_code", "map_type"))
+bridged_aggregate <- onet_measure_aggregate(
+  combination_scores,
+  combination_weights,
+  bridge = oews_bridge,
+  measure_id = "validation_stylized_bridge"
+)
+stopifnot(
+  identical(oews_bridge$reference_soc_code, c("29-1141", "31-1120", "31-1120")),
+  identical(oews_bridge$map_type, c("direct", "oews_combination", "oews_combination")),
+  isTRUE(all.equal(bridged_aggregate$employment_coverage_share, 1)),
+  isTRUE(all.equal(bridged_aggregate$aggregate, 0.25 * 0.9 + 0.75 * 0.4)),
+  identical(bridged_aggregate$n_occupations, 3L)
+)
+mark_validated("onet_oews_bridge")
 
 showcase_release <- function(version, date, values, source_dates) {
   tibble::tibble(

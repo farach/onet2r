@@ -244,6 +244,12 @@ onet_provenance(aggregate) |>
 |:--------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
 | stylized_task_score | 30.3            | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
+OEWS publishes a few occupations only as combined codes, such as
+`31-1120` Home Health and Personal Care Aides. Build a bridge with
+`onet_oews_bridge(occupation_scores, weights)` and pass it as `bridge`
+to `onet_measure_aggregate()` so O\*NET occupations inside those codes
+count toward coverage.
+
 ## Stress Test the Plumbing
 
 ``` r
@@ -333,9 +339,11 @@ onet_coverage(decomp) |>
 - Current O\*NET API data: `onet_search()`, `onet_occupation()`,
   `onet_skills()`, `onet_tasks()`, `onet_table()`.
 - Archived O\*NET data: `onet_releases()`, `onet_archive_download()`,
-  `onet_archive_read()`, `onet_panel()`, `onet_panel_reconcile()`.
+  `onet_archive_read()`, `onet_archive_reference()`, `onet_panel()`,
+  `onet_panel_reconcile()`.
 - Wage and employment context: `onet_oews_national()`,
-  `onet_weight_panel_oews()`, `onet_weight_panel_pums()`.
+  `onet_weight_panel_oews()`, `onet_oews_bridge()`,
+  `onet_weight_panel_pums()`.
 - User-measure plumbing: `onet_measure()`, `onet_task_to_occupation()`,
   `onet_measure_aggregate()`, `onet_measure_sensitivity()`,
   `onet_provenance()`, `onet_coverage()`, `onet_decompose_change()`.

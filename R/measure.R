@@ -582,7 +582,13 @@ task_rating_release <- function(ratings, fallback = NA_character_) {
 #'   [onet_weight_panel_pums()].
 #' @param occupation_code Occupation code column when `measure` is a data frame.
 #' @param score Score column when `measure` is a data frame.
-#' @param bridge Optional bridge from O&#42;NET-SOC to `reference_soc_code`.
+#' @param bridge Optional bridge from O&#42;NET-SOC codes to weight-panel
+#'   reference SOC codes, with `from_onet_soc_code` and `reference_soc_code`
+#'   columns and an optional `crosswalk_weight` (default 1). Output from
+#'   [onet_oews_bridge()] has this shape. Output from [onet_crosswalk_bridge()]
+#'   is also accepted, with `to_soc_code` used as the reference SOC. Measure
+#'   occupations without a bridge row are left out of the aggregate with a
+#'   message.
 #' @param measure_id Identifier used when `measure` is a data frame.
 #' @param year Optional single year used to filter a multi-year weight panel.
 #' @param cell Optional named list or named vector used to filter a multi-cell
@@ -593,11 +599,19 @@ task_rating_release <- function(ratings, fallback = NA_character_) {
 #'
 #' @details
 #' When multiple O&#42;NET detail occupations map to the same reference SOC,
-#' `onet_measure_aggregate()` first averages those detail scores within the SOC.
+#' `onet_measure_aggregate()` first averages those detail scores within the SOC,
+#' weighting them by `crosswalk_weight` when a bridge is supplied.
 #' Employment coverage is then counted once per reference SOC, so coverage shares
 #' cannot exceed 100 percent because of detail-code duplication.
+#' `n_occupations` and `n_reference_soc` count the O&#42;NET occupations and
+#' reference SOCs that contribute to the aggregate, meaning they have a score and
+#' a row in the weight panel after the `year` and `cell` filters.
 #' If more than 5 percent of filtered weight-panel employment has no matching
 #' measure score, the function reports the largest unmatched reference SOCs.
+#' OEWS publishes some detailed SOCs only inside combined codes such as
+#' `31-1120`, Home Health and Personal Care Aides. For OEWS panels from May 2021
+#' on, pass `bridge = onet_oews_bridge(measure, weight_panel)` to map O&#42;NET
+#' occupations into those codes.
 #' @export
 #'
 #' @examples
@@ -641,11 +655,23 @@ onet_measure_aggregate <- function(
   joined$.effective_weight <- joined$employment * joined$coverage_weight
   aggregate <- weighted_mean_na(joined$measure_score, joined$.effective_weight)
   total_employment <- sum(weights$employment, na.rm = TRUE)
-  covered_employment <- joined |>
-    dplyr::filter(!is.na(.data$measure_score), !is.na(.data$employment)) |>
-    dplyr::summarise(total = sum(.data$.effective_weight, na.rm = TRUE)) |>
-    dplyr::pull("total")
-  report_unmatched_weight_panel(weights, collapsed, total_employment)
+  matched <- joined[
+    !is.na(joined$measure_score) & !is.na(joined$employment), ,
+    drop = FALSE
+  ]
+  covered_employment <- sum(matched$.effective_weight, na.rm = TRUE)
+  contributing_keys <- mapped$measure_key[
+    mapped$reference_soc_code %in% matched$reference_soc_code &
+      !is.na(mapped$measure_score) &
+      !is.na(mapped$crosswalk_weight) &
+      mapped$crosswalk_weight > 0
+  ]
+  report_unmatched_weight_panel(
+    weights,
+    collapsed[!is.na(collapsed$measure_score), , drop = FALSE],
+    total_employment,
+    bridge_used = !is.null(bridge)
+  )
 
   result <- tibble::tibble(
     measure_id = scores$measure_id[[1]],
@@ -657,8 +683,8 @@ onet_measure_aggregate <- function(
     } else {
       NA_real_
     },
-    n_occupations = dplyr::n_distinct(mapped$measure_key),
-    n_reference_soc = dplyr::n_distinct(joined$reference_soc_code)
+    n_occupations = dplyr::n_distinct(contributing_keys),
+    n_reference_soc = dplyr::n_distinct(matched$reference_soc_code)
   )
   new_onet_aggregate(
     result,
@@ -666,7 +692,11 @@ onet_measure_aggregate <- function(
   )
 }
 
-report_unmatched_weight_panel <- function(weights, collapsed, total_employment) {
+report_unmatched_weight_panel <- function(
+    weights,
+    collapsed,
+    total_employment,
+    bridge_used = FALSE) {
   if (!isTRUE(total_employment > 0)) {
     return(invisible(NULL))
   }
@@ -691,9 +721,18 @@ report_unmatched_weight_panel <- function(weights, collapsed, total_employment) 
   cli::cli_inform(c(
     "{round(100 * unmatched_share, 1)}% of weight-panel employment has no matching measure score.",
     "i" = "Largest unmatched SOC{?s}: {.val {top$reference_soc_code}}.",
-    "i" = "Some detailed SOCs are published only as OEWS combinations, and military or residual codes may also lack measure scores; unmatched employment stays in the denominator of {.field employment_coverage_share}."
+    "i" = "Some detailed SOCs are published only as OEWS combinations, and military or residual codes may also lack measure scores; unmatched employment stays in the denominator of {.field employment_coverage_share}.",
+    if (!isTRUE(bridge_used) && oews_bridge_applies(weights)) {
+      c("i" = "Pass {.code bridge = onet_oews_bridge(measure, weight_panel)} to map O*NET occupations into OEWS combination codes.")
+    }
   ))
   invisible(NULL)
+}
+
+oews_bridge_applies <- function(weights) {
+  years <- suppressWarnings(as.integer(weights$year))
+  length(years) > 0 && !anyNA(years) && all(years >= 2021L) &&
+    any(grepl("OEWS", as.character(weights$source), fixed = TRUE))
 }
 
 #' Stress Test a User-Supplied Measure
@@ -1010,12 +1049,25 @@ map_occupation_scores <- function(scores, bridge) {
     ))
   }
   bridge <- normalize_measure_bridge(bridge)
-  dplyr::inner_join(
+  scores$.bridge_key <- standardize_onet_soc_code(scores$measure_key)
+  keys <- unique(scores$.bridge_key[!is.na(scores$.bridge_key)])
+  unbridged <- setdiff(keys, bridge$from_onet_soc_code)
+  if (length(unbridged) > 0) {
+    shown <- utils::head(unbridged, 5)
+    more <- if (length(unbridged) > length(shown)) ", ..." else ""
+    cli::cli_inform(c(
+      "{length(unbridged)} measure occupation{?s} {?has/have} no row in {.arg bridge} and {?is/are} left out of the aggregate.",
+      "i" = "Unbridged: {.val {shown}}{more}."
+    ))
+  }
+  mapped <- dplyr::inner_join(
     scores,
     bridge,
-    by = dplyr::join_by(measure_key == from_onet_soc_code),
+    by = c(".bridge_key" = "from_onet_soc_code"),
     relationship = "many-to-many"
   )
+  mapped$.bridge_key <- NULL
+  mapped
 }
 
 collapse_mapped_scores <- function(mapped) {
@@ -1030,17 +1082,43 @@ collapse_mapped_scores <- function(mapped) {
     )
 }
 
+# Accept minimal measure bridges (`from_onet_soc_code`, `reference_soc_code`,
+# optional `crosswalk_weight`) as well as `onet_crosswalk_bridge()` output,
+# whose target SOC is `to_soc_code`.
 normalize_measure_bridge <- function(bridge) {
-  bridge <- normalize_bridge(bridge)
-  if (!"reference_soc_code" %in% names(bridge)) {
-    bridge$reference_soc_code <- bridge$to_soc_code
+  if (!is.data.frame(bridge)) {
+    cli::cli_abort("{.arg bridge} must be a data frame.")
   }
-  bridge |>
-    dplyr::select(
-      "from_onet_soc_code",
-      "reference_soc_code",
-      "crosswalk_weight"
-    )
+  bridge <- tibble::as_tibble(bridge)
+  from_col <- intersect(c("from_onet_soc_code", "from_soc_code"), names(bridge))
+  to_col <- intersect(
+    c("reference_soc_code", "to_soc_code", "to_onet_soc_code"),
+    names(bridge)
+  )
+  if (length(from_col) == 0 || length(to_col) == 0) {
+    cli::cli_abort(c(
+      "{.arg bridge} must map O*NET-SOC codes to reference SOC codes.",
+      "i" = "Supply {.var from_onet_soc_code} and {.var reference_soc_code} columns, as returned by {.fun onet_oews_bridge}.",
+      "x" = "Columns found: {.val {names(bridge)}}."
+    ))
+  }
+  weight <- if ("crosswalk_weight" %in% names(bridge)) {
+    parse_onet_number(bridge$crosswalk_weight)
+  } else {
+    rep(1, nrow(bridge))
+  }
+  if (any(weight < 0, na.rm = TRUE)) {
+    cli::cli_abort("{.arg bridge} {.var crosswalk_weight} values must not be negative.")
+  }
+
+  out <- tibble::tibble(
+    from_onet_soc_code = standardize_onet_soc_code(bridge[[from_col[[1]]]]),
+    reference_soc_code = standardize_soc_code(bridge[[to_col[[1]]]]),
+    crosswalk_weight = weight
+  )
+  keep <- !is.na(out$from_onet_soc_code) & nzchar(out$from_onet_soc_code) &
+    !is.na(out$reference_soc_code) & nzchar(out$reference_soc_code)
+  out[keep, , drop = FALSE]
 }
 
 aggregation_provenance <- function(scores, weights, bridge) {
@@ -1183,6 +1261,12 @@ aggregate_crosswalk_path <- function(weights, bridge) {
       from <- collapse_unique(bridge$from_vintage)
       to <- collapse_unique(bridge$to_vintage)
       return(paste(from, to, sep = " -> "))
+    }
+    if ("crosswalk_path" %in% names(bridge)) {
+      path <- collapse_unique(bridge$crosswalk_path)
+      if (!is.na(path)) {
+        return(path)
+      }
     }
     return("custom bridge")
   }
