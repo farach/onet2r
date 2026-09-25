@@ -5,12 +5,14 @@
 <url><loc>https://farach.github.io/onet2r/articles/from-tasks-to-occupations.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/getting-started.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/how-to-fool-yourself-with-onet-over-time.html</loc></url>
+<url><loc>https://farach.github.io/onet2r/articles/importing-exposure-scores.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/index.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/longitudinal-archives.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/longitudinal-onet-background.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/measure-reproducibility.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/oews-wage-context.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/output-validation.html</loc></url>
+<url><loc>https://farach.github.io/onet2r/articles/resurvey-and-content-change.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/stress-testing-exposure-measure.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/within-between-decomposition.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/authors.html</loc></url>
@@ -23,6 +25,7 @@
 <url><loc>https://farach.github.io/onet2r/reference/onet_apprenticeship.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_archive_download.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_archive_read.html</loc></url>
+<url><loc>https://farach.github.io/onet2r/reference/onet_archive_reference.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_cache_clear.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_cache_use.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_change_summary.html</loc></url>
@@ -52,6 +55,7 @@
 <url><loc>https://farach.github.io/onet2r/reference/onet_occupations.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_occupations_all.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_oews.html</loc></url>
+<url><loc>https://farach.github.io/onet2r/reference/onet_oews_bridge.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_oews_industry.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_oews_metro.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_oews_national.html</loc></url>

@@ -3,9 +3,10 @@
 Computes task-set and rating content-change metrics for each occupation
 between O\*NET releases. This is the single source of content metrics
 for longitudinal work, so robustness measures cannot silently diverge.
-It is seam-aware: comparisons that cross the v21.0 Task Relevance
-retirement or the v25.1 SOC-2010 to SOC-2018 change are flagged so
-taxonomy churn is not counted as content churn.
+It is seam-aware: comparisons that cross the v25.1 SOC-2010 to SOC-2018
+change are flagged by default so taxonomy churn is not counted as
+content churn. v21.0 is not a package-verified default seam; supply a
+custom `seams` row for a channel-specific v21.0 comparison.
 
 ## Usage
 
@@ -46,8 +47,9 @@ onet_content_change(
 
   Optional numeric floor applied to `data_value` on the selected
   `scale`. Items below the floor, or with missing `data_value`, are
-  dropped before set membership is computed. Use it to apply the
-  Importance filter that removes the post-v21.0 Task Relevance artifact.
+  dropped before set membership is computed. Use it to apply an
+  Importance floor for any channel-specific artifact a caller has
+  external evidence for, for example near a specific release boundary.
 
 - from, to:
 
@@ -58,13 +60,15 @@ onet_content_change(
 - seams:
 
   Optional data frame with `seam_type` and `seam_date` columns that
-  overrides the default Task-Ratings seam table returned by
-  `onet_known_seams()`. Use it for non-Task-Ratings inputs such as Work
-  Activities, Work Context, or Abilities, where the v21.0 Task Relevance
-  scale seam does not apply. Supply an empty table to disable date-based
-  seams entirely. `NULL` keeps the default table, so Task Ratings output
-  is unchanged. Cross-vintage SOC seams are always detected from
-  `soc_vintage` regardless of this table.
+  overrides the default seam table returned by `onet_known_seams()`,
+  which currently contains only the verified v25.1 SOC-2010 to SOC-2018
+  taxonomy seam. Use it to supply channel-specific or source-specific
+  seam dates, such as a v21.0 row, when a caller has external evidence
+  that a comparison spanning that date needs seam treatment; v21.0 is
+  not a package-verified default seam. Supply an empty table to disable
+  date-based seams entirely. `NULL` keeps the default table, so Task
+  Ratings output is unchanged. Cross-vintage SOC seams are always
+  detected from `soc_vintage` regardless of this table.
 
 ## Value
 

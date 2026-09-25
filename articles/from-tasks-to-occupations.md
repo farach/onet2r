@@ -137,3 +137,53 @@ comparison |>
 
 The task score did not change; only the rollup rule did. A clear
 write-up keeps the scoring choice separate from the package mechanics.
+
+## Build a Measure from O\*NET Ratings
+
+Sometimes the score is an O\*NET rating itself, for example the
+Importance of a set of target tasks. The convenience path of
+[`onet_measure()`](https://farach.github.io/onet2r/reference/onet_measure.md)
+builds that task-grain measure from a Task Ratings panel in one line.
+`items` with `agg = "targeted"` keeps the target tasks,
+`agg = "aggregate"` keeps every task, and the score is the rating on
+`scale`, Importance (`"IM"`) by default. The target list carries the
+substantive judgement; the two tasks below are arbitrary.
+
+``` r
+targeted <- onet_measure(
+  ratings,
+  items = c("1001", "2001"),
+  agg = "targeted",
+  measure_id = "stylized_target_tasks",
+  release_version = "30.3"
+)
+
+targeted$data |>
+  select(onet_soc_code, measure_key, scale_id, measure_score) |>
+  knitr::kable(digits = 3, align = "l")
+```
+
+| onet_soc_code | measure_key | scale_id | measure_score |
+|:--------------|:------------|:---------|:--------------|
+| 15-1252.00    | 1001        | IM       | 4.5           |
+| 29-1141.00    | 2001        | IM       | 4.8           |
+
+``` r
+
+onet_task_to_occupation(
+  targeted,
+  task_ratings = ratings,
+  task_metadata = tasks
+) |>
+  select(onet_soc_code, n_tasks, total_task_weight, measure_score) |>
+  knitr::kable(digits = 3, align = "l")
+```
+
+| onet_soc_code | n_tasks | total_task_weight | measure_score |
+|:--------------|:--------|:------------------|:--------------|
+| 15-1252.00    | 1       | 95                | 4.5           |
+| 29-1141.00    | 1       | 98                | 4.8           |
+
+The result is the same measure the default `key` and `score` path would
+return for those rows, so every rollup and weighting step above applies
+unchanged.

@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,9 +46,11 @@
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -570,8 +572,38 @@ no_bridge</td>
 </tbody>
 </table>
 <p>The diagnostic will not tell you which task score is right. It
-reports how far the headline number moves when non-substantive plumbing
-changes.</p>
+reports how far the headline aggregate moves when non-substantive
+plumbing changes. The second argument is <code>weight_panels</code>; for
+multi-release task comparisons, pass named lists of single-release
+frames through <code>task_ratings</code> and matching
+<code>task_metadata</code>. A content-change table is not an employment
+weight panel and is rejected. The returned <code>movement</code> fields
+compare scenario aggregates with the baseline. They are not Spearman,
+rank, quintile, variance, or content-drift diagnostics.</p>
+</div>
+<div class="section level2">
+<h2 id="pin-the-source-files">Pin the Source Files<a class="anchor" aria-label="anchor" href="#pin-the-source-files"></a>
+</h2>
+<p>The tables above come from local fixtures. In a real project, the
+inputs are downloaded archive and exposure files, and a reproducible
+number also needs to say exactly which bytes were read. Downloads write
+a receipt beside each cached file with its URL, retrieval time, SHA-256
+digest, size, and version. Record the digest once, then pass it back so
+a changed file is rejected before it is parsed:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_archive_download.html">onet_archive_download</a></span><span class="op">(</span></span>
+<span>  <span class="st">"30.3"</span>,</span>
+<span>  expected_sha256 <span class="op">=</span> <span class="st">"&lt;digest recorded on first download&gt;"</span>,</span>
+<span>  as_of <span class="op">=</span> <span class="st">"2026-05"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span><span class="st">"30.3"</span>, <span class="st">"Task Statements"</span><span class="op">)</span></span></code></pre></div>
+<p><code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code> then parses a private snapshot of
+the verified cache entry, so a later refresh cannot change the bytes
+under a running analysis.</p>
+<p>The published exposure adapters accept the same
+<code>expected_sha256</code> and <code>as_of</code> arguments and attach
+the receipt to the returned measure; see
+<code><a href="../articles/importing-exposure-scores.html">vignette("importing-exposure-scores", package = "onet2r")</a></code>.</p>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-handel2016onet" class="csl-entry">
 Handel, Michael J. 2016. <span>“The <span>O*NET</span> Content Model:

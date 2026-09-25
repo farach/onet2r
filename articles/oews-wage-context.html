@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,9 +46,11 @@
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -333,8 +335,8 @@ the bundled fixture.</p>
 <td align="left">5234530</td>
 <td align="left">5234530</td>
 <td align="left">1</td>
-<td align="left">4</td>
-<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">3</td>
 </tr></tbody>
 </table>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -401,15 +403,154 @@ you how much of the weight panel was included.</p>
 <td align="left">5234530</td>
 <td align="left">5234530</td>
 <td align="left">1</td>
-<td align="left">4</td>
-<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">3</td>
 </tr></tbody>
 </table>
 </div>
 <div class="section level2">
+<h2 id="map-onet-occupations-into-oews-combinations">Map O*NET Occupations into OEWS Combinations<a class="anchor" aria-label="anchor" href="#map-onet-occupations-into-oews-combinations"></a>
+</h2>
+<p>Since the May 2021 estimates, OEWS publishes most detailed SOC
+occupations but reports a few only as combinations. For example,
+<code>31-1120</code> Home Health and Personal Care Aides holds the SOC
+occupations <code>31-1121</code> and <code>31-1122</code>, which O*NET
+rates separately. Without a bridge, those O*NET occupations match no
+panel row, and the combined employment stays in the denominator as
+unmatched. <code><a href="../reference/onet_oews_bridge.html">onet_oews_bridge()</a></code> maps each O*NET occupation to
+the OEWS code that publishes it. The fixture OEWS sample has no combined
+codes, so this example uses stylized scores and weights.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Stylized weights and scores for illustration; not OEWS or O*NET values.</span></span>
+<span><span class="va">combined_weights</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"29-1141"</span>, <span class="st">"31-1120"</span><span class="op">)</span>,</span>
+<span>  year <span class="op">=</span> <span class="fl">2024L</span>,</span>
+<span>  employment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>, <span class="fl">400</span><span class="op">)</span>,</span>
+<span>  weight_share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span> <span class="op">/</span> <span class="fl">7</span>,</span>
+<span>  source <span class="op">=</span> <span class="st">"OEWS"</span>,</span>
+<span>  source_taxonomy <span class="op">=</span> <span class="st">"2018 SOC"</span>,</span>
+<span>  reference_taxonomy <span class="op">=</span> <span class="st">"2018 SOC"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">stylized_scores</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  onet_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"29-1141.00"</span>, <span class="st">"31-1121.00"</span>, <span class="st">"31-1122.00"</span><span class="op">)</span>,</span>
+<span>  measure_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">combination_bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_oews_bridge.html">onet_oews_bridge</a></span><span class="op">(</span><span class="va">stylized_scores</span>, <span class="va">combined_weights</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Mapped 2 O*NET occupations into 1 OEWS combination code:</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">"31-1120"</span>.</span></span>
+<span></span>
+<span><span class="va">combination_bridge</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="14%">
+<col width="10%">
+<col width="14%">
+<col width="12%">
+<col width="12%">
+<col width="34%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">from_onet_soc_code</th>
+<th align="left">from_soc_code</th>
+<th align="left">reference_soc_code</th>
+<th align="left">map_type</th>
+<th align="left">crosswalk_weight</th>
+<th align="left">crosswalk_path</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">29-1141.00</td>
+<td align="left">29-1141</td>
+<td align="left">29-1141</td>
+<td align="left">direct</td>
+<td align="left">1</td>
+<td align="left">O*NET-SOC -&gt; 2018 SOC with OEWS combinations</td>
+</tr>
+<tr class="even">
+<td align="left">31-1121.00</td>
+<td align="left">31-1121</td>
+<td align="left">31-1120</td>
+<td align="left">oews_combination</td>
+<td align="left">1</td>
+<td align="left">O*NET-SOC -&gt; 2018 SOC with OEWS combinations</td>
+</tr>
+<tr class="odd">
+<td align="left">31-1122.00</td>
+<td align="left">31-1122</td>
+<td align="left">31-1120</td>
+<td align="left">oews_combination</td>
+<td align="left">1</td>
+<td align="left">O*NET-SOC -&gt; 2018 SOC with OEWS combinations</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">without_bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
+<span>  <span class="va">stylized_scores</span>,</span>
+<span>  <span class="va">combined_weights</span>,</span>
+<span>  measure_id <span class="op">=</span> <span class="st">"stylized_score"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">with_bridge</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
+<span>  <span class="va">stylized_scores</span>,</span>
+<span>  <span class="va">combined_weights</span>,</span>
+<span>  bridge <span class="op">=</span> <span class="va">combination_bridge</span>,</span>
+<span>  measure_id <span class="op">=</span> <span class="st">"stylized_score"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  run <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"No bridge"</span>, <span class="st">"onet_oews_bridge()"</span><span class="op">)</span>,</span>
+<span>  aggregate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">without_bridge</span><span class="op">$</span><span class="va">aggregate</span>, <span class="va">with_bridge</span><span class="op">$</span><span class="va">aggregate</span><span class="op">)</span>,</span>
+<span>  employment_coverage_share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="va">without_bridge</span><span class="op">$</span><span class="va">employment_coverage_share</span>,</span>
+<span>    <span class="va">with_bridge</span><span class="op">$</span><span class="va">employment_coverage_share</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  n_occupations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">without_bridge</span><span class="op">$</span><span class="va">n_occupations</span>, <span class="va">with_bridge</span><span class="op">$</span><span class="va">n_occupations</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="27%">
+<col width="14%">
+<col width="37%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">run</th>
+<th align="left">aggregate</th>
+<th align="left">employment_coverage_share</th>
+<th align="left">n_occupations</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">No bridge</td>
+<td align="left">0.200</td>
+<td align="left">0.429</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">onet_oews_bridge()</td>
+<td align="left">0.371</td>
+<td align="left">1.000</td>
+<td align="left">3</td>
+</tr>
+</tbody>
+</table>
+<p>Occupations inside one combination are averaged with equal weight,
+because OEWS publishes no employment split among them. With O*NET 31.0
+task ratings and the May 2025 national OEWS file, the bridge raises
+covered employment from about 92 percent to about 98 percent, and
+Healthcare Support from about 46 percent to 100 percent. The
+combinations come from the BLS occupation definitions rather than from
+the rows of the panel, so the same bridge works for state, metropolitan,
+and industry panels from May 2021 on, even when some of their
+occupations are suppressed.</p>
+</div>
+<div class="section level2">
 <h2 id="inspect-occupation-contributions">Inspect Occupation Contributions<a class="anchor" aria-label="anchor" href="#inspect-occupation-contributions"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">contributions</span> <span class="op">&lt;-</span> <span class="va">oral_scores</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>reference_soc_code <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"\\.\\d{2}$"</span>, <span class="st">""</span>, <span class="va">onet_soc_code</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">summarise</span><span class="op">(</span></span>
@@ -478,7 +619,7 @@ would only redraw the table.</p>
 <p>OEWS is the right default for official occupation employment and wage
 context. PUMS-derived weights are useful when the target population is a
 custom sample, geography, or demographic cell.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  SOCP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"151252"</span>, <span class="st">"151252"</span>, <span class="st">"291141"</span>, <span class="st">"291141"</span>, <span class="st">"111011"</span><span class="op">)</span>,</span>
 <span>  PWGTP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">80</span>, <span class="fl">90</span>, <span class="fl">110</span>, <span class="fl">20</span><span class="op">)</span>,</span>
@@ -574,8 +715,8 @@ weights. The common starting point is employed civilians, often
 <code>ESR %in% c(1, 2)</code> and age 16 or older. <code>SOCP</code> is
 the SOC field. <code>OCCP</code> is a Census occupation recode and needs
 a separate crosswalk before it can be used with O*NET or OEWS.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tidycensus</span><span class="fu">::</span><span class="fu"><a href="https://walker-data.com/tidycensus/reference/get_pums.html" class="external-link">get_pums</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pums</span> <span class="op">&lt;-</span> <span class="fu">tidycensus</span><span class="fu">::</span><span class="fu">get_pums</span><span class="op">(</span></span>
 <span>  variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SOCP"</span>, <span class="st">"PWGTP"</span>, <span class="st">"ESR"</span>, <span class="st">"AGEP"</span><span class="op">)</span>,</span>
 <span>  state <span class="op">=</span> <span class="st">"WA"</span>,</span>
 <span>  year <span class="op">=</span> <span class="fl">2023</span>,</span>
@@ -584,7 +725,7 @@ a separate crosswalk before it can be used with O*NET or OEWS.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ESR</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"2"</span><span class="op">)</span>, <span class="va">AGEP</span> <span class="op">&gt;=</span> <span class="fl">16</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pums_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_weight_panel_pums.html">onet_weight_panel_pums</a></span><span class="op">(</span><span class="va">pums</span>, year <span class="op">=</span> <span class="fl">2023</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oral_pums_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate</a></span><span class="op">(</span></span>
 <span>  <span class="va">oral_scores</span>,</span>
 <span>  <span class="va">pums_weights</span>,</span>

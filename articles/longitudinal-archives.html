@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,9 +46,11 @@
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -229,11 +231,68 @@ The important longitudinal fields are <code>release_version</code>,
 <code>domain_source</code>.</p>
 </div>
 <div class="section level2">
+<h2 id="look-up-names-in-reference-tables">Look Up Names in Reference Tables<a class="anchor" aria-label="anchor" href="#look-up-names-in-reference-tables"></a>
+</h2>
+<p>The text archives keep repeated names out of their linking and rating
+files. In the 30.2, 30.3, and 31.0 text archives,
+<code>Tasks to DWAs.txt</code> carries DWA IDs but no DWA titles, and
+<code>Task Ratings.txt</code> carries task IDs but no task text. Task
+text comes from <code>Task Statements</code>, which
+<code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code> reads. DWA titles and scale names live
+in reference tables that have no O*NET-SOC column, which
+<code><a href="../reference/onet_archive_reference.html">onet_archive_reference()</a></code> reads with their published
+columns.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dwa_titles</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_reference.html">onet_archive_reference</a></span><span class="op">(</span></span>
+<span>  <span class="st">"30.3"</span>,</span>
+<span>  <span class="st">"GWAs to IWAs to DWAs"</span>,</span>
+<span>  path <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.3"</span><span class="op">)</span>,</span>
+<span>  release_date <span class="op">=</span> <span class="st">"2026-05-01"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dwa_titles</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">dwa_element_id</span>, <span class="va">dwa_element_name</span>, <span class="va">iwa_element_id</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="19%">
+<col width="60%">
+<col width="19%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">dwa_element_id</th>
+<th align="left">dwa_element_name</th>
+<th align="left">iwa_element_id</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">4.A.2.a.1.a.1</td>
+<td align="left">Analyze data to inform operational decisions.</td>
+<td align="left">4.A.2.a.1.a</td>
+</tr>
+<tr class="even">
+<td align="left">4.A.4.a.4.a.1</td>
+<td align="left">Prepare technical reports.</td>
+<td align="left">4.A.4.a.4.a</td>
+</tr>
+<tr class="odd">
+<td align="left">4.A.2.a.3.a.1</td>
+<td align="left">Monitor health or safety conditions.</td>
+<td align="left">4.A.2.a.3.a</td>
+</tr>
+</tbody>
+</table>
+<p>Join them to a linking table by <code>dwa_element_id</code>. The same
+reader returns <code>Scales Reference</code>,
+<code>Task Categories</code>, <code>Job Zones</code>, and the other
+lookup files.</p>
+</div>
+<div class="section level2">
 <h2 id="assemble-a-same-vintage-panel">Assemble a Same-Vintage Panel<a class="anchor" aria-label="anchor" href="#assemble-a-same-vintage-panel"></a>
 </h2>
 <p><code><a href="../reference/onet_panel.html">onet_panel()</a></code> applies the same reader across releases and
 row-binds the normalized outputs.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">same_vintage_archives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  `30.2` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.2"</span><span class="op">)</span>,</span>
 <span>  `30.3` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"30.3"</span><span class="op">)</span></span>
@@ -369,7 +428,7 @@ in the comparison.</p>
 </h2>
 <p><code><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code> compares adjacent releases and
 classifies each matched occupation-element-scale pair.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_panel_reconcile.html">onet_panel_reconcile</a></span><span class="op">(</span><span class="va">panel</span>, <span class="fu"><a href="../reference/onet_crosswalk_bridge.html">onet_crosswalk_bridge</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2019"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">changes</span> <span class="op">|&gt;</span></span>
@@ -553,7 +612,7 @@ date.</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">changes</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">value_changed</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>abs_change <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">value_change</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -641,7 +700,7 @@ date.</td>
 bundled 2010-vintage and 2019-vintage fixtures. The bridge is
 intentionally tiny, but it shows the real problem: a 2010 occupation can
 split into more than one 2019 occupation.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cross_archives</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  `24.3` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"24.3"</span><span class="op">)</span>,</span>
 <span>  `25.1` <span class="op">=</span> <span class="fu">example_archive</span><span class="op">(</span><span class="st">"25.1"</span><span class="op">)</span></span>
@@ -745,7 +804,7 @@ split into more than one 2019 occupation.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_changes</span> <span class="op">&lt;-</span> <span class="va">cross_changes</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">from_value</span><span class="op">)</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">to_value</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span></span>
@@ -788,7 +847,7 @@ split into more than one 2019 occupation.</p>
 <p><code><a href="../reference/onet_change_summary.html">onet_change_summary()</a></code> gives a compact audit of the
 reconciliation result. The job-family view is useful for spotting
 whether one part of the SOC taxonomy is driving the apparent change.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/onet_change_summary.html">onet_change_summary</a></span><span class="op">(</span><span class="va">changes</span>, by <span class="op">=</span> <span class="st">"job_family"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -1020,6 +1079,11 @@ releases use different O*NET-SOC vintages.</li>
 <code>change_type</code>, <code>method_break</code>,
 <code>crosswalk_uncertain</code>, and
 <code>safely_comparable</code>.</li>
+<li>For Task Ratings panels, restrict change estimates to resurveyed
+occupations with <code><a href="../reference/onet_resurvey_panel.html">onet_resurvey_panel()</a></code> and
+<code><a href="../reference/onet_condition_on_resurvey.html">onet_condition_on_resurvey()</a></code>, and measure task-set change
+with <code><a href="../reference/onet_content_change.html">onet_content_change()</a></code>. See
+<code><a href="../articles/resurvey-and-content-change.html">vignette("resurvey-and-content-change", package = "onet2r")</a></code>.</li>
 </ol>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

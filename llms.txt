@@ -244,6 +244,13 @@ onet_provenance(aggregate) |>
 |:--------------------|:----------------|:--------------|:------------|:----------------|:-------------------|:------------|:----------------------|
 | stylized_task_score | 30.3            | OEWS          | 2024        | 2018 SOC        | 2018 SOC           | FALSE       | 2018 SOC -\> 2018 SOC |
 
+OEWS publishes a few occupations only as combined codes, such as
+`31-1120` Home Health and Personal Care Aides. Build a bridge with
+`onet_oews_bridge(occupation_scores, weights)` and pass it as `bridge`
+to
+[`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md)
+so O\*NET occupations inside those codes count toward coverage.
+
 ## Stress Test the Plumbing
 
 ``` r
@@ -340,11 +347,17 @@ onet_coverage(decomp) |>
   [`onet_releases()`](https://farach.github.io/onet2r/reference/onet_releases.md),
   [`onet_archive_download()`](https://farach.github.io/onet2r/reference/onet_archive_download.md),
   [`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md),
+  [`onet_archive_reference()`](https://farach.github.io/onet2r/reference/onet_archive_reference.md),
   [`onet_panel()`](https://farach.github.io/onet2r/reference/onet_panel.md),
   [`onet_panel_reconcile()`](https://farach.github.io/onet2r/reference/onet_panel_reconcile.md).
+- Resurvey cycles and content change:
+  [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md),
+  [`onet_condition_on_resurvey()`](https://farach.github.io/onet2r/reference/onet_condition_on_resurvey.md),
+  [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md).
 - Wage and employment context:
   [`onet_oews_national()`](https://farach.github.io/onet2r/reference/onet_oews_national.md),
   [`onet_weight_panel_oews()`](https://farach.github.io/onet2r/reference/onet_weight_panel_oews.md),
+  [`onet_oews_bridge()`](https://farach.github.io/onet2r/reference/onet_oews_bridge.md),
   [`onet_weight_panel_pums()`](https://farach.github.io/onet2r/reference/onet_weight_panel_pums.md).
 - User-measure plumbing:
   [`onet_measure()`](https://farach.github.io/onet2r/reference/onet_measure.md),
@@ -354,6 +367,9 @@ onet_coverage(decomp) |>
   [`onet_provenance()`](https://farach.github.io/onet2r/reference/onet_provenance.md),
   [`onet_coverage()`](https://farach.github.io/onet2r/reference/onet_coverage.md),
   [`onet_decompose_change()`](https://farach.github.io/onet2r/reference/onet_decompose_change.md).
+- Published exposure adapters:
+  [`onet_import_eloundou()`](https://farach.github.io/onet2r/reference/onet_import_eloundou.md),
+  [`onet_import_felten_aioe()`](https://farach.github.io/onet2r/reference/onet_import_felten_aioe.md).
 
 ## Related tools
 
@@ -468,6 +484,8 @@ onet_coverage(decomp) |>
   : Download an O\*NET Archive
 - [`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md)
   : Read an O\*NET Archive Table
+- [`onet_archive_reference()`](https://farach.github.io/onet2r/reference/onet_archive_reference.md)
+  : Read an O\*NET Archive Reference Table
 - [`onet_panel()`](https://farach.github.io/onet2r/reference/onet_panel.md)
   : Assemble an O\*NET Longitudinal Panel
 - [`onet_panel_reconcile()`](https://farach.github.io/onet2r/reference/onet_panel_reconcile.md)
@@ -505,6 +523,8 @@ movement metrics built on longitudinal panels.
   : Resolve Source Codes to a Reference SOC
 - [`onet_weight_panel_oews()`](https://farach.github.io/onet2r/reference/onet_weight_panel_oews.md)
   : Create an OEWS Weight Panel
+- [`onet_oews_bridge()`](https://farach.github.io/onet2r/reference/onet_oews_bridge.md)
+  : Bridge O\*NET Occupations to OEWS Reference Codes
 - [`onet_weight_panel_pums()`](https://farach.github.io/onet2r/reference/onet_weight_panel_pums.md)
   : Create a PUMS Weight Panel
 
@@ -568,6 +588,8 @@ onet_measure objects.
   Analysis](https://farach.github.io/onet2r/articles/longitudinal-archives.md):
 - [How to Fool Yourself with O\*NET over
   Time](https://farach.github.io/onet2r/articles/how-to-fool-yourself-with-onet-over-time.md):
+- [Resurvey Cycles and Content
+  Change](https://farach.github.io/onet2r/articles/resurvey-and-content-change.md):
 
 ### Measures and weights
 
@@ -575,6 +597,8 @@ onet_measure objects.
   Occupations](https://farach.github.io/onet2r/articles/from-tasks-to-occupations.md):
 - [Reproducible User
   Measures](https://farach.github.io/onet2r/articles/measure-reproducibility.md):
+- [Importing Published Exposure
+  Scores](https://farach.github.io/onet2r/articles/importing-exposure-scores.md):
 - [Stress-Testing a User-Supplied Exposure
   Measure](https://farach.github.io/onet2r/articles/stress-testing-exposure-measure.md):
 - [Choosing Employment Weights: OEWS versus

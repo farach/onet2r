@@ -27,7 +27,9 @@ onet_import_eloundou(
   measure_id = "eloundou_gpt_exposure",
   measure_name = "Eloundou et al. (2023) GPT exposure",
   force = FALSE,
-  ...
+  ...,
+  expected_sha256 = NULL,
+  as_of = NULL
 )
 ```
 
@@ -87,6 +89,16 @@ onet_import_eloundou(
   [`onet_measure()`](https://farach.github.io/onet2r/reference/onet_measure.md),
   such as `universe` or `weight_panel`.
 
+- expected_sha256:
+
+  Optional expected SHA-256 digest for the local or downloaded source.
+  It is verified before parsing and on cache reuse.
+
+- as_of:
+
+  Optional source date or label recorded in provenance. Cached downloads
+  with different `as_of` metadata are not silently reused.
+
 ## Value
 
 A task-grain `onet_measure` object (`key_type = "task"`) keyed on
@@ -107,7 +119,12 @@ onet2r never bundles or ships the file; you must supply `path` or
 download it from `url`. Downloads are cached under
 `tools::R_user_dir("onet2r", "cache")` in the `reference` section and
 can be cleared with `onet_cache_clear(what = "reference")`. Cite the
-source paper when you use the scores.
+source paper when you use the scores. The returned measure includes
+`metadata$source_receipt` with the source URL or local path, retrieval
+time, digest, file size, source commit when inferable from a pinned
+GitHub raw URL, and version or `as_of` metadata. A cached download
+without a receipt cannot satisfy the requested URL provenance. Use
+`force = TRUE` to replace legacy cached bytes.
 
 The three exposure definitions follow the paper: alpha counts tasks
 exposed by direct model access, beta adds tasks reachable with

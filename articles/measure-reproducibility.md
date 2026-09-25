@@ -234,7 +234,39 @@ diagnostic |>
 | RT_core_plus_supplemental / task_release / weights / no_bridge | 0.373     | 0.96                      | -0.047   | -0.112           |
 
 The diagnostic will not tell you which task score is right. It reports
-how far the headline number moves when non-substantive plumbing changes.
+how far the headline aggregate moves when non-substantive plumbing
+changes. The second argument is `weight_panels`; for multi-release task
+comparisons, pass named lists of single-release frames through
+`task_ratings` and matching `task_metadata`. A content-change table is
+not an employment weight panel and is rejected. The returned `movement`
+fields compare scenario aggregates with the baseline. They are not
+Spearman, rank, quintile, variance, or content-drift diagnostics.
+
+## Pin the Source Files
+
+The tables above come from local fixtures. In a real project, the inputs
+are downloaded archive and exposure files, and a reproducible number
+also needs to say exactly which bytes were read. Downloads write a
+receipt beside each cached file with its URL, retrieval time, SHA-256
+digest, size, and version. Record the digest once, then pass it back so
+a changed file is rejected before it is parsed:
+
+``` r
+onet_archive_download(
+  "30.3",
+  expected_sha256 = "<digest recorded on first download>",
+  as_of = "2026-05"
+)
+tasks <- onet_archive_read("30.3", "Task Statements")
+```
+
+[`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md)
+then parses a private snapshot of the verified cache entry, so a later
+refresh cannot change the bytes under a running analysis.
+
+The published exposure adapters accept the same `expected_sha256` and
+`as_of` arguments and attach the receipt to the returned measure; see
+[`vignette("importing-exposure-scores", package = "onet2r")`](https://farach.github.io/onet2r/articles/importing-exposure-scores.md).
 
 Handel, Michael J. 2016. “The O\*NET Content Model: Strengths and
 Limitations.” *Journal for Labour Market Research* 49 (2): 157–76.

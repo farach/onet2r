@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,9 +24,11 @@
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -57,7 +59,8 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">onet_cache_clear</span><span class="op">(</span></span>
 <span>  cache_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"onet2r.cache_dir"</span>, <span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"onet2r"</span>, <span class="st">"cache"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"api"</span>, <span class="st">"archives"</span>, <span class="st">"crosswalks"</span>, <span class="st">"oews"</span>, <span class="st">"reference"</span>, <span class="st">"all"</span><span class="op">)</span></span>
+<span>  what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"api"</span>, <span class="st">"archives"</span>, <span class="st">"crosswalks"</span>, <span class="st">"oews"</span>, <span class="st">"reference"</span>, <span class="st">"all"</span><span class="op">)</span>,</span>
+<span>  timeout <span class="op">=</span> <span class="fl">600</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -74,6 +77,11 @@
 <code>"archives"</code> for O*NET database ZIPs, <code>"crosswalks"</code> for O*NET bridge
 CSVs, <code>"oews"</code> for BLS OEWS ZIPs, <code>"reference"</code> for reference workbooks,
 or <code>"all"</code> for every section.</p></dd>
+
+
+<dt id="arg-timeout">timeout<a class="anchor" aria-label="anchor" href="#arg-timeout"></a></dt>
+<dd><p>Maximum number of seconds to wait for active cache
+transactions to finish before aborting the clear operation.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -199,21 +199,21 @@ choices.](stress-testing-exposure-measure_files/figure-html/sensitivity-chart-1.
 
 ``` r
 onet_provenance(sensitivity) |>
-  select(any_of(c("weight_source", "weight_year", "bridge", "measure_id"))) |>
+  select(any_of(c("measure_id", "weight_source", "weight_year", "bridge_used", "crosswalk_path"))) |>
   head(8) |>
   knitr::kable(digits = 3, align = "l")
 ```
 
-| weight_source | weight_year | measure_id        |
-|:--------------|:------------|:------------------|
-| OEWS          | 2024        | stylized_exposure |
-| PUMS          | 2022        | stylized_exposure |
-| OEWS          | 2024        | stylized_exposure |
-| PUMS          | 2022        | stylized_exposure |
-| OEWS          | 2024        | stylized_exposure |
-| PUMS          | 2022        | stylized_exposure |
-| OEWS          | 2024        | stylized_exposure |
-| PUMS          | 2022        | stylized_exposure |
+| measure_id        | weight_source | weight_year | bridge_used | crosswalk_path             |
+|:------------------|:--------------|:------------|:------------|:---------------------------|
+| stylized_exposure | OEWS          | 2024        | TRUE        | mixed_fixture -\> 2018 SOC |
+| stylized_exposure | PUMS          | 2022        | TRUE        | mixed_fixture -\> 2018 SOC |
+| stylized_exposure | OEWS          | 2024        | TRUE        | mixed_fixture -\> 2018 SOC |
+| stylized_exposure | PUMS          | 2022        | TRUE        | mixed_fixture -\> 2018 SOC |
+| stylized_exposure | OEWS          | 2024        | TRUE        | mixed_fixture -\> 2018 SOC |
+| stylized_exposure | PUMS          | 2022        | TRUE        | mixed_fixture -\> 2018 SOC |
+| stylized_exposure | OEWS          | 2024        | TRUE        | mixed_fixture -\> 2018 SOC |
+| stylized_exposure | PUMS          | 2022        | TRUE        | mixed_fixture -\> 2018 SOC |
 
 If the sign, rank, or interpretation of a result depends on one plumbing
 choice, say so in the write-up. Running the grid does not make a result

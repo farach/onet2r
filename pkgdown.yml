@@ -6,14 +6,16 @@ articles:
   from-tasks-to-occupations: from-tasks-to-occupations.html
   getting-started: getting-started.html
   how-to-fool-yourself-with-onet-over-time: how-to-fool-yourself-with-onet-over-time.html
+  importing-exposure-scores: importing-exposure-scores.html
   longitudinal-archives: longitudinal-archives.html
   longitudinal-onet-background: longitudinal-onet-background.html
   measure-reproducibility: measure-reproducibility.html
   oews-wage-context: oews-wage-context.html
   output-validation: output-validation.html
+  resurvey-and-content-change: resurvey-and-content-change.html
   stress-testing-exposure-measure: stress-testing-exposure-measure.html
   within-between-decomposition: within-between-decomposition.html
-last_built: 2026-07-10T03:31Z
+last_built: 2026-09-25T23:53Z
 urls:
   reference: https://farach.github.io/onet2r/reference
   article: https://farach.github.io/onet2r/articles

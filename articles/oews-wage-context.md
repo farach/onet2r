@@ -118,7 +118,7 @@ oral_oews |>
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
 |:---------------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
-| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 4             | 4               |
+| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 3             | 3               |
 
 ``` r
 
@@ -141,7 +141,90 @@ onet_coverage(oral_oews) |>
 
 | measure_id                 | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
 |:---------------------------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
-| oral_comprehension_fixture | 5234530          | 5234530            | 1                         | 4             | 4               |
+| oral_comprehension_fixture | 5234530          | 5234530            | 1                         | 3             | 3               |
+
+## Map O\*NET Occupations into OEWS Combinations
+
+Since the May 2021 estimates, OEWS publishes most detailed SOC
+occupations but reports a few only as combinations. For example,
+`31-1120` Home Health and Personal Care Aides holds the SOC occupations
+`31-1121` and `31-1122`, which O\*NET rates separately. Without a
+bridge, those O\*NET occupations match no panel row, and the combined
+employment stays in the denominator as unmatched.
+[`onet_oews_bridge()`](https://farach.github.io/onet2r/reference/onet_oews_bridge.md)
+maps each O\*NET occupation to the OEWS code that publishes it. The
+fixture OEWS sample has no combined codes, so this example uses stylized
+scores and weights.
+
+``` r
+# Stylized weights and scores for illustration; not OEWS or O*NET values.
+combined_weights <- tibble::tibble(
+  reference_soc_code = c("29-1141", "31-1120"),
+  year = 2024L,
+  employment = c(300, 400),
+  weight_share = c(3, 4) / 7,
+  source = "OEWS",
+  source_taxonomy = "2018 SOC",
+  reference_taxonomy = "2018 SOC"
+)
+stylized_scores <- tibble::tibble(
+  onet_soc_code = c("29-1141.00", "31-1121.00", "31-1122.00"),
+  measure_score = c(0.2, 0.4, 0.6)
+)
+
+combination_bridge <- onet_oews_bridge(stylized_scores, combined_weights)
+#> Mapped 2 O*NET occupations into 1 OEWS combination code:
+#> "31-1120".
+
+combination_bridge |>
+  knitr::kable(align = "l")
+```
+
+| from_onet_soc_code | from_soc_code | reference_soc_code | map_type         | crosswalk_weight | crosswalk_path                                 |
+|:-------------------|:--------------|:-------------------|:-----------------|:-----------------|:-----------------------------------------------|
+| 29-1141.00         | 29-1141       | 29-1141            | direct           | 1                | O\*NET-SOC -\> 2018 SOC with OEWS combinations |
+| 31-1121.00         | 31-1121       | 31-1120            | oews_combination | 1                | O\*NET-SOC -\> 2018 SOC with OEWS combinations |
+| 31-1122.00         | 31-1122       | 31-1120            | oews_combination | 1                | O\*NET-SOC -\> 2018 SOC with OEWS combinations |
+
+``` r
+without_bridge <- suppressMessages(onet_measure_aggregate(
+  stylized_scores,
+  combined_weights,
+  measure_id = "stylized_score"
+))
+with_bridge <- onet_measure_aggregate(
+  stylized_scores,
+  combined_weights,
+  bridge = combination_bridge,
+  measure_id = "stylized_score"
+)
+
+tibble::tibble(
+  run = c("No bridge", "onet_oews_bridge()"),
+  aggregate = c(without_bridge$aggregate, with_bridge$aggregate),
+  employment_coverage_share = c(
+    without_bridge$employment_coverage_share,
+    with_bridge$employment_coverage_share
+  ),
+  n_occupations = c(without_bridge$n_occupations, with_bridge$n_occupations)
+) |>
+  knitr::kable(digits = 3, align = "l")
+```
+
+| run                | aggregate | employment_coverage_share | n_occupations |
+|:-------------------|:----------|:--------------------------|:--------------|
+| No bridge          | 0.200     | 0.429                     | 1             |
+| onet_oews_bridge() | 0.371     | 1.000                     | 3             |
+
+Occupations inside one combination are averaged with equal weight,
+because OEWS publishes no employment split among them. With O\*NET 31.0
+task ratings and the May 2025 national OEWS file, the bridge raises
+covered employment from about 92 percent to about 98 percent, and
+Healthcare Support from about 46 percent to 100 percent. The
+combinations come from the BLS occupation definitions rather than from
+the rows of the panel, so the same bridge works for state, metropolitan,
+and industry panels from May 2021 on, even when some of their
+occupations are suppressed.
 
 ## Inspect Occupation Contributions
 

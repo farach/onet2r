@@ -74,7 +74,19 @@ onet_measure_sensitivity(
 ## Value
 
 A tibble with one row per scenario, aggregate results, movement fields,
-and provenance list-column metadata.
+and provenance list-column metadata. The movement fields compare
+scenario aggregates with the selected baseline; they are not rank,
+quintile, variance, or content-drift diagnostics.
+
+## Details
+
+`weight_panels` must contain employment weight panels with
+`reference_soc_code`, `year`, `employment`, `weight_share`, and
+provenance columns. Output from
+[`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
+describes task-content movement and is not a weight panel. Pass named
+lists of single-release `task_ratings` and matching `task_metadata` to
+compare task-handling scenarios across releases.
 
 ## Examples
 

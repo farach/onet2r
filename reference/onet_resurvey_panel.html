@@ -17,7 +17,7 @@ releases. This function exposes that resurvey clock at the task level."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,9 +34,11 @@ releases. This function exposes that resurvey clock at the task level."><meta pr
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -111,20 +113,24 @@ Expert. Matching is case-insensitive and by substring.</p></dd>
 <dt id="arg-min-importance">min_importance<a class="anchor" aria-label="anchor" href="#arg-min-importance"></a></dt>
 <dd><p>Optional numeric floor applied to <code>data_value</code> (on the
 selected <code>scale</code>). Rows below the floor, or with missing <code>data_value</code>, are
-dropped. Use it to reproduce the Importance filter that removes the
-post-v21.0 Task Relevance artifact.</p></dd>
+dropped. Use it to apply an Importance floor for any channel-specific
+artifact a caller has external evidence for, for example near a specific
+release boundary.</p></dd>
 
 
 <dt id="arg-seams">seams<a class="anchor" aria-label="anchor" href="#arg-seams"></a></dt>
 <dd><p>Optional data frame with <code>seam_type</code> and <code>seam_date</code> columns that
-overrides the default Task-Ratings seam table returned by
-<code>onet_known_seams()</code>. Use it for non-Task-Ratings inputs such as Work
-Activities, Work Context, or Abilities, where the v21.0 Task Relevance scale
-seam does not apply. A row is a date-based seam when its <code>seam_date</code> falls in
-the interval between a release and its prior release. Supply an empty table
-to disable date-based seams entirely. <code>NULL</code> keeps the default table, so
-Task Ratings output is unchanged. Cross-vintage SOC seams are always
-detected from <code>soc_vintage</code> regardless of this table.</p></dd>
+overrides the default seam table returned by <code>onet_known_seams()</code>, which
+currently contains only the verified v25.1 SOC-2010 to SOC-2018 taxonomy
+seam. Use it to supply channel-specific or source-specific seam dates,
+such as a v21.0 row, when a caller has external evidence that a
+comparison spanning that date needs seam treatment; v21.0 is not a
+package-verified default seam. A row is a date-based seam when its
+<code>seam_date</code> falls in the interval between a release and its prior
+release. Supply an empty table to disable date-based seams entirely.
+<code>NULL</code> keeps the default table, so Task Ratings output is unchanged.
+Cross-vintage SOC seams are always detected from <code>soc_vintage</code> regardless
+of this table.</p></dd>
 
 </dl></div>
     <div class="section level2">

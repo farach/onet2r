@@ -7,7 +7,8 @@ Deletes cached O\*NET API responses and downloaded source archives.
 ``` r
 onet_cache_clear(
   cache_dir = getOption("onet2r.cache_dir", tools::R_user_dir("onet2r", "cache")),
-  what = c("api", "archives", "crosswalks", "oews", "reference", "all")
+  what = c("api", "archives", "crosswalks", "oews", "reference", "all"),
+  timeout = 600
 )
 ```
 
@@ -23,6 +24,11 @@ onet_cache_clear(
   `"archives"` for O\*NET database ZIPs, `"crosswalks"` for O\*NET
   bridge CSVs, `"oews"` for BLS OEWS ZIPs, `"reference"` for reference
   workbooks, or `"all"` for every section.
+
+- timeout:
+
+  Maximum number of seconds to wait for active cache transactions to
+  finish before aborting the clear operation.
 
 ## Value
 

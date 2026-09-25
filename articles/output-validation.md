@@ -17,17 +17,31 @@ onet2r_inst_path("examples", "validate-outputs.R")
 
 ## What the Script Checks
 
-The validation script always checks deterministic local outputs:
+The script exercises every exported function without network access, and
+it stops with an error if any export is left unchecked:
 
-- reading bundled OEWS sample data;
-- reading a local O\*NET archive-format table;
-- creating a reference-SOC OEWS weight panel;
-- aggregating an occupation score with coverage and provenance;
-- configuring cache and rate-limit settings.
+- The Web Services endpoints run against a seeded response cache with a
+  placeholder key, so request construction, parsing, and empty-result
+  schemas are checked offline.
+- Release listing, archive download, and the Longitudinal Data Updates
+  reader run against local fixtures, including a cached archive with a
+  source receipt. The Data Updates check needs the `writexl` package to
+  build its fixture workbook.
+- Archive, OEWS, weighting, bridging, measure, resurvey, content-change,
+  import, sensitivity, and decomposition functions run on the bundled
+  fixtures, and key results are asserted exactly.
 
-When `ONET_API_KEY` is available, it also performs live smoke checks
-across the main exported O\*NET functions. Each result is inspected for
-expected type, minimum row count, and important columns.
+Two environment variables add live checks. With `ONET_API_KEY` set, the
+script also calls the main Web Services endpoints against the real API.
+With `ONET2R_VALIDATE_LIVE=true`, it downloads the release listing, an
+archive, an O\*NET-SOC crosswalk, and the Data Updates file.
+
+Before a release, run
+`Rscript tools/validate-clean-install.R --rounds=2` from the source
+tree. It builds the package tarball, installs it into temporary
+libraries, and runs the installed script from a directory outside the
+repository, so the checks cannot pick up development files. Add
+`--live-api` or `--live-archives` to include the live checks.
 
 ## Example: Local Validation without an API Key
 
@@ -105,7 +119,7 @@ aggregate |>
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
 |:---------------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
-| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 4             | 4               |
+| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 3             | 3               |
 
 ## Example: Live Validation Status
 

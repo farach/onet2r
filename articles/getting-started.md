@@ -151,7 +151,7 @@ oral_aggregate |>
 
 | measure_id                 | aggregate | total_employment | covered_employment | employment_coverage_share | n_occupations | n_reference_soc |
 |:---------------------------|:----------|:-----------------|:-------------------|:--------------------------|:--------------|:----------------|
-| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 4             | 4               |
+| oral_comprehension_fixture | 4.574     | 5234530          | 5234530            | 1                         | 3             | 3               |
 
 ``` r
 
@@ -230,8 +230,15 @@ changes |>
   [`vignette("longitudinal-archives", package = "onet2r")`](https://farach.github.io/onet2r/articles/longitudinal-archives.md)
   to assemble and reconcile archive panels.
 - Read
+  [`vignette("resurvey-and-content-change", package = "onet2r")`](https://farach.github.io/onet2r/articles/resurvey-and-content-change.md)
+  to restrict change estimates to occupations that were actually
+  re-rated.
+- Read
   [`vignette("oews-wage-context", package = "onet2r")`](https://farach.github.io/onet2r/articles/oews-wage-context.md)
   to choose and apply employment weights.
+- Read
+  [`vignette("importing-exposure-scores", package = "onet2r")`](https://farach.github.io/onet2r/articles/importing-exposure-scores.md)
+  to work with published exposure scores.
 - Read
   [`vignette("stress-testing-exposure-measure", package = "onet2r")`](https://farach.github.io/onet2r/articles/stress-testing-exposure-measure.md)
   to stress test a user-supplied measure.

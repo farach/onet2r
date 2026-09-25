@@ -158,7 +158,13 @@ re-measurements; treat small movements as measurement persistence, not
 signal. The official [Longitudinal Data Updates
 record](https://www.onetcenter.org/dataUpdates.html) (see
 [`onet_data_updates()`](https://farach.github.io/onet2r/reference/onet_data_updates.md))
-tells you which occupations were actually re-rated in each cycle.
+tells you which occupations were actually re-rated in each cycle. For
+Task Ratings,
+[`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md)
+and
+[`onet_condition_on_resurvey()`](https://farach.github.io/onet2r/reference/onet_condition_on_resurvey.md)
+turn the source dates into a survey clock and an at-risk set; see
+[`vignette("resurvey-and-content-change", package = "onet2r")`](https://farach.github.io/onet2r/articles/resurvey-and-content-change.md).
 
 ## How This Differs from the Standard Task Approach
 

@@ -25,7 +25,9 @@ onet_import_felten_aioe(
   measure_id = "felten_aioe",
   measure_name = "Felten, Raj, and Seamans (2021) AIOE",
   force = FALSE,
-  ...
+  ...,
+  expected_sha256 = NULL,
+  as_of = NULL
 )
 ```
 
@@ -81,6 +83,16 @@ onet_import_felten_aioe(
   [`onet_measure()`](https://farach.github.io/onet2r/reference/onet_measure.md),
   such as `universe` or `weight_panel`.
 
+- expected_sha256:
+
+  Optional expected SHA-256 digest for the local or downloaded source.
+  It is verified before parsing and on cache reuse.
+
+- as_of:
+
+  Optional source date or label recorded in provenance. Cached downloads
+  with different `as_of` metadata are not silently reused.
+
 ## Value
 
 A task-grain `onet_measure` object (`key_type = "task"`) keyed on
@@ -101,7 +113,12 @@ download it from `url`. Downloads are cached under
 `tools::R_user_dir("onet2r", "cache")` in the `reference` section and
 can be cleared with `onet_cache_clear(what = "reference")`. The AIOE
 workbook is provided for research use; cite Felten, Raj, and Seamans
-(2021) when you use the scores.
+(2021) when you use the scores. The returned measure includes
+`metadata$source_receipt` with the source URL or local path, retrieval
+time, digest, file size, source commit when inferable from a pinned
+GitHub raw URL, and version or `as_of` metadata. A cached download
+without a receipt cannot satisfy the requested URL provenance. Use
+`force = TRUE` to replace legacy cached bytes.
 
 ## Examples
 

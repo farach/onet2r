@@ -21,7 +21,7 @@ published values."><meta property="og:image" content="https://farach.github.io/o
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,9 +38,11 @@ published values."><meta property="og:image" content="https://farach.github.io/o
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -88,7 +90,9 @@ published values.</p>
 <span>  measure_id <span class="op">=</span> <span class="st">"felten_aioe"</span>,</span>
 <span>  measure_name <span class="op">=</span> <span class="st">"Felten, Raj, and Seamans (2021) AIOE"</span>,</span>
 <span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  expected_sha256 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  as_of <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -145,6 +149,16 @@ common column names such as <code>"SOC Code"</code> are detected automatically.<
 <dd><p>Additional arguments passed to <code><a href="onet_measure.html">onet_measure()</a></code>, such as
 <code>universe</code> or <code>weight_panel</code>.</p></dd>
 
+
+<dt id="arg-expected-sha-">expected_sha256<a class="anchor" aria-label="anchor" href="#arg-expected-sha-"></a></dt>
+<dd><p>Optional expected SHA-256 digest for the local or
+downloaded source. It is verified before parsing and on cache reuse.</p></dd>
+
+
+<dt id="arg-as-of">as_of<a class="anchor" aria-label="anchor" href="#arg-as-of"></a></dt>
+<dd><p>Optional source date or label recorded in provenance. Cached
+downloads with different <code>as_of</code> metadata are not silently reused.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -162,7 +176,12 @@ single-release panel so each task id is unique.</p>
 <p>onet2r never bundles or ships the workbook; you must supply <code>path</code> or download
 it from <code>url</code>. Downloads are cached under <code>tools::R_user_dir("onet2r", "cache")</code> in the <code>reference</code> section and can be cleared with
 <code>onet_cache_clear(what = "reference")</code>. The AIOE workbook is provided for
-research use; cite Felten, Raj, and Seamans (2021) when you use the scores.</p>
+research use; cite Felten, Raj, and Seamans (2021) when you use the scores.
+The returned measure includes <code>metadata$source_receipt</code> with the source URL
+or local path, retrieval time, digest, file size, source commit when
+inferable from a pinned GitHub raw URL, and version or <code>as_of</code> metadata.
+A cached download without a receipt cannot satisfy the requested URL
+provenance. Use <code>force = TRUE</code> to replace legacy cached bytes.</p>
     </div>
 
     <div class="section level2">

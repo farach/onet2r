@@ -13,6 +13,8 @@
   Analysis](https://farach.github.io/onet2r/articles/longitudinal-archives.md):
 - [How to Fool Yourself with O\*NET over
   Time](https://farach.github.io/onet2r/articles/how-to-fool-yourself-with-onet-over-time.md):
+- [Resurvey Cycles and Content
+  Change](https://farach.github.io/onet2r/articles/resurvey-and-content-change.md):
 
 ### Measures and weights
 
@@ -20,6 +22,8 @@
   Occupations](https://farach.github.io/onet2r/articles/from-tasks-to-occupations.md):
 - [Reproducible User
   Measures](https://farach.github.io/onet2r/articles/measure-reproducibility.md):
+- [Importing Published Exposure
+  Scores](https://farach.github.io/onet2r/articles/importing-exposure-scores.md):
 - [Stress-Testing a User-Supplied Exposure
   Measure](https://farach.github.io/onet2r/articles/stress-testing-exposure-measure.md):
 - [Choosing Employment Weights: OEWS versus

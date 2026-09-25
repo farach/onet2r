@@ -97,6 +97,8 @@
   : Download an O\*NET Archive
 - [`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md)
   : Read an O\*NET Archive Table
+- [`onet_archive_reference()`](https://farach.github.io/onet2r/reference/onet_archive_reference.md)
+  : Read an O\*NET Archive Reference Table
 - [`onet_panel()`](https://farach.github.io/onet2r/reference/onet_panel.md)
   : Assemble an O\*NET Longitudinal Panel
 - [`onet_panel_reconcile()`](https://farach.github.io/onet2r/reference/onet_panel_reconcile.md)
@@ -134,6 +136,8 @@ movement metrics built on longitudinal panels.
   : Resolve Source Codes to a Reference SOC
 - [`onet_weight_panel_oews()`](https://farach.github.io/onet2r/reference/onet_weight_panel_oews.md)
   : Create an OEWS Weight Panel
+- [`onet_oews_bridge()`](https://farach.github.io/onet2r/reference/onet_oews_bridge.md)
+  : Bridge O\*NET Occupations to OEWS Reference Codes
 - [`onet_weight_panel_pums()`](https://farach.github.io/onet2r/reference/onet_weight_panel_pums.md)
   : Create a PUMS Weight Panel
 

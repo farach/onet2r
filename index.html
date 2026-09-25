@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,9 +51,11 @@
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -219,14 +221,14 @@
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="15%">
-<col width="13%">
-<col width="16%">
-<col width="9%">
-<col width="7%">
-<col width="10%">
 <col width="12%">
-<col width="14%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">from_onet_soc_code</th>
@@ -353,14 +355,14 @@
 <span></span>
 <span><span class="fu"><a href="reference/onet_coverage.html">onet_coverage</a></span><span class="op">(</span><span class="va">measure</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="11%">
-<col width="10%">
-<col width="14%">
-<col width="12%">
-<col width="18%">
-<col width="31%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">key_type</th>
@@ -437,15 +439,15 @@
 <span></span>
 <span><span class="va">weights</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="20%">
-<col width="6%">
-<col width="12%">
 <col width="14%">
-<col width="8%">
-<col width="17%">
-<col width="20%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">reference_soc_code</th>
@@ -495,15 +497,15 @@
 <span><span class="va">aggregate</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">coverage</span>, <span class="op">-</span><span class="va">provenance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="16%">
-<col width="8%">
-<col width="13%">
-<col width="15%">
-<col width="20%">
-<col width="11%">
-<col width="13%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">measure_id</th>
@@ -530,14 +532,14 @@
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="15%">
 <col width="12%">
-<col width="10%">
-<col width="9%">
 <col width="12%">
-<col width="14%">
-<col width="9%">
-<col width="16%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
+<col width="12%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">measure_id</th>
@@ -560,6 +562,7 @@
 <td align="left">2018 SOC -&gt; 2018 SOC</td>
 </tr></tbody>
 </table>
+<p>OEWS publishes a few occupations only as combined codes, such as <code>31-1120</code> Home Health and Personal Care Aides. Build a bridge with <code>onet_oews_bridge(occupation_scores, weights)</code> and pass it as <code>bridge</code> to <code><a href="reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code> so O*NET occupations inside those codes count toward coverage.</p>
 </div>
 <div class="section level2">
 <h2 id="stress-test-the-plumbing">Stress Test the Plumbing<a class="anchor" aria-label="anchor" href="#stress-test-the-plumbing"></a>
@@ -590,13 +593,13 @@
 <span>    <span class="va">movement_percent</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span>, align <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
-<col width="48%">
-<col width="8%">
-<col width="21%">
-<col width="7%">
-<col width="14%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">scenario</th>
@@ -715,9 +718,11 @@
 </h2>
 <ul>
 <li>Current O*NET API data: <code><a href="reference/onet_search.html">onet_search()</a></code>, <code><a href="reference/onet_occupation.html">onet_occupation()</a></code>, <code><a href="reference/onet_skills.html">onet_skills()</a></code>, <code><a href="reference/onet_tasks.html">onet_tasks()</a></code>, <code><a href="reference/onet_table.html">onet_table()</a></code>.</li>
-<li>Archived O*NET data: <code><a href="reference/onet_releases.html">onet_releases()</a></code>, <code><a href="reference/onet_archive_download.html">onet_archive_download()</a></code>, <code><a href="reference/onet_archive_read.html">onet_archive_read()</a></code>, <code><a href="reference/onet_panel.html">onet_panel()</a></code>, <code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code>.</li>
-<li>Wage and employment context: <code><a href="reference/onet_oews_national.html">onet_oews_national()</a></code>, <code><a href="reference/onet_weight_panel_oews.html">onet_weight_panel_oews()</a></code>, <code><a href="reference/onet_weight_panel_pums.html">onet_weight_panel_pums()</a></code>.</li>
+<li>Archived O*NET data: <code><a href="reference/onet_releases.html">onet_releases()</a></code>, <code><a href="reference/onet_archive_download.html">onet_archive_download()</a></code>, <code><a href="reference/onet_archive_read.html">onet_archive_read()</a></code>, <code><a href="reference/onet_archive_reference.html">onet_archive_reference()</a></code>, <code><a href="reference/onet_panel.html">onet_panel()</a></code>, <code><a href="reference/onet_panel_reconcile.html">onet_panel_reconcile()</a></code>.</li>
+<li>Resurvey cycles and content change: <code><a href="reference/onet_resurvey_panel.html">onet_resurvey_panel()</a></code>, <code><a href="reference/onet_condition_on_resurvey.html">onet_condition_on_resurvey()</a></code>, <code><a href="reference/onet_content_change.html">onet_content_change()</a></code>.</li>
+<li>Wage and employment context: <code><a href="reference/onet_oews_national.html">onet_oews_national()</a></code>, <code><a href="reference/onet_weight_panel_oews.html">onet_weight_panel_oews()</a></code>, <code><a href="reference/onet_oews_bridge.html">onet_oews_bridge()</a></code>, <code><a href="reference/onet_weight_panel_pums.html">onet_weight_panel_pums()</a></code>.</li>
 <li>User-measure plumbing: <code><a href="reference/onet_measure.html">onet_measure()</a></code>, <code><a href="reference/onet_task_to_occupation.html">onet_task_to_occupation()</a></code>, <code><a href="reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code>, <code><a href="reference/onet_measure_sensitivity.html">onet_measure_sensitivity()</a></code>, <code><a href="reference/onet_provenance.html">onet_provenance()</a></code>, <code><a href="reference/onet_coverage.html">onet_coverage()</a></code>, <code><a href="reference/onet_decompose_change.html">onet_decompose_change()</a></code>.</li>
+<li>Published exposure adapters: <code><a href="reference/onet_import_eloundou.html">onet_import_eloundou()</a></code>, <code><a href="reference/onet_import_felten_aioe.html">onet_import_felten_aioe()</a></code>.</li>
 </ul>
 </div>
 <div class="section level2">

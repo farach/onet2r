@@ -40,7 +40,15 @@ onet_measure_aggregate(
 
 - bridge:
 
-  Optional bridge from O\*NET-SOC to `reference_soc_code`.
+  Optional bridge from O\*NET-SOC codes to weight-panel reference SOC
+  codes, with `from_onet_soc_code` and `reference_soc_code` columns and
+  an optional `crosswalk_weight` (default 1). Output from
+  [`onet_oews_bridge()`](https://farach.github.io/onet2r/reference/onet_oews_bridge.md)
+  has this shape. Output from
+  [`onet_crosswalk_bridge()`](https://farach.github.io/onet2r/reference/onet_crosswalk_bridge.md)
+  is also accepted, with `to_soc_code` used as the reference SOC.
+  Measure occupations without a bridge row are left out of the aggregate
+  with a message.
 
 - measure_id:
 
@@ -67,11 +75,19 @@ and
 
 When multiple O\*NET detail occupations map to the same reference SOC,
 `onet_measure_aggregate()` first averages those detail scores within the
-SOC. Employment coverage is then counted once per reference SOC, so
-coverage shares cannot exceed 100 percent because of detail-code
-duplication. If more than 5 percent of filtered weight-panel employment
-has no matching measure score, the function reports the largest
-unmatched reference SOCs.
+SOC, weighting them by `crosswalk_weight` when a bridge is supplied.
+Employment coverage is then counted once per reference SOC, so coverage
+shares cannot exceed 100 percent because of detail-code duplication.
+`n_occupations` and `n_reference_soc` count the O\*NET occupations and
+reference SOCs that contribute to the aggregate, meaning they have a
+score and a row in the weight panel after the `year` and `cell` filters.
+If more than 5 percent of filtered weight-panel employment has no
+matching measure score, the function reports the largest unmatched
+reference SOCs. OEWS publishes some detailed SOCs only inside combined
+codes such as `31-1120`, Home Health and Personal Care Aides. For OEWS
+panels from May 2021 on, pass
+`bridge = onet_oews_bridge(measure, weight_panel)` to map O\*NET
+occupations into those codes.
 
 ## Examples
 

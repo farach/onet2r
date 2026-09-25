@@ -4,6 +4,28 @@
 
 ### New features
 
+- [`onet_oews_bridge()`](https://farach.github.io/onet2r/reference/onet_oews_bridge.md)
+  maps O\*NET-SOC codes into the 12 combined codes OEWS has published
+  since May 2021 in place of some detailed occupations, such as
+  `31-1120` Home Health and Personal Care Aides and `25-9045` Teaching
+  Assistants, Except Postsecondary. Pass it as `bridge` to
+  [`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md)
+  or
+  [`onet_measure_sensitivity()`](https://farach.github.io/onet2r/reference/onet_measure_sensitivity.md).
+  The mapping comes from the BLS occupation definitions, so it is the
+  same for national, state, metropolitan, and industry panels, and
+  panels from before May 2021 are rejected. With O\*NET 31.0 task
+  ratings and May 2025 national OEWS weights, it raises covered
+  employment from about 92 percent to about 98 percent, and Healthcare
+  Support from about 46 percent to 100 percent (reported in the
+  task-time EDA review).
+- [`onet_archive_reference()`](https://farach.github.io/onet2r/reference/onet_archive_reference.md)
+  reads O\*NET archive reference tables such as `GWAs to IWAs to DWAs`,
+  `Scales Reference`, and `Task Categories`, which have no O\*NET-SOC
+  column and cannot be read by
+  [`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md).
+  In the text archives, DWA titles and scale names appear only in those
+  tables (reported in the task-time EDA review).
 - [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md)
   restructures a Task Ratings panel into a task by resurvey-cycle frame
   keyed on the incumbent-survey `source_date`, exposing the occupation
@@ -16,9 +38,9 @@
 - [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
   is the single, seam-aware source of content metrics between releases:
   `n_added`, `n_dropped`, `n_retained`, `jaccard`, `churn_rate`,
-  `rating_delta_l2`, and `cosine`. Pairs crossing the v21.0 or v25.1
-  seam are flagged `safely_comparable = FALSE` so taxonomy churn is not
-  counted as content churn.
+  `rating_delta_l2`, and `cosine`. Pairs crossing the v25.1 SOC-2010 to
+  SOC-2018 seam are flagged `safely_comparable = FALSE` by default so
+  taxonomy churn is not counted as content churn.
 - [`onet_import_eloundou()`](https://farach.github.io/onet2r/reference/onet_import_eloundou.md)
   ingests the occupation-level GPT-exposure table from Eloundou et
   al. (2023), “GPTs are GPTs”, and broadcasts it onto the tasks of a
@@ -50,16 +72,61 @@
 - [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md)
   and
   [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
-  gain an optional `seams =` argument to override the default
-  Task-Ratings-scoped seam table. The default (`NULL`) reproduces
-  existing output exactly; supplying a table lets non-Task-Ratings
-  inputs such as Work Activities, Work Context, or Abilities drop the
-  v21.0 Task Relevance scale seam that does not apply to them.
-  Cross-vintage SOC seams are still detected from `soc_vintage`
-  regardless.
+  gain an optional `seams =` argument to override the default seam
+  table, which contains only the verified v25.1 SOC-2010 to SOC-2018
+  taxonomy seam. The default (`NULL`) reproduces existing output
+  exactly; supplying a table lets callers add channel-specific or
+  source-specific seam dates, such as a v21.0 row, when they have
+  external evidence a comparison spanning that date needs seam
+  treatment. Cross-vintage SOC seams are still detected from
+  `soc_vintage` regardless.
 
 ### Bug fixes
 
+- [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)
+  now finds a browser-downloaded OEWS ZIP by checking its exact file
+  name and numbered copies, such as `oesm25nat (1).zip`, before listing
+  the folder. On Windows,
+  [`list.files()`](https://rdrr.io/r/base/list.files.html) can stop
+  early without an error when the R session cannot represent another
+  file name in the folder, so the Downloads fallback could miss ZIPs
+  that were there (reported in the task-time EDA review).
+- [`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md)
+  now accepts a minimal `bridge` with `from_onet_soc_code` and
+  `reference_soc_code` columns, as documented, instead of failing with a
+  tibble recycling error. Bridge codes and measure keys are standardized
+  before the join, a negative `crosswalk_weight` is rejected, and
+  measure occupations without a bridge row are reported instead of
+  silently left out (reported in the task-time EDA review).
+- [`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md)
+  now counts `n_occupations` and `n_reference_soc` over the occupations
+  and reference SOCs that contribute to the aggregate after the `year`
+  and `cell` filters. They previously counted every measure key, so
+  every cell of a multi-cell panel reported the national count.
+  Employment of reference SOCs whose score is missing now counts toward
+  the unmatched-employment report (reported in the task-time EDA
+  review).
+- `onet_known_seams()` no longer includes a v21.0 / 2016-08-01 row. This
+  corrects unsupported default metadata: independent verification found
+  no evidence that O\*NET v21.0 is a proven global content or method
+  seam, and the package’s prior description of it as retiring the Task
+  Relevance scale was incorrect. The only package-verified default seam
+  is now the v25.1 SOC-2010 to SOC-2018 taxonomy transition. A default
+  v20.1 -\> v21.x comparison with unchanged SOC vintage is no longer
+  seam-flagged solely for crossing that release. Callers with
+  channel-specific evidence can still supply a custom v21.0 row through
+  `seams =` on
+  [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
+  or
+  [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md);
+  such custom seams are not package-verified defaults.
+- [`onet_cache_clear()`](https://farach.github.io/onet2r/reference/onet_cache_clear.md)
+  now coordinates with active cache transactions, accepts a configurable
+  wait `timeout`, and uses ownership-checked nonrecursive lock cleanup,
+  preventing concurrent clears and refreshes from deleting replacement
+  locks or separating cached sources from their receipts. Failed
+  transaction registration and teardown retain recoverable state instead
+  of silently leaking markers.
 - [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
   and
   [`onet_task_to_occupation()`](https://farach.github.io/onet2r/reference/onet_task_to_occupation.md)
@@ -70,6 +137,21 @@
   [`onet_measure_sensitivity()`](https://farach.github.io/onet2r/reference/onet_measure_sensitivity.md)
   uses explicit release columns before falling back to named-list labels
   for multi-vintage provenance (reported in release audit).
+- [`onet_import_eloundou()`](https://farach.github.io/onet2r/reference/onet_import_eloundou.md)
+  and
+  [`onet_import_felten_aioe()`](https://farach.github.io/onet2r/reference/onet_import_felten_aioe.md)
+  now verify and parse private snapshots of local files, so mutations to
+  the original path cannot separate parsed values from their receipt
+  digest. Download URLs without a safe path filename use an opaque name
+  derived from the raw URL fingerprint, preventing credentials from
+  entering cache and lock paths while preserving source identity and
+  content-based workbook or tab-delimited parsing.
+- [`onet_measure_sensitivity()`](https://farach.github.io/onet2r/reference/onet_measure_sensitivity.md)
+  now rejects content-change tables and other non-weight inputs at the
+  `weight_panels` boundary with guidance toward employment weight panels
+  and named-list task release inputs. Its documented output contract is
+  scenario aggregate movement, not rank, quintile, variance, or
+  content-drift diagnostics (reported in release audit).
 - [`onet_oews()`](https://farach.github.io/onet2r/reference/onet_oews.md)
   now detects, validates, and caches matching OEWS ZIP files downloaded
   in the user’s browser, and interactive sessions can open the official
@@ -79,6 +161,68 @@
   now downloads OEWS ZIP files through the package HTTP client, avoiding
   RStudio’s `.rs.downloadFile()` path that can trigger BLS 403 responses
   (reported manually).
+- SHA-256 verification now uses a supported cryptographic file
+  implementation on every declared R version, including R 4.1 through R
+  4.4.
+
+### Improvements
+
+- The pkgdown site is again published at
+  <https://farach.github.io/onet2r/> in pkgdown’s `unreleased` mode,
+  which marks the package as not yet on CRAN. Since July 2026 the site
+  had been built only into `/dev/`, which is not indexed by search
+  engines, leaving the canonical URL on a stale build. The leftover
+  `/dev/` copy is removed.
+- New articles cover resurvey cycles and content change
+  ([`vignette("resurvey-and-content-change")`](https://farach.github.io/onet2r/articles/resurvey-and-content-change.md))
+  and importing published exposure scores
+  ([`vignette("importing-exposure-scores")`](https://farach.github.io/onet2r/articles/importing-exposure-scores.md)).
+  Existing articles now show the
+  [`onet_measure()`](https://farach.github.io/onet2r/reference/onet_measure.md)
+  `items`/`agg` path, source digests for downloaded files, and the
+  current validation workflow, and they link to the resurvey verbs where
+  change is interpreted.
+- [`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md)
+  now points reference tables without an O\*NET-SOC column to
+  [`onet_archive_reference()`](https://farach.github.io/onet2r/reference/onet_archive_reference.md),
+  and for May 2021 or later OEWS panels the unmatched-employment report
+  from
+  [`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md)
+  suggests
+  [`onet_oews_bridge()`](https://farach.github.io/onet2r/reference/onet_oews_bridge.md)
+  when no bridge was supplied.
+- Cached API responses are written atomically and corrupt RDS files now
+  fail with a specific cache-clear instruction instead of falling
+  through to network access.
+- Cached archive and adapter files without provenance receipts now fail
+  closed when a URL, version, `as_of`, or expected digest is requested.
+  Unconstrained internal reuse warns and records a `legacy_unverified`
+  receipt, while `force = TRUE` replaces the legacy bytes without
+  exposing URL credentials.
+- Cached archive and adapter readers now copy verified bytes to a
+  private snapshot while holding the cache lock, so a concurrent refresh
+  cannot separate parsed data from its source receipt. Omitted
+  provenance fields remain unconstrained when a verified snapshot is
+  reused. OAuth and cloud credential parameters are matched by explicit
+  normalized names, including authorization `code`, OAuth verifier and
+  consumer credentials, without hiding benign names such as `author` or
+  `monkey`.
+- Credential redaction now removes malformed multi-`@` user information
+  through the final authority separator for absolute and `//`
+  network-path URLs while preserving benign `@` characters in paths,
+  queries, and fragments.
+- Clean-install validation now builds a source tarball, installs it into
+  temporary libraries outside the repository, exercises every public
+  export with deterministic offline fixtures, and runs twice in
+  pull-request CI.
+- O\*NET archive and external-adapter downloads now support optional
+  `expected_sha256` and `as_of` verification, write atomic source
+  receipts with URL, commit when inferable, retrieval time, digest,
+  size, and version metadata, and reject changed or mismatched cached
+  sources.
+- Pull requests now require installed-package tests with network access
+  blocked plus a complete pkgdown reference check and site build;
+  deployment remains limited to pushes on `main`.
 
 ## onet2r 0.4.2
 

@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,9 +46,11 @@
     <li><h6 class="dropdown-header" data-toc-skip>Historical O*NET Workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/longitudinal-archives.html">Longitudinal Archives</a></li>
     <li><a class="dropdown-item" href="../articles/how-to-fool-yourself-with-onet-over-time.html">How to Fool Yourself over Time</a></li>
+    <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
+    <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
     <li><a class="dropdown-item" href="../articles/choosing-employment-weights.html">Choosing Employment Weights</a></li>
     <li><a class="dropdown-item" href="../articles/oews-wage-context.html">OEWS Wage Context</a></li>
@@ -98,18 +100,33 @@ package, source the file returned by:</p>
 <div class="section level2">
 <h2 id="what-the-script-checks">What the Script Checks<a class="anchor" aria-label="anchor" href="#what-the-script-checks"></a>
 </h2>
-<p>The validation script always checks deterministic local outputs:</p>
+<p>The script exercises every exported function without network access,
+and it stops with an error if any export is left unchecked:</p>
 <ul>
-<li>reading bundled OEWS sample data;</li>
-<li>reading a local O*NET archive-format table;</li>
-<li>creating a reference-SOC OEWS weight panel;</li>
-<li>aggregating an occupation score with coverage and provenance;</li>
-<li>configuring cache and rate-limit settings.</li>
+<li>The Web Services endpoints run against a seeded response cache with
+a placeholder key, so request construction, parsing, and empty-result
+schemas are checked offline.</li>
+<li>Release listing, archive download, and the Longitudinal Data Updates
+reader run against local fixtures, including a cached archive with a
+source receipt. The Data Updates check needs the <code>writexl</code>
+package to build its fixture workbook.</li>
+<li>Archive, OEWS, weighting, bridging, measure, resurvey,
+content-change, import, sensitivity, and decomposition functions run on
+the bundled fixtures, and key results are asserted exactly.</li>
 </ul>
-<p>When <code>ONET_API_KEY</code> is available, it also performs live
-smoke checks across the main exported O*NET functions. Each result is
-inspected for expected type, minimum row count, and important
-columns.</p>
+<p>Two environment variables add live checks. With
+<code>ONET_API_KEY</code> set, the script also calls the main Web
+Services endpoints against the real API. With
+<code>ONET2R_VALIDATE_LIVE=true</code>, it downloads the release
+listing, an archive, an O*NET-SOC crosswalk, and the Data Updates
+file.</p>
+<p>Before a release, run
+<code>Rscript tools/validate-clean-install.R --rounds=2</code> from the
+source tree. It builds the package tarball, installs it into temporary
+libraries, and runs the installed script from a directory outside the
+repository, so the checks cannot pick up development files. Add
+<code>--live-api</code> or <code>--live-archives</code> to include the
+live checks.</p>
 </div>
 <div class="section level2">
 <h2 id="example-local-validation-without-an-api-key">Example: Local Validation without an API Key<a class="anchor" aria-label="anchor" href="#example-local-validation-without-an-api-key"></a>
@@ -267,8 +284,8 @@ output.</p>
 <td align="left">5234530</td>
 <td align="left">5234530</td>
 <td align="left">1</td>
-<td align="left">4</td>
-<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">3</td>
 </tr></tbody>
 </table>
 </div>
