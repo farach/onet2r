@@ -66,6 +66,7 @@ jobs:
         with:
           extra-packages: any::testthat
           needs: check
+          pak-version: repo
 
       - name: Build and install package without vignettes
         run: |
