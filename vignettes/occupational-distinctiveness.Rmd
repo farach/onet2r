@@ -1,0 +1,1053 @@
+---
+title: "What Makes Occupations Different?"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{What Makes Occupations Different?}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(tibble.print_min = 6, tibble.print_max = 10)
+```
+
+```{r setup, include = FALSE}
+library(onet2r)
+library(dplyr)
+helper_paths <- c(
+  system.file("vignette-helpers.R", package = "onet2r"),
+  "inst/vignette-helpers.R",
+  "../inst/vignette-helpers.R"
+)
+helper_path <- helper_paths[nzchar(helper_paths) & file.exists(helper_paths)]
+if (length(helper_path) == 0) {
+  stop("Could not find vignette-helpers.R.", call. = FALSE)
+}
+source(helper_path[[1]])
+source(onet2r_inst_path(
+  "article-helpers", "occupational-distinctiveness.R"
+))
+source(onet2r_inst_path("article-helpers", "distinctiveness-information.R"))
+source(onet2r_inst_path("article-helpers", "distinctiveness-figures.R"))
+source(onet2r_inst_path("article-helpers", "distinctiveness-audit-figures.R"))
+knitr::opts_chunk$set(
+  fig.width = 10, fig.height = 6.5, dpi = 160, out.width = "100%"
+)
+```
+
+Two occupations can share reading, communication, and problem solving yet
+differ sharply in what they produce, the knowledge they use, or the experience
+needed to enter them. This article asks three different questions:
+
+1. Which activities are common or uncommon across occupations?
+2. Which requirements distinguish a particular occupation, and which
+   occupations have the most unusual profiles?
+3. Which differences remain when we change the representation of work?
+
+**TF-IDF answers the first question and part of the second, but it is not
+enough for the third.** It measures how rare an activity is relative to a
+declared comparison set. It does not say what separates one occupation from its
+neighbors. Economic value, difficulty, worker scarcity, time spent, and
+exposure to AI require separate measures. A common skill can still distinguish
+occupations through its required level. A rare activity need not make its
+occupation unlike its closest neighbor.
+
+With binary activity profiles, the occupation-level TF-IDF summary is just the
+mean of log inverse prevalence over the occupation's activities. We keep it as
+a transparent descriptive baseline. The third question gets a different tool:
+an **information-loss budget** that counts how many bits of occupation
+identity survive when activity labels are grouped. It is an accounting device,
+not a new uniqueness score.
+
+The article combines a **derived snapshot of the full public O&#42;NET 30.3
+archive** with clearly labeled **stylized examples** for the multidomain
+methods. Article builds use bundled tables and do not access the network.
+The helpers are article code, not exported package functions or an endorsed
+substantive score. Rankings describe the covered O&#42;NET occupations under
+the specified choices, not all jobs or workers in the United States.
+
+```{r snapshot-data, include = FALSE}
+read_snapshot <- function(name) {
+  tibble::as_tibble(utils::read.csv(
+    onet2r_inst_path("extdata", "occupational-distinctiveness", name),
+    stringsAsFactors = FALSE
+  ))
+}
+observed_prevalence <- read_snapshot("activity-prevalence.csv")
+observed_occupations <- read_snapshot("occupation-profiles.csv")
+observed_coverage <- read_snapshot("coverage.csv")
+snapshot <- read_snapshot("provenance.csv")
+observed_resolution <- read_snapshot("resolution-summary.csv")
+information_summary <- read_snapshot("information-summary.csv")
+information_loss <- read_snapshot("information-loss.csv")
+information_diagnostics <- read_snapshot("information-occupation-diagnostics.csv")
+null_summary <- read_snapshot("null-summary.csv")
+base_figures <- distinctiveness_figures(
+  observed_prevalence, observed_occupations,
+  observed_resolution
+)
+audit_figures <- distinctiveness_audit_figures(
+  information_summary, information_loss, null_summary
+)
+observed_occupations$size_band <- cut(
+  observed_occupations$n_activities, c(0, 10, 20, 30, Inf),
+  labels = c("5 to 10", "11 to 20", "21 to 30", "31 or more")
+)
+size_rho <- stats::cor(
+  observed_occupations$n_activities, observed_occupations$mean_idf,
+  method = "spearman"
+)
+size_nearest_rho <- stats::cor(
+  observed_occupations$n_activities, observed_occupations$nearest_distance,
+  method = "spearman"
+)
+```
+
+## First choose a shared unit of work
+
+Treat an occupation as a document and a shared activity as a term. Do not start
+by treating occupation-specific Task IDs as a universal task vocabulary. Count
+their actual cross-occupation overlap first. If almost every ID belongs to only
+one occupation, almost every ID receives the same rarity weight.
+
+O&#42;NET provides a more useful bridge: **Tasks to DWAs** links task statements
+to Detailed Work Activities. The **GWAs to IWAs to DWAs** reference supplies
+the hierarchy from detailed to intermediate to generalized activities. These
+links provide a published shared vocabulary without requiring an embedding
+model or treating different wording as different work.
+
+```{r archive-links}
+archive_dir <- onet2r_inst_path("extdata", "onet-mini", "db_30_3_text")
+tasks <- onet_archive_read(
+  "30.3", "Task Statements", path = archive_dir,
+  release_date = "2026-05-01"
+)
+links <- onet_archive_read(
+  "30.3", "Tasks to DWAs", path = archive_dir,
+  release_date = "2026-05-01"
+)
+hierarchy <- onet_archive_reference(
+  "30.3", "GWAs to IWAs to DWAs", path = archive_dir,
+  release_date = "2026-05-01"
+)
+
+task_overlap <- tasks |>
+  distinct(onet_soc_code, task_id) |>
+  count(task_id, name = "n_occupations")
+task_overlap |>
+  count(n_occupations, name = "n_task_ids") |>
+  knitr::kable()
+
+dwa_names <- hierarchy |>
+  distinct(dwa_element_id, dwa_element_name)
+activity_links <- links |>
+  select(onet_soc_code, task_id, dwa_element_id) |>
+  distinct() |>
+  left_join(dwa_names, by = "dwa_element_id", relationship = "many-to-one")
+stopifnot(
+  !anyNA(activity_links$dwa_element_id),
+  !anyNA(activity_links$dwa_element_name)
+)
+activity_links |>
+  knitr::kable()
+```
+
+Use the reference join even if the miniature fixture already includes names.
+Real text archives omit repeated labels from the link files. For a full
+archive, join occupation titles from `Occupation Data` and task text from
+`Task Statements`, using occupation plus Task ID for the latter.
+
+Before scoring, report the number of occupations with task statements, with
+links, and with usable ratings, plus the share of tasks that have a DWA link.
+Inspect unmapped tasks and suppressed ratings. **An unobserved profile is not a
+zero-work occupation.** The helpers below reject missing or all-zero occupation
+profiles rather than silently shrink the declared universe.
+
+## Define frequency, prevalence, and distinctiveness separately
+
+Let \(x_{od}\) be a non-negative activity weight for occupation \(o\) and
+activity \(d\), and let \(N\) be the number of occupations in a fixed universe.
+The baseline uses binary presence: \(x_{od}=1\) if at least one retained task
+links to the activity, and zero otherwise.
+
+\[
+df_d = \sum_o \mathbf{1}(x_{od}>0)
+\]
+\[
+prevalence_d = df_d/N
+\]
+\[
+tf_{od} = \frac{x_{od}}{\sum_j x_{oj}}
+\]
+\[
+idf_d = \log(N/df_d)
+\]
+\[
+tfidf_{od} = tf_{od}\,idf_d
+\]
+
+Here TF means **within-occupation profile share**, not work time. Count each
+occupation once in document frequency, regardless of how many of its tasks map
+to the activity. The unsmoothed IDF deliberately assigns zero to a universally
+present activity. A convention such as \(1+\log((N+1)/(df_d+1))\) would not.
+
+For an occupation-level rarity summary, use
+\(D_o=\sum_d tfidf_{od}\). It is the average log inverse prevalence of that
+occupation's activity profile. Retain the item-level contributions so the
+score remains interpretable.
+
+## What the full archive shows
+
+The snapshot covers **`r snapshot$n_linked_occupations` occupations** with
+`r snapshot$n_tasks` task statements and `r snapshot$n_activities` linked DWAs.
+All `r snapshot$n_linked_tasks` task statements have at least one DWA link.
+The occupation taxonomy contains `r snapshot$n_taxonomy_occupations` entries,
+so `r snapshot$n_taxonomy_occupations - snapshot$n_linked_occupations` entries
+are outside this task-based analytic universe. We do not give them zero scores.
+There are `r snapshot$n_shared_task_ids` Task IDs shared across occupations,
+which is why shared activities are a more useful baseline vocabulary.
+
+The baseline retains any linked task, including Supplemental tasks, counts each
+occupation-DWA link once, and gives each occupation equal weight. Task ratings,
+employment weights, and AI-exposure measures are excluded.
+
+Three properties of this archive limit what the rankings can mean.
+
+- **Presence is cheap.** One linked task, even a Supplemental one, makes an
+  occupation-DWA pair present. Occupations have 4 to 40 task statements and 5
+  to 41 DWAs. Slaughterers and Meat Packers has 14 task statements, all
+  Supplemental and none Core. Models has ten, one Core and nine Supplemental.
+  Restricting the data literally to Core tasks would shrink the universe to 893
+  occupations and make Models a one-DWA rarity leader. That is a different
+  universe, not a robustness pass on this ranking.
+- **Measurement dates differ.** Task vintages span 2004 to 2025 inside the May
+  2026 archive. The release is not a uniform 2026 measurement.
+- **Rankings are summaries of database labels.** They describe one published
+  archive. They are not estimates of a population quantity, so they come with
+  no confidence intervals and no sampling interpretation.
+
+### Most common and least common detailed activities
+
+```{r observed-common}
+observed_prevalence |>
+  slice_max(n_occupations, n = 8, with_ties = TRUE) |>
+  select(dwa_element_name, n_occupations, prevalence) |>
+  knitr::kable(digits = 3, col.names = c(
+    "Detailed work activity", "Occupations", "Share of covered occupations"
+  ))
+```
+
+```{r figure-common, echo = FALSE, fig.cap = "The eight most widely linked detailed work activities, with the number and share of the 923 covered occupations.", fig.alt = "Horizontal bar chart of the eight DWAs linked to the most occupations. The largest is linked to 91 of 923 occupations, about 9.9 percent. The table above gives the exact values."}
+base_figures$common
+```
+
+The most widely linked DWA is **`r observed_prevalence$dwa_element_name[[1]]`**
+It appears in `r observed_prevalence$n_occupations[[1]]` of
+`r snapshot$n_linked_occupations` covered occupations, or
+`r round(100 * observed_prevalence$prevalence[[1]], 1)` percent.
+"Most common" is therefore relative: these are quite specific activity
+descriptions, not a complete inventory of general human capabilities.
+
+At the other end, **`r sum(observed_prevalence$n_occupations == 1L)` DWAs occur
+in only one covered occupation**. They tie on document frequency and IDF.
+The next table shows eight of these tied activities in identifier order, not
+eight uniquely lowest-ranked activities.
+
+```{r observed-uncommon}
+observed_prevalence |>
+  filter(n_occupations == 1L) |>
+  arrange(item) |>
+  head(8) |>
+  select(dwa_element_name, n_occupations) |>
+  knitr::kable(col.names = c("Example singleton DWA", "Occupations"))
+```
+
+### Occupations with the rarest activity profiles
+
+```{r observed-rarity}
+observed_occupations |>
+  slice_min(rarity_rank, n = 8, with_ties = TRUE) |>
+  select(rarity_rank, title, n_activities, mean_idf, nearest_distance) |>
+  knitr::kable(digits = 3, col.names = c(
+    "Rank", "Occupation", "DWAs", "Mean IDF", "Nearest profile distance"
+  ))
+```
+
+**`r observed_occupations$title[[1]]` ranks first on this particular rarity
+summary**, with `r observed_occupations$n_activities[[1]]` linked activities,
+the smallest profile size in the archive, a minimum shared by six occupations. Its fourteen statements are all
+Supplemental, so its rank rests on labels attached to non-Core tasks. It is not
+necessarily the most isolated occupation, the most specialized occupation under
+another vocabulary, or the occupation with the largest entry barriers.
+
+Profile size matters. With binary profiles, the score is a mean over
+\(n_o\) activities, so small profiles have more variable scores. In this
+archive, profile size and the rarity score have a Spearman correlation of
+`r round(size_rho, 2)`, and profile size and nearest-neighbor distance have
+`r round(size_nearest_rho, 2)`. Read the rankings with the DWA counts beside
+them, as in the table above.
+
+These observations are a descriptive starting point. A publishable substantive
+claim should survive Core-only filtering, alternative task-link weights,
+minimum-coverage restrictions, and broader activity groupings. The snapshot
+does not claim those robustness checks have all been passed. Snapshot rarity
+scores and distances are rounded to 12 decimal places before ranking or choosing
+neighbors so numerical noise does not break ties.
+
+### Skeptical check: profile size
+
+```{r size-table, echo = FALSE}
+observed_occupations |>
+  summarise(
+    occupations = n(), mean_rarity = mean(mean_idf),
+    mean_nearest_distance = mean(nearest_distance),
+    .by = size_band
+  ) |>
+  arrange(size_band) |>
+  knitr::kable(digits = 3, col.names = c(
+    "DWAs in profile", "Occupations", "Mean rarity score",
+    "Mean nearest distance"
+  ))
+```
+
+```{r figure-inventory-size, echo = FALSE, fig.cap = "Real O*NET 30.3: rarity score against number of linked DWAs, with the rarity leader labeled.", fig.alt = "Scatter plot of 923 occupations with number of linked detailed work activities on the horizontal axis and rarity score on the vertical axis. The rarity score tends to be lower for larger profiles, with a Spearman correlation of about minus 0.29, and the scores spread more widely at small profile sizes."}
+base_figures$inventory_size
+```
+
+## Work through the score on a stylized example
+
+```{r stylized-activities}
+activity_labels <- tibble::tribble(
+  ~item, ~activity, ~broad_group,
+  "communicate", "Exchange information", "Interaction",
+  "analyze", "Analyze evidence", "Information",
+  "test", "Test a system", "Information",
+  "report", "Prepare a technical report", "Information",
+  "care", "Provide direct care", "Practical work",
+  "diagnose", "Diagnose a condition", "Information",
+  "safety", "Check safety conditions", "Practical work",
+  "repair", "Repair equipment", "Practical work",
+  "teach", "Teach a procedure", "Interaction"
+)
+activity_sets <- list(
+  A = c("communicate", "analyze", "test"),
+  B = c("communicate", "analyze", "report"),
+  C = c("communicate", "care", "diagnose"),
+  D = c("communicate", "care", "safety"),
+  E = c("communicate", "repair", "safety"),
+  F = c("communicate", "teach", "report")
+)
+universe <- names(activity_sets)
+activity_profiles <- bind_rows(lapply(universe, function(code) {
+  tibble::tibble(occupation = code, item = activity_sets[[code]], weight = 1)
+}))
+scores <- profile_tfidf(activity_profiles, universe)
+
+prevalence_table <- scores |>
+  distinct(item, n_occupations, prevalence, idf) |>
+  left_join(activity_labels, by = "item", relationship = "one-to-one") |>
+  arrange(desc(prevalence), activity)
+prevalence_table |>
+  select(activity, n_occupations, prevalence, idf) |>
+  knitr::kable(digits = 3)
+```
+
+"Exchange information" appears in all six stylized occupations and receives
+zero IDF. "Test a system" appears in one and receives \(\log(6)\). Neither
+statement establishes that testing is more important than communication.
+
+```{r distinctive-occupations}
+rarity <- scores |>
+  summarise(mean_idf = sum(tf_idf), .by = occupation) |>
+  mutate(rarity_rank = min_rank(desc(mean_idf))) |>
+  arrange(rarity_rank, occupation)
+rarity |>
+  knitr::kable(digits = 3)
+
+scores |>
+  left_join(activity_labels, by = "item", relationship = "many-to-one") |>
+  filter(occupation == "A") |>
+  arrange(desc(tf_idf), activity) |>
+  select(occupation, activity, share, idf, tf_idf) |>
+  knitr::kable(digits = 3)
+```
+
+Keep ties rather than declaring an arbitrary winner. A national ranking and a
+ranking within healthcare answer different questions because the denominator
+and IDF change. If the question is whether two groups differ, calculate their
+scores with the **same vocabulary and reference IDF**, not separately fitted
+IDFs that place each group on its own scale.
+
+### Alternative weights need their own interpretation
+
+Binary presence avoids rewarding occupations merely because they have more
+task statements. As sensitivity checks, use distinct linked-task counts or
+task Importance/Relevance weights. A task can map to several DWAs. For a
+count- or rating-weighted profile, split its mass over its \(k\) retained links
+as \(w_t/k\), then sum by occupation and DWA. Otherwise heavily mapped tasks
+receive more total weight just because they have more links.
+
+Decide whether to retain Supplemental tasks before calculating \(k\).
+Audit missing ratings instead of dropping them through an inner join. Relevance,
+Importance, and frequency-category responses are different quantities.
+Multiplying them does not produce an observed share of working hours.
+
+## Rare activities and unusual occupations are not the same
+
+To identify unusual *combinations*, compare whole profiles. Here the distance
+between two normalized profiles is total variation:
+
+\[
+TV(o,p) = \frac{1}{2}\sum_d |tf_{od}-tf_{pd}|.
+\]
+
+It ranges from zero for identical compositions to one for disjoint profiles.
+Using the original shares preserves ubiquitous activities that TF-IDF would
+erase. Cosine similarity is another defensible choice, but a profile containing
+only universal activities has a zero TF-IDF vector and no defined TF-IDF cosine.
+
+```{r nearest-neighbor}
+activity_distances <- profile_distances(activity_profiles, universe)
+directed_distances <- bind_rows(
+  activity_distances |>
+    transmute(occupation = occupation_a, neighbor = occupation_b, distance),
+  activity_distances |>
+    transmute(occupation = occupation_b, neighbor = occupation_a, distance)
+)
+nearest <- directed_distances |>
+  group_by(occupation) |>
+  slice_min(distance, with_ties = TRUE) |>
+  ungroup()
+nearest |>
+  left_join(rarity, by = "occupation", relationship = "many-to-one") |>
+  arrange(desc(distance), occupation, neighbor) |>
+  knitr::kable(digits = 3)
+```
+
+The nearest-neighbor distance measures isolation: how far an occupation sits
+from its closest profile. Do not add the average distance to all occupations as
+a second atypicality score. With about two thousand mostly sparse activities,
+almost every pair of profiles is nearly disjoint, so each occupation's average
+distance is close to one and tracks the rarity score (a Spearman correlation of
+about 0.88 in this archive). Inspect the nearest neighbors and activity
+contributions rather than relying on one rank. Neither rarity nor distance
+establishes that workers can readily move between two occupations.
+
+For binary profiles of sizes \(a\) and \(b\) that share \(k\) activities, total
+variation has the closed form \(TV = 1 - k/\max(a,b)\). It depends on the
+overlap count and the larger profile size, and it ignores how rare the shared
+activities are. That is why rarity and isolation can disagree, and why
+isolation carries a profile-size dependence of its own: a small profile is
+close to another only if a large share of its activities appear there. The
+example above is **stylized**; the table below uses the real archive.
+
+For comparison, the most isolated full-archive profiles under this same
+binary-presence, unweighted total-variation rule are:
+
+```{r observed-isolation}
+observed_occupations |>
+  slice_max(nearest_distance, n = 8, with_ties = TRUE) |>
+  arrange(desc(nearest_distance), occupation) |>
+  select(title, n_activities, nearest_distance, rarity_rank) |>
+  knitr::kable(digits = 3, col.names = c(
+    "Occupation", "DWAs", "Nearest distance", "Rarity rank"
+  ))
+```
+
+```{r figure-rarity-isolation, echo = FALSE, fig.cap = "Real O*NET 30.3 occupations: rarity score against nearest-neighbor total-variation distance, with the rarity leader and the most isolated profile labeled.", fig.alt = "Scatter plot of 923 occupations. Rarity score is on the horizontal axis and nearest-neighbor distance on the vertical axis. The two are only weakly related, with a Spearman correlation of about 0.36. The tables above and below give exact values."}
+base_figures$rarity_isolation
+```
+
+```{r rarity-isolation-table, echo = FALSE}
+observed_occupations |>
+  filter(rarity_rank == 1L | nearest_distance == max(nearest_distance)) |>
+  select(title, n_activities, mean_idf, nearest_distance, rarity_rank) |>
+  knitr::kable(digits = 3, col.names = c(
+    "Labeled occupation", "DWAs", "Mean IDF", "Nearest distance", "Rarity rank"
+  ))
+```
+
+The different ordering is useful evidence that item rarity and isolation
+answer different questions. Distances are descriptive distances between
+published activity profiles, not probabilities of successful job transitions.
+
+## Skills, knowledge, experience, and working conditions
+
+Use a separate representation for each domain:
+
+| Domain | Useful representation | What not to do |
+|:--|:--|:--|
+| Detailed work activities | Binary presence or an explicit task-link weighting rule | Count occupation-specific wording as shared activity without checking |
+| Skills, knowledge, abilities | One declared Importance or Level scale per element | Treat every recorded positive rating as a meaningful presence indicator |
+| Related experience and training | Full response distribution within each element and scale | Treat category codes as years or pool unrelated category systems |
+| Work context | Scale-aware ratings or category distributions | Mix all contexts and scales as interchangeable units |
+| Education and Job Zone | Separate entry-requirement descriptors | Interpret a summary category as the full requirement profile |
+
+In release 30.3 the dictionary lists **Essential Skills**, **Transferable
+Skills**, **Education**, and **Training and Experience** separately. Do not
+assume an older filename such as `Skills` or `Education, Training, and
+Experience` applies to this release.
+
+Many rated descriptors appear for almost every occupation. Binary IDF then
+collapses toward zero even when required *levels* differ substantially. A
+threshold such as Importance above a chosen cutoff creates a prevalence
+measure, but the cutoff is a research choice that needs sensitivity checks.
+Keep raw levels and their element-specific anchors alongside any normalized
+profile. Normalizing ratings removes overall intensity and treats rating
+values as comparable non-negative weights, an assumption rather than a property
+of an ordinal scale.
+
+For experience, O&#42;NET's category percentages describe respondents' answers
+about requirements. They are **not** the distribution of actual tenure among
+workers. Related Work Experience (`RW`), On-Site or In-Plant Training (`PT`),
+and On-The-Job Training (`OJ`) each require their own category lookup.
+
+The next example adds invented rating profiles and a three-bin experience
+distribution. The bins and values are **stylized**, not official O&#42;NET
+categories or observations. They were constructed to show how distance can
+differ from presence-based rarity, and they establish nothing about real
+experience requirements.
+
+```{r other-domains}
+make_profiles <- function(items, values) {
+  stopifnot(
+    is.matrix(values), nrow(values) == length(universe),
+    ncol(values) == length(items)
+  )
+  tibble::tibble(
+    occupation = rep(universe, each = length(items)),
+    item = rep(items, times = length(universe)),
+    weight = as.vector(t(values))
+  )
+}
+skill_profiles <- make_profiles(
+  c("reading", "reasoning", "manual"),
+  rbind(c(4, 4, 1), c(4, 3, 1), c(3, 4, 3),
+        c(3, 3, 4), c(2, 3, 5), c(5, 4, 2))
+)
+knowledge_profiles <- make_profiles(
+  c("digital", "health", "mechanical", "education"),
+  rbind(c(5, 1, 2, 1), c(4, 1, 2, 1), c(1, 5, 1, 2),
+        c(1, 4, 1, 2), c(1, 1, 5, 1), c(2, 1, 1, 5))
+)
+experience_profiles <- make_profiles(
+  c("short", "medium", "long"),
+  rbind(c(10, 60, 30), c(40, 40, 20), c(10, 30, 60),
+        c(60, 30, 10), c(30, 50, 20), c(20, 50, 30))
+)
+domain_profiles <- list(
+  activities = activity_profiles,
+  skills = skill_profiles,
+  knowledge = knowledge_profiles,
+  experience = experience_profiles
+)
+domain_distances <- bind_rows(lapply(names(domain_profiles), function(domain) {
+  profile_distances(domain_profiles[[domain]], universe) |>
+    mutate(domain = domain)
+}))
+
+profile_tfidf(skill_profiles, universe) |>
+  summarise(max_idf = max(idf), .by = item) |>
+  knitr::kable(digits = 3)
+
+domain_distances |>
+  filter(occupation_a == "A", occupation_b == "B") |>
+  knitr::kable(digits = 3)
+```
+
+Every skill is recorded as positive for every occupation, so all three skill
+IDFs are zero. Nevertheless A and B differ in skill composition, and especially
+in the constructed experience distributions. In this invented example, common
+descriptors carry differences through levels and distributions rather than
+presence. The example is constructed to show that possibility. It does not show
+that real occupations behave this way.
+
+Total variation ignores the ordering of experience bins. If distance in required
+duration matters, use an ordered-distribution distance with justified category
+locations and explicit treatment of open-ended categories. Do not assign
+arbitrary midpoints and call the result measured years of experience.
+
+## Which domain accounts for a difference?
+
+Start with domain-specific distances, not a single black-box vector with every
+column concatenated. A domain with more columns would otherwise receive more
+influence simply because its questionnaire is longer.
+
+For a transparent illustrative combined distance, give each of the four domains
+one quarter of the weight. This is a normative choice, not an estimate.
+The additive construction lets us show exactly what each block contributes.
+Use the same complete occupation universe in every block.
+
+```{r domain-contributions}
+combined <- domain_distances |>
+  summarise(
+    combined_distance = mean(distance),
+    .by = c(occupation_a, occupation_b)
+  )
+domain_contributions <- domain_distances |>
+  mutate(contribution = distance / length(domain_profiles)) |>
+  left_join(
+    combined,
+    by = c("occupation_a", "occupation_b"),
+    relationship = "many-to-one"
+  ) |>
+  mutate(
+    without_domain_fixed_weights = combined_distance - contribution,
+    without_domain_renormalized =
+      without_domain_fixed_weights * length(domain_profiles) /
+      (length(domain_profiles) - 1)
+  )
+domain_contributions |>
+  filter(occupation_a == "A", occupation_b == "B") |>
+  select(domain, distance, contribution, combined_distance,
+         without_domain_fixed_weights, without_domain_renormalized) |>
+  knitr::kable(digits = 3)
+
+stopifnot(
+  all(abs(
+    domain_contributions |>
+      summarise(total = sum(contribution),
+                .by = c(occupation_a, occupation_b)) |>
+      pull(total) - combined$combined_distance
+  ) < 1e-12)
+)
+```
+
+Removing experience answers how much of this *constructed distance* comes from
+experience. This subtraction cannot establish a causal effect of experience
+on occupational separation.
+The fixed-weight subtraction is an exact contribution. The renormalized
+alternative changes the estimand by giving the remaining domains larger
+weights. Repeat the comparison across occupation pairs and report how nearest
+neighbors and rankings change.
+
+Also retain absolute rating-level gaps. Two occupations with ratings `(2, 2)`
+and `(4, 4)` have identical normalized profiles even though every requirement
+level differs. A zero compositional distance is not equivalence in all respects.
+
+## When do differences disappear?
+
+### Coarser labels can mechanically erase differences
+
+Collapse the stylized activities into their invented broad groups, holding the
+universe and activity mass fixed. In a real archive, use the published
+DWA-to-IWA-to-GWA hierarchy instead of these demonstration labels.
+
+```{r aggregation-sensitivity}
+broad_profiles <- activity_profiles |>
+  left_join(activity_labels, by = "item", relationship = "many-to-one") |>
+  summarise(weight = sum(weight), .by = c(occupation, broad_group)) |>
+  rename(item = broad_group)
+coarse_distances <- profile_distances(broad_profiles, universe) |>
+  rename(broad_distance = distance)
+resolution_comparison <- activity_distances |>
+  rename(detailed_distance = distance) |>
+  left_join(
+    coarse_distances, by = c("occupation_a", "occupation_b"),
+    relationship = "one-to-one"
+  ) |>
+  mutate(distance_lost = detailed_distance - broad_distance) |>
+  arrange(desc(distance_lost), occupation_a, occupation_b)
+resolution_comparison |>
+  head(8) |>
+  knitr::kable(digits = 3)
+
+pair_ab <- resolution_comparison |>
+  filter(occupation_a == "A", occupation_b == "B")
+stopifnot(
+  abs(pair_ab$detailed_distance - 1 / 3) < 1e-12,
+  pair_ab$broad_distance == 0,
+  all(resolution_comparison$distance_lost >= -1e-12)
+)
+```
+
+In the stylized example, A and B differ in testing versus reporting, but both
+have the same broad information/interaction mixture. Their distance disappears
+**because the representation discards that distinction**, not because their
+work has changed. With mass-preserving grouping, total variation cannot
+increase. That is a mathematical property of grouping, so a drop in distance is
+guaranteed and is not itself a finding. Re-binarizing the broad groups or
+re-estimating IDF changes additional assumptions, so assess those changes
+separately.
+
+The same mass-preserving coarsening can be run on the full archive. The next
+table uses the published hierarchy, holds the occupation universe fixed, and
+does not refit IDF or re-binarize parent activities. Read it with care: at the
+detailed grain, 371,633 of 425,503 occupation pairs (87.3 percent) share no
+DWA, and the mean pairwise distance is 0.987. A statistic that starts this
+close to its ceiling has little room to move, and by itself it does not show
+how distinctive occupations are. The null reference below makes that concrete.
+
+```{r observed-resolution}
+observed_resolution |>
+  mutate(grain = c("Detailed activities", "Intermediate activities",
+                   "Generalized activities")) |>
+  knitr::kable(digits = 3)
+```
+
+The reduction measures what grouping activity labels discards from a
+near-saturated statistic. It is not evidence that workers' actual jobs have
+converged over time.
+
+### An information-loss budget for coarsening
+
+The information-loss budget asks how much information about occupation identity
+survives when activity labels are grouped. This borrows the
+relevance-target idea from the information bottleneck of Tishby, Pereira, and
+Bialek: judge a compression by how much information it retains about a target
+variable. We do not fit the bottleneck algorithm. The hierarchy is fixed in
+advance by O&#42;NET.
+
+Draw an occupation \(O\) uniformly from the \(N\) covered occupations. Then
+draw a detailed activity \(D\) from that occupation's profile shares
+\(p_{od}\). The mixture is the mean profile, **not** the document-frequency
+ratio:
+
+\[
+q_d = \frac{1}{N}\sum_o p_{od}
+\]
+\[
+I(O;D) = \frac{1}{N}\sum_o\sum_d p_{od}\log_2\frac{p_{od}}{q_d}.
+\]
+
+\(I(O;D)\) is the mean Kullback-Leibler divergence, in bits, between each
+occupation's profile and the mean profile. It lies between zero and
+\(\log_2 N\). Aggregating the original mass through the fixed
+DWA-to-IWA-to-GWA hierarchy gives \(I(O;\text{IWA})\) and \(I(O;\text{GWA})\).
+By the data-processing inequality,
+
+\[
+I(O;D) \ge I(O;\text{IWA}) \ge I(O;\text{GWA}).
+\]
+
+The decrease is guaranteed, so the informative quantities are its size, how it
+splits across hierarchy groups, and the retained percentage relative to the
+detailed bits. Losses by parent group add up exactly to the total bits
+discarded between the detailed and generalized grains.
+
+**This is accounting, not a new metric.** When every occupation has the same
+number \(n\) of binary activities, \(p_{od}=1/n\) and
+\(q_d = df_d/(nN)\), so each occupation's divergence in bits equals its mean
+IDF divided by \(\ln 2\). Unequal profile sizes break that equality. The new
+contribution is the bookkeeping of what each grouping level discards. It is not
+a new uniqueness score and it is not a validated correction for profile size.
+
+```{r information-values, include = FALSE}
+fmt_bits <- function(x) formatC(x, format = "f", digits = 2)
+stopifnot(
+  identical(information_summary$grain,
+            c("dwa_element_id", "iwa_element_id", "gwa_element_id")),
+  all(c("gwa_element_id", "gwa_element_name", "n_dwas", "mixture_mass",
+        "lost_bits", "conditional_lost_bits") %in% names(information_loss)),
+  abs(sum(information_loss$lost_bits) -
+        information_summary$lost_from_dwa_bits[[3]]) < 1e-8
+)
+info_dwa <- information_summary$information_bits[[1]]
+info_iwa <- information_summary$information_bits[[2]]
+info_gwa <- information_summary$information_bits[[3]]
+info_max <- log2(information_summary$n_occupations[[1]])
+```
+
+```{r information-table, echo = FALSE}
+information_summary |>
+  mutate(grain = c("Detailed (DWA)", "Intermediate (IWA)", "Generalized (GWA)")) |>
+  select(
+    grain, n_labels_with_positive_mass, information_bits,
+    lost_from_dwa_bits, retained_dwa_percent
+  ) |>
+  knitr::kable(digits = 2, col.names = c(
+    "Grain", "Labels with mass", "Information (bits)",
+    "Lost from DWA (bits)", "Retained (% of DWA bits)"
+  ))
+```
+
+```{r information-text, echo = FALSE, results = "asis"}
+cat(sprintf(
+  paste0(
+    "Detailed activities carry %s bits of the at most %s bits that could ",
+    "identify one of %d occupations. Intermediate groups retain %s bits ",
+    "(%.1f percent of the detailed total) and generalized groups retain %s ",
+    "bits (%.1f percent), a loss of %s bits. The retained percentages use ",
+    "the detailed bits as the denominator.\n"
+  ),
+  fmt_bits(info_dwa), fmt_bits(info_max),
+  information_summary$n_occupations[[1]],
+  fmt_bits(info_iwa), information_summary$retained_dwa_percent[[2]],
+  fmt_bits(info_gwa), information_summary$retained_dwa_percent[[3]],
+  fmt_bits(information_summary$lost_from_dwa_bits[[3]])
+))
+```
+
+```{r figure-information, echo = FALSE, fig.cap = "Real O*NET 30.3 information budget: bits of occupation identity carried by activity labels at each grain, with the percentage of detailed bits retained.", fig.alt = "Bar chart of information in bits at the detailed, intermediate, and generalized activity grains: about 6.39, 3.95, and 1.67 bits, which is 100, 61.9, and 26.1 percent of the detailed bits. The table above gives the exact values."}
+audit_figures$information
+```
+
+```{r figure-loss, echo = FALSE, fig.cap = "Real O*NET 30.3: bits discarded by generalized-activity group when detailed activities are grouped. Large losses can reflect large group mass.", fig.alt = "Bar chart of discarded bits by generalized work activity group, largest first. The group losses sum to the total of about 4.72 bits discarded between the detailed and generalized grains. The table below gives exact values."}
+audit_figures$loss
+```
+
+```{r loss-table, echo = FALSE}
+information_loss |>
+  slice_max(lost_bits, n = 8, with_ties = TRUE) |>
+  select(all_of(c(
+    "gwa_element_name", "n_dwas", "mixture_mass",
+    "lost_bits", "conditional_lost_bits"
+  ))) |>
+  knitr::kable(digits = 4, col.names = c(
+    "Generalized activity group", "DWAs", "Share of mean profile",
+    "Lost bits", "Lost bits per unit of mass"
+  ))
+```
+
+A group's weighted loss rises with its share of the mean profile
+(`mixture_mass`), so a large group can top the table simply because it is
+large. The conditional loss, which divides by that mass, shows the loss per
+unit of mass. The budget is not classification accuracy, and it does not
+measure semantic richness, difficulty, AI exposure, or whether jobs are
+converging. It describes how much a given set of labels can say about occupation
+identity under this sampling model.
+
+### Is the distance more than a fixed-margin shuffle would give?
+
+A fixed-margin reference helps judge the near-ceiling numbers above. The
+Curveball algorithm of Strona and colleagues swaps activities between two
+occupations while preserving **each occupation's number of DWAs and each DWA's
+frequency exactly**. The reference here uses twenty separately restarted chains,
+each starting from the observed activity sets. Each chain attempts \(20N\)
+trades, and attempted no-op trades count. All chains are distinct pseudorandom
+draws under one seed, 20261025. The resulting sets are aggregated through the
+same fixed hierarchy. Draw 0 is the observed archive, and draws 1 to 20 are the
+reference draws.
+
+```{r null-table, echo = FALSE}
+stopifnot(all(c("draw", "grain", "mean_pair_distance",
+                "median_nearest_distance") %in% names(null_summary)))
+null_summary |>
+  mutate(
+    source = ifelse(draw == 0L, "Observed", "Reference draws"),
+    grain = factor(
+      grain, levels = c("dwa_element_id", "iwa_element_id", "gwa_element_id"),
+      labels = c("DWA", "IWA", "GWA")
+    )
+  ) |>
+  summarise(
+    mean_pair_min = min(mean_pair_distance),
+    mean_pair_max = max(mean_pair_distance),
+    nearest_min = min(median_nearest_distance),
+    nearest_max = max(median_nearest_distance),
+    n_draws = n(),
+    .by = c(source, grain)
+  ) |>
+  arrange(grain, source) |>
+  knitr::kable(digits = 3, col.names = c(
+    "Source", "Grain", "Mean pair min", "Mean pair max",
+    "Median nearest min", "Median nearest max", "Draws"
+  ))
+```
+
+```{r figure-null, echo = FALSE, fig.cap = "Real O*NET 30.3 against fixed-margin Curveball reference draws: pairwise and nearest-neighbor distance at each grain.", fig.alt = "Chart comparing observed values with twenty fixed-margin reference draws at each grain. The mean pairwise distance at the detailed grain is about 0.987 observed and about 0.986 in the reference draws, a small absolute difference with the observed value slightly above all twenty endpoints. At the generalized grain the observed mean pairwise distance is higher (0.716 against 0.615 to 0.625) while the median nearest-neighbor distance is lower. The median nearest-neighbor distance at the detailed grain is about 0.59 observed against about 0.86 in the reference draws. The table above gives the exact minimum and maximum values."}
+audit_figures$null
+```
+
+At the detailed grain, the mean pairwise distance is about 0.987 observed and
+about 0.986 in the reference draws. The detailed-grain mean difference is small
+in absolute magnitude (observed 0.986506, slightly above all twenty endpoints).
+At the generalized grain, the observed mean pairwise distance is higher than the
+reference (0.716 against 0.615 to 0.625), while the median nearest-neighbor
+distance is lower. The detailed-grain median nearest-neighbor distance is about
+0.59 observed against about 0.86 in the reference draws, so occupations have
+closer neighbors than these shuffled sets give them. This is a descriptive
+reference.
+The twenty finite endpoints are not certified as uniform draws, and the
+minimum-to-maximum range is not a confidence interval. The shuffled sets are
+synthetic activity bundles, not economic counterfactuals. Because mixing is not
+certified, the gap is not a proof of a statistical difference. It also does not
+prove that the archive has, or lacks, economic structure.
+
+### Similarity can also increase without work converging
+
+| Change in analysis | Why a gap might shrink | Diagnostic |
+|:--|:--|:--|
+| Replace detailed tasks with broad activities | Distinct tasks acquire the same label | Hold weights fixed and compare DWA, IWA, and GWA distances |
+| Keep only common skills | Shared descriptors crowd out specialized knowledge | Report domain-specific distances and dropped-feature coverage |
+| Normalize each profile | Absolute requirement levels disappear | Retain raw scale-level gaps |
+| Average occupations into industries | Different occupational mixtures yield similar means | Separate within-occupation profiles from employment composition |
+| Change the reference universe or refit IDF | Rarity changes even if no activity changes | Score both samples with the same reference IDF |
+| Drop missing or suppressed observations | The most distinctive observations may leave the sample | Show exclusions and common-support results |
+| Compare adjacent database releases | Copied records can look stable without fresh measurement | Use source dates, resurvey indicators, and taxonomy seam flags |
+
+For industry comparisons, "common across occupations" is not "common among
+workers." Use employment weights to calculate a separate worker-weighted
+prevalence, and show coverage and the SOC bridge. Do not describe linked task
+counts or Relevance ratings as worker time shares. An industry-level result
+also needs an occupation-by-industry employment panel, not just national
+occupational employment.
+
+For changes over time, freeze a baseline IDF to measure changes in occupational
+profiles on a common scale. Refit IDF separately as a sensitivity analysis of
+changing rarity. Keep taxonomy and vocabulary mappings visible. See
+[Resurvey Cycles and Content Change](resurvey-and-content-change.html) and
+[Change Decomposition](within-between-decomposition.html). A descriptive
+convergence result does not identify whether technology, training, regulation,
+or organizational change caused it. Those explanations need additional
+outcomes, timing, and an identification strategy.
+
+## Run the analysis on a local archive
+
+The following is deliberately **not evaluated** during article builds. Download
+the public 30.3 text archive separately and point `archive_path` at the ZIP or
+its extracted directory. No API key is required. Keep the source receipt and
+digest with the analysis. The tables used here are not the entire published
+occupation taxonomy, so define the analytic universe from documented coverage.
+
+```{r full-archive, eval = FALSE}
+archive_path <- "path/to/db_30_3_text.zip"
+full_tasks <- onet_archive_read(
+  "30.3", "Task Statements", path = archive_path
+)
+full_links <- onet_archive_read(
+  "30.3", "Tasks to DWAs", path = archive_path
+)
+full_hierarchy <- onet_archive_reference(
+  "30.3", "GWAs to IWAs to DWAs", path = archive_path
+)
+occupation_names <- onet_archive_read(
+  "30.3", "Occupation Data", path = archive_path
+) |>
+  distinct(onet_soc_code, title)
+full_names <- full_hierarchy |>
+  distinct(dwa_element_id, dwa_element_name)
+
+# Baseline: any linked task, including Supplemental tasks.
+full_profiles <- full_links |>
+  distinct(onet_soc_code, dwa_element_id) |>
+  transmute(occupation = onet_soc_code, item = dwa_element_id, weight = 1)
+full_universe <- sort(unique(full_profiles$occupation))
+task_coverage <- full_tasks |>
+  distinct(onet_soc_code, task_id) |>
+  left_join(
+    full_links |>
+      distinct(onet_soc_code, task_id) |>
+      mutate(has_dwa = TRUE),
+    by = c("onet_soc_code", "task_id"),
+    relationship = "one-to-one"
+  ) |>
+  summarise(
+    n_tasks = n(), linked_tasks = sum(!is.na(has_dwa)),
+    .by = onet_soc_code
+  )
+print(task_coverage)
+print(anti_join(
+  full_tasks |> distinct(onet_soc_code),
+  full_profiles |> distinct(onet_soc_code = occupation),
+  by = "onet_soc_code"
+))
+full_scores <- profile_tfidf(full_profiles, full_universe)
+full_scores |>
+  distinct(item, n_occupations, prevalence, idf) |>
+  left_join(
+    full_names, by = c("item" = "dwa_element_id"),
+    relationship = "one-to-one"
+  ) |>
+  arrange(desc(prevalence), item) |>
+  print(n = 20)
+full_scores |>
+  summarise(mean_idf = sum(tf_idf), .by = occupation) |>
+  left_join(
+    occupation_names, by = c("occupation" = "onet_soc_code"),
+    relationship = "one-to-one"
+  ) |>
+  arrange(desc(mean_idf), occupation) |>
+  print(n = 20)
+
+experience <- onet_archive_read(
+  "30.3", "Training and Experience", path = archive_path
+)
+experience_categories <- onet_archive_reference(
+  "30.3", "Training and Experience Categories", path = archive_path
+)
+# Audit missing/suppressed values and category completeness before normalization.
+experience |>
+  filter(scale_id == "RW") |>
+  select(onet_soc_code, element_id, scale_id, category, data_value,
+         recommend_suppress) |>
+  left_join(
+    experience_categories |>
+      select(element_id, scale_id, category, category_description),
+    by = c("element_id", "scale_id", "category"),
+    relationship = "many-to-one"
+  )
+```
+
+For a production analysis, retain a manifest with release, source digest,
+taxonomy, inclusion rule, mapping grain, weight scale, suppression treatment,
+occupation universe, and IDF reference. Check coverage separately for each
+domain, then use common support for cross-domain comparisons. In rating
+tables, absence means missing unless you have evidence it means zero.
+
+The full-archive ranking above is conditional on its vocabulary, comparison
+universe, and weighting decisions. The multidomain examples are still
+stylized and do not establish a national ranking for experience or knowledge.
+
+### Reproduce the bundled snapshot
+
+The snapshot was generated on `r snapshot$snapshot_date` from
+[`r snapshot$source_url`](`r snapshot$source_url`).
+The archive SHA-256 is:
+
+```{r snapshot-digest, echo = FALSE}
+cat(snapshot$source_sha256, "\n")
+```
+
+From a source checkout with the current package installed, run these three
+commands, each with the same local ZIP argument:
+
+```
+Rscript data-raw\occupational-distinctiveness.R path\to\db_30_3_text.zip
+Rscript data-raw\occupational-information.R path\to\db_30_3_text.zip
+Rscript data-raw\occupational-null.R path\to\db_30_3_text.zip
+```
+
+They regenerate the derived CSVs under
+`inst/extdata/occupational-distinctiveness/`. The generators record coverage and
+provenance, check task-link integrity and mass-preserving coarsening, and check
+the archive digest. The `task-inventory.csv` file carries task-vintage and
+inventory metadata. The raw archive is not bundled. Source date and identifier
+changes across releases still require separate review.
+
+## Sources and scope
+
+This article includes information derived from the
+[O&#42;NET 30.3 Database](https://www.onetcenter.org/db_releases.html) by the
+U.S. Department of Labor, Employment and Training Administration (USDOL/ETA),
+used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+O&#42;NET is a trademark of USDOL/ETA. onet2r has modified the information by
+calculating the frequencies, scores, distances, information-loss accounting,
+fixed-margin randomizations, and coverage summaries described
+above. USDOL/ETA has not approved, endorsed, or tested these modifications.
+
+The data representations above follow the O&#42;NET Resource Center's
+[Tasks to DWAs dictionary](https://www.onetcenter.org/dictionary/30.3/excel/tasks_to_dwas.html),
+[activity hierarchy](https://www.onetcenter.org/dictionary/30.3/excel/gwas_to_iwas_to_dwas.html),
+[Essential Skills dictionary](https://www.onetcenter.org/dictionary/30.3/excel/essential_skills.html),
+[scale definitions](https://www.onetcenter.org/dictionary/30.3/excel/scales_reference.html),
+[Training and Experience dictionary](https://www.onetcenter.org/dictionary/30.3/excel/training_and_experience.html),
+and [experience category definitions](https://www.onetcenter.org/dictionary/30.3/excel/training_and_experience_categories.html).
+Verified schema facts are recorded in `docs/DATA_NOTES.md`.
+
+TF-IDF is adapted from information retrieval. For the underlying distinction
+between term frequency and document frequency, see Manning, Raghavan, and
+Schuetze, *Introduction to Information Retrieval*, section 6.2,
+[Term frequency and weighting](https://nlp.stanford.edu/IR-book/html/htmledition/term-frequency-and-weighting-1.html).
+The occupation-level summary, distance, and domain weights here are explicit
+analytical choices, not measures validated by that reference.
+
+The information-loss budget borrows the relevance-target idea from Tishby,
+Pereira, and Bialek, [The information bottleneck method](https://arxiv.org/html/physics/0004057v1).
+We do not fit the bottleneck algorithm, and that reference does not validate
+the budget as a measure of occupational distinctiveness. The fixed-margin
+reference uses the Curveball algorithm: Strona et al. (2014), "A fast and
+unbiased procedure to randomize ecological binary matrices with fixed row and
+column totals," *Nature Communications* 5:4114,
+[doi:10.1038/ncomms5114](https://doi.org/10.1038/ncomms5114).

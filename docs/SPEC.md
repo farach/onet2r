@@ -16,6 +16,33 @@ does not ship a substantive AI exposure score or task score.
   an accessor-readable column, not only as a fragile attribute.
 - Multi-year or multi-cell weight panels must be filtered before aggregation.
 
+## Occupational distinctiveness article
+
+`vignettes/occupational-distinctiveness.Rmd` is a research workflow, not a new
+public measure API. Its article-only helpers in `inst/article-helpers/` use
+explicit occupation universes, unique occupation-item keys, non-negative
+weights, occupation document frequency, and within-occupation normalization.
+Missing and all-zero occupation profiles fail explicitly rather than being
+silently excluded. Total-variation distances describe composition, not
+absolute rating levels.
+
+The bundled public-archive snapshot has a source digest and a deterministic
+local-input regeneration script in `data-raw/`. Article builds and tests
+remain offline. Full-archive activity rankings are labeled separately from
+stylized multidomain examples. Coarsening preserves activity mass and the
+occupation universe so loss of distinctions is not confused with real
+convergence or with refitted IDF weights.
+
+The information budget fixes a uniform occupation prior and original DWA
+profile mass. Its mixture is the mean normalized profile, not document
+prevalence. Information and parent losses are in bits, with retained
+percentages divided by fine-label information. Mapping gaps, duplicate
+parents, and non-nested routes fail explicitly. The finite-run Curveball
+reference preserves row and column totals and supplies no p-values or
+confidence intervals. Rankings disclose Supplemental-task dependence,
+inventory-size dependence, and the different support of Core-only analyses.
+Static figures have text alternatives and offline table counterparts.
+
 ## Longitudinal panel contract
 
 `onet_archive_read()` returns one row per archive observation with:

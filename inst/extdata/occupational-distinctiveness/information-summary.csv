@@ -1,0 +1,4 @@
+"release","universe_id","weighting_rule","grain","n_occupations","n_labels_with_positive_mass","information_bits","conditional_entropy_bits","lost_from_dwa_bits","retained_dwa_percent"
+"30.3","tasks-and-dwa-links-923","uniform occupation; binary DWA shares; fixed original mass","dwa_element_id",923,2083,6.38972523406045,3.46046160358533,0,100
+"30.3","tasks-and-dwa-links-923","uniform occupation; binary DWA shares; fixed original mass","iwa_element_id",923,332,3.95418509255745,5.89600174508832,2.43554014150299,61.8834918202689
+"30.3","tasks-and-dwa-links-923","uniform occupation; binary DWA shares; fixed original mass","gwa_element_id",923,41,1.66557792795338,8.18460890969239,4.72414730610706,26.0665031271614

@@ -69,6 +69,8 @@ navbar:
         - text: Measures and Weights
         - text: From Tasks to Occupations
           href: articles/from-tasks-to-occupations.html
+        - text: What Makes Occupations Different?
+          href: articles/occupational-distinctiveness.html
         - text: Reproducible Measures
           href: articles/measure-reproducibility.html
         - text: Importing Published Exposure Scores
@@ -214,6 +216,7 @@ articles:
     navbar: ~
     contents:
       - from-tasks-to-occupations
+      - occupational-distinctiveness
       - measure-reproducibility
       - importing-exposure-scores
       - stress-testing-exposure-measure

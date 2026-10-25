@@ -1,0 +1,4 @@
+"grain","n_pairs","mean_distance","median_distance","n_indistinguishable_pairs","mean_distance_lost"
+"dwa_element_id",425503,0.986505670016349,1,5,0
+"iwa_element_id",425503,0.925331931381888,0.952380952380952,9,0.0611737386344631
+"gwa_element_id",425503,0.716142022903866,0.724358974358974,9,0.270363647112486
