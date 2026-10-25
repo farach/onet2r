@@ -84,8 +84,10 @@ for (draw in seq_len(20L)) {
   )
 }
 output <- file.path("inst", "extdata", "occupational-distinctiveness")
-utils::write.csv(bind_rows(results), file.path(output, "null-summary.csv"),
-                 row.names = FALSE)
-utils::write.csv(bind_rows(size_checks), file.path(output, "null-size-summary.csv"),
-                 row.names = FALSE)
+write_snapshot_csv(
+  bind_rows(results), file.path(output, "null-summary.csv")
+)
+write_snapshot_csv(
+  bind_rows(size_checks), file.path(output, "null-size-summary.csv")
+)
 print(bind_rows(results), n = 63L)

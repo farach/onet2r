@@ -33,11 +33,15 @@ test_that("article figures preserve the published data and denominators", {
   information <- read_snapshot("information-summary.csv")
   loss <- read_snapshot("information-loss.csv")
   null <- read_snapshot("null-summary.csv")
-  audit <- env$distinctiveness_audit_figures(information, loss, null)
-  expect_named(audit, c("information", "loss", "null"))
+  random_hierarchy <- read_snapshot("information-random-hierarchy.csv")
+  audit <- env$distinctiveness_audit_figures(
+    information, loss, null, random_hierarchy
+  )
+  expect_named(audit, c("information", "loss", "null", "random_hierarchy"))
   expect_equal(audit$information$data$information_bits, information$information_bits)
   expect_equal(nrow(audit$loss$data), 8L)
   expect_equal(nrow(audit$null$data), 6L)
+  expect_equal(nrow(audit$random_hierarchy$data), 200L)
   for (plot in audit) {
     expect_s3_class(plot, "ggplot")
     expect_match(plot$labels$caption, "Source: O\\*NET 30.3")

@@ -38,6 +38,53 @@ test_that("information budgets conserve identity signal and expose IDF equivalen
   expect_true(all(is.na(zero$summary$retained_dwa_percent)))
 })
 
+test_that("equal minor-group weights change prevalence, not profiles", {
+  env <- new.env(parent = globalenv())
+  for (name in c("occupational-distinctiveness.R", "distinctiveness-information.R")) {
+    sys.source(system.file("article-helpers", name, package = "onet2r"), env)
+  }
+  profiles <- tibble::tribble(
+    ~occupation, ~item, ~weight,
+    "a", "x", 1, "b", "x", 1, "c", "y", 1
+  )
+  weighted <- env$profile_tfidf_equal_group_weights(
+    profiles, c("a", "b", "c"), c("large", "large", "small")
+  )
+  expect_equal(weighted$prevalence, rep(0.5, 3))
+  expect_equal(weighted$idf, rep(log(2), 3))
+  expect_equal(weighted$tf_idf, rep(log(2), 3))
+  expect_error(
+    env$profile_tfidf_equal_group_weights(profiles, c("a", "b", "c"), "one"),
+    "one non-missing group label"
+  )
+  expect_error(
+    env$profile_tfidf_equal_group_weights(
+      profiles, c("a", "b", "c"), c("large", NA, "small")
+    ),
+    "one non-missing group label"
+  )
+})
+
+test_that("partition information matches the detailed-grain budget", {
+  env <- new.env(parent = globalenv())
+  for (name in c("occupational-distinctiveness.R", "distinctiveness-information.R")) {
+    sys.source(system.file("article-helpers", name, package = "onet2r"), env)
+  }
+  profiles <- tibble::tribble(
+    ~occupation, ~item, ~weight,
+    "a", "u", 1, "a", "v", 1, "b", "u", 1, "b", "w", 1
+  )
+  mapping <- tibble::tibble(item = c("u", "v", "w"), group = c("u", "v", "w"))
+  information <- env$profile_partition_information(
+    profiles, mapping, c("a", "b")
+  )
+  expect_equal(information, 0.5)
+  expect_error(
+    env$profile_partition_information(profiles, mapping[-1, ], c("a", "b")),
+    "partition label"
+  )
+})
+
 test_that("bundled information and null results reconcile to the snapshot", {
   read_snapshot <- function(name) {
     utils::read.csv(system.file(
@@ -45,7 +92,9 @@ test_that("bundled information and null results reconcile to the snapshot", {
     ))
   }
   information <- read_snapshot("information-summary.csv")
+  random_hierarchy <- read_snapshot("information-random-hierarchy.csv")
   loss <- read_snapshot("information-loss.csv")
+  group_weighting <- read_snapshot("group-weighting-sensitivity.csv")
   diagnostics <- read_snapshot("information-occupation-diagnostics.csv")
   null <- read_snapshot("null-summary.csv")
   resolution <- read_snapshot("resolution-summary.csv")
@@ -54,6 +103,26 @@ test_that("bundled information and null results reconcile to the snapshot", {
   expect_equal(information$information_bits,
                c(6.38972523406045, 3.95418509255745, 1.66557792795338))
   expect_true(all(diff(information$information_bits) <= 0))
+  expect_equal(nrow(random_hierarchy), 200L)
+  expect_equal(random_hierarchy$draw, seq_len(200L))
+  expect_equal(unique(random_hierarchy$seed), 20261026L)
+  expect_equal(unique(random_hierarchy$n_groups), 41L)
+  expect_equal(unique(random_hierarchy$n_dwas), 2083L)
+  expect_true(all(is.finite(random_hierarchy$information_bits)))
+  expect_equal(nrow(group_weighting), 923L)
+  expect_equal(group_weighting$occupation, sort(group_weighting$occupation))
+  expect_equal(group_weighting$minor_group_prefix,
+               substr(group_weighting$occupation, 1, 5))
+  expect_equal(group_weighting$rarity_rank,
+               rank(-group_weighting$mean_idf, ties.method = "min"))
+  expect_equal(
+    group_weighting$minor_group_weighted_rank,
+    rank(-group_weighting$mean_idf_minor_group_weighted, ties.method = "min")
+  )
+  expect_equal(
+    group_weighting$rank_change,
+    group_weighting$rarity_rank - group_weighting$minor_group_weighted_rank
+  )
   expect_equal(sum(loss$mixture_mass), 1)
   expect_equal(sum(loss$lost_bits), information$lost_from_dwa_bits[[3]])
   expect_equal(loss$conditional_lost_bits * loss$mixture_mass, loss$lost_bits)

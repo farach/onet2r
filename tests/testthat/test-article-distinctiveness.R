@@ -124,3 +124,17 @@ test_that("bundled distinctiveness snapshot has coherent coverage and formulas",
   expect_equal(resolution$mean_distance_lost,
                resolution$mean_distance[1] - resolution$mean_distance)
 })
+
+test_that("snapshot CSV writer emits portable LF line endings", {
+  path <- tempfile(fileext = ".csv")
+  on.exit(unlink(path), add = TRUE)
+  distinctiveness_helpers$write_snapshot_csv(
+    tibble::tibble(item = c("one", "two"), count = c(1L, 2L)),
+    path
+  )
+  bytes <- readBin(path, "raw", n = file.info(path)$size)
+  expect_true(any(bytes == as.raw(10)))
+  expect_false(any(
+    bytes[-length(bytes)] == as.raw(13) & bytes[-1L] == as.raw(10)
+  ))
+})

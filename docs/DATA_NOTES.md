@@ -112,6 +112,14 @@ Excel-format dictionary:
   are research choices. The package does not export a distinctiveness or
   AI-exposure score. Full-archive activity results are distinct from the
   article's stylized skills, knowledge, and experience examples.
+- Equal minor-group weighting in the article averages DWA prevalence across
+  represented five-character O*NET-SOC prefixes. It is a taxonomy-weighting
+  sensitivity, not an estimate of equal occupational-family influence.
+- In this sensitivity, baseline and equal-minor-group rarity ranks have
+  Spearman correlation 0.5887, with two occupations in common among the top
+  ten under both rankings. Slaughterers and Meat Packers remains the highest
+  mean-IDF occupation, but its result is not evidence that the ranking is
+  invariant to weighting.
 - Independent reconstruction from the pinned bytes found that the baseline
   rarity leader, Slaughterers and Meat Packers, has 14 task statements, all
   Supplemental, which map to five distinct DWAs. Models has ten statements,
@@ -131,17 +139,29 @@ Excel-format dictionary:
   retains 26.0665 percent of the fine-label signal. This is a synthetic
   database-description experiment, not worker, semantic, or economic
   information. Parent losses sum to 4.724147 bits.
+- Five occupation pairs have exactly identical detailed DWA sets in the
+  snapshot. All share major-group prefix `25`, but three pairs cross minor-
+  group prefixes; this does not imply that a whole major group shares one
+  activity profile.
+- The article's 200-draw DWA-to-GWA partition reference preserves each
+  generalized group's number of DWA labels but randomizes their assignments.
+  It does not preserve IWA nesting or semantic relatedness and is not an
+  economic null model or inferential test. Observed GWA information is
+  1.665578 bits; for seed 20261026, random-draw percentiles are 1.243709,
+  1.264714, and 1.290753 bits at the 5th, 50th, and 95th percentiles. All 200
+  draws are below the observed value; this finite comparison is descriptive.
 
 Reproduction: `data-raw/occupational-distinctiveness.R` reads a local ZIP
 without network access and writes the derived snapshot, coverage, resolution
 diagnostics, and provenance under
 `inst/extdata/occupational-distinctiveness/`.
 The companion scripts `occupational-information.R` and `occupational-null.R`
-take the same local ZIP argument and regenerate the information-loss and
-finite-run fixed-margin reference tables. Curveball trades preserve both
-matrix margins. Twenty separately restarted runs of 20 times the occupation
-count in attempted trades are a descriptive reference, not certified uniform
-samples or a calibrated significance test.
+take the same local ZIP argument and regenerate the information-loss,
+equal-minor-group sensitivity, randomized-partition, and finite-run
+fixed-margin reference tables. Curveball trades preserve both matrix margins.
+Twenty separately restarted runs of 20 times the occupation count in attempted
+trades are a descriptive reference, not certified uniform samples or a
+calibrated significance test.
 
 Sources:
 

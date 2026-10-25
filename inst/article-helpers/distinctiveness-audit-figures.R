@@ -1,4 +1,4 @@
-distinctiveness_audit_figures <- function(information, loss, null) {
+distinctiveness_audit_figures <- function(information, loss, null, random_hierarchy) {
   grain_labels <- c(
     dwa_element_id = "Detailed", iwa_element_id = "Intermediate",
     gwa_element_id = "Generalized"
@@ -58,7 +58,7 @@ distinctiveness_audit_figures <- function(information, loss, null) {
       subtitle = "Contributions to detailed-to-generalized information loss",
       x = "Weighted contribution to discarded information (bits)", y = NULL,
       caption = paste(
-        "Source: O*NET 30.3. Eight largest contributions of 41; full table follows.",
+        "Source: O*NET 30.3. Eight largest contributions of 41; full results in information-loss.csv.",
         "Group size and draw mass affect contributions; this is not intrinsic complexity.",
         sep = "\n"
       )
@@ -125,8 +125,41 @@ distinctiveness_audit_figures <- function(information, loss, null) {
       )
     ) +
     onet2r_theme()
+
+  observed_generalized_information <- information$information_bits[
+    information$grain == "gwa_element_id"
+  ]
+  hierarchy_plot <- ggplot2::ggplot(
+    random_hierarchy, ggplot2::aes(x = .data$information_bits)
+  ) +
+    ggplot2::geom_histogram(
+      bins = 25, fill = onet2r_colors[["slate"]],
+      color = "white", linewidth = 0.3
+    ) +
+    ggplot2::geom_vline(
+      xintercept = observed_generalized_information,
+      color = onet2r_colors[["teal"]], linewidth = 1.2
+    ) +
+    ggplot2::labs(
+      title = "Compare the published grouping with size-preserving random partitions",
+      subtitle = paste(
+        nrow(random_hierarchy),
+        "random DWA-to-GWA assignments; each group's DWA count is preserved"
+      ),
+      x = "Information about occupation identity (bits)",
+      y = "Random assignments",
+      caption = paste(
+        "Source: O*NET 30.3. Teal line: observed GWA grouping.",
+        "Random assignments do not preserve IWA nesting or represent an economic null model.",
+        sep = "\n"
+      )
+    ) +
+    onet2r_theme()
   lapply(
-    list(information = information_plot, loss = loss_plot, null = null_plot),
+    list(
+      information = information_plot, loss = loss_plot, null = null_plot,
+      random_hierarchy = hierarchy_plot
+    ),
     distinctiveness_figure_style
   )
 }

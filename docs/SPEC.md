@@ -41,6 +41,10 @@ parents, and non-nested routes fail explicitly. The finite-run Curveball
 reference preserves row and column totals and supplies no p-values or
 confidence intervals. Rankings disclose Supplemental-task dependence,
 inventory-size dependence, and the different support of Core-only analyses.
+An equal-minor-group TF-IDF sensitivity changes the reference prevalence but
+not the occupation-DWA profiles. A separate 200-draw partition reference
+preserves each generalized group's DWA count while randomizing DWA assignments;
+it breaks IWA nesting and semantic groupings and is descriptive, not inferential.
 Static figures have text alternatives and offline table counterparts.
 
 ## Longitudinal panel contract

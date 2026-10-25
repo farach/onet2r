@@ -88,3 +88,61 @@ profile_information_budget <- function(data, mapping, universe) {
     dplyr::bind_rows()
   list(summary = summary, parent_loss = parent_loss, diagnostics = diagnostics)
 }
+
+
+profile_tfidf_equal_group_weights <- function(data, universe, groups) {
+  if (!is.character(groups) || length(groups) != length(universe) ||
+      anyNA(groups) || any(!nzchar(trimws(groups)))) {
+    stop("Supply one non-missing group label per occupation.", call. = FALSE)
+  }
+  group_lookup <- tibble::tibble(
+    occupation = universe, group = groups
+  )
+  group_sizes <- group_lookup |>
+    dplyr::count(.data$group, name = "n_occupations") |>
+    dplyr::mutate(occupation_weight = 1 / .data$n_occupations)
+  shares <- profile_shares(data, universe) |>
+    dplyr::left_join(group_lookup, by = "occupation", relationship = "many-to-one") |>
+    dplyr::left_join(group_sizes, by = "group", relationship = "many-to-one")
+  n_groups <- dplyr::n_distinct(groups)
+  frequencies <- shares |>
+    dplyr::summarise(
+      weighted_occupation_mass = sum(.data$occupation_weight), .by = "item"
+    ) |>
+    dplyr::mutate(
+      prevalence = .data$weighted_occupation_mass / n_groups,
+      idf = log(1 / .data$prevalence)
+    )
+  shares |>
+    dplyr::left_join(frequencies, by = "item", relationship = "many-to-one") |>
+    dplyr::mutate(tf_idf = .data$share * .data$idf)
+}
+
+profile_partition_information <- function(data, mapping, universe) {
+  profiles <- profile_shares(data, universe)
+  if (!all(c("item", "group") %in% names(mapping)) ||
+      anyNA(mapping[c("item", "group")]) || anyDuplicated(mapping$item) ||
+      !all(profiles$item %in% mapping$item)) {
+    stop("Each activity must have one non-missing partition label.",
+         call. = FALSE)
+  }
+  grouped <- profiles |>
+    dplyr::left_join(
+      mapping[c("item", "group")], by = "item", relationship = "many-to-one"
+    ) |>
+    dplyr::summarise(
+      profile_share = sum(.data$share), .by = c("occupation", "group")
+    )
+  mixture <- grouped |>
+    dplyr::summarise(
+      mixture_mass = sum(.data$profile_share) / length(universe), .by = "group"
+    )
+  grouped |>
+    dplyr::left_join(mixture, by = "group", relationship = "many-to-one") |>
+    dplyr::summarise(
+      information_bits = sum(
+        .data$profile_share * log2(.data$profile_share / .data$mixture_mass)
+      ) / length(universe)
+    ) |>
+    dplyr::pull("information_bits")
+}

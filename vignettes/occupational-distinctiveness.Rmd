@@ -82,13 +82,15 @@ observed_resolution <- read_snapshot("resolution-summary.csv")
 information_summary <- read_snapshot("information-summary.csv")
 information_loss <- read_snapshot("information-loss.csv")
 information_diagnostics <- read_snapshot("information-occupation-diagnostics.csv")
+random_hierarchy <- read_snapshot("information-random-hierarchy.csv")
 null_summary <- read_snapshot("null-summary.csv")
+group_weighting <- read_snapshot("group-weighting-sensitivity.csv")
 base_figures <- distinctiveness_figures(
   observed_prevalence, observed_occupations,
   observed_resolution
 )
 audit_figures <- distinctiveness_audit_figures(
-  information_summary, information_loss, null_summary
+  information_summary, information_loss, null_summary, random_hierarchy
 )
 observed_occupations$size_band <- cut(
   observed_occupations$n_activities, c(0, 10, 20, 30, Inf),
@@ -101,6 +103,52 @@ size_rho <- stats::cor(
 size_nearest_rho <- stats::cor(
   observed_occupations$n_activities, observed_occupations$nearest_distance,
   method = "spearman"
+)
+rarity_nearest_rho <- stats::cor(
+  observed_occupations$mean_idf, observed_occupations$nearest_distance,
+  method = "spearman"
+)
+group_weighting_rho <- stats::cor(
+  group_weighting$rarity_rank,
+  group_weighting$minor_group_weighted_rank,
+  method = "spearman"
+)
+top_ten_weighting_overlap <- length(intersect(
+  group_weighting$occupation[group_weighting$rarity_rank <= 10L],
+  group_weighting$occupation[group_weighting$minor_group_weighted_rank <= 10L]
+))
+identical_profile_rows <- observed_occupations |>
+  dplyr::filter(.data$nearest_distance == 0)
+identical_profile_pairs <- dplyr::bind_rows(lapply(
+  seq_len(nrow(identical_profile_rows)),
+  function(i) {
+    occupation <- identical_profile_rows$occupation[[i]]
+    neighbors <- strsplit(
+      identical_profile_rows$nearest_occupations[[i]], ";", fixed = TRUE
+    )[[1]]
+    tibble::tibble(
+      occupation_a = pmin(occupation, neighbors),
+      occupation_b = pmax(occupation, neighbors)
+    )
+  }
+)) |>
+  dplyr::distinct(.data$occupation_a, .data$occupation_b) |>
+  dplyr::mutate(
+    minor_group_a = substr(.data$occupation_a, 1, 5),
+    minor_group_b = substr(.data$occupation_b, 1, 5),
+    same_minor_group = .data$minor_group_a == .data$minor_group_b,
+    same_major_group = substr(.data$occupation_a, 1, 2) ==
+      substr(.data$occupation_b, 1, 2),
+    occupation_a_title = observed_occupations$title[
+      match(.data$occupation_a, observed_occupations$occupation)
+    ],
+    occupation_b_title = observed_occupations$title[
+      match(.data$occupation_b, observed_occupations$occupation)
+    ]
+  )
+stopifnot(
+  nrow(identical_profile_pairs) == 5L,
+  all(identical_profile_pairs$same_major_group)
 )
 ```
 
@@ -116,6 +164,9 @@ to Detailed Work Activities. The **GWAs to IWAs to DWAs** reference supplies
 the hierarchy from detailed to intermediate to generalized activities. These
 links provide a published shared vocabulary without requiring an embedding
 model or treating different wording as different work.
+
+The next example uses the bundled miniature fixture, with two occupations. It
+demonstrates the join only; the full-archive results begin below.
 
 ```{r archive-links}
 archive_dir <- onet2r_inst_path("extdata", "onet-mini", "db_30_3_text")
@@ -226,6 +277,11 @@ Three properties of this archive limit what the rankings can mean.
 - **Rankings are summaries of database labels.** They describe one published
   archive. They are not estimates of a population quantity, so they come with
   no confidence intervals and no sampling interpretation.
+- **Code granularity matters.** The baseline gives every O&#42;NET-SOC code
+  equal weight. A minor group with more detailed codes therefore contributes
+  more total weight to activity prevalence than a group with fewer codes. The
+  results are code-weighted comparisons, not equally weighted comparisons of
+  occupational families.
 
 ### Most common and least common detailed activities
 
@@ -294,6 +350,73 @@ minimum-coverage restrictions, and broader activity groupings. The snapshot
 does not claim those robustness checks have all been passed. Snapshot rarity
 scores and distances are rounded to 12 decimal places before ranking or choosing
 neighbors so numerical noise does not break ties.
+
+### Sensitivity to occupational-code granularity
+
+The baseline gives each of the 923 detailed O&#42;NET-SOC codes equal weight.
+As a sensitivity, this calculation first finds each DWA's prevalence within
+each five-character SOC minor-group prefix, then averages those prevalences
+with each represented minor group receiving equal weight:
+
+\[
+\bar p_d = \frac{1}{G}\sum_{g=1}^{G}
+\frac{\text{occupations in group }g\text{ linked to }d}
+{\text{covered occupations in }g},
+\qquad \mathrm{IDF}^{*}_d = \log(1/\bar p_d).
+\]
+
+The within-occupation TF remains normalized as before. This changes the
+reference prevalence, not the occupational activity profiles. The two rankings
+have a Spearman correlation of `r round(group_weighting_rho, 2)`, and
+`r top_ten_weighting_overlap` occupations ranked in the top ten (including
+ties) overlap.
+
+```{r figure-group-weighting, echo = FALSE, fig.cap = "Occupation rarity ranks under equal detailed-code weights versus equal SOC minor-group weights. Points away from the diagonal change rank when the prevalence denominator changes.", fig.alt = "Scatter plot comparing each of 923 occupations' rarity rank under equal code weights with its rank when O*NET-SOC minor groups receive equal weight. The diagonal indicates unchanged rank; a table below lists occupations with the largest shifts."}
+ggplot2::ggplot(
+  group_weighting,
+  ggplot2::aes(
+    x = .data$rarity_rank, y = .data$minor_group_weighted_rank
+  )
+) +
+  ggplot2::geom_abline(
+    slope = 1, intercept = 0, linetype = "dashed",
+    color = onet2r_colors[["gray"]]
+  ) +
+  ggplot2::geom_point(
+    color = onet2r_colors[["slate"]], alpha = 0.35, size = 1.5
+  ) +
+  ggplot2::scale_y_reverse() +
+  ggplot2::labs(
+    title = "Equal minor-group weights change some rarity ranks",
+    subtitle = "The activity profiles are unchanged; only prevalence weights differ",
+    x = "Rank with equal weight per detailed occupation code",
+    y = "Rank with equal weight per SOC minor group",
+    caption = "Rank 1 is highest. This is a weighting sensitivity, not a preferred occupational taxonomy."
+  ) +
+  onet2r_theme(base_size = 16)
+```
+
+```{r group-weighting-table, echo = FALSE}
+group_weighting |>
+  slice_max(abs(rank_change), n = 8, with_ties = FALSE) |>
+  arrange(desc(abs(rank_change)), occupation) |>
+  mutate(occupation_label = paste0(title, " (", minor_group_prefix, ")")) |>
+  select(
+    occupation_label, rarity_rank, minor_group_weighted_rank, rank_change
+  ) |>
+  knitr::kable(digits = 3, col.names = c(
+    "Occupation (minor group)", "Code-weighted rank",
+    "Group-weighted rank", "Rank change"
+  ))
+```
+
+This sensitivity gives each represented minor group equal influence on DWA
+prevalence; it does not make the group definitions substantively neutral.
+Different taxonomies or broader grouping levels could produce different
+rankings. The baseline remains the primary result because it is the declared
+equal-code comparison, not because it is invariant to taxonomy granularity.
+Positive rank changes indicate a better numeric rank under the group-weighted
+sensitivity; negative values indicate a worse rank.
 
 ### Skeptical check: profile size
 
@@ -439,8 +562,10 @@ variation has the closed form \(TV = 1 - k/\max(a,b)\). It depends on the
 overlap count and the larger profile size, and it ignores how rare the shared
 activities are. That is why rarity and isolation can disagree, and why
 isolation carries a profile-size dependence of its own: a small profile is
-close to another only if a large share of its activities appear there. The
-example above is **stylized**; the table below uses the real archive.
+close to another only if that profile is also small and shares most of its
+activities; full containment in a larger profile still leaves a large
+distance. The example above is **stylized**; the table below uses the real
+archive.
 
 For comparison, the most isolated full-archive profiles under this same
 binary-presence, unweighted total-variation rule are:
@@ -468,9 +593,33 @@ observed_occupations |>
   ))
 ```
 
-The different ordering is useful evidence that item rarity and isolation
-answer different questions. Distances are descriptive distances between
-published activity profiles, not probabilities of successful job transitions.
+The rank correlation between mean IDF and nearest-profile distance is
+`r round(rarity_nearest_rho, 2)`. The different ordering is useful evidence
+that item rarity and isolation answer different questions. Distances are
+descriptive distances between published activity profiles, not probabilities
+of successful job transitions.
+
+The snapshot also contains `r nrow(identical_profile_pairs)` pairs with exactly
+the same detailed activity set. All five share O&#42;NET-SOC major-group prefix
+25, but `r sum(!identical_profile_pairs$same_minor_group)` pairs cross minor-
+group prefixes. Detailed codes can therefore distinguish labels even when
+their linked DWA inventories are identical; this small cluster does not show
+that all occupations within a major group share the same work.
+
+```{r identical-profile-table, echo = FALSE}
+identical_profile_pairs |>
+  mutate(
+    occupation_a_label = paste(occupation_a, occupation_a_title, sep = ": "),
+    occupation_b_label = paste(occupation_b, occupation_b_title, sep = ": "),
+    minor_group_prefixes = paste(
+      minor_group_a, minor_group_b, sep = " / "
+    )
+  ) |>
+  select(occupation_a_label, occupation_b_label, minor_group_prefixes) |>
+  knitr::kable(col.names = c(
+    "Occupation A", "Occupation B", "Minor-group prefixes (A / B)"
+  ))
+```
 
 ## Skills, knowledge, experience, and working conditions
 
@@ -783,7 +932,7 @@ cat(sprintf(
 audit_figures$information
 ```
 
-```{r figure-loss, echo = FALSE, fig.cap = "Real O*NET 30.3: bits discarded by generalized-activity group when detailed activities are grouped. Large losses can reflect large group mass.", fig.alt = "Bar chart of discarded bits by generalized work activity group, largest first. The group losses sum to the total of about 4.72 bits discarded between the detailed and generalized grains. The table below gives exact values."}
+```{r figure-loss, echo = FALSE, fig.cap = "Real O*NET 30.3: eight generalized-activity groups with the largest bits discarded when detailed activities are grouped. Large losses can reflect large group mass.", fig.alt = "Bar chart of discarded bits for the eight generalized work activity groups with the largest losses. The group losses across all 41 groups sum to about 4.72 bits discarded between the detailed and generalized grains. The table below gives the eight largest groups; the bundled information-loss CSV contains all 41."}
 audit_figures$loss
 ```
 
@@ -800,6 +949,9 @@ information_loss |>
   ))
 ```
 
+The figure and table show the eight largest groups. The bundled
+`information-loss.csv` contains results for all 41 groups.
+
 A group's weighted loss rises with its share of the mean profile
 (`mixture_mass`), so a large group can top the table simply because it is
 large. The conditional loss, which divides by that mass, shows the loss per
@@ -807,6 +959,27 @@ unit of mass. The budget is not classification accuracy, and it does not
 measure semantic richness, difficulty, AI exposure, or whether jobs are
 converging. It describes how much a given set of labels can say about occupation
 identity under this sampling model.
+
+### Does the published GWA grouping discard more than size alone?
+
+This diagnostic randomly assigns the 2,083 DWA labels to 41 groups while
+preserving the observed number of DWA labels in each group. The DWA-to-
+occupation profiles stay fixed. The random assignments deliberately break the
+published semantic groupings and IWA nesting, so this is a size-preserving
+partition reference, not an economic null model or an inferential test.
+
+```{r figure-random-hierarchy, echo = FALSE, fig.cap = "Observed generalized-activity grouping compared with 200 random assignments that preserve the number of detailed activities per group.", fig.alt = "Histogram of information about occupation identity under 200 random DWA group assignments that preserve the observed group sizes. A teal vertical line marks the observed O*NET GWA grouping."}
+audit_figures$random_hierarchy
+```
+
+The observed generalized grouping carries `r fmt_bits(info_gwa)` bits. The
+5th, 50th, and 95th percentiles of the random-partition reference are
+`r paste(fmt_bits(stats::quantile(random_hierarchy$information_bits, c(0.05, 0.5, 0.95))), collapse = ", ")`
+bits. `r sum(random_hierarchy$information_bits <= info_gwa)` of the
+`r nrow(random_hierarchy)` assignments have information no greater than the
+observed grouping. This comparison isolates group size under the specified
+uniform assignment scheme; it does not establish that the O&#42;NET hierarchy
+is uniquely meaningful or that occupations form natural families.
 
 ### Is the distance more than a fixed-margin shuffle would give?
 
@@ -840,7 +1013,7 @@ null_summary |>
     .by = c(source, grain)
   ) |>
   arrange(grain, source) |>
-  knitr::kable(digits = 3, col.names = c(
+  knitr::kable(digits = 4, col.names = c(
     "Source", "Grain", "Mean pair min", "Mean pair max",
     "Median nearest min", "Median nearest max", "Draws"
   ))
@@ -850,15 +1023,20 @@ null_summary |>
 audit_figures$null
 ```
 
-At the detailed grain, the mean pairwise distance is about 0.987 observed and
-about 0.986 in the reference draws. The detailed-grain mean difference is small
-in absolute magnitude (observed 0.986506, slightly above all twenty endpoints).
-At the generalized grain, the observed mean pairwise distance is higher than the
-reference (0.716 against 0.615 to 0.625), while the median nearest-neighbor
-distance is lower. The detailed-grain median nearest-neighbor distance is about
-0.59 observed against about 0.86 in the reference draws, so occupations have
-closer neighbors than these shuffled sets give them. This is a descriptive
-reference.
+At the detailed grain, the observed mean pairwise distance is
+`r sprintf("%.4f", null_summary$mean_pair_distance[null_summary$grain == "dwa_element_id" & null_summary$draw == 0L])`,
+compared with `r sprintf("%.4f to %.4f", min(null_summary$mean_pair_distance[null_summary$grain == "dwa_element_id" & null_summary$draw > 0L]), max(null_summary$mean_pair_distance[null_summary$grain == "dwa_element_id" & null_summary$draw > 0L]))`
+across the twenty reference draws. This absolute difference is small. At the
+generalized grain, the observed mean pairwise distance is
+`r sprintf("%.4f", null_summary$mean_pair_distance[null_summary$grain == "gwa_element_id" & null_summary$draw == 0L])`,
+compared with `r sprintf("%.4f to %.4f", min(null_summary$mean_pair_distance[null_summary$grain == "gwa_element_id" & null_summary$draw > 0L]), max(null_summary$mean_pair_distance[null_summary$grain == "gwa_element_id" & null_summary$draw > 0L]))`.
+The observed median nearest distance at the detailed grain is
+`r sprintf("%.4f", null_summary$median_nearest_distance[null_summary$grain == "dwa_element_id" & null_summary$draw == 0L])`,
+compared with `r sprintf("%.4f to %.4f", min(null_summary$median_nearest_distance[null_summary$grain == "dwa_element_id" & null_summary$draw > 0L]), max(null_summary$median_nearest_distance[null_summary$grain == "dwa_element_id" & null_summary$draw > 0L]))`
+across the reference draws. In this finite reference, observed mean pairwise
+distances are above, and median nearest distances below, the corresponding
+reference ranges at each grain. This is a descriptive comparison, not an
+inferential test.
 The twenty finite endpoints are not certified as uniform draws, and the
 minimum-to-maximum range is not a confidence interval. The shuffled sets are
 synthetic activity bundles, not economic counterfactuals. Because mixing is not
@@ -920,6 +1098,14 @@ full_names <- full_hierarchy |>
   distinct(dwa_element_id, dwa_element_name)
 
 # Baseline: any linked task, including Supplemental tasks.
+# Optional Core-only sensitivity: uncomment this filter and replace `full_links`
+# with `core_links` below. This shrinks the occupation universe, so recalculate
+# prevalence and all rankings within the reduced universe.
+# core_task_keys <- full_tasks |>
+#   filter(task_type == "Core") |>
+#   distinct(onet_soc_code, task_id)
+# core_links <- full_links |>
+#   semi_join(core_task_keys, by = c("onet_soc_code", "task_id"))
 full_profiles <- full_links |>
   distinct(onet_soc_code, dwa_element_id) |>
   transmute(occupation = onet_soc_code, item = dwa_element_id, weight = 1)
@@ -1004,9 +1190,9 @@ From a source checkout with the current package installed, run these three
 commands, each with the same local ZIP argument:
 
 ```
-Rscript data-raw\occupational-distinctiveness.R path\to\db_30_3_text.zip
-Rscript data-raw\occupational-information.R path\to\db_30_3_text.zip
-Rscript data-raw\occupational-null.R path\to\db_30_3_text.zip
+Rscript data-raw/occupational-distinctiveness.R path/to/db_30_3_text.zip
+Rscript data-raw/occupational-information.R path/to/db_30_3_text.zip
+Rscript data-raw/occupational-null.R path/to/db_30_3_text.zip
 ```
 
 They regenerate the derived CSVs under

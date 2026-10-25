@@ -1,4 +1,13 @@
 # Research choices for the article, not an exported package measure.
+write_snapshot_csv <- function(data, path, na = "") {
+  connection <- base::file(path, open = "wb")
+  on.exit(close(connection), add = TRUE)
+  utils::write.csv(
+    data, connection, row.names = FALSE, na = na, eol = "\n"
+  )
+  invisible(path)
+}
+
 profile_shares <- function(data, universe) {
   required <- c("occupation", "item", "weight")
   if (!is.data.frame(data) || !all(required %in% names(data))) {

@@ -8,16 +8,17 @@ https://creativecommons.org/licenses/by/4.0/
 O*NET is a trademark of USDOL/ETA.
 
 onet2r has modified this information by calculating occupation-DWA document
-frequencies, normalized binary-presence TF-IDF summaries, total-variation
-profile distances, coverage counts, hierarchy-resolution summaries,
-information-loss accounting, and finite-run fixed-margin randomizations.
+frequencies, normalized binary-presence TF-IDF summaries, equal-minor-group
+weighting sensitivities, total-variation profile distances, coverage counts,
+hierarchy-resolution summaries, information-loss accounting, and finite-run
+randomizations.
 Occupation titles and activity descriptions are retained as source labels.
 USDOL/ETA has not approved, endorsed, or tested these modifications.
 
 Regenerate from the repository root with the current package installed:
-Rscript data-raw\occupational-distinctiveness.R path\to\db_30_3_text.zip
-Rscript data-raw\occupational-information.R path\to\db_30_3_text.zip
-Rscript data-raw\occupational-null.R path\to\db_30_3_text.zip
+Rscript data-raw/occupational-distinctiveness.R path/to/db_30_3_text.zip
+Rscript data-raw/occupational-information.R path/to/db_30_3_text.zip
+Rscript data-raw/occupational-null.R path/to/db_30_3_text.zip
 
 provenance.csv records the source URL, SHA-256, snapshot date, universe,
 inclusion rule, and weighting choices. The raw archive is not bundled.
@@ -27,6 +28,10 @@ occupation-profiles.csv rounds rarity scores and pairwise distances to 12
 decimal places before ranking or choosing neighbors, so floating-point
 noise does not break ties. All tied nearest occupations are retained,
 separated by semicolons in nearest_occupations.
+group-weighting-sensitivity.csv recalculates DWA prevalence with equal total
+weight per represented five-character O*NET-SOC minor-group prefix. It reports
+the original and sensitivity scores and ranks; it changes prevalence weights,
+not occupation-DWA links.
 resolution-summary.csv aggregates the same binary DWA mass to its published
 IWA and GWA parents, without re-binarizing or refitting IDF.
 No employment weighting or task-rating weighting is applied.
@@ -40,6 +45,10 @@ information-occupation-diagnostics.csv is diagnostic, not a new leaderboard.
 Generalized activity names come from Content Model Reference.
 task-inventory.csv preserves Core/Supplemental counts and record-date ranges
 so the leader caveats and the 893-occupation Core-only support are inspectable.
+information-random-hierarchy.csv records 200 seeded random assignments of DWA
+labels to 41 GWA groups, preserving each group's observed DWA count. These
+assignments do not preserve IWA nesting or semantic relationships; they are a
+descriptive group-size reference, not an economic null model or inferential test.
 
 null-summary.csv records observed draw 0 and 20 randomized endpoints at
 each grain. null-size-summary.csv records the corresponding size/rarity

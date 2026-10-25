@@ -1,6 +1,6 @@
 # Regenerate the article's derived public-data snapshot without an API key.
 # Run from the repository root after installing the current package:
-# Rscript data-raw\occupational-distinctiveness.R path\to\db_30_3_text.zip
+# Rscript data-raw/occupational-distinctiveness.R path/to/db_30_3_text.zip
 library(onet2r)
 library(dplyr)
 options(cli.progress_show_after = Inf)
@@ -11,6 +11,7 @@ if (length(args) != 1L || !file.exists(args[[1]])) {
 }
 archive_path <- args[[1]]
 source(file.path("inst", "article-helpers", "occupational-distinctiveness.R"))
+source(file.path("inst", "article-helpers", "distinctiveness-information.R"))
 output_dir <- file.path("inst", "extdata", "occupational-distinctiveness")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -109,6 +110,31 @@ rarity <- scores |>
   arrange(rarity_rank, occupation)
 stopifnot(!anyNA(rarity))
 
+equal_minor_group_scores <- profile_tfidf_equal_group_weights(
+  profiles, universe, substr(universe, 1, 5)
+)
+group_weighting <- equal_minor_group_scores |>
+  summarise(
+    mean_idf_minor_group_weighted = round(sum(tf_idf), 12),
+    .by = occupation
+  ) |>
+  left_join(
+    rarity |>
+      select(occupation, title, n_activities, mean_idf, rarity_rank),
+    by = "occupation", relationship = "one-to-one"
+  ) |>
+  mutate(
+    minor_group_prefix = substr(occupation, 1, 5),
+    minor_group_weighted_rank = min_rank(desc(mean_idf_minor_group_weighted)),
+    rank_change = rarity_rank - minor_group_weighted_rank
+  ) |>
+  arrange(occupation)
+stopifnot(
+  nrow(group_weighting) == length(universe),
+  !anyNA(group_weighting),
+  n_distinct(group_weighting$minor_group_prefix) > 1L
+)
+
 coverage <- tasks |>
   distinct(onet_soc_code, task_id) |>
   left_join(
@@ -153,16 +179,20 @@ provenance <- tibble::tibble(
     filter(n > 1L) |>
     nrow()
 )
-utils::write.csv(prevalence, file.path(output_dir, "activity-prevalence.csv"),
-                 row.names = FALSE, na = "")
-utils::write.csv(rarity, file.path(output_dir, "occupation-profiles.csv"),
-                 row.names = FALSE, na = "")
-utils::write.csv(coverage, file.path(output_dir, "coverage.csv"),
-                 row.names = FALSE, na = "")
-utils::write.csv(provenance, file.path(output_dir, "provenance.csv"),
-                 row.names = FALSE, na = "")
-utils::write.csv(resolution_summary, file.path(output_dir, "resolution-summary.csv"),
-                 row.names = FALSE, na = "")
+write_snapshot_csv(
+  prevalence, file.path(output_dir, "activity-prevalence.csv")
+)
+write_snapshot_csv(
+  group_weighting, file.path(output_dir, "group-weighting-sensitivity.csv")
+)
+write_snapshot_csv(
+  rarity, file.path(output_dir, "occupation-profiles.csv")
+)
+write_snapshot_csv(coverage, file.path(output_dir, "coverage.csv"))
+write_snapshot_csv(provenance, file.path(output_dir, "provenance.csv"))
+write_snapshot_csv(
+  resolution_summary, file.path(output_dir, "resolution-summary.csv")
+)
 print(provenance)
 print(head(prevalence, 8))
 print(head(rarity, 8))

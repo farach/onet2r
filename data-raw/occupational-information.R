@@ -21,6 +21,37 @@ profiles <- links |>
   transmute(occupation = onet_soc_code, item = dwa_element_id, weight = 1)
 universe <- sort(unique(profiles$occupation))
 budget <- profile_information_budget(profiles, mapping, universe)
+linked_mapping <- mapping |>
+  semi_join(profiles |> distinct(item), by = "item")
+group_sizes <- linked_mapping |>
+  count(gwa_element_id, name = "n_dwas") |>
+  arrange(gwa_element_id)
+random_group_template <- rep(group_sizes$gwa_element_id, group_sizes$n_dwas)
+random_draws <- 200L
+random_seed <- 20261026L
+set.seed(random_seed)
+random_hierarchy <- bind_rows(lapply(seq_len(random_draws), function(draw) {
+  assigned_groups <- sample(random_group_template)
+  group_counts <- table(factor(
+    assigned_groups, levels = group_sizes$gwa_element_id
+  ))
+  stopifnot(identical(as.integer(group_counts), group_sizes$n_dwas))
+  random_mapping <- tibble::tibble(
+    item = sort(linked_mapping$item), group = assigned_groups
+  )
+  tibble::tibble(
+    draw = draw,
+    information_bits = profile_partition_information(
+      profiles, random_mapping, universe
+    )
+  )
+})) |>
+  mutate(
+    seed = random_seed,
+    n_groups = nrow(group_sizes),
+    n_dwas = nrow(linked_mapping),
+    group_size_rule = "preserve observed DWA counts; random assignment"
+  )
 budget$summary <- budget$summary |>
   mutate(
     release = "30.3", universe_id = "tasks-and-dwa-links-923",
@@ -37,13 +68,19 @@ budget$parent_loss <- budget$parent_loss |>
   )
 stopifnot(!anyNA(budget$parent_loss$gwa_element_name))
 output <- file.path("inst", "extdata", "occupational-distinctiveness")
-utils::write.csv(budget$summary, file.path(output, "information-summary.csv"),
-                 row.names = FALSE)
-utils::write.csv(budget$parent_loss, file.path(output, "information-loss.csv"),
-                 row.names = FALSE)
-utils::write.csv(budget$diagnostics,
-                 file.path(output, "information-occupation-diagnostics.csv"),
-                 row.names = FALSE)
+write_snapshot_csv(
+  budget$summary, file.path(output, "information-summary.csv")
+)
+write_snapshot_csv(
+  random_hierarchy, file.path(output, "information-random-hierarchy.csv")
+)
+write_snapshot_csv(
+  budget$parent_loss, file.path(output, "information-loss.csv")
+)
+write_snapshot_csv(
+  budget$diagnostics,
+  file.path(output, "information-occupation-diagnostics.csv")
+)
 print(budget$summary)
 print(budget$parent_loss)
 tasks <- onet_archive_read("30.3", "Task Statements", path = args[[1]])
@@ -59,5 +96,4 @@ inventory <- tasks |>
   mutate(n_unclassified = n_tasks - n_core - n_supplemental) |>
   arrange(onet_soc_code)
 stopifnot(sum(inventory$n_core > 0) == 893L)
-utils::write.csv(inventory, file.path(output, "task-inventory.csv"),
-                 row.names = FALSE)
+write_snapshot_csv(inventory, file.path(output, "task-inventory.csv"))
