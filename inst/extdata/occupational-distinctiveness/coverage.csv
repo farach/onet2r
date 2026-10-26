@@ -1,0 +1,1017 @@
+"onet_soc_code","n_tasks","n_linked_tasks","title","in_universe"
+"11-1011.00",31,31,"Chief Executives",TRUE
+"11-1011.03",18,18,"Chief Sustainability Officers",TRUE
+"11-1021.00",17,17,"General and Operations Managers",TRUE
+"11-1031.00",30,30,"Legislators",TRUE
+"11-2011.00",30,30,"Advertising and Promotions Managers",TRUE
+"11-2021.00",20,20,"Marketing Managers",TRUE
+"11-2022.00",17,17,"Sales Managers",TRUE
+"11-2032.00",20,20,"Public Relations Managers",TRUE
+"11-2033.00",16,16,"Fundraising Managers",TRUE
+"11-3012.00",18,18,"Administrative Services Managers",TRUE
+"11-3013.00",11,11,"Facilities Managers",TRUE
+"11-3013.01",28,28,"Security Managers",TRUE
+"11-3021.00",17,17,"Computer and Information Systems Managers",TRUE
+"11-3031.00",17,17,"Financial Managers",TRUE
+"11-3031.01",22,22,"Treasurers and Controllers",TRUE
+"11-3031.03",20,20,"Investment Fund Managers",TRUE
+"11-3051.00",21,21,"Industrial Production Managers",TRUE
+"11-3051.01",27,27,"Quality Control Systems Managers",TRUE
+"11-3051.02",17,17,"Geothermal Production Managers",TRUE
+"11-3051.03",14,14,"Biofuels Production Managers",TRUE
+"11-3051.04",19,19,"Biomass Power Plant Managers",TRUE
+"11-3051.06",18,18,"Hydroelectric Production Managers",TRUE
+"11-3061.00",18,18,"Purchasing Managers",TRUE
+"11-3071.00",30,30,"Transportation, Storage, and Distribution Managers",TRUE
+"11-3071.04",30,30,"Supply Chain Managers",TRUE
+"11-3111.00",22,22,"Compensation and Benefits Managers",TRUE
+"11-3121.00",26,26,"Human Resources Managers",TRUE
+"11-3131.00",12,12,"Training and Development Managers",TRUE
+"11-9013.00",30,30,"Farmers, Ranchers, and Other Agricultural Managers",TRUE
+"11-9021.00",25,25,"Construction Managers",TRUE
+"11-9031.00",17,17,"Education and Childcare Administrators, Preschool and Daycare",TRUE
+"11-9032.00",32,32,"Education Administrators, Kindergarten through Secondary",TRUE
+"11-9033.00",27,27,"Education Administrators, Postsecondary",TRUE
+"11-9039.00",,,"Education Administrators, All Other",FALSE
+"11-9041.00",19,19,"Architectural and Engineering Managers",TRUE
+"11-9041.01",18,18,"Biofuels/Biodiesel Technology and Product Development Managers",TRUE
+"11-9051.00",28,28,"Food Service Managers",TRUE
+"11-9071.00",19,19,"Gambling Managers",TRUE
+"11-9072.00",17,17,"Entertainment and Recreation Managers, Except Gambling",TRUE
+"11-9081.00",24,24,"Lodging Managers",TRUE
+"11-9111.00",18,18,"Medical and Health Services Managers",TRUE
+"11-9121.00",16,16,"Natural Sciences Managers",TRUE
+"11-9121.01",33,33,"Clinical Research Coordinators",TRUE
+"11-9121.02",21,21,"Water Resource Specialists",TRUE
+"11-9131.00",13,13,"Postmasters and Mail Superintendents",TRUE
+"11-9141.00",27,27,"Property, Real Estate, and Community Association Managers",TRUE
+"11-9151.00",16,16,"Social and Community Service Managers",TRUE
+"11-9161.00",23,23,"Emergency Management Directors",TRUE
+"11-9171.00",23,23,"Funeral Home Managers",TRUE
+"11-9179.00",,,"Personal Service Managers, All Other",FALSE
+"11-9179.01",24,24,"Fitness and Wellness Coordinators",TRUE
+"11-9179.02",21,21,"Spa Managers",TRUE
+"11-9199.00",,,"Managers, All Other",FALSE
+"11-9199.01",27,27,"Regulatory Affairs Managers",TRUE
+"11-9199.02",29,29,"Compliance Managers",TRUE
+"11-9199.08",27,27,"Loss Prevention Managers",TRUE
+"11-9199.09",16,16,"Wind Energy Operations Managers",TRUE
+"11-9199.10",15,15,"Wind Energy Development Managers",TRUE
+"11-9199.11",23,23,"Brownfield Redevelopment Specialists and Site Managers",TRUE
+"13-1011.00",14,14,"Agents and Business Managers of Artists, Performers, and Athletes",TRUE
+"13-1021.00",12,12,"Buyers and Purchasing Agents, Farm Products",TRUE
+"13-1022.00",20,20,"Wholesale and Retail Buyers, Except Farm Products",TRUE
+"13-1023.00",19,19,"Purchasing Agents, Except Wholesale, Retail, and Farm Products",TRUE
+"13-1031.00",29,29,"Claims Adjusters, Examiners, and Investigators",TRUE
+"13-1032.00",7,7,"Insurance Appraisers, Auto Damage",TRUE
+"13-1041.00",16,16,"Compliance Officers",TRUE
+"13-1041.01",26,26,"Environmental Compliance Inspectors",TRUE
+"13-1041.03",18,18,"Equal Opportunity Representatives and Officers",TRUE
+"13-1041.04",13,13,"Government Property Inspectors and Investigators",TRUE
+"13-1041.06",20,20,"Coroners",TRUE
+"13-1041.07",30,30,"Regulatory Affairs Specialists",TRUE
+"13-1041.08",23,23,"Customs Brokers",TRUE
+"13-1051.00",14,14,"Cost Estimators",TRUE
+"13-1071.00",26,26,"Human Resources Specialists",TRUE
+"13-1074.00",7,7,"Farm Labor Contractors",TRUE
+"13-1075.00",28,28,"Labor Relations Specialists",TRUE
+"13-1081.00",22,22,"Logisticians",TRUE
+"13-1081.01",30,30,"Logistics Engineers",TRUE
+"13-1081.02",31,31,"Logistics Analysts",TRUE
+"13-1082.00",20,20,"Project Management Specialists",TRUE
+"13-1111.00",11,11,"Management Analysts",TRUE
+"13-1121.00",21,21,"Meeting, Convention, and Event Planners",TRUE
+"13-1131.00",28,28,"Fundraisers",TRUE
+"13-1141.00",22,22,"Compensation, Benefits, and Job Analysis Specialists",TRUE
+"13-1151.00",20,20,"Training and Development Specialists",TRUE
+"13-1161.00",13,13,"Market Research Analysts and Marketing Specialists",TRUE
+"13-1161.01",36,36,"Search Marketing Strategists",TRUE
+"13-1199.00",,,"Business Operations Specialists, All Other",FALSE
+"13-1199.04",21,21,"Business Continuity Planners",TRUE
+"13-1199.05",14,14,"Sustainability Specialists",TRUE
+"13-1199.06",34,34,"Online Merchants",TRUE
+"13-1199.07",23,23,"Security Management Specialists",TRUE
+"13-2011.00",29,29,"Accountants and Auditors",TRUE
+"13-2022.00",14,14,"Appraisers of Personal and Business Property",TRUE
+"13-2023.00",28,28,"Appraisers and Assessors of Real Estate",TRUE
+"13-2031.00",13,13,"Budget Analysts",TRUE
+"13-2041.00",11,11,"Credit Analysts",TRUE
+"13-2051.00",26,26,"Financial and Investment Analysts",TRUE
+"13-2052.00",21,21,"Personal Financial Advisors",TRUE
+"13-2053.00",7,7,"Insurance Underwriters",TRUE
+"13-2054.00",30,30,"Financial Risk Specialists",TRUE
+"13-2061.00",17,17,"Financial Examiners",TRUE
+"13-2071.00",23,23,"Credit Counselors",TRUE
+"13-2072.00",30,30,"Loan Officers",TRUE
+"13-2081.00",21,21,"Tax Examiners and Collectors, and Revenue Agents",TRUE
+"13-2082.00",12,12,"Tax Preparers",TRUE
+"13-2099.00",,,"Financial Specialists, All Other",FALSE
+"13-2099.01",21,21,"Financial Quantitative Analysts",TRUE
+"13-2099.04",23,23,"Fraud Examiners, Investigators and Analysts",TRUE
+"15-1211.00",22,22,"Computer Systems Analysts",TRUE
+"15-1211.01",17,17,"Health Informatics Specialists",TRUE
+"15-1212.00",11,11,"Information Security Analysts",TRUE
+"15-1221.00",15,15,"Computer and Information Research Scientists",TRUE
+"15-1231.00",26,26,"Computer Network Support Specialists",TRUE
+"15-1232.00",16,16,"Computer User Support Specialists",TRUE
+"15-1241.00",33,33,"Computer Network Architects",TRUE
+"15-1241.01",26,26,"Telecommunications Engineering Specialists",TRUE
+"15-1242.00",18,18,"Database Administrators",TRUE
+"15-1243.00",25,25,"Database Architects",TRUE
+"15-1243.01",18,18,"Data Warehousing Specialists",TRUE
+"15-1244.00",20,20,"Network and Computer Systems Administrators",TRUE
+"15-1251.00",17,17,"Computer Programmers",TRUE
+"15-1252.00",17,17,"Software Developers",TRUE
+"15-1253.00",30,30,"Software Quality Assurance Analysts and Testers",TRUE
+"15-1254.00",29,29,"Web Developers",TRUE
+"15-1255.00",30,30,"Web and Digital Interface Designers",TRUE
+"15-1255.01",24,24,"Video Game Designers",TRUE
+"15-1299.00",,,"Computer Occupations, All Other",FALSE
+"15-1299.01",35,35,"Web Administrators",TRUE
+"15-1299.02",29,29,"Geographic Information Systems Technologists and Technicians",TRUE
+"15-1299.03",23,23,"Document Management Specialists",TRUE
+"15-1299.04",22,22,"Penetration Testers",TRUE
+"15-1299.05",20,20,"Information Security Engineers",TRUE
+"15-1299.06",20,20,"Digital Forensics Analysts",TRUE
+"15-1299.07",17,17,"Blockchain Engineers",TRUE
+"15-1299.08",28,28,"Computer Systems Engineers/Architects",TRUE
+"15-1299.09",21,21,"Information Technology Project Managers",TRUE
+"15-2011.00",15,15,"Actuaries",TRUE
+"15-2021.00",12,12,"Mathematicians",TRUE
+"15-2031.00",17,17,"Operations Research Analysts",TRUE
+"15-2041.00",19,19,"Statisticians",TRUE
+"15-2041.01",25,25,"Biostatisticians",TRUE
+"15-2051.00",16,16,"Data Scientists",TRUE
+"15-2051.01",17,17,"Business Intelligence Analysts",TRUE
+"15-2051.02",21,21,"Clinical Data Managers",TRUE
+"15-2099.00",,,"Mathematical Science Occupations, All Other",FALSE
+"15-2099.01",19,19,"Bioinformatics Technicians",TRUE
+"17-1011.00",24,24,"Architects, Except Landscape and Naval",TRUE
+"17-1012.00",19,19,"Landscape Architects",TRUE
+"17-1021.00",14,14,"Cartographers and Photogrammetrists",TRUE
+"17-1022.00",24,24,"Surveyors",TRUE
+"17-1022.01",16,16,"Geodetic Surveyors",TRUE
+"17-2011.00",16,16,"Aerospace Engineers",TRUE
+"17-2021.00",14,14,"Agricultural Engineers",TRUE
+"17-2031.00",30,30,"Bioengineers and Biomedical Engineers",TRUE
+"17-2041.00",14,14,"Chemical Engineers",TRUE
+"17-2051.00",16,16,"Civil Engineers",TRUE
+"17-2051.01",26,26,"Transportation Engineers",TRUE
+"17-2051.02",28,28,"Water/Wastewater Engineers",TRUE
+"17-2061.00",18,18,"Computer Hardware Engineers",TRUE
+"17-2071.00",22,22,"Electrical Engineers",TRUE
+"17-2072.00",20,20,"Electronics Engineers, Except Computer",TRUE
+"17-2072.01",21,21,"Radio Frequency Identification Device Specialists",TRUE
+"17-2081.00",29,29,"Environmental Engineers",TRUE
+"17-2111.00",27,27,"Health and Safety Engineers, Except Mining Safety Engineers and Inspectors",TRUE
+"17-2111.02",14,14,"Fire-Prevention and Protection Engineers",TRUE
+"17-2112.00",20,20,"Industrial Engineers",TRUE
+"17-2112.01",26,26,"Human Factors Engineers and Ergonomists",TRUE
+"17-2112.02",21,21,"Validation Engineers",TRUE
+"17-2112.03",24,24,"Manufacturing Engineers",TRUE
+"17-2121.00",30,30,"Marine Engineers and Naval Architects",TRUE
+"17-2131.00",21,21,"Materials Engineers",TRUE
+"17-2141.00",28,28,"Mechanical Engineers",TRUE
+"17-2141.01",26,26,"Fuel Cell Engineers",TRUE
+"17-2141.02",25,25,"Automotive Engineers",TRUE
+"17-2151.00",18,18,"Mining and Geological Engineers, Including Mining Safety Engineers",TRUE
+"17-2161.00",20,20,"Nuclear Engineers",TRUE
+"17-2171.00",23,23,"Petroleum Engineers",TRUE
+"17-2199.00",,,"Engineers, All Other",FALSE
+"17-2199.03",21,21,"Energy Engineers, Except Wind and Solar",TRUE
+"17-2199.05",23,23,"Mechatronics Engineers",TRUE
+"17-2199.06",31,31,"Microsystems Engineers",TRUE
+"17-2199.07",26,26,"Photonics Engineers",TRUE
+"17-2199.08",24,24,"Robotics Engineers",TRUE
+"17-2199.09",25,25,"Nanosystems Engineers",TRUE
+"17-2199.10",16,16,"Wind Energy Engineers",TRUE
+"17-2199.11",13,13,"Solar Energy Systems Engineers",TRUE
+"17-3011.00",28,28,"Architectural and Civil Drafters",TRUE
+"17-3012.00",30,30,"Electrical and Electronics Drafters",TRUE
+"17-3013.00",15,15,"Mechanical Drafters",TRUE
+"17-3019.00",,,"Drafters, All Other",FALSE
+"17-3021.00",11,11,"Aerospace Engineering and Operations Technologists and Technicians",TRUE
+"17-3022.00",14,14,"Civil Engineering Technologists and Technicians",TRUE
+"17-3023.00",30,30,"Electrical and Electronic Engineering Technologists and Technicians",TRUE
+"17-3024.00",28,28,"Electro-Mechanical and Mechatronics Technologists and Technicians",TRUE
+"17-3024.01",22,22,"Robotics Technicians",TRUE
+"17-3025.00",26,26,"Environmental Engineering Technologists and Technicians",TRUE
+"17-3026.00",30,30,"Industrial Engineering Technologists and Technicians",TRUE
+"17-3026.01",25,25,"Nanotechnology Engineering Technologists and Technicians",TRUE
+"17-3027.00",30,30,"Mechanical Engineering Technologists and Technicians",TRUE
+"17-3027.01",18,18,"Automotive Engineering Technicians",TRUE
+"17-3028.00",15,15,"Calibration Technologists and Technicians",TRUE
+"17-3029.00",,,"Engineering Technologists and Technicians, Except Drafters, All Other",FALSE
+"17-3029.01",16,16,"Non-Destructive Testing Specialists",TRUE
+"17-3029.08",24,24,"Photonics Technicians",TRUE
+"17-3031.00",30,30,"Surveying and Mapping Technicians",TRUE
+"19-1011.00",9,9,"Animal Scientists",TRUE
+"19-1012.00",13,13,"Food Scientists and Technologists",TRUE
+"19-1013.00",27,27,"Soil and Plant Scientists",TRUE
+"19-1021.00",24,24,"Biochemists and Biophysicists",TRUE
+"19-1022.00",14,14,"Microbiologists",TRUE
+"19-1023.00",14,14,"Zoologists and Wildlife Biologists",TRUE
+"19-1029.00",,,"Biological Scientists, All Other",FALSE
+"19-1029.01",20,20,"Bioinformatics Scientists",TRUE
+"19-1029.02",22,22,"Molecular and Cellular Biologists",TRUE
+"19-1029.03",24,24,"Geneticists",TRUE
+"19-1029.04",22,22,"Biologists",TRUE
+"19-1031.00",30,30,"Conservation Scientists",TRUE
+"19-1031.02",16,16,"Range Managers",TRUE
+"19-1031.03",20,20,"Park Naturalists",TRUE
+"19-1032.00",25,25,"Foresters",TRUE
+"19-1041.00",16,16,"Epidemiologists",TRUE
+"19-1042.00",14,14,"Medical Scientists, Except Epidemiologists",TRUE
+"19-1099.00",,,"Life Scientists, All Other",FALSE
+"19-2011.00",17,17,"Astronomers",TRUE
+"19-2012.00",10,10,"Physicists",TRUE
+"19-2021.00",27,27,"Atmospheric and Space Scientists",TRUE
+"19-2031.00",12,12,"Chemists",TRUE
+"19-2032.00",16,16,"Materials Scientists",TRUE
+"19-2041.00",22,22,"Environmental Scientists and Specialists, Including Health",TRUE
+"19-2041.01",14,14,"Climate Change Policy Analysts",TRUE
+"19-2041.02",23,23,"Environmental Restoration Planners",TRUE
+"19-2041.03",38,38,"Industrial Ecologists",TRUE
+"19-2042.00",32,32,"Geoscientists, Except Hydrologists and Geographers",TRUE
+"19-2043.00",25,25,"Hydrologists",TRUE
+"19-2099.00",,,"Physical Scientists, All Other",FALSE
+"19-2099.01",24,24,"Remote Sensing Scientists and Technologists",TRUE
+"19-3011.00",14,14,"Economists",TRUE
+"19-3011.01",20,20,"Environmental Economists",TRUE
+"19-3022.00",16,16,"Survey Researchers",TRUE
+"19-3032.00",25,25,"Industrial-Organizational Psychologists",TRUE
+"19-3033.00",30,30,"Clinical and Counseling Psychologists",TRUE
+"19-3034.00",19,19,"School Psychologists",TRUE
+"19-3039.00",,,"Psychologists, All Other",FALSE
+"19-3039.02",14,14,"Neuropsychologists",TRUE
+"19-3039.03",18,18,"Clinical Neuropsychologists",TRUE
+"19-3041.00",15,15,"Sociologists",TRUE
+"19-3051.00",25,25,"Urban and Regional Planners",TRUE
+"19-3091.00",30,30,"Anthropologists and Archeologists",TRUE
+"19-3092.00",12,12,"Geographers",TRUE
+"19-3093.00",21,21,"Historians",TRUE
+"19-3094.00",14,14,"Political Scientists",TRUE
+"19-3099.00",,,"Social Scientists and Related Workers, All Other",FALSE
+"19-3099.01",22,22,"Transportation Planners",TRUE
+"19-4012.00",26,26,"Agricultural Technicians",TRUE
+"19-4012.01",22,22,"Precision Agriculture Technicians",TRUE
+"19-4013.00",16,16,"Food Science Technicians",TRUE
+"19-4021.00",17,17,"Biological Technicians",TRUE
+"19-4031.00",16,16,"Chemical Technicians",TRUE
+"19-4042.00",25,25,"Environmental Science and Protection Technicians, Including Health",TRUE
+"19-4043.00",29,29,"Geological Technicians, Except Hydrologic Technicians",TRUE
+"19-4044.00",16,16,"Hydrologic Technicians",TRUE
+"19-4051.00",18,18,"Nuclear Technicians",TRUE
+"19-4051.02",16,16,"Nuclear Monitoring Technicians",TRUE
+"19-4061.00",22,22,"Social Science Research Assistants",TRUE
+"19-4071.00",20,20,"Forest and Conservation Technicians",TRUE
+"19-4092.00",24,24,"Forensic Science Technicians",TRUE
+"19-4099.00",,,"Life, Physical, and Social Science Technicians, All Other",FALSE
+"19-4099.01",26,26,"Quality Control Analysts",TRUE
+"19-4099.03",21,21,"Remote Sensing Technicians",TRUE
+"19-5011.00",22,22,"Occupational Health and Safety Specialists",TRUE
+"19-5012.00",26,26,"Occupational Health and Safety Technicians",TRUE
+"21-1011.00",23,23,"Substance Abuse and Behavioral Disorder Counselors",TRUE
+"21-1012.00",35,35,"Educational, Guidance, and Career Counselors and Advisors",TRUE
+"21-1013.00",15,15,"Marriage and Family Therapists",TRUE
+"21-1014.00",27,27,"Mental Health Counselors",TRUE
+"21-1015.00",17,17,"Rehabilitation Counselors",TRUE
+"21-1019.00",,,"Counselors, All Other",FALSE
+"21-1021.00",21,21,"Child, Family, and School Social Workers",TRUE
+"21-1022.00",17,17,"Healthcare Social Workers",TRUE
+"21-1023.00",13,13,"Mental Health and Substance Abuse Social Workers",TRUE
+"21-1029.00",,,"Social Workers, All Other",FALSE
+"21-1091.00",16,16,"Health Education Specialists",TRUE
+"21-1092.00",21,21,"Probation Officers and Correctional Treatment Specialists",TRUE
+"21-1093.00",19,19,"Social and Human Service Assistants",TRUE
+"21-1094.00",28,28,"Community Health Workers",TRUE
+"21-1099.00",,,"Community and Social Service Specialists, All Other",FALSE
+"21-2011.00",21,21,"Clergy",TRUE
+"21-2021.00",19,19,"Directors, Religious Activities and Education",TRUE
+"21-2099.00",,,"Religious Workers, All Other",FALSE
+"23-1011.00",22,22,"Lawyers",TRUE
+"23-1012.00",18,18,"Judicial Law Clerks",TRUE
+"23-1021.00",14,14,"Administrative Law Judges, Adjudicators, and Hearing Officers",TRUE
+"23-1022.00",20,20,"Arbitrators, Mediators, and Conciliators",TRUE
+"23-1023.00",21,21,"Judges, Magistrate Judges, and Magistrates",TRUE
+"23-2011.00",12,12,"Paralegals and Legal Assistants",TRUE
+"23-2093.00",16,16,"Title Examiners, Abstractors, and Searchers",TRUE
+"23-2099.00",,,"Legal Support Workers, All Other",FALSE
+"25-1011.00",25,25,"Business Teachers, Postsecondary",TRUE
+"25-1021.00",26,26,"Computer Science Teachers, Postsecondary",TRUE
+"25-1022.00",23,23,"Mathematical Science Teachers, Postsecondary",TRUE
+"25-1031.00",22,22,"Architecture Teachers, Postsecondary",TRUE
+"25-1032.00",24,24,"Engineering Teachers, Postsecondary",TRUE
+"25-1041.00",23,23,"Agricultural Sciences Teachers, Postsecondary",TRUE
+"25-1042.00",27,27,"Biological Science Teachers, Postsecondary",TRUE
+"25-1043.00",25,25,"Forestry and Conservation Science Teachers, Postsecondary",TRUE
+"25-1051.00",26,26,"Atmospheric, Earth, Marine, and Space Sciences Teachers, Postsecondary",TRUE
+"25-1052.00",28,28,"Chemistry Teachers, Postsecondary",TRUE
+"25-1053.00",25,25,"Environmental Science Teachers, Postsecondary",TRUE
+"25-1054.00",24,24,"Physics Teachers, Postsecondary",TRUE
+"25-1061.00",27,27,"Anthropology and Archeology Teachers, Postsecondary",TRUE
+"25-1062.00",23,23,"Area, Ethnic, and Cultural Studies Teachers, Postsecondary",TRUE
+"25-1063.00",22,22,"Economics Teachers, Postsecondary",TRUE
+"25-1064.00",25,25,"Geography Teachers, Postsecondary",TRUE
+"25-1065.00",22,22,"Political Science Teachers, Postsecondary",TRUE
+"25-1066.00",29,29,"Psychology Teachers, Postsecondary",TRUE
+"25-1067.00",24,24,"Sociology Teachers, Postsecondary",TRUE
+"25-1069.00",,,"Social Sciences Teachers, Postsecondary, All Other",FALSE
+"25-1071.00",22,22,"Health Specialties Teachers, Postsecondary",TRUE
+"25-1072.00",29,29,"Nursing Instructors and Teachers, Postsecondary",TRUE
+"25-1081.00",24,24,"Education Teachers, Postsecondary",TRUE
+"25-1082.00",25,25,"Library Science Teachers, Postsecondary",TRUE
+"25-1111.00",23,23,"Criminal Justice and Law Enforcement Teachers, Postsecondary",TRUE
+"25-1112.00",23,23,"Law Teachers, Postsecondary",TRUE
+"25-1113.00",24,24,"Social Work Teachers, Postsecondary",TRUE
+"25-1121.00",28,28,"Art, Drama, and Music Teachers, Postsecondary",TRUE
+"25-1122.00",22,22,"Communications Teachers, Postsecondary",TRUE
+"25-1123.00",33,33,"English Language and Literature Teachers, Postsecondary",TRUE
+"25-1124.00",24,24,"Foreign Language and Literature Teachers, Postsecondary",TRUE
+"25-1125.00",25,25,"History Teachers, Postsecondary",TRUE
+"25-1126.00",22,22,"Philosophy and Religion Teachers, Postsecondary",TRUE
+"25-1192.00",23,23,"Family and Consumer Sciences Teachers, Postsecondary",TRUE
+"25-1193.00",23,23,"Recreation and Fitness Studies Teachers, Postsecondary",TRUE
+"25-1194.00",20,20,"Career/Technical Education Teachers, Postsecondary",TRUE
+"25-1199.00",,,"Postsecondary Teachers, All Other",FALSE
+"25-2011.00",34,34,"Preschool Teachers, Except Special Education",TRUE
+"25-2012.00",37,37,"Kindergarten Teachers, Except Special Education",TRUE
+"25-2021.00",38,38,"Elementary School Teachers, Except Special Education",TRUE
+"25-2022.00",35,35,"Middle School Teachers, Except Special and Career/Technical Education",TRUE
+"25-2023.00",31,31,"Career/Technical Education Teachers, Middle School",TRUE
+"25-2031.00",32,32,"Secondary School Teachers, Except Special and Career/Technical Education",TRUE
+"25-2032.00",33,33,"Career/Technical Education Teachers, Secondary School",TRUE
+"25-2051.00",36,36,"Special Education Teachers, Preschool",TRUE
+"25-2055.00",30,30,"Special Education Teachers, Kindergarten",TRUE
+"25-2056.00",30,30,"Special Education Teachers, Elementary School",TRUE
+"25-2057.00",40,40,"Special Education Teachers, Middle School",TRUE
+"25-2058.00",40,40,"Special Education Teachers, Secondary School",TRUE
+"25-2059.00",,,"Special Education Teachers, All Other",FALSE
+"25-2059.01",20,20,"Adapted Physical Education Specialists",TRUE
+"25-3011.00",37,37,"Adult Basic Education, Adult Secondary Education, and English as a Second Language Instructors",TRUE
+"25-3021.00",30,30,"Self-Enrichment Teachers",TRUE
+"25-3031.00",18,18,"Substitute Teachers, Short-Term",TRUE
+"25-3041.00",19,19,"Tutors",TRUE
+"25-3099.00",,,"Teachers and Instructors, All Other",FALSE
+"25-4011.00",13,13,"Archivists",TRUE
+"25-4012.00",15,15,"Curators",TRUE
+"25-4013.00",24,24,"Museum Technicians and Conservators",TRUE
+"25-4022.00",30,30,"Librarians and Media Collections Specialists",TRUE
+"25-4031.00",31,31,"Library Technicians",TRUE
+"25-9021.00",15,15,"Farm and Home Management Educators",TRUE
+"25-9031.00",30,30,"Instructional Coordinators",TRUE
+"25-9042.00",28,28,"Teaching Assistants, Preschool, Elementary, Middle, and Secondary School, Except Special Education",TRUE
+"25-9043.00",30,30,"Teaching Assistants, Special Education",TRUE
+"25-9044.00",20,20,"Teaching Assistants, Postsecondary",TRUE
+"25-9049.00",,,"Teaching Assistants, All Other",FALSE
+"25-9099.00",,,"Educational Instruction and Library Workers, All Other",FALSE
+"27-1011.00",16,16,"Art Directors",TRUE
+"27-1012.00",16,16,"Craft Artists",TRUE
+"27-1013.00",28,28,"Fine Artists, Including Painters, Sculptors, and Illustrators",TRUE
+"27-1014.00",13,13,"Special Effects Artists and Animators",TRUE
+"27-1019.00",,,"Artists and Related Workers, All Other",FALSE
+"27-1021.00",17,17,"Commercial and Industrial Designers",TRUE
+"27-1022.00",20,20,"Fashion Designers",TRUE
+"27-1023.00",15,15,"Floral Designers",TRUE
+"27-1024.00",19,19,"Graphic Designers",TRUE
+"27-1025.00",16,16,"Interior Designers",TRUE
+"27-1026.00",24,24,"Merchandise Displayers and Window Trimmers",TRUE
+"27-1027.00",27,27,"Set and Exhibit Designers",TRUE
+"27-1029.00",,,"Designers, All Other",FALSE
+"27-2011.00",18,18,"Actors",TRUE
+"27-2012.00",30,30,"Producers and Directors",TRUE
+"27-2012.03",23,23,"Media Programming Directors",TRUE
+"27-2012.04",15,15,"Talent Directors",TRUE
+"27-2012.05",15,15,"Media Technical Directors/Managers",TRUE
+"27-2021.00",9,9,"Athletes and Sports Competitors",TRUE
+"27-2022.00",27,27,"Coaches and Scouts",TRUE
+"27-2023.00",16,16,"Umpires, Referees, and Other Sports Officials",TRUE
+"27-2031.00",14,14,"Dancers",TRUE
+"27-2032.00",18,18,"Choreographers",TRUE
+"27-2041.00",30,30,"Music Directors and Composers",TRUE
+"27-2042.00",29,29,"Musicians and Singers",TRUE
+"27-2091.00",19,19,"Disc Jockeys, Except Radio",TRUE
+"27-2099.00",,,"Entertainers and Performers, Sports and Related Workers, All Other",FALSE
+"27-3011.00",24,24,"Broadcast Announcers and Radio Disc Jockeys",TRUE
+"27-3023.00",30,30,"News Analysts, Reporters, and Journalists",TRUE
+"27-3031.00",18,18,"Public Relations Specialists",TRUE
+"27-3041.00",21,21,"Editors",TRUE
+"27-3042.00",15,15,"Technical Writers",TRUE
+"27-3043.00",20,20,"Writers and Authors",TRUE
+"27-3043.05",16,16,"Poets, Lyricists and Creative Writers",TRUE
+"27-3091.00",17,17,"Interpreters and Translators",TRUE
+"27-3092.00",14,14,"Court Reporters and Simultaneous Captioners",TRUE
+"27-3099.00",,,"Media and Communication Workers, All Other",FALSE
+"27-4011.00",29,29,"Audio and Video Technicians",TRUE
+"27-4012.00",27,27,"Broadcast Technicians",TRUE
+"27-4014.00",14,14,"Sound Engineering Technicians",TRUE
+"27-4015.00",16,16,"Lighting Technicians",TRUE
+"27-4021.00",28,28,"Photographers",TRUE
+"27-4031.00",21,21,"Camera Operators, Television, Video, and Film",TRUE
+"27-4032.00",22,22,"Film and Video Editors",TRUE
+"27-4099.00",,,"Media and Communication Equipment Workers, All Other",FALSE
+"29-1011.00",11,11,"Chiropractors",TRUE
+"29-1021.00",20,20,"Dentists, General",TRUE
+"29-1022.00",14,14,"Oral and Maxillofacial Surgeons",TRUE
+"29-1023.00",11,11,"Orthodontists",TRUE
+"29-1024.00",12,12,"Prosthodontists",TRUE
+"29-1029.00",,,"Dentists, All Other Specialists",FALSE
+"29-1031.00",28,28,"Dietitians and Nutritionists",TRUE
+"29-1041.00",10,10,"Optometrists",TRUE
+"29-1051.00",20,20,"Pharmacists",TRUE
+"29-1071.00",12,12,"Physician Assistants",TRUE
+"29-1071.01",16,16,"Anesthesiologist Assistants",TRUE
+"29-1081.00",11,11,"Podiatrists",TRUE
+"29-1122.00",17,17,"Occupational Therapists",TRUE
+"29-1122.01",21,21,"Low Vision Therapists, Orientation and Mobility Specialists, and Vision Rehabilitation Therapists",TRUE
+"29-1123.00",24,24,"Physical Therapists",TRUE
+"29-1124.00",22,22,"Radiation Therapists",TRUE
+"29-1125.00",11,11,"Recreational Therapists",TRUE
+"29-1126.00",22,22,"Respiratory Therapists",TRUE
+"29-1127.00",23,23,"Speech-Language Pathologists",TRUE
+"29-1128.00",25,25,"Exercise Physiologists",TRUE
+"29-1129.00",,,"Therapists, All Other",FALSE
+"29-1129.01",25,25,"Art Therapists",TRUE
+"29-1129.02",30,30,"Music Therapists",TRUE
+"29-1131.00",21,21,"Veterinarians",TRUE
+"29-1141.00",27,27,"Registered Nurses",TRUE
+"29-1141.01",27,27,"Acute Care Nurses",TRUE
+"29-1141.02",24,24,"Advanced Practice Psychiatric Nurses",TRUE
+"29-1141.03",29,29,"Critical Care Nurses",TRUE
+"29-1141.04",30,30,"Clinical Nurse Specialists",TRUE
+"29-1151.00",24,24,"Nurse Anesthetists",TRUE
+"29-1161.00",21,21,"Nurse Midwives",TRUE
+"29-1171.00",27,27,"Nurse Practitioners",TRUE
+"29-1181.00",22,22,"Audiologists",TRUE
+"29-1211.00",18,18,"Anesthesiologists",TRUE
+"29-1212.00",25,25,"Cardiologists",TRUE
+"29-1213.00",18,18,"Dermatologists",TRUE
+"29-1214.00",17,17,"Emergency Medicine Physicians",TRUE
+"29-1215.00",12,12,"Family Medicine Physicians",TRUE
+"29-1216.00",19,19,"General Internal Medicine Physicians",TRUE
+"29-1217.00",24,24,"Neurologists",TRUE
+"29-1218.00",15,15,"Obstetricians and Gynecologists",TRUE
+"29-1221.00",17,17,"Pediatricians, General",TRUE
+"29-1222.00",19,19,"Physicians, Pathologists",TRUE
+"29-1223.00",12,12,"Psychiatrists",TRUE
+"29-1224.00",30,30,"Radiologists",TRUE
+"29-1229.00",,,"Physicians, All Other",FALSE
+"29-1229.01",16,16,"Allergists and Immunologists",TRUE
+"29-1229.02",14,14,"Hospitalists",TRUE
+"29-1229.03",14,14,"Urologists",TRUE
+"29-1229.04",15,15,"Physical Medicine and Rehabilitation Physicians",TRUE
+"29-1229.05",15,15,"Preventive Medicine Physicians",TRUE
+"29-1229.06",27,27,"Sports Medicine Physicians",TRUE
+"29-1241.00",18,18,"Ophthalmologists, Except Pediatric",TRUE
+"29-1242.00",15,15,"Orthopedic Surgeons, Except Pediatric",TRUE
+"29-1243.00",18,18,"Pediatric Surgeons",TRUE
+"29-1249.00",,,"Surgeons, All Other",FALSE
+"29-1291.00",18,18,"Acupuncturists",TRUE
+"29-1292.00",16,16,"Dental Hygienists",TRUE
+"29-1299.00",,,"Healthcare Diagnosing or Treating Practitioners, All Other",FALSE
+"29-1299.01",20,20,"Naturopathic Physicians",TRUE
+"29-1299.02",16,16,"Orthoptists",TRUE
+"29-2011.00",15,15,"Medical and Clinical Laboratory Technologists",TRUE
+"29-2011.01",30,30,"Cytogenetic Technologists",TRUE
+"29-2011.02",13,13,"Cytotechnologists",TRUE
+"29-2011.04",16,16,"Histotechnologists",TRUE
+"29-2012.00",13,13,"Medical and Clinical Laboratory Technicians",TRUE
+"29-2012.01",8,8,"Histology Technicians",TRUE
+"29-2031.00",21,21,"Cardiovascular Technologists and Technicians",TRUE
+"29-2032.00",20,20,"Diagnostic Medical Sonographers",TRUE
+"29-2033.00",17,17,"Nuclear Medicine Technologists",TRUE
+"29-2034.00",30,30,"Radiologic Technologists and Technicians",TRUE
+"29-2035.00",24,24,"Magnetic Resonance Imaging Technologists",TRUE
+"29-2036.00",19,19,"Medical Dosimetrists",TRUE
+"29-2042.00",12,12,"Emergency Medical Technicians",TRUE
+"29-2043.00",13,13,"Paramedics",TRUE
+"29-2051.00",13,13,"Dietetic Technicians",TRUE
+"29-2052.00",21,21,"Pharmacy Technicians",TRUE
+"29-2053.00",16,16,"Psychiatric Technicians",TRUE
+"29-2055.00",16,16,"Surgical Technologists",TRUE
+"29-2056.00",31,31,"Veterinary Technologists and Technicians",TRUE
+"29-2057.00",20,20,"Ophthalmic Medical Technicians",TRUE
+"29-2061.00",22,22,"Licensed Practical and Licensed Vocational Nurses",TRUE
+"29-2072.00",17,17,"Medical Records Specialists",TRUE
+"29-2081.00",21,21,"Opticians, Dispensing",TRUE
+"29-2091.00",15,15,"Orthotists and Prosthetists",TRUE
+"29-2092.00",11,11,"Hearing Aid Specialists",TRUE
+"29-2099.00",,,"Health Technologists and Technicians, All Other",FALSE
+"29-2099.01",16,16,"Neurodiagnostic Technologists",TRUE
+"29-2099.05",31,31,"Ophthalmic Medical Technologists",TRUE
+"29-2099.08",13,13,"Patient Representatives",TRUE
+"29-9021.00",16,16,"Health Information Technologists and Medical Registrars",TRUE
+"29-9091.00",23,23,"Athletic Trainers",TRUE
+"29-9092.00",19,19,"Genetic Counselors",TRUE
+"29-9093.00",28,28,"Surgical Assistants",TRUE
+"29-9099.00",,,"Healthcare Practitioners and Technical Workers, All Other",FALSE
+"29-9099.01",36,36,"Midwives",TRUE
+"31-1121.00",15,15,"Home Health Aides",TRUE
+"31-1122.00",11,11,"Personal Care Aides",TRUE
+"31-1131.00",33,33,"Nursing Assistants",TRUE
+"31-1132.00",22,22,"Orderlies",TRUE
+"31-1133.00",17,17,"Psychiatric Aides",TRUE
+"31-2011.00",22,22,"Occupational Therapy Assistants",TRUE
+"31-2012.00",15,15,"Occupational Therapy Aides",TRUE
+"31-2021.00",21,21,"Physical Therapist Assistants",TRUE
+"31-2022.00",19,19,"Physical Therapist Aides",TRUE
+"31-9011.00",14,14,"Massage Therapists",TRUE
+"31-9091.00",16,16,"Dental Assistants",TRUE
+"31-9092.00",20,20,"Medical Assistants",TRUE
+"31-9093.00",15,15,"Medical Equipment Preparers",TRUE
+"31-9094.00",15,15,"Medical Transcriptionists",TRUE
+"31-9095.00",14,14,"Pharmacy Aides",TRUE
+"31-9096.00",28,28,"Veterinary Assistants and Laboratory Animal Caretakers",TRUE
+"31-9097.00",23,23,"Phlebotomists",TRUE
+"31-9099.00",,,"Healthcare Support Workers, All Other",FALSE
+"31-9099.01",11,11,"Speech-Language Pathology Assistants",TRUE
+"31-9099.02",12,12,"Endoscopy Technicians",TRUE
+"33-1011.00",23,23,"First-Line Supervisors of Correctional Officers",TRUE
+"33-1012.00",20,20,"First-Line Supervisors of Police and Detectives",TRUE
+"33-1021.00",30,30,"First-Line Supervisors of Firefighting and Prevention Workers",TRUE
+"33-1091.00",21,21,"First-Line Supervisors of Security Workers",TRUE
+"33-1099.00",,,"First-Line Supervisors of Protective Service Workers, All Other",FALSE
+"33-2011.00",30,30,"Firefighters",TRUE
+"33-2021.00",30,30,"Fire Inspectors and Investigators",TRUE
+"33-2022.00",16,16,"Forest Fire Inspectors and Prevention Specialists",TRUE
+"33-3011.00",15,15,"Bailiffs",TRUE
+"33-3012.00",27,27,"Correctional Officers and Jailers",TRUE
+"33-3021.00",30,30,"Detectives and Criminal Investigators",TRUE
+"33-3021.02",16,16,"Police Identification and Records Officers",TRUE
+"33-3021.06",21,21,"Intelligence Analysts",TRUE
+"33-3031.00",24,24,"Fish and Game Wardens",TRUE
+"33-3041.00",22,22,"Parking Enforcement Workers",TRUE
+"33-3051.00",30,30,"Police and Sheriff's Patrol Officers",TRUE
+"33-3051.04",11,11,"Customs and Border Protection Officers",TRUE
+"33-3052.00",12,12,"Transit and Railroad Police",TRUE
+"33-9011.00",16,16,"Animal Control Workers",TRUE
+"33-9021.00",14,14,"Private Detectives and Investigators",TRUE
+"33-9031.00",8,8,"Gambling Surveillance Officers and Gambling Investigators",TRUE
+"33-9032.00",14,14,"Security Guards",TRUE
+"33-9091.00",12,12,"Crossing Guards and Flaggers",TRUE
+"33-9092.00",15,15,"Lifeguards, Ski Patrol, and Other Recreational Protective Service Workers",TRUE
+"33-9093.00",26,26,"Transportation Security Screeners",TRUE
+"33-9094.00",18,18,"School Bus Monitors",TRUE
+"33-9099.00",,,"Protective Service Workers, All Other",FALSE
+"33-9099.02",21,21,"Retail Loss Prevention Specialists",TRUE
+"35-1011.00",21,21,"Chefs and Head Cooks",TRUE
+"35-1012.00",26,26,"First-Line Supervisors of Food Preparation and Serving Workers",TRUE
+"35-2011.00",19,19,"Cooks, Fast Food",TRUE
+"35-2012.00",17,17,"Cooks, Institution and Cafeteria",TRUE
+"35-2013.00",13,13,"Cooks, Private Household",TRUE
+"35-2014.00",20,20,"Cooks, Restaurant",TRUE
+"35-2015.00",11,11,"Cooks, Short Order",TRUE
+"35-2019.00",,,"Cooks, All Other",FALSE
+"35-2021.00",31,31,"Food Preparation Workers",TRUE
+"35-3011.00",20,20,"Bartenders",TRUE
+"35-3023.00",27,27,"Fast Food and Counter Workers",TRUE
+"35-3023.01",19,19,"Baristas",TRUE
+"35-3031.00",25,25,"Waiters and Waitresses",TRUE
+"35-3041.00",14,14,"Food Servers, Nonrestaurant",TRUE
+"35-9011.00",23,23,"Dining Room and Cafeteria Attendants and Bartender Helpers",TRUE
+"35-9021.00",13,13,"Dishwashers",TRUE
+"35-9031.00",20,20,"Hosts and Hostesses, Restaurant, Lounge, and Coffee Shop",TRUE
+"35-9099.00",,,"Food Preparation and Serving Related Workers, All Other",FALSE
+"37-1011.00",26,26,"First-Line Supervisors of Housekeeping and Janitorial Workers",TRUE
+"37-1012.00",28,28,"First-Line Supervisors of Landscaping, Lawn Service, and Groundskeeping Workers",TRUE
+"37-2011.00",21,21,"Janitors and Cleaners, Except Maids and Housekeeping Cleaners",TRUE
+"37-2012.00",20,20,"Maids and Housekeeping Cleaners",TRUE
+"37-2019.00",,,"Building Cleaning Workers, All Other",FALSE
+"37-2021.00",13,13,"Pest Control Workers",TRUE
+"37-3011.00",26,26,"Landscaping and Groundskeeping Workers",TRUE
+"37-3012.00",10,10,"Pesticide Handlers, Sprayers, and Applicators, Vegetation",TRUE
+"37-3013.00",24,24,"Tree Trimmers and Pruners",TRUE
+"37-3019.00",,,"Grounds Maintenance Workers, All Other",FALSE
+"39-1013.00",30,30,"First-Line Supervisors of Gambling Services Workers",TRUE
+"39-1014.00",19,19,"First-Line Supervisors of Entertainment and Recreation Workers, Except Gambling Services",TRUE
+"39-1022.00",17,17,"First-Line Supervisors of Personal Service Workers",TRUE
+"39-2011.00",15,15,"Animal Trainers",TRUE
+"39-2021.00",22,22,"Animal Caretakers",TRUE
+"39-3011.00",21,21,"Gambling Dealers",TRUE
+"39-3012.00",18,18,"Gambling and Sports Book Writers and Runners",TRUE
+"39-3019.00",,,"Gambling Service Workers, All Other",FALSE
+"39-3021.00",17,17,"Motion Picture Projectionists",TRUE
+"39-3031.00",23,23,"Ushers, Lobby Attendants, and Ticket Takers",TRUE
+"39-3091.00",17,17,"Amusement and Recreation Attendants",TRUE
+"39-3092.00",21,21,"Costume Attendants",TRUE
+"39-3093.00",23,23,"Locker Room, Coatroom, and Dressing Room Attendants",TRUE
+"39-3099.00",,,"Entertainment Attendants and Related Workers, All Other",FALSE
+"39-4011.00",26,26,"Embalmers",TRUE
+"39-4012.00",12,12,"Crematory Operators",TRUE
+"39-4021.00",24,24,"Funeral Attendants",TRUE
+"39-4031.00",22,22,"Morticians, Undertakers, and Funeral Arrangers",TRUE
+"39-5011.00",18,18,"Barbers",TRUE
+"39-5012.00",22,22,"Hairdressers, Hairstylists, and Cosmetologists",TRUE
+"39-5091.00",22,22,"Makeup Artists, Theatrical and Performance",TRUE
+"39-5092.00",18,18,"Manicurists and Pedicurists",TRUE
+"39-5093.00",4,4,"Shampooers",TRUE
+"39-5094.00",18,18,"Skincare Specialists",TRUE
+"39-6011.00",17,17,"Baggage Porters and Bellhops",TRUE
+"39-6012.00",18,18,"Concierges",TRUE
+"39-7011.00",19,19,"Tour Guides and Escorts",TRUE
+"39-7012.00",17,17,"Travel Guides",TRUE
+"39-9011.00",24,24,"Childcare Workers",TRUE
+"39-9011.01",19,19,"Nannies",TRUE
+"39-9031.00",20,20,"Exercise Trainers and Group Fitness Instructors",TRUE
+"39-9032.00",24,24,"Recreation Workers",TRUE
+"39-9041.00",30,30,"Residential Advisors",TRUE
+"39-9099.00",,,"Personal Care and Service Workers, All Other",FALSE
+"41-1011.00",21,21,"First-Line Supervisors of Retail Sales Workers",TRUE
+"41-1012.00",18,18,"First-Line Supervisors of Non-Retail Sales Workers",TRUE
+"41-2011.00",28,28,"Cashiers",TRUE
+"41-2012.00",13,13,"Gambling Change Persons and Booth Cashiers",TRUE
+"41-2021.00",16,16,"Counter and Rental Clerks",TRUE
+"41-2022.00",19,19,"Parts Salespersons",TRUE
+"41-2031.00",24,24,"Retail Salespersons",TRUE
+"41-3011.00",20,20,"Advertising Sales Agents",TRUE
+"41-3021.00",19,19,"Insurance Sales Agents",TRUE
+"41-3031.00",30,30,"Securities, Commodities, and Financial Services Sales Agents",TRUE
+"41-3041.00",8,8,"Travel Agents",TRUE
+"41-3091.00",15,15,"Sales Representatives of Services, Except Advertising, Insurance, Financial Services, and Travel",TRUE
+"41-4011.00",33,33,"Sales Representatives, Wholesale and Manufacturing, Technical and Scientific Products",TRUE
+"41-4011.07",13,13,"Solar Sales Representatives and Assessors",TRUE
+"41-4012.00",18,18,"Sales Representatives, Wholesale and Manufacturing, Except Technical and Scientific Products",TRUE
+"41-9011.00",21,21,"Demonstrators and Product Promoters",TRUE
+"41-9012.00",10,10,"Models",TRUE
+"41-9021.00",17,17,"Real Estate Brokers",TRUE
+"41-9022.00",33,33,"Real Estate Sales Agents",TRUE
+"41-9031.00",25,25,"Sales Engineers",TRUE
+"41-9041.00",12,12,"Telemarketers",TRUE
+"41-9091.00",12,12,"Door-to-Door Sales Workers, News and Street Vendors, and Related Workers",TRUE
+"41-9099.00",,,"Sales and Related Workers, All Other",FALSE
+"43-1011.00",28,28,"First-Line Supervisors of Office and Administrative Support Workers",TRUE
+"43-2011.00",19,19,"Switchboard Operators, Including Answering Service",TRUE
+"43-2021.00",14,14,"Telephone Operators",TRUE
+"43-2099.00",,,"Communications Equipment Operators, All Other",FALSE
+"43-3011.00",15,15,"Bill and Account Collectors",TRUE
+"43-3021.00",28,28,"Billing and Posting Clerks",TRUE
+"43-3031.00",28,28,"Bookkeeping, Accounting, and Auditing Clerks",TRUE
+"43-3041.00",17,17,"Gambling Cage Workers",TRUE
+"43-3051.00",21,21,"Payroll and Timekeeping Clerks",TRUE
+"43-3061.00",19,19,"Procurement Clerks",TRUE
+"43-3071.00",28,28,"Tellers",TRUE
+"43-3099.00",,,"Financial Clerks, All Other",FALSE
+"43-4011.00",10,10,"Brokerage Clerks",TRUE
+"43-4021.00",17,17,"Correspondence Clerks",TRUE
+"43-4031.00",30,30,"Court, Municipal, and License Clerks",TRUE
+"43-4041.00",16,16,"Credit Authorizers, Checkers, and Clerks",TRUE
+"43-4051.00",13,13,"Customer Service Representatives",TRUE
+"43-4061.00",17,17,"Eligibility Interviewers, Government Programs",TRUE
+"43-4071.00",19,19,"File Clerks",TRUE
+"43-4081.00",20,20,"Hotel, Motel, and Resort Desk Clerks",TRUE
+"43-4111.00",16,16,"Interviewers, Except Eligibility and Loan",TRUE
+"43-4121.00",32,32,"Library Assistants, Clerical",TRUE
+"43-4131.00",18,18,"Loan Interviewers and Clerks",TRUE
+"43-4141.00",15,15,"New Accounts Clerks",TRUE
+"43-4151.00",19,19,"Order Clerks",TRUE
+"43-4161.00",19,19,"Human Resources Assistants, Except Payroll and Timekeeping",TRUE
+"43-4171.00",18,18,"Receptionists and Information Clerks",TRUE
+"43-4181.00",21,21,"Reservation and Transportation Ticket Agents and Travel Clerks",TRUE
+"43-4199.00",,,"Information and Record Clerks, All Other",FALSE
+"43-5011.00",24,24,"Cargo and Freight Agents",TRUE
+"43-5011.01",31,31,"Freight Forwarders",TRUE
+"43-5021.00",15,15,"Couriers and Messengers",TRUE
+"43-5031.00",18,18,"Public Safety Telecommunicators",TRUE
+"43-5032.00",12,12,"Dispatchers, Except Police, Fire, and Ambulance",TRUE
+"43-5041.00",12,12,"Meter Readers, Utilities",TRUE
+"43-5051.00",19,19,"Postal Service Clerks",TRUE
+"43-5052.00",21,21,"Postal Service Mail Carriers",TRUE
+"43-5053.00",14,14,"Postal Service Mail Sorters, Processors, and Processing Machine Operators",TRUE
+"43-5061.00",17,17,"Production, Planning, and Expediting Clerks",TRUE
+"43-5071.00",11,11,"Shipping, Receiving, and Inventory Clerks",TRUE
+"43-5111.00",18,18,"Weighers, Measurers, Checkers, and Samplers, Recordkeeping",TRUE
+"43-6011.00",22,22,"Executive Secretaries and Executive Administrative Assistants",TRUE
+"43-6012.00",14,14,"Legal Secretaries and Administrative Assistants",TRUE
+"43-6013.00",15,15,"Medical Secretaries and Administrative Assistants",TRUE
+"43-6014.00",31,31,"Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",TRUE
+"43-9021.00",9,9,"Data Entry Keyers",TRUE
+"43-9022.00",19,19,"Word Processors and Typists",TRUE
+"43-9031.00",18,18,"Desktop Publishers",TRUE
+"43-9041.00",25,25,"Insurance Claims and Policy Processing Clerks",TRUE
+"43-9051.00",26,26,"Mail Clerks and Mail Machine Operators, Except Postal Service",TRUE
+"43-9061.00",20,20,"Office Clerks, General",TRUE
+"43-9071.00",18,18,"Office Machine Operators, Except Computer",TRUE
+"43-9081.00",11,11,"Proofreaders and Copy Markers",TRUE
+"43-9111.00",14,14,"Statistical Assistants",TRUE
+"43-9199.00",,,"Office and Administrative Support Workers, All Other",FALSE
+"45-1011.00",30,30,"First-Line Supervisors of Farming, Fishing, and Forestry Workers",TRUE
+"45-2011.00",16,16,"Agricultural Inspectors",TRUE
+"45-2021.00",21,21,"Animal Breeders",TRUE
+"45-2041.00",5,5,"Graders and Sorters, Agricultural Products",TRUE
+"45-2091.00",17,17,"Agricultural Equipment Operators",TRUE
+"45-2092.00",27,27,"Farmworkers and Laborers, Crop, Nursery, and Greenhouse",TRUE
+"45-2093.00",19,19,"Farmworkers, Farm, Ranch, and Aquacultural Animals",TRUE
+"45-2099.00",,,"Agricultural Workers, All Other",FALSE
+"45-3031.00",29,29,"Fishing and Hunting Workers",TRUE
+"45-4011.00",17,17,"Forest and Conservation Workers",TRUE
+"45-4021.00",18,18,"Fallers",TRUE
+"45-4022.00",9,9,"Logging Equipment Operators",TRUE
+"45-4023.00",12,12,"Log Graders and Scalers",TRUE
+"45-4029.00",,,"Logging Workers, All Other",FALSE
+"47-1011.00",15,15,"First-Line Supervisors of Construction Trades and Extraction Workers",TRUE
+"47-1011.03",15,15,"Solar Energy Installation Managers",TRUE
+"47-2011.00",18,18,"Boilermakers",TRUE
+"47-2021.00",14,14,"Brickmasons and Blockmasons",TRUE
+"47-2022.00",16,16,"Stonemasons",TRUE
+"47-2031.00",29,29,"Carpenters",TRUE
+"47-2041.00",16,16,"Carpet Installers",TRUE
+"47-2042.00",14,14,"Floor Layers, Except Carpet, Wood, and Hard Tiles",TRUE
+"47-2043.00",7,7,"Floor Sanders and Finishers",TRUE
+"47-2044.00",25,25,"Tile and Stone Setters",TRUE
+"47-2051.00",26,26,"Cement Masons and Concrete Finishers",TRUE
+"47-2053.00",26,26,"Terrazzo Workers and Finishers",TRUE
+"47-2061.00",27,27,"Construction Laborers",TRUE
+"47-2071.00",20,20,"Paving, Surfacing, and Tamping Equipment Operators",TRUE
+"47-2072.00",5,5,"Pile Driver Operators",TRUE
+"47-2073.00",26,26,"Operating Engineers and Other Construction Equipment Operators",TRUE
+"47-2081.00",26,26,"Drywall and Ceiling Tile Installers",TRUE
+"47-2082.00",16,16,"Tapers",TRUE
+"47-2111.00",21,21,"Electricians",TRUE
+"47-2121.00",27,27,"Glaziers",TRUE
+"47-2131.00",10,10,"Insulation Workers, Floor, Ceiling, and Wall",TRUE
+"47-2132.00",9,9,"Insulation Workers, Mechanical",TRUE
+"47-2141.00",17,17,"Painters, Construction and Maintenance",TRUE
+"47-2142.00",20,20,"Paperhangers",TRUE
+"47-2151.00",14,14,"Pipelayers",TRUE
+"47-2152.00",30,30,"Plumbers, Pipefitters, and Steamfitters",TRUE
+"47-2152.04",21,21,"Solar Thermal Installers and Technicians",TRUE
+"47-2161.00",15,15,"Plasterers and Stucco Masons",TRUE
+"47-2171.00",7,7,"Reinforcing Iron and Rebar Workers",TRUE
+"47-2181.00",27,27,"Roofers",TRUE
+"47-2211.00",19,19,"Sheet Metal Workers",TRUE
+"47-2221.00",19,19,"Structural Iron and Steel Workers",TRUE
+"47-2231.00",26,26,"Solar Photovoltaic Installers",TRUE
+"47-3011.00",15,15,"Helpers--Brickmasons, Blockmasons, Stonemasons, and Tile and Marble Setters",TRUE
+"47-3012.00",18,18,"Helpers--Carpenters",TRUE
+"47-3013.00",25,25,"Helpers--Electricians",TRUE
+"47-3014.00",11,11,"Helpers--Painters, Paperhangers, Plasterers, and Stucco Masons",TRUE
+"47-3015.00",15,15,"Helpers--Pipelayers, Plumbers, Pipefitters, and Steamfitters",TRUE
+"47-3016.00",18,18,"Helpers--Roofers",TRUE
+"47-3019.00",,,"Helpers, Construction Trades, All Other",FALSE
+"47-4011.00",19,19,"Construction and Building Inspectors",TRUE
+"47-4011.01",21,21,"Energy Auditors",TRUE
+"47-4021.00",20,20,"Elevator and Escalator Installers and Repairers",TRUE
+"47-4031.00",20,20,"Fence Erectors",TRUE
+"47-4041.00",21,21,"Hazardous Materials Removal Workers",TRUE
+"47-4051.00",19,19,"Highway Maintenance Workers",TRUE
+"47-4061.00",26,26,"Rail-Track Laying and Maintenance Equipment Operators",TRUE
+"47-4071.00",22,22,"Septic Tank Servicers and Sewer Pipe Cleaners",TRUE
+"47-4091.00",12,12,"Segmental Pavers",TRUE
+"47-4099.00",,,"Construction and Related Workers, All Other",FALSE
+"47-4099.03",20,20,"Weatherization Installers and Technicians",TRUE
+"47-5011.00",15,15,"Derrick Operators, Oil and Gas",TRUE
+"47-5012.00",20,20,"Rotary Drill Operators, Oil and Gas",TRUE
+"47-5013.00",19,19,"Service Unit Operators, Oil and Gas",TRUE
+"47-5022.00",16,16,"Excavating and Loading Machine and Dragline Operators, Surface Mining",TRUE
+"47-5023.00",29,29,"Earth Drillers, Except Oil and Gas",TRUE
+"47-5032.00",27,27,"Explosives Workers, Ordnance Handling Experts, and Blasters",TRUE
+"47-5041.00",15,15,"Continuous Mining Machine Operators",TRUE
+"47-5043.00",14,14,"Roof Bolters, Mining",TRUE
+"47-5044.00",25,25,"Loading and Moving Machine Operators, Underground Mining",TRUE
+"47-5049.00",,,"Underground Mining Machine Operators, All Other",FALSE
+"47-5051.00",9,9,"Rock Splitters, Quarry",TRUE
+"47-5071.00",13,13,"Roustabouts, Oil and Gas",TRUE
+"47-5081.00",14,14,"Helpers--Extraction Workers",TRUE
+"47-5099.00",,,"Extraction Workers, All Other",FALSE
+"49-1011.00",22,22,"First-Line Supervisors of Mechanics, Installers, and Repairers",TRUE
+"49-2011.00",25,25,"Computer, Automated Teller, and Office Machine Repairers",TRUE
+"49-2021.00",30,30,"Radio, Cellular, and Tower Equipment Installers and Repairers",TRUE
+"49-2022.00",39,39,"Telecommunications Equipment Installers and Repairers, Except Line Installers",TRUE
+"49-2091.00",13,13,"Avionics Technicians",TRUE
+"49-2092.00",31,31,"Electric Motor, Power Tool, and Related Repairers",TRUE
+"49-2093.00",15,15,"Electrical and Electronics Installers and Repairers, Transportation Equipment",TRUE
+"49-2094.00",20,20,"Electrical and Electronics Repairers, Commercial and Industrial Equipment",TRUE
+"49-2095.00",15,15,"Electrical and Electronics Repairers, Powerhouse, Substation, and Relay",TRUE
+"49-2096.00",12,12,"Electronic Equipment Installers and Repairers, Motor Vehicles",TRUE
+"49-2097.00",11,11,"Audiovisual Equipment Installers and Repairers",TRUE
+"49-2098.00",16,16,"Security and Fire Alarm Systems Installers",TRUE
+"49-3011.00",38,38,"Aircraft Mechanics and Service Technicians",TRUE
+"49-3021.00",25,25,"Automotive Body and Related Repairers",TRUE
+"49-3022.00",18,18,"Automotive Glass Installers and Repairers",TRUE
+"49-3023.00",30,30,"Automotive Service Technicians and Mechanics",TRUE
+"49-3031.00",26,26,"Bus and Truck Mechanics and Diesel Engine Specialists",TRUE
+"49-3041.00",14,14,"Farm Equipment Mechanics and Service Technicians",TRUE
+"49-3042.00",20,20,"Mobile Heavy Equipment Mechanics, Except Engines",TRUE
+"49-3043.00",20,20,"Rail Car Repairers",TRUE
+"49-3051.00",13,13,"Motorboat Mechanics and Service Technicians",TRUE
+"49-3052.00",13,13,"Motorcycle Mechanics",TRUE
+"49-3053.00",14,14,"Outdoor Power Equipment and Other Small Engine Mechanics",TRUE
+"49-3091.00",14,14,"Bicycle Repairers",TRUE
+"49-3092.00",17,17,"Recreational Vehicle Service Technicians",TRUE
+"49-3093.00",24,24,"Tire Repairers and Changers",TRUE
+"49-9011.00",25,25,"Mechanical Door Repairers",TRUE
+"49-9012.00",32,32,"Control and Valve Installers and Repairers, Except Mechanical Door",TRUE
+"49-9021.00",30,30,"Heating, Air Conditioning, and Refrigeration Mechanics and Installers",TRUE
+"49-9031.00",29,29,"Home Appliance Repairers",TRUE
+"49-9041.00",16,16,"Industrial Machinery Mechanics",TRUE
+"49-9043.00",18,18,"Maintenance Workers, Machinery",TRUE
+"49-9044.00",23,23,"Millwrights",TRUE
+"49-9045.00",10,10,"Refractory Materials Repairers, Except Brickmasons",TRUE
+"49-9051.00",23,23,"Electrical Power-Line Installers and Repairers",TRUE
+"49-9052.00",19,19,"Telecommunications Line Installers and Repairers",TRUE
+"49-9061.00",15,15,"Camera and Photographic Equipment Repairers",TRUE
+"49-9062.00",20,20,"Medical Equipment Repairers",TRUE
+"49-9063.00",24,24,"Musical Instrument Repairers and Tuners",TRUE
+"49-9064.00",15,15,"Watch and Clock Repairers",TRUE
+"49-9069.00",,,"Precision Instrument and Equipment Repairers, All Other",FALSE
+"49-9071.00",27,27,"Maintenance and Repair Workers, General",TRUE
+"49-9081.00",12,12,"Wind Turbine Service Technicians",TRUE
+"49-9091.00",18,18,"Coin, Vending, and Amusement Machine Servicers and Repairers",TRUE
+"49-9092.00",23,23,"Commercial Divers",TRUE
+"49-9094.00",14,14,"Locksmiths and Safe Repairers",TRUE
+"49-9095.00",14,14,"Manufactured Building and Mobile Home Installers",TRUE
+"49-9096.00",14,14,"Riggers",TRUE
+"49-9097.00",12,12,"Signal and Track Switch Repairers",TRUE
+"49-9098.00",16,16,"Helpers--Installation, Maintenance, and Repair Workers",TRUE
+"49-9099.00",,,"Installation, Maintenance, and Repair Workers, All Other",FALSE
+"49-9099.01",24,24,"Geothermal Technicians",TRUE
+"51-1011.00",20,20,"First-Line Supervisors of Production and Operating Workers",TRUE
+"51-2011.00",27,27,"Aircraft Structure, Surfaces, Rigging, and Systems Assemblers",TRUE
+"51-2021.00",11,11,"Coil Winders, Tapers, and Finishers",TRUE
+"51-2022.00",16,16,"Electrical and Electronic Equipment Assemblers",TRUE
+"51-2023.00",14,14,"Electromechanical Equipment Assemblers",TRUE
+"51-2031.00",12,12,"Engine and Other Machine Assemblers",TRUE
+"51-2041.00",23,23,"Structural Metal Fabricators and Fitters",TRUE
+"51-2051.00",16,16,"Fiberglass Laminators and Fabricators",TRUE
+"51-2061.00",17,17,"Timing Device Assemblers and Adjusters",TRUE
+"51-2092.00",11,11,"Team Assemblers",TRUE
+"51-2099.00",,,"Assemblers and Fabricators, All Other",FALSE
+"51-3011.00",18,18,"Bakers",TRUE
+"51-3021.00",11,11,"Butchers and Meat Cutters",TRUE
+"51-3022.00",12,12,"Meat, Poultry, and Fish Cutters and Trimmers",TRUE
+"51-3023.00",14,14,"Slaughterers and Meat Packers",TRUE
+"51-3091.00",19,19,"Food and Tobacco Roasting, Baking, and Drying Machine Operators and Tenders",TRUE
+"51-3092.00",25,25,"Food Batchmakers",TRUE
+"51-3093.00",17,17,"Food Cooking Machine Operators and Tenders",TRUE
+"51-3099.00",,,"Food Processing Workers, All Other",FALSE
+"51-4021.00",16,16,"Extruding and Drawing Machine Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4022.00",13,13,"Forging Machine Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4023.00",19,19,"Rolling Machine Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4031.00",31,31,"Cutting, Punching, and Press Machine Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4032.00",17,17,"Drilling and Boring Machine Tool Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4033.00",18,18,"Grinding, Lapping, Polishing, and Buffing Machine Tool Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4034.00",18,18,"Lathe and Turning Machine Tool Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4035.00",15,15,"Milling and Planing Machine Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4041.00",29,29,"Machinists",TRUE
+"51-4051.00",15,15,"Metal-Refining Furnace Operators and Tenders",TRUE
+"51-4052.00",16,16,"Pourers and Casters, Metal",TRUE
+"51-4061.00",16,16,"Model Makers, Metal and Plastic",TRUE
+"51-4062.00",15,15,"Patternmakers, Metal and Plastic",TRUE
+"51-4071.00",13,13,"Foundry Mold and Coremakers",TRUE
+"51-4072.00",29,29,"Molding, Coremaking, and Casting Machine Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4081.00",21,21,"Multiple Machine Tool Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4111.00",17,17,"Tool and Die Makers",TRUE
+"51-4121.00",30,30,"Welders, Cutters, Solderers, and Brazers",TRUE
+"51-4122.00",29,29,"Welding, Soldering, and Brazing Machine Setters, Operators, and Tenders",TRUE
+"51-4191.00",23,23,"Heat Treating Equipment Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4192.00",14,14,"Layout Workers, Metal and Plastic",TRUE
+"51-4193.00",33,33,"Plating Machine Setters, Operators, and Tenders, Metal and Plastic",TRUE
+"51-4194.00",18,18,"Tool Grinders, Filers, and Sharpeners",TRUE
+"51-4199.00",,,"Metal Workers and Plastic Workers, All Other",FALSE
+"51-5111.00",15,15,"Prepress Technicians and Workers",TRUE
+"51-5112.00",23,23,"Printing Press Operators",TRUE
+"51-5113.00",25,25,"Print Binding and Finishing Workers",TRUE
+"51-6011.00",23,23,"Laundry and Dry-Cleaning Workers",TRUE
+"51-6021.00",28,28,"Pressers, Textile, Garment, and Related Materials",TRUE
+"51-6031.00",26,26,"Sewing Machine Operators",TRUE
+"51-6041.00",26,26,"Shoe and Leather Workers and Repairers",TRUE
+"51-6042.00",19,19,"Shoe Machine Operators and Tenders",TRUE
+"51-6051.00",11,11,"Sewers, Hand",TRUE
+"51-6052.00",22,22,"Tailors, Dressmakers, and Custom Sewers",TRUE
+"51-6061.00",23,23,"Textile Bleaching and Dyeing Machine Operators and Tenders",TRUE
+"51-6062.00",18,18,"Textile Cutting Machine Setters, Operators, and Tenders",TRUE
+"51-6063.00",19,19,"Textile Knitting and Weaving Machine Setters, Operators, and Tenders",TRUE
+"51-6064.00",23,23,"Textile Winding, Twisting, and Drawing Out Machine Setters, Operators, and Tenders",TRUE
+"51-6091.00",17,17,"Extruding and Forming Machine Setters, Operators, and Tenders, Synthetic and Glass Fibers",TRUE
+"51-6092.00",16,16,"Fabric and Apparel Patternmakers",TRUE
+"51-6093.00",22,22,"Upholsterers",TRUE
+"51-6099.00",,,"Textile, Apparel, and Furnishings Workers, All Other",FALSE
+"51-7011.00",20,20,"Cabinetmakers and Bench Carpenters",TRUE
+"51-7021.00",22,22,"Furniture Finishers",TRUE
+"51-7031.00",14,14,"Model Makers, Wood",TRUE
+"51-7032.00",20,20,"Patternmakers, Wood",TRUE
+"51-7041.00",22,22,"Sawing Machine Setters, Operators, and Tenders, Wood",TRUE
+"51-7042.00",25,25,"Woodworking Machine Setters, Operators, and Tenders, Except Sawing",TRUE
+"51-7099.00",,,"Woodworkers, All Other",FALSE
+"51-8011.00",19,19,"Nuclear Power Reactor Operators",TRUE
+"51-8012.00",14,14,"Power Distributors and Dispatchers",TRUE
+"51-8013.00",30,30,"Power Plant Operators",TRUE
+"51-8013.03",18,18,"Biomass Plant Technicians",TRUE
+"51-8013.04",21,21,"Hydroelectric Plant Technicians",TRUE
+"51-8021.00",25,25,"Stationary Engineers and Boiler Operators",TRUE
+"51-8031.00",8,8,"Water and Wastewater Treatment Plant and System Operators",TRUE
+"51-8091.00",19,19,"Chemical Plant and System Operators",TRUE
+"51-8092.00",19,19,"Gas Plant Operators",TRUE
+"51-8093.00",24,24,"Petroleum Pump System Operators, Refinery Operators, and Gaugers",TRUE
+"51-8099.00",,,"Plant and System Operators, All Other",FALSE
+"51-8099.01",19,19,"Biofuels Processing Technicians",TRUE
+"51-9011.00",23,23,"Chemical Equipment Operators and Tenders",TRUE
+"51-9012.00",20,20,"Separating, Filtering, Clarifying, Precipitating, and Still Machine Setters, Operators, and Tenders",TRUE
+"51-9021.00",21,21,"Crushing, Grinding, and Polishing Machine Setters, Operators, and Tenders",TRUE
+"51-9022.00",17,17,"Grinding and Polishing Workers, Hand",TRUE
+"51-9023.00",20,20,"Mixing and Blending Machine Setters, Operators, and Tenders",TRUE
+"51-9031.00",18,18,"Cutters and Trimmers, Hand",TRUE
+"51-9032.00",25,25,"Cutting and Slicing Machine Setters, Operators, and Tenders",TRUE
+"51-9041.00",26,26,"Extruding, Forming, Pressing, and Compacting Machine Setters, Operators, and Tenders",TRUE
+"51-9051.00",17,17,"Furnace, Kiln, Oven, Drier, and Kettle Operators and Tenders",TRUE
+"51-9061.00",31,31,"Inspectors, Testers, Sorters, Samplers, and Weighers",TRUE
+"51-9071.00",30,30,"Jewelers and Precious Stone and Metal Workers",TRUE
+"51-9071.06",14,14,"Gem and Diamond Workers",TRUE
+"51-9081.00",17,17,"Dental Laboratory Technicians",TRUE
+"51-9082.00",15,15,"Medical Appliance Technicians",TRUE
+"51-9083.00",18,18,"Ophthalmic Laboratory Technicians",TRUE
+"51-9111.00",20,20,"Packaging and Filling Machine Operators and Tenders",TRUE
+"51-9123.00",9,9,"Painting, Coating, and Decorating Workers",TRUE
+"51-9124.00",29,29,"Coating, Painting, and Spraying Machine Setters, Operators, and Tenders",TRUE
+"51-9141.00",20,20,"Semiconductor Processing Technicians",TRUE
+"51-9151.00",27,27,"Photographic Process Workers and Processing Machine Operators",TRUE
+"51-9161.00",27,27,"Computer Numerically Controlled Tool Operators",TRUE
+"51-9162.00",16,16,"Computer Numerically Controlled Tool Programmers",TRUE
+"51-9191.00",16,16,"Adhesive Bonding Machine Operators and Tenders",TRUE
+"51-9192.00",11,11,"Cleaning, Washing, and Metal Pickling Equipment Operators and Tenders",TRUE
+"51-9193.00",18,18,"Cooling and Freezing Equipment Operators and Tenders",TRUE
+"51-9194.00",26,26,"Etchers and Engravers",TRUE
+"51-9195.00",24,24,"Molders, Shapers, and Casters, Except Metal and Plastic",TRUE
+"51-9195.03",16,16,"Stone Cutters and Carvers, Manufacturing",TRUE
+"51-9195.04",16,16,"Glass Blowers, Molders, Benders, and Finishers",TRUE
+"51-9195.05",23,23,"Potters, Manufacturing",TRUE
+"51-9196.00",14,14,"Paper Goods Machine Setters, Operators, and Tenders",TRUE
+"51-9197.00",20,20,"Tire Builders",TRUE
+"51-9198.00",30,30,"Helpers--Production Workers",TRUE
+"51-9199.00",,,"Production Workers, All Other",FALSE
+"53-1041.00",6,6,"Aircraft Cargo Handling Supervisors",TRUE
+"53-1042.00",24,24,"First-Line Supervisors of Helpers, Laborers, and Material Movers, Hand",TRUE
+"53-1042.01",23,23,"Recycling Coordinators",TRUE
+"53-1043.00",22,22,"First-Line Supervisors of Material-Moving Machine and Vehicle Operators",TRUE
+"53-1044.00",19,19,"First-Line Supervisors of Passenger Attendants",TRUE
+"53-1049.00",,,"First-Line Supervisors of Transportation Workers, All Other",FALSE
+"53-2011.00",24,24,"Airline Pilots, Copilots, and Flight Engineers",TRUE
+"53-2012.00",24,24,"Commercial Pilots",TRUE
+"53-2021.00",23,23,"Air Traffic Controllers",TRUE
+"53-2022.00",27,27,"Airfield Operations Specialists",TRUE
+"53-2031.00",25,25,"Flight Attendants",TRUE
+"53-3011.00",11,11,"Ambulance Drivers and Attendants, Except Emergency Medical Technicians",TRUE
+"53-3031.00",11,11,"Driver/Sales Workers",TRUE
+"53-3032.00",29,29,"Heavy and Tractor-Trailer Truck Drivers",TRUE
+"53-3033.00",13,13,"Light Truck Drivers",TRUE
+"53-3051.00",17,17,"Bus Drivers, School",TRUE
+"53-3052.00",14,14,"Bus Drivers, Transit and Intercity",TRUE
+"53-3053.00",26,26,"Shuttle Drivers and Chauffeurs",TRUE
+"53-3054.00",16,16,"Taxi Drivers",TRUE
+"53-3099.00",,,"Motor Vehicle Operators, All Other",FALSE
+"53-4011.00",14,14,"Locomotive Engineers",TRUE
+"53-4013.00",23,23,"Rail Yard Engineers, Dinkey Operators, and Hostlers",TRUE
+"53-4022.00",26,26,"Railroad Brake, Signal, and Switch Operators and Locomotive Firers",TRUE
+"53-4031.00",20,20,"Railroad Conductors and Yardmasters",TRUE
+"53-4041.00",10,10,"Subway and Streetcar Operators",TRUE
+"53-4099.00",,,"Rail Transportation Workers, All Other",FALSE
+"53-5011.00",28,28,"Sailors and Marine Oilers",TRUE
+"53-5021.00",30,30,"Captains, Mates, and Pilots of Water Vessels",TRUE
+"53-5022.00",16,16,"Motorboat Operators",TRUE
+"53-5031.00",17,17,"Ship Engineers",TRUE
+"53-6011.00",18,18,"Bridge and Lock Tenders",TRUE
+"53-6021.00",15,15,"Parking Attendants",TRUE
+"53-6031.00",14,14,"Automotive and Watercraft Service Attendants",TRUE
+"53-6032.00",18,18,"Aircraft Service Attendants",TRUE
+"53-6041.00",23,23,"Traffic Technicians",TRUE
+"53-6051.00",17,17,"Transportation Inspectors",TRUE
+"53-6051.01",13,13,"Aviation Inspectors",TRUE
+"53-6051.07",14,14,"Transportation Vehicle, Equipment and Systems Inspectors, Except Aviation",TRUE
+"53-6061.00",12,12,"Passenger Attendants",TRUE
+"53-6099.00",,,"Transportation Workers, All Other",FALSE
+"53-7011.00",20,20,"Conveyor Operators and Tenders",TRUE
+"53-7021.00",11,11,"Crane and Tower Operators",TRUE
+"53-7031.00",6,6,"Dredge Operators",TRUE
+"53-7041.00",13,13,"Hoist and Winch Operators",TRUE
+"53-7051.00",9,9,"Industrial Truck and Tractor Operators",TRUE
+"53-7061.00",20,20,"Cleaners of Vehicles and Equipment",TRUE
+"53-7062.00",13,13,"Laborers and Freight, Stock, and Material Movers, Hand",TRUE
+"53-7062.04",14,14,"Recycling and Reclamation Workers",TRUE
+"53-7063.00",13,13,"Machine Feeders and Offbearers",TRUE
+"53-7064.00",12,12,"Packers and Packagers, Hand",TRUE
+"53-7065.00",30,30,"Stockers and Order Fillers",TRUE
+"53-7071.00",13,13,"Gas Compressor and Gas Pumping Station Operators",TRUE
+"53-7072.00",14,14,"Pump Operators, Except Wellhead Pumpers",TRUE
+"53-7073.00",14,14,"Wellhead Pumpers",TRUE
+"53-7081.00",14,14,"Refuse and Recyclable Material Collectors",TRUE
+"53-7121.00",19,19,"Tank Car, Truck, and Ship Loaders",TRUE
+"53-7199.00",,,"Material Moving Workers, All Other",FALSE
+"55-1011.00",,,"Air Crew Officers",FALSE
+"55-1012.00",,,"Aircraft Launch and Recovery Officers",FALSE
+"55-1013.00",,,"Armored Assault Vehicle Officers",FALSE
+"55-1014.00",,,"Artillery and Missile Officers",FALSE
+"55-1015.00",,,"Command and Control Center Officers",FALSE
+"55-1016.00",,,"Infantry Officers",FALSE
+"55-1017.00",,,"Special Forces Officers",FALSE
+"55-1019.00",,,"Military Officer Special and Tactical Operations Leaders, All Other",FALSE
+"55-2011.00",,,"First-Line Supervisors of Air Crew Members",FALSE
+"55-2012.00",,,"First-Line Supervisors of Weapons Specialists/Crew Members",FALSE
+"55-2013.00",,,"First-Line Supervisors of All Other Tactical Operations Specialists",FALSE
+"55-3011.00",,,"Air Crew Members",FALSE
+"55-3012.00",,,"Aircraft Launch and Recovery Specialists",FALSE
+"55-3013.00",,,"Armored Assault Vehicle Crew Members",FALSE
+"55-3014.00",,,"Artillery and Missile Crew Members",FALSE
+"55-3015.00",,,"Command and Control Center Specialists",FALSE
+"55-3016.00",,,"Infantry",FALSE
+"55-3018.00",,,"Special Forces",FALSE
+"55-3019.00",,,"Military Enlisted Tactical Operations and Air/Weapons Specialists and Crew Members, All Other",FALSE

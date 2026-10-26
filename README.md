@@ -11,6 +11,16 @@ O\*NET was not designed as a longitudinal panel, so `onet2r` makes the
 plumbing visible: archive versions, taxonomy seams, source dates,
 employment weights, coverage, and provenance.
 
+For a worked analysis of common activities, TF-IDF-style rarity,
+experience requirements, and the differences lost through aggregation,
+see [What Makes Occupations
+Different?](https://farach.github.io/onet2r/articles/occupational-distinctiveness.html).
+It combines a reproducible public-archive activity snapshot, an
+information-loss audit of broader labels, equal-minor-group weighting
+sensitivity, a size-preserving randomized partition reference, and
+explicitly stylized multidomain examples. Figures show the findings and
+their measurement limits.
+
 ## Installation
 
 You can install `onet2r` from CRAN after release:

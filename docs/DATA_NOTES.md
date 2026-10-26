@@ -82,6 +82,99 @@ Sources:
 - https://www.onetcenter.org/dl_files/database/db_31_0_text.zip
 - https://www.onetcenter.org/dictionary/31.0/excel/tasks_to_dwas.html
 
+## Occupational distinctiveness article
+
+Verified on 2026-10-25 against the public 30.3 text ZIP and its official
+Excel-format dictionary:
+
+- `Tasks to DWAs` is a many-to-many task/activity bridge. An occupation must
+  be counted once per DWA for occupation document frequency, not once per
+  task-link row.
+- The downloaded ZIP has SHA-256
+  `7758ec966fd91895b3d290b83c9f1f1d46730d37fdda4faac67104d1c0d2a780`.
+  It contains 1,016 occupation taxonomy entries, 923 occupations with task
+  statements and DWA links, 18,796 occupation-task pairs, and 2,083 linked
+  DWAs. Every task in this snapshot has a DWA link. No Task ID is shared
+  across occupations in this snapshot.
+- Release 30.3 has separate `Essential Skills`, `Transferable Skills`,
+  `Education`, and `Training and Experience` files. The dictionary marks
+  `Essential Skills` and `Training and Experience` as added in 30.3.
+- `Training and Experience` carries element, scale, category, rating,
+  suppression, and source-date fields. `Training and Experience Categories`
+  defines the category descriptions for Related Work Experience (`RW`),
+  On-Site or In-Plant Training (`PT`), and On-The-Job Training (`OJ`).
+  Rating values on these categorical scales are percentages of respondents
+  choosing each category, not the observed tenure distribution of workers.
+- Importance and Level are different scales. Level anchors are
+  element-specific. Positive rating presence is not an adequate summary of
+  differences in required level.
+- The article's binary activity profile and log inverse-prevalence summary
+  are research choices. The package does not export a distinctiveness or
+  AI-exposure score. Full-archive activity results are distinct from the
+  article's stylized skills, knowledge, and experience examples.
+- Equal minor-group weighting in the article averages DWA prevalence across
+  represented five-character O*NET-SOC prefixes. It is a taxonomy-weighting
+  sensitivity, not an estimate of equal occupational-family influence.
+- In this sensitivity, baseline and equal-minor-group rarity ranks have
+  Spearman correlation 0.5887, with two occupations in common among the top
+  ten under both rankings. Slaughterers and Meat Packers remains the highest
+  mean-IDF occupation, but its result is not evidence that the ranking is
+  invariant to weighting.
+- Independent reconstruction from the pinned bytes found that the baseline
+  rarity leader, Slaughterers and Meat Packers, has 14 task statements, all
+  Supplemental, which map to five distinct DWAs. Models has ten statements,
+  one Core and nine Supplemental. Literal Core-only filtering retains 893
+  occupations, not the baseline 923; it is not a common-support comparison.
+- Of 425,503 occupation pairs, 371,633 (87.3397 percent) have no shared DWA.
+  Near-ceiling mean pair distances therefore need a sparse-vocabulary
+  reference, not an interpretation as measured occupational uniqueness.
+- The archive receipt labels 30.3 as the May 2026 release. The task records
+  span 2004-2025; a release label is not a uniform observation date.
+- Generalized activity names come from `Content Model Reference`. The text
+  hierarchy supplies GWA and IWA identifiers but not their names. Each linked
+  DWA has one IWA parent, and each IWA has one GWA parent in this snapshot.
+- Under a uniform occupation draw followed by a draw from that occupation's
+  binary DWA shares, occupation-identifying information is 6.389725 bits at
+  DWA grain, 3.954185 at IWA grain, and 1.665578 at GWA grain. The latter
+  retains 26.0665 percent of the fine-label signal. This is a synthetic
+  database-description experiment, not worker, semantic, or economic
+  information. Parent losses sum to 4.724147 bits.
+- Five occupation pairs have exactly identical detailed DWA sets in the
+  snapshot. All share major-group prefix `25`, but three pairs cross minor-
+  group prefixes; this does not imply that a whole major group shares one
+  activity profile.
+- The article's 200-draw DWA-to-GWA partition reference preserves each
+  generalized group's number of DWA labels but randomizes their assignments.
+  It does not preserve IWA nesting or semantic relatedness and is not an
+  economic null model or inferential test. Observed GWA information is
+  1.665578 bits; for seed 20261026, random-draw percentiles are 1.243709,
+  1.264714, and 1.290753 bits at the 5th, 50th, and 95th percentiles. All 200
+  draws are below the observed value; this finite comparison is descriptive.
+
+Reproduction: `data-raw/occupational-distinctiveness.R` reads a local ZIP
+without network access and writes the derived snapshot, coverage, resolution
+diagnostics, and provenance under
+`inst/extdata/occupational-distinctiveness/`.
+The companion scripts `occupational-information.R` and `occupational-null.R`
+take the same local ZIP argument and regenerate the information-loss,
+equal-minor-group sensitivity, randomized-partition, and finite-run
+fixed-margin reference tables. Curveball trades preserve both matrix margins.
+Twenty separately restarted runs of 20 times the occupation count in attempted
+trades are a descriptive reference, not certified uniform samples or a
+calibrated significance test.
+
+Sources:
+
+- https://www.onetcenter.org/dl_files/database/db_30_3_text.zip
+- https://www.onetcenter.org/dictionary/30.3/excel/tasks_to_dwas.html
+- https://www.onetcenter.org/dictionary/30.3/excel/gwas_to_iwas_to_dwas.html
+- https://www.onetcenter.org/dictionary/30.3/excel/essential_skills.html
+- https://www.onetcenter.org/dictionary/30.3/excel/training_and_experience.html
+- https://www.onetcenter.org/dictionary/30.3/excel/training_and_experience_categories.html
+- https://www.onetcenter.org/dictionary/30.3/excel/scales_reference.html
+- https://arxiv.org/html/physics/0004057v1
+- https://doi.org/10.1038/ncomms5114
+
 ## O&#42;NET taxonomy breaks and transition data
 
 Verified from O&#42;NET release and taxonomy pages:

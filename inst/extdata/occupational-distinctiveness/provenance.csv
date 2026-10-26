@@ -1,0 +1,2 @@
+"release_version","source_url","source_sha256","snapshot_date","inclusion","weighting","idf","n_taxonomy_occupations","n_task_occupations","n_linked_occupations","n_activities","n_tasks","n_linked_tasks","n_shared_task_ids"
+"30.3","https://www.onetcenter.org/dl_files/database/db_30_3_text.zip","7758ec966fd91895b3d290b83c9f1f1d46730d37fdda4faac67104d1c0d2a780","2026-10-25","Any linked task, including Supplemental tasks","Binary occupation-DWA presence; equal occupation weights","Natural log(N/df); within-occupation L1-normalized TF",1016,923,923,2083,18796,18796,0

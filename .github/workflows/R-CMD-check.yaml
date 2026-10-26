@@ -53,6 +53,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       NOT_CRAN: true
       R_KEEP_PKG_SOURCE: yes
+      PKG_USE_BIOCONDUCTOR: 'false'
 
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +65,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::testthat
+          # Current readxl requires R >= 4.2.
+          extra-packages: any::testthat, any::readxl@1.4.5
           needs: check
 
       - name: Build and install package without vignettes
