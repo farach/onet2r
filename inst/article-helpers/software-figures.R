@@ -71,11 +71,18 @@ software_figures <- function(prevalence, occupations, resolution, pairs) {
     "29-1141.00" = "Registered / practical nurses"
   )
   pair_components <- pairs |>
-    dplyr::mutate(label = unname(pair_labels[.data$occupation_a])) |>
-    tidyr::pivot_longer(
-      c("replacement_component", "nestedness_resultant_component"),
-      names_to = "component", values_to = "value"
-    ) |>
+    dplyr::mutate(label = unname(pair_labels[.data$occupation_a]))
+  pair_components <- dplyr::bind_rows(
+    dplyr::transmute(
+      pair_components, label = .data$label,
+      component = "replacement_component", value = .data$replacement_component
+    ),
+    dplyr::transmute(
+      pair_components, label = .data$label,
+      component = "nestedness_resultant_component",
+      value = .data$nestedness_resultant_component
+    )
+  ) |>
     dplyr::mutate(
       label = factor(.data$label, levels = rev(unname(pair_labels))),
       component = factor(.data$component,

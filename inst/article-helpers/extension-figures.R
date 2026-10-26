@@ -3,11 +3,16 @@ employment_prevalence_figure <- function(data) {
     dplyr::arrange(.data$prevalence_employment) |>
     dplyr::mutate(label = factor(.data$dwa_element_name,
                                  levels = .data$dwa_element_name))
-  points <- data |>
-    tidyr::pivot_longer(
-      c("prevalence_equal_unit", "prevalence_employment"),
-      names_to = "weighting", values_to = "prevalence"
+  points <- dplyr::bind_rows(
+    dplyr::transmute(
+      data, label = .data$label, weighting = "prevalence_equal_unit",
+      prevalence = .data$prevalence_equal_unit
+    ),
+    dplyr::transmute(
+      data, label = .data$label, weighting = "prevalence_employment",
+      prevalence = .data$prevalence_employment
     )
+  )
   ggplot2::ggplot(data, ggplot2::aes(y = .data$label)) +
     ggplot2::geom_segment(
       ggplot2::aes(x = .data$prevalence_equal_unit,
