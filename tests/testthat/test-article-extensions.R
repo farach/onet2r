@@ -28,7 +28,7 @@ extension_path <- function(name, dir = "occupational-extensions") {
   if (!nzchar(path)) {
     path <- testthat::test_path("..", "..", "inst", "extdata", dir, name)
   }
-  path
+  if (endsWith(name, ".csv")) ext$snapshot_csv_path(path) else path
 }
 
 read_extension <- function(name, dir = "occupational-extensions") {
@@ -3007,7 +3007,8 @@ article_helper_path <- function(file) {
 }
 
 file_bytes <- function(path) {
-  readBin(path, "raw", n = file.info(path)$size)
+  bytes <- readBin(path, "raw", n = file.info(path)$size)
+  if (endsWith(path, ".gz")) memDecompress(bytes, type = "gzip") else bytes
 }
 
 read_ledger <- function() {

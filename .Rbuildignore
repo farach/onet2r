@@ -21,6 +21,8 @@
 ^\.Rhistory$
 ^\.gitignore$
 ^\.copilot(/|$)
+^\.serena(/|$)
+^\.playwright-mcp(/|$)
 ^\.history(/|$)
 ^\.memory(/|$)
 ^\.pinboard(/|$)

@@ -796,7 +796,7 @@ stopifnot(
 
 write_snapshot_csv(provenance, file.path(output_dir, "employment-provenance.csv"))
 write_snapshot_csv(accounting, file.path(output_dir, "employment-accounting.csv"))
-write_snapshot_csv(roster_table, file.path(output_dir, "employment-roster.csv"))
+write_snapshot_csv(roster_table, file.path(output_dir, "employment-roster.csv.gz"))
 write_snapshot_csv(
   inventory_table, file.path(output_dir, "employment-cell-inventory.csv")
 )
@@ -805,7 +805,7 @@ write_snapshot_csv(
 )
 write_snapshot_csv(coverage_table, file.path(output_dir, "employment-coverage.csv"))
 write_snapshot_csv(
-  prevalence_table, file.path(output_dir, "activity-employment-prevalence.csv")
+  prevalence_table, file.path(output_dir, "activity-employment-prevalence.csv.gz")
 )
 write_snapshot_csv(
   summary_table, file.path(output_dir, "activity-employment-summary.csv")

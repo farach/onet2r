@@ -111,11 +111,12 @@ Excel-format dictionary:
 - The article's binary activity profile and log inverse-prevalence summary
   are research choices. The package does not export a distinctiveness or
   AI-exposure score. Full-archive activity results are distinct from the
-  article's stylized skills, knowledge, and experience examples.
-- Equal minor-group weighting in the article averages DWA prevalence across
-  represented five-character O*NET-SOC prefixes. It is a taxonomy-weighting
+  article's stylized formula examples.
+- Equal prefix-group weighting in the original activity sensitivity averages
+  DWA prevalence across represented five-character O&#42;NET-SOC prefixes.
+  These are not official SOC minor groups. It is a taxonomy-weighting
   sensitivity, not an estimate of equal occupational-family influence.
-- In this sensitivity, baseline and equal-minor-group rarity ranks have
+- In this sensitivity, baseline and equal-prefix-group rarity ranks have
   Spearman correlation 0.5887, with two occupations in common among the top
   ten under both rankings. Slaughterers and Meat Packers remains the highest
   mean-IDF occupation, but its result is not evidence that the ranking is
@@ -140,8 +141,8 @@ Excel-format dictionary:
   database-description experiment, not worker, semantic, or economic
   information. Parent losses sum to 4.724147 bits.
 - Five occupation pairs have exactly identical detailed DWA sets in the
-  snapshot. All share major-group prefix `25`, but three pairs cross minor-
-  group prefixes; this does not imply that a whole major group shares one
+  snapshot. All share major-group prefix `25`, but three pairs cross
+  five-character code-group prefixes; this does not imply that a whole major group shares one
   activity profile.
 - The article's 200-draw DWA-to-GWA partition reference preserves each
   generalized group's number of DWA labels but randomizes their assignments.
@@ -157,7 +158,7 @@ diagnostics, and provenance under
 `inst/extdata/occupational-distinctiveness/`.
 The companion scripts `occupational-information.R` and `occupational-null.R`
 take the same local ZIP argument and regenerate the information-loss,
-equal-minor-group sensitivity, randomized-partition, and finite-run
+equal-prefix-group sensitivity, randomized-partition, and finite-run
 fixed-margin reference tables. Curveball trades preserve both matrix margins.
 Twenty separately restarted runs of 20 times the occupation count in attempted
 trades are a descriptive reference, not certified uniform samples or a
@@ -174,6 +175,117 @@ Sources:
 - https://www.onetcenter.org/dictionary/30.3/excel/scales_reference.html
 - https://arxiv.org/html/physics/0004057v1
 - https://doi.org/10.1038/ncomms5114
+
+## Skills and software extensions to the distinctiveness article
+
+Verified on 2026-10-26 against the official release 30.3 data dictionary:
+
+- `Essential Skills` reports 10 elements on two scales for 894 occupations.
+  `Transferable Skills` reports 25 elements on two scales for 894 occupations.
+  These published domain counts do not establish the intersection with the
+  article's 923-occupation DWA universe or the coverage after suppression filters.
+- Release 30.3 renamed `Technology Skills` to `Software Skills`. It also renamed
+  `Example`, `Commodity Code`, and `Commodity Title` to `Workplace Example`,
+  `Element ID`, and `Element Name`. The dictionary lists 31,821 example-link
+  rows, not 31,821 distinct software products or occupations.
+- Software examples are classified in the Content Model hierarchy based on
+  UNSPSC version 260801. The software file provides occupation links and
+  `Hot Technology` and `In Demand` flags, not Importance or Level ratings,
+  employment counts, or numeric worker-use rates.
+- `Hot Technology` concerns requirements frequently included across employer
+  job postings. `In Demand` concerns requirements frequently included in
+  postings for the particular occupation. Neither flag is a numeric prevalence
+  weight.
+- Importance and Level measure different aspects of a requirement. Level scale
+  anchors are element-specific, so a shared numeric range does not establish
+  identical substantive meaning across skill elements.
+- Direct reconstruction from the pinned 30.3 text ZIP finds 923 occupations
+  with 31,821 occupation-example links and 8,753 exact example strings.
+  There are 8,908 global example-category pairs: 151 strings have multiple
+  classifications across occupations, but none has multiple category rows
+  within the same occupation. The 134 represented categories have 17 parents
+  in the Content Model. Case and whitespace normalization changes no links or
+  distinct strings in this snapshot.
+- Microsoft Excel is listed for 859 of 923 covered occupations (93.1 percent).
+  Of 8,753 exact example strings, 6,139 occur in one occupation only. These
+  are database-link counts, not use rates. List lengths range from one to 430.
+- Under a uniform occupation draw and uniform draw from each occupation's
+  example-category pairs, fine-label information is 5.060966 bits, category
+  information is 2.199011 bits, and family information is 0.947371 bits.
+  The family retains 18.7192 percent of the fine-pair information.
+  Dropping the category annotation from the fine label leaves 5.031090 bits;
+  the annotation contributes 0.029876 bits. This is a synthetic description
+  experiment, not a measure of worker knowledge or software adoption.
+
+Reproduction: `data-raw/occupational-software.R` checks the same pinned ZIP
+digest as the activity analysis and writes derived offline CSVs under
+`inst/extdata/occupational-software/`.
+
+### Employment and separate skills extension
+
+- The pinned May 2025 national OEWS file has 830 detailed cells totaling
+  155,481,840 jobs, versus the official all-occupations total of 155,495,730.
+  The 13,890 residual is recorded but not explained or allocated. All twelve
+  published combination codes have detailed rows. Seven also have broad rows
+  with identical employment; including those broad rows would double count.
+- The primary activity comparison uses `.00` SOC descriptions and complete
+  cells only: 756 cells, 765 constituent descriptions, and 146,251,550 jobs,
+  or 94.055 percent of the official total. Four partial-profile cells and
+  70 cells with no required broad profile account for another 9,230,290 jobs.
+  Specialty profiles do not silently replace missing broad descriptions.
+- Within complete combination cells, the point estimate allocates employment
+  equally across constituent SOC descriptions. Arbitrary-allocation bounds
+  use those disjoint units. The all-code sensitivity includes overlapping
+  parent/specialty descriptions and reports a profile envelope instead,
+  not a sharp employment bound. Wider incomplete-cell envelopes are relative
+  to returned-panel employment, not the official total.
+- Official SOC minor groups use four-character prefixes here, distinct from
+  the original five-character-prefix sensitivity. On the primary matched
+  support, there are 94 represented minor groups and 109 five-character groups.
+  Of the full archive's 2,083 DWAs, 2,034 have a primary matched link.
+  Allocation bounds have zero width for 92.4 percent of those linked DWAs.
+  Equal-description and employment-weighted DWA prevalence have Spearman
+  correlation 0.657045. This changes the reference distribution, not work time.
+- Raw BLS 2025 definitions do not include the historical `25-9041` part in
+  `25-9045`. The package bridge's existing historical entry is recorded in
+  the combination audit, not changed as part of the article extension.
+- Each skills file has complete ratings for 894 occupations. Of the 923
+  activity codes, 29 lack a complete skill profile and another 71 have at
+  least one recommended-suppressed rating. The primary common support is
+  therefore 823 codes, with 894 retained as an explicitly separate sensitivity.
+  Accountants and Software Developers are among the suppressed-profile
+  exclusions. Not Relevant flags do not themselves exclude a code.
+- Essential and Transferable blocks retain separate Importance and Level
+  scales. The archived ratings are eight-analyst means; thresholding a mean
+  is not assigning respondents to a category. Precision fields and flags
+  are audited without inventing joint uncertainty or a new suppression cutoff.
+- Against mean absolute scale-range-normalized rating gaps, element-wise
+  percentile ranks produce mean five-neighbor Jaccard overlaps of 0.445 to
+  0.485. Single-neighbor sets are disjoint for about 48 to 55 percent of
+  primary occupations. This is a descriptive sensitivity, not a significance
+  result.
+- Recomputed on those 823 codes with distances rounded to eight decimals,
+  activity and software five-neighbor sets have median Jaccard overlap zero;
+  55.772 percent share no neighbor. Software versus each skills block also
+  has median five-neighbor overlap zero. Cutoff ties are retained.
+  At k = 5, software sets contain more than five neighbors for 515 of the
+  823 codes, which also affects neighbor-set overlap.
+
+Reproduction: `data-raw/occupational-skills.R`,
+`data-raw/occupational-employment.R`, and
+`data-raw/occupational-cross-domain.R`. The derived tables, input receipts,
+scope restrictions and decision ledger are under
+`inst/extdata/occupational-extensions/`. Its README records remaining source
+gaps: the OEWS ownership-code interpretation and Survey Methods PDF were not
+verified. No ownership breakdown or sampling-error propagation is claimed.
+
+Sources:
+
+- https://www.onetcenter.org/dictionary/30.3/excel/essential_skills.html
+- https://www.onetcenter.org/dictionary/30.3/excel/transferable_skills.html
+- https://www.onetcenter.org/dictionary/30.3/excel/software_skills.html
+- https://www.onetcenter.org/dictionary/30.3/excel/scales_reference.html
+- https://www.onetcenter.org/dl_files/database/db_30_3_text.zip
 
 ## O&#42;NET taxonomy breaks and transition data
 

@@ -303,18 +303,18 @@ provenance <- tibble::tibble(
 
 write_snapshot_csv(provenance, file.path(output_dir, "skills-provenance.csv"))
 write_snapshot_csv(audit, file.path(output_dir, "skills-rating-audit.csv"))
-write_snapshot_csv(common_out, file.path(output_dir, "skills-common-universe.csv"))
+write_snapshot_csv(common_out, file.path(output_dir, "skills-common-universe.csv.gz"))
 write_snapshot_csv(
   distribution, file.path(output_dir, "skills-rating-distributions.csv")
 )
 write_snapshot_csv(thresholds, file.path(output_dir, "skills-thresholds.csv"))
 write_snapshot_csv(anchors, file.path(output_dir, "skills-level-anchors.csv"))
-write_snapshot_csv(neighbors, file.path(output_dir, "skills-nearest-neighbors.csv"))
+write_snapshot_csv(neighbors, file.path(output_dir, "skills-nearest-neighbors.csv.gz"))
 write_snapshot_csv(
   sensitivity, file.path(output_dir, "skills-neighbor-sensitivity.csv")
 )
 write_snapshot_csv(
-  ordinal_overlap, file.path(output_dir, "skills-ordinal-neighbor-overlap.csv")
+  ordinal_overlap, file.path(output_dir, "skills-ordinal-neighbor-overlap.csv.gz")
 )
 write_snapshot_csv(
   pair_examples, file.path(output_dir, "skills-pair-gap-examples.csv")

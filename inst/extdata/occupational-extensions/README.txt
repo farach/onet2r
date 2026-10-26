@@ -184,7 +184,7 @@ Primary universe
 923 occupations have activity profiles. 894 of them are complete in all four
 blocks, and 29 lack a skills profile. 823 of the 894 have no Recommend Suppress
 flag in any block, and 71 have at least one. The 823 occupations are the
-primary universe (in_common_universe in skills-common-universe.csv). The
+primary universe (in_common_universe in skills-common-universe.csv.gz). The
 894 are a stated sensitivity (in_pool_complete). Two stricter pools are
 disclosed as counts only. In the 894 pool, 93 occupations have no Not Relevant
 rating and 84 have neither a Not Relevant rating nor a Recommend Suppress flag.
@@ -248,7 +248,7 @@ employment-accounting.csv  Official and observed counts. status is match or
   bls_definitions, package_constituent_list, bridge, soc_rule_universe and
   code_rule_universe. The oews_raw rows hold the file scope, the group counts,
   the combined-code counts and the repeated broad rows.
-employment-roster.csv  One row per O*NET-SOC title (1,016). It gives the
+employment-roster.csv.gz  One row per O*NET-SOC title (1,016). It gives the
   taxonomy class, the SOC minor group (4 characters), the 5-character prefix,
   the OEWS cell, the unit under each rule and the cell status under each rule.
 employment-cell-inventory.csv  One row per OEWS cell (830). cell_type is
@@ -263,7 +263,7 @@ employment-coverage.csv  One row per unit_rule and scope. Scopes are
   cells_with_all_other_soc_with_nested_detail. The soc rule also has
   incomplete_with_unused_nested_profiles. Shares are of the official total and
   of the returned panel.
-activity-employment-prevalence.csv  One row per unit_rule and DWA (2,083 each).
+activity-employment-prevalence.csv.gz  One row per unit_rule and DWA (2,083 each).
   Prevalence under each weighting, the exact and wide bounds, and
   idf_equal_unit and idf_employment, which are blank where prevalence is 0.
 activity-employment-summary.csv  Long format: unit_rule, bound_type,
@@ -272,7 +272,7 @@ activity-employment-summary.csv  Long format: unit_rule, bound_type,
   equal-weight prevalences outside the bounds. prevalence_spearman ranks the
   prevalence values rounded to 8 decimals. Values that differ only by floating
   point noise stay tied, and the result reproduces from
-  activity-employment-prevalence.csv.
+  activity-employment-prevalence.csv.gz.
 activity-employment-rank-sensitivity.csv  Units in the top 10 (ties retained)
   of any series, 32 per rule. selected_reason names those series. mean_idf_*
   is the mean IDF of a unit's own activities under that weighting. rank_* is
@@ -287,14 +287,14 @@ skills-provenance.csv  One row: release, source, pool sizes, element counts,
 skills-rating-audit.csv  One row per block, computed on the 894 pool. Missing
   values, out-of-range values, rater counts, standard errors, flag counts and
   the Level-zero checks.
-skills-common-universe.csv  One row per DWA occupation (923). Completeness and
+skills-common-universe.csv.gz  One row per DWA occupation (923). Completeness and
   flag counts per block, the pool memberships, in_common_universe and
   exclusion_reason (incomplete_skills_profile, recommend_suppress_flag or
   blank).
-skills-nearest-neighbors.csv  block, occupation, rank, neighbor and distance.
+skills-nearest-neighbors.csv.gz  block, occupation, rank, neighbor and distance.
 skills-neighbor-sensitivity.csv  Long format: alternative, block, k, metric
   and value.
-skills-ordinal-neighbor-overlap.csv  Per-occupation Jaccard overlap at k of
+skills-ordinal-neighbor-overlap.csv.gz  Per-occupation Jaccard overlap at k of
   1, 5 and 10 between the primary and the ordinal_percentile sets.
 skills-rating-distributions.csv  Mean, spread and quantiles per element and
   block over the primary universe.
@@ -308,6 +308,19 @@ skills-level-anchors.csv  The Level 2, 4 and 6 example anchors for every
 skills-pair-gap-examples.csv  The nearest, median and farthest pair in each
   block (pair_kind) with the gap on every element. The mean of gap_normalized
   within a block equals the block distance.
+
+Common-support comparisons
+cross-domain-neighbors.csv.gz  Directed neighbors for the same 823 occupations
+  in activities, software and the four skill blocks. Boundary ties through
+  rank 10 are retained after rounding distances to eight decimal places.
+cross-domain-neighbor-overlap.csv.gz  Per-query neighbor-set Jaccard for each
+  block pair at k = 1, 5 and 10.
+cross-domain-overlap-summary.csv  Mean, median and disjoint-set share for each
+  block pair and k.
+cross-domain-selected-neighbors.csv  Nearest sets for eligible selected examples.
+cross-domain-provenance.csv  Common support, distance rules and rounding.
+All .csv.gz tables use lossless gzip compression. Base R read.csv() reads
+them directly. Compression changes no rows or values.
 
 Ledger
 decisions-ledger.csv  One row per decision with a status of implemented,

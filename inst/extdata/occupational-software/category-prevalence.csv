@@ -1,0 +1,135 @@
+"category","n_occupations","label","prevalence"
+"2.E.4.i",859,"Spreadsheet software",0.930660888407367
+"2.E.1.k",818,"Office suite software",0.886240520043337
+"2.E.4.d",789,"Word processing software",0.854821235102925
+"2.E.16.a",735,"Electronic mail software",0.796316359696641
+"2.E.4.f",633,"Presentation software",0.685807150595883
+"2.E.6.f",632,"Data base user interface and query software",0.684723726977248
+"2.E.10.e",470,"Internet browser software",0.509209100758397
+"2.E.9.d",372,"Analytical or scientific software",0.403033586132178
+"2.E.2.b",367,"Enterprise resource planning ERP software",0.397616468039003
+"2.E.13.c",342,"Operating system software",0.370530877573131
+"2.E.1.e",304,"Project management software",0.329360780065005
+"2.E.5.b",293,"Document management software",0.317443120260022
+"2.E.4.b",279,"Graphics or photo imaging software",0.302275189599133
+"2.E.9.c",245,"Computer aided design CAD software",0.265438786565547
+"2.E.7.e",211,"Object or component oriented development software",0.228602383531961
+"2.E.4.g",205,"Web page creation and editing software",0.222101841820152
+"2.E.7.b",200,"Development environment software",0.216684723726977
+"2.E.9.i",190,"Medical software",0.205850487540628
+"2.E.4.h",178,"Calendar and scheduling software",0.19284940411701
+"2.E.2.a",171,"Accounting software",0.185265438786566
+"2.E.4.k",167,"Desktop publishing software",0.180931744312026
+"2.E.1.p",154,"Process mapping and design software",0.166847237269772
+"2.E.7.h",152,"Web platform development software",0.164680390032503
+"2.E.6.c",142,"Customer relationship management CRM software",0.153846153846154
+"2.E.8.h",142,"Geographic information system",0.153846153846154
+"2.E.4.c",140,"Video creation and editing software",0.151679306608884
+"2.E.6.h",140,"Information retrieval or search software",0.151679306608884
+"2.E.1.f",138,"Inventory management software",0.149512459371614
+"2.E.9.g",138,"Industrial control software",0.149512459371614
+"2.E.16.b",117,"Video conferencing software",0.126760563380282
+"2.E.6.m",117,"Business intelligence and data analysis software",0.126760563380282
+"2.E.7.c",117,"Enterprise application integration software",0.126760563380282
+"2.E.8.b",110,"Computer based training software",0.119176598049837
+"2.E.6.d",109,"Data base management system software",0.118093174431203
+"2.E.2.d",94,"Financial analysis software",0.101841820151679
+"2.E.6.e",92,"Data base reporting software",0.0996749729144095
+"2.E.1.c",89,"Human resources software",0.0964247020585049
+"2.E.16.e",87,"Map creation software",0.0942578548212351
+"2.E.16.i",84,"Cloud-based data access and sharing software",0.0910075839653304
+"2.E.10.b",83,"Desktop communications software",0.0899241603466956
+"2.E.2.e",75,"Time accounting software",0.0812567713976165
+"2.E.4.j",66,"Optical character reader OCR or scanning software",0.0715059588299025
+"2.E.16.d",62,"Instant messaging software",0.0671722643553629
+"2.E.9.b",60,"Facilities management software",0.0650054171180932
+"2.E.7.f",55,"Program testing software",0.0595882990249187
+"2.E.1.i",54,"Expert system software",0.0585048754062839
+"2.E.10.a",54,"Application server software",0.0585048754062839
+"2.E.5.c",54,"File versioning software",0.0585048754062839
+"2.E.11.e",52,"Cloud-based management software",0.0563380281690141
+"2.E.14.d",51,"Transaction security and virus protection software",0.0552546045503792
+"2.E.1.d",50,"Materials requirements planning logistics and supply chain software",0.0541711809317443
+"2.E.6.g",49,"Data mining software",0.0530877573131094
+"2.E.1.l",46,"Sales and marketing software",0.0498374864572048
+"2.E.5.a",46,"Content workflow software",0.0498374864572048
+"2.E.7.a",44,"Configuration management software",0.047670639219935
+"2.E.17.a",43,"Enterprise system management software",0.0465872156013001
+"2.E.9.e",43,"Compliance software",0.0465872156013001
+"2.E.9.j",43,"Point of sale POS software",0.0465872156013001
+"2.E.12.a",42,"Access software",0.0455037919826652
+"2.E.16.h",42,"Mobile location based services software",0.0455037919826652
+"2.E.2.f",42,"Billing and invoicing software",0.0455037919826652
+"2.E.6.j",42,"Object oriented data base management software",0.0455037919826652
+"2.E.9.k",42,"Computer aided manufacturing CAM software",0.0455037919826652
+"2.E.12.b",41,"Communications server software",0.0444203683640303
+"2.E.6.l",39,"Transaction server software",0.0422535211267606
+"2.E.11.a",35,"Network monitoring software",0.037919826652221
+"2.E.7.d",34,"Graphical user interface development software",0.0368364030335861
+"2.E.14.c",32,"Network security and virtual private network VPN equipment software",0.0346695557963164
+"2.E.8.e",32,"Multi-media educational software",0.0346695557963164
+"2.E.6.i",28,"Metadata management software",0.0303358613217768
+"2.E.7.g",28,"Requirements analysis and system architecture software",0.0303358613217768
+"2.E.11.d",26,"Internet protocol IP multimedia subsystem software",0.028169014084507
+"2.E.15.f",26,"Backup or archival software",0.028169014084507
+"2.E.16.c",26,"Network conferencing software",0.028169014084507
+"2.E.3.b",26,"Music or sound editing software",0.028169014084507
+"2.E.14.b",24,"Network security or virtual private network VPN management software",0.0260021668472373
+"2.E.6.b",24,"Clustering software",0.0260021668472373
+"2.E.6.k",24,"Portal server software",0.0260021668472373
+"2.E.12.f",22,"Storage networking software",0.0238353196099675
+"2.E.1.a",19,"Helpdesk or call center software",0.0205850487540628
+"2.E.1.b",19,"Procurement software",0.0205850487540628
+"2.E.15.d",19,"Voice recognition software",0.0205850487540628
+"2.E.8.d",17,"Route navigation software",0.0184182015167931
+"2.E.6.a",16,"Categorization or classification software",0.0173347778981582
+"2.E.10.d",15,"Internet directory services software",0.0162513542795233
+"2.E.11.c",15,"Administration software",0.0162513542795233
+"2.E.15.c",14,"Device drivers or system software",0.0151679306608884
+"2.E.13.a",13,"Filesystem software",0.0140845070422535
+"2.E.7.i",12,"Compiler and decompiler software",0.0130010834236186
+"2.E.1.h",11,"Label making software",0.0119176598049837
+"2.E.12.g",11,"Switch or router software",0.0119176598049837
+"2.E.12.m",11,"Platform interconnectivity software",0.0119176598049837
+"2.E.16.g",11,"Mobile messaging service software",0.0119176598049837
+"2.E.14.e",10,"Cloud-based protection or security software",0.0108342361863489
+"2.E.4.e",10,"Charting software",0.0108342361863489
+"2.E.9.o",10,"Risk management data and analysis software",0.0108342361863489
+"2.E.14.a",9,"Authentication server software",0.00975081256771398
+"2.E.4.a",9,"Pattern design software",0.00975081256771398
+"2.E.1.o",8,"Procedure management software",0.00866738894907909
+"2.E.2.c",7,"Tax preparation software",0.0075839653304442
+"2.E.8.c",6,"Spell checkers",0.00650054171180932
+"2.E.9.h",6,"Library software",0.00650054171180932
+"2.E.12.e",5,"LAN software",0.00541711809317443
+"2.E.12.h",5,"WAN switching software and firmware",0.00541711809317443
+"2.E.12.j",4,"Network connectivity terminal emulation software",0.00433369447453954
+"2.E.13.b",4,"Network operation system software",0.00433369447453954
+"2.E.15.a",4,"Data conversion software",0.00433369447453954
+"2.E.9.a",4,"Aviation ground support software",0.00433369447453954
+"2.E.11.b",3,"Network operating system enhancement software",0.00325027085590466
+"2.E.15.b",3,"Data compression software",0.00325027085590466
+"2.E.16.f",3,"Mobile operator specific application software",0.00325027085590466
+"2.E.3.a",3,"Action games",0.00325027085590466
+"2.E.8.f",3,"Dictionary software",0.00325027085590466
+"2.E.9.f",3,"Flight control software",0.00325027085590466
+"2.E.9.m",3,"Computer aided design CAD and computer aided manufacturing CAM system",0.00325027085590466
+"2.E.9.n",3,"Legal management software",0.00325027085590466
+"2.E.1.g",2,"Bar coding software",0.00216684723726977
+"2.E.1.j",2,"License management software",0.00216684723726977
+"2.E.1.m",2,"Mailing and shipping software",0.00216684723726977
+"2.E.10.c",2,"Interactive voice response software",0.00216684723726977
+"2.E.12.k",2,"Gateway software",0.00216684723726977
+"2.E.15.e",2,"Storage media loading software",0.00216684723726977
+"2.E.15.g",2,"Text to speech conversion software",0.00216684723726977
+"2.E.8.a",2,"Foreign language software",0.00216684723726977
+"2.E.9.l",2,"Manufacturing execution system MES software",0.00216684723726977
+"2.E.1.n",1,"Audit software",0.00108342361863489
+"2.E.12.c",1,"Contact center software",0.00108342361863489
+"2.E.12.d",1,"Fax software",0.00108342361863489
+"2.E.12.i",1,"Wireless software",0.00108342361863489
+"2.E.12.l",1,"Bridge software",0.00108342361863489
+"2.E.12.n",1,"Software defined networking/ virtualization software",0.00108342361863489
+"2.E.13.d",1,"Computer imaging software",0.00108342361863489
+"2.E.15.h",1,"Eye tracking software",0.00108342361863489
+"2.E.8.g",1,"Voice synthesizer and recognition software",0.00108342361863489

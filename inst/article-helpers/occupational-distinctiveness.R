@@ -1,11 +1,24 @@
 # Research choices for the article, not an exported package measure.
 write_snapshot_csv <- function(data, path, na = "") {
-  connection <- base::file(path, open = "wb")
+  connection <- if (endsWith(path, ".gz")) {
+    base::gzfile(path, open = "wb", compression = 9)
+  } else {
+    base::file(path, open = "wb")
+  }
   on.exit(close(connection), add = TRUE)
   utils::write.csv(
     data, connection, row.names = FALSE, na = na, eol = "\n"
   )
   invisible(path)
+}
+
+snapshot_csv_path <- function(path) {
+  candidates <- c(path, paste0(path, ".gz"))
+  found <- candidates[file.exists(candidates)]
+  if (length(found) != 1L) {
+    cli::cli_abort("Expected exactly one CSV or gzipped CSV at {.path {path}}.")
+  }
+  found[[1L]]
 }
 
 profile_shares <- function(data, universe) {
