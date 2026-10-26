@@ -14,9 +14,10 @@ articles:
   oews-wage-context: oews-wage-context.html
   output-validation: output-validation.html
   resurvey-and-content-change: resurvey-and-content-change.html
+  software-distinctiveness: software-distinctiveness.html
   stress-testing-exposure-measure: stress-testing-exposure-measure.html
   within-between-decomposition: within-between-decomposition.html
-last_built: 2026-10-26T00:31Z
+last_built: 2026-10-26T18:12Z
 urls:
   reference: https://farach.github.io/onet2r/reference
   article: https://farach.github.io/onet2r/articles

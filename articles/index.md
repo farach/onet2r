@@ -22,6 +22,8 @@
   Occupations](https://farach.github.io/onet2r/articles/from-tasks-to-occupations.md):
 - [What Makes Occupations
   Different?](https://farach.github.io/onet2r/articles/occupational-distinctiveness.md):
+- [What Software Lists Tell Us About
+  Occupations](https://farach.github.io/onet2r/articles/software-distinctiveness.md):
 - [Reproducible User
   Measures](https://farach.github.io/onet2r/articles/measure-reproducibility.md):
 - [Importing Published Exposure

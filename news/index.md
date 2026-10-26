@@ -167,17 +167,35 @@
 
 ### Improvements
 
+- The activity article now adds May 2025 OEWS employment prevalence with
+  complete-cell coverage and allocation sensitivity, real Essential and
+  Transferable Skills profiles on separate scales, and
+  activity/skill/software neighbor comparisons on 823 common eligible
+  codes. Suppression exclusions, ordinal sensitivity, overlapping
+  taxonomy profiles and missing employment are disclosed. The prior
+  invented multidomain composite is removed; education and experience
+  remain separate future extensions.
+- The occupational-distinctiveness analysis gains a companion article on
+  listed software examples, with reproducible O\*NET 30.3 prevalence,
+  inventory diagnostics, neighbor sensitivity, a mass-preserving
+  classification information budget, and an ecology-inspired overlap
+  decomposition for selected pairs. Exact example names and
+  example-category pairs are kept distinct. The original five-character
+  code-group sensitivity is no longer mislabeled as official SOC
+  minor-group weighting. All results describe published occupational
+  records, not worker software-use rates.
+- Large derived article tables use lossless gzip compression, preserving
+  offline reproduction while keeping the installed data footprint small.
 - A new article, “What Makes Occupations Different?”, examines common
   and uncommon detailed work activities using a reproducible public
   O\*NET 30.3 archive snapshot. It separates TF-IDF rarity from profile
-  isolation, adds an equal-minor-group weighting sensitivity, a
+  isolation, adds an equal-code-prefix-group weighting sensitivity, a
   hierarchy information-loss budget, a size-preserving randomized
   partition reference, and a finite-run fixed-margin reference. Static
   figures have accessible table counterparts. The article discloses
-  inventory-size and Supplemental-task dependence and keeps experience
-  and other multidomain examples explicitly stylized. Article builds
-  remain offline, and no substantive measure is added to the exported
-  API.
+  inventory-size and Supplemental-task dependence and keeps invented
+  examples explicitly stylized. Article builds remain offline, and no
+  substantive measure is added to the exported API.
 - The pkgdown site is again published at
   <https://farach.github.io/onet2r/> in pkgdown’s `unreleased` mode,
   which marks the package as not yet on CRAN. Since July 2026 the site

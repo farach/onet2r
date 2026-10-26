@@ -1,34 +1,30 @@
 # What Makes Occupations Different?
 
 Two occupations can share reading, communication, and problem solving
-yet differ sharply in what they produce, the knowledge they use, or the
-experience needed to enter them. This article asks three different
-questions:
+yet differ in what they produce or the knowledge they need. I want to
+understand those differences without making every shared requirement
+disappear into a broad label.
 
-1.  Which activities are common or uncommon across occupations?
-2.  Which requirements distinguish a particular occupation, and which
-    occupations have the most unusual profiles?
-3.  Which differences remain when we change the representation of work?
+I start with a simpler question. Which recorded activities appear in
+many occupations, and which appear in only a few? TF-IDF gives uncommon
+links more weight. For a binary activity list, an occupation’s summary
+is the mean log inverse prevalence of its activities.
 
-**TF-IDF answers the first question and part of the second, but it is
-not enough for the third.** It measures how rare an activity is relative
-to a declared comparison set. It does not say what separates one
-occupation from its neighbors. Economic value, difficulty, worker
-scarcity, time spent, and exposure to AI require separate measures. A
-common skill can still distinguish occupations through its required
-level. A rare activity need not make its occupation unlike its closest
-neighbor.
+Rarity alone leaves a lot unanswered. Two occupations might share the
+same unusual activities and be each other’s closest neighbor. A common
+skill could distinguish them through its required level. I therefore
+compare profiles as well as rarity, and check what changes when labels,
+occupation weights or distance rules change.
 
-With binary activity profiles, the occupation-level TF-IDF summary is
-just the mean of log inverse prevalence over the occupation’s
-activities. We keep it as a transparent descriptive baseline. The third
-question gets a different tool: an **information-loss budget** that
-counts how many bits of occupation identity survive when activity labels
-are grouped. It is an accounting device, not a new uniqueness score.
+The information-loss budget asks how much a listed activity tells us
+about which occupation it came from, and how much of that information
+remains after grouping the labels. It is a calculation about
+descriptions. Economic value, worker time and effects of AI need
+evidence these records do not contain.
 
-The article combines a **derived snapshot of the full public O\*NET 30.3
-archive** with clearly labeled **stylized examples** for the multidomain
-methods. Article builds use bundled tables and do not access the
+The article uses a **derived snapshot of the full public O\*NET 30.3
+archive** and clearly labeled **stylized examples** to explain the
+formulas. Article builds use bundled tables and do not access the
 network. The helpers are article code, not exported package functions or
 an endorsed substantive score. Rankings describe the covered O\*NET
 occupations under the specified choices, not all jobs or workers in the
@@ -149,7 +145,7 @@ counts each occupation-DWA link once, and gives each occupation equal
 weight. Task ratings, employment weights, and AI-exposure measures are
 excluded.
 
-Three properties of this archive limit what the rankings can mean.
+Four properties of this archive limit what the rankings can mean.
 
 - **Presence is cheap.** One linked task, even a Supplemental one, makes
   an occupation-DWA pair present. Occupations have 4 to 40 task
@@ -165,7 +161,7 @@ Three properties of this archive limit what the rankings can mean.
   published archive. They are not estimates of a population quantity, so
   they come with no confidence intervals and no sampling interpretation.
 - **Code granularity matters.** The baseline gives every O\*NET-SOC code
-  equal weight. A minor group with more detailed codes therefore
+  equal weight. A code group with more detailed codes therefore
   contributes more total weight to activity prevalence than a group with
   fewer codes. The results are code-weighted comparisons, not equally
   weighted comparisons of occupational families.
@@ -279,11 +275,11 @@ does not break ties.
 
 The baseline gives each of the 923 detailed O\*NET-SOC codes equal
 weight. As a sensitivity, this calculation first finds each DWA’s
-prevalence within each five-character SOC minor-group prefix, then
-averages those prevalences with each represented minor group receiving
-equal weight:
+prevalence within each five-character code-prefix group, then averages
+those prevalences with each represented prefix group receiving equal
+weight:
 
-$${\bar{p}}_{d} = \frac{1}{G}\sum\limits_{g = 1}^{G}\frac{{\text{occupations in group}\mspace{6mu}}g{\mspace{6mu}\text{linked to}\mspace{6mu}}d}{{\text{covered occupations in}\mspace{6mu}}g},\qquad{IDF}_{d}^{*} = \log\left( 1/{\bar{p}}_{d} \right).$$
+$${\bar{p}}_{d} = \frac{1}{G}\sum\limits_{g = 1}^{G}\frac{{\text{codes in}\mspace{6mu}}g{\mspace{6mu}\text{linked to}\mspace{6mu}}d}{{\text{covered codes in}\mspace{6mu}}g}.$$$${IDF}_{d}^{*} = \log\left( 1/{\bar{p}}_{d} \right).$$
 
 The within-occupation TF remains normalized as before. This changes the
 reference prevalence, not the occupational activity profiles. The two
@@ -291,16 +287,16 @@ rankings have a Spearman correlation of 0.59, and 2 occupations ranked
 in the top ten (including ties) overlap.
 
 ![Scatter plot comparing each of 923 occupations' rarity rank under
-equal code weights with its rank when O\*NET-SOC minor groups receive
-equal weight. The diagonal indicates unchanged rank; a table below lists
-occupations with the largest
+equal code weights with its rank when five-character code-prefix groups
+receive equal weight. The diagonal indicates unchanged rank; a table
+below lists occupations with the largest
 shifts.](occupational-distinctiveness_files/figure-html/figure-group-weighting-1.png)
 
 Occupation rarity ranks under equal detailed-code weights versus equal
-SOC minor-group weights. Points away from the diagonal change rank when
-the prevalence denominator changes.
+five-character code-group weights. Points away from the diagonal change
+rank when the prevalence denominator changes.
 
-| Occupation (minor group)                                                                | Code-weighted rank | Group-weighted rank | Rank change |
+| Occupation (code prefix)                                                                | Code-weighted rank | Group-weighted rank | Rank change |
 |:----------------------------------------------------------------------------------------|-------------------:|--------------------:|------------:|
 | First-Line Supervisors of Farming, Fishing, and Forestry Workers (45-10)                |                 24 |                 734 |        -710 |
 | Pesticide Handlers, Sprayers, and Applicators, Vegetation (37-30)                       |                 19 |                 674 |        -655 |
@@ -311,7 +307,11 @@ the prevalence denominator changes.
 | First-Line Supervisors of Housekeeping and Janitorial Workers (37-10)                   |                 21 |                 636 |        -615 |
 | Hosts and Hostesses, Restaurant, Lounge, and Coffee Shop (35-90)                        |                181 |                 785 |        -604 |
 
-This sensitivity gives each represented minor group equal influence on
+These prefix groups are not the official SOC minor groups. The
+employment extension below also uses the actual minor-group definition
+and reports the two grouping choices separately.
+
+This sensitivity gives each represented prefix group equal influence on
 DWA prevalence; it does not make the group definitions substantively
 neutral. Different taxonomies or broader grouping levels could produce
 different rankings. The baseline remains the primary result because it
@@ -561,30 +561,133 @@ successful job transitions.
 
 The snapshot also contains 5 pairs with exactly the same detailed
 activity set. All five share O\*NET-SOC major-group prefix 25, but 3
-pairs cross minor- group prefixes. Detailed codes can therefore
-distinguish labels even when their linked DWA inventories are identical;
-this small cluster does not show that all occupations within a major
-group share the same work.
+pairs cross five-character code-group prefixes. Detailed codes can
+therefore distinguish labels even when their linked DWA inventories are
+identical; this small cluster does not show that all occupations within
+a major group share the same work.
 
-| Occupation A                                                   | Occupation B                                                                         | Minor-group prefixes (A / B) |
-|:---------------------------------------------------------------|:-------------------------------------------------------------------------------------|:-----------------------------|
-| 25-2023.00: Career/Technical Education Teachers, Middle School | 25-2031.00: Secondary School Teachers, Except Special and Career/Technical Education | 25-20 / 25-20                |
-| 25-1067.00: Sociology Teachers, Postsecondary                  | 25-1113.00: Social Work Teachers, Postsecondary                                      | 25-10 / 25-11                |
-| 25-1063.00: Economics Teachers, Postsecondary                  | 25-1065.00: Political Science Teachers, Postsecondary                                | 25-10 / 25-10                |
-| 25-1063.00: Economics Teachers, Postsecondary                  | 25-1122.00: Communications Teachers, Postsecondary                                   | 25-10 / 25-11                |
-| 25-1065.00: Political Science Teachers, Postsecondary          | 25-1122.00: Communications Teachers, Postsecondary                                   | 25-10 / 25-11                |
+| Occupation A                                                   | Occupation B                                                                         | Five-character prefixes (A / B) |
+|:---------------------------------------------------------------|:-------------------------------------------------------------------------------------|:--------------------------------|
+| 25-2023.00: Career/Technical Education Teachers, Middle School | 25-2031.00: Secondary School Teachers, Except Special and Career/Technical Education | 25-20 / 25-20                   |
+| 25-1067.00: Sociology Teachers, Postsecondary                  | 25-1113.00: Social Work Teachers, Postsecondary                                      | 25-10 / 25-11                   |
+| 25-1063.00: Economics Teachers, Postsecondary                  | 25-1065.00: Political Science Teachers, Postsecondary                                | 25-10 / 25-10                   |
+| 25-1063.00: Economics Teachers, Postsecondary                  | 25-1122.00: Communications Teachers, Postsecondary                                   | 25-10 / 25-11                   |
+| 25-1065.00: Political Science Teachers, Postsecondary          | 25-1122.00: Communications Teachers, Postsecondary                                   | 25-10 / 25-11                   |
+
+## What changes when larger occupations count more?
+
+An activity can appear in few occupation codes but still be attached to
+a large amount of employment. To examine that, I pair the 30.3
+descriptions with the May 2025 national OEWS estimates. This changes the
+reference population. It does not tell us how often workers perform the
+activity.
+
+The mapping needs more care than matching the first six digits. OEWS
+publishes some occupations as combined cells. O\*NET also has broad
+`.00` descriptions alongside narrower specialties. Those descriptions
+cannot all be treated as separate groups of workers.
+
+The primary comparison therefore uses one `.00` description per
+constituent SOC occupation. A cell enters the point estimate only if
+every expected description is available. I do not fill a missing broad
+description with a specialty profile. For a combined cell, the point
+estimate divides its employment equally among its constituent SOC
+descriptions. That split is an assumption, not a published employment
+breakdown.
+
+| Scope                 | Published cells | Employment | Share of official total |
+|:----------------------|----------------:|-----------:|------------------------:|
+| official_total        |              NA |  155495730 |                  1.0000 |
+| returned_panel        |             830 |  155481840 |                  0.9999 |
+| official_not_returned |              NA |      13890 |                  0.0001 |
+| complete              |             756 |  146251550 |                  0.9406 |
+| partial               |               4 |    3477400 |                  0.0224 |
+| no_profile            |              70 |    5752890 |                  0.0370 |
+
+The complete cells cover 146.25 million jobs, or 94.1 percent of the
+release’s official total. Another 9.23 million are in cells with
+incomplete descriptions. Separately, the sum of the 830 returned
+detailed cells falls 13,890 below the official total. I leave that
+difference unexplained rather than allocate it to an activity.
+
+OEWS covers nonfarm wage-and-salary employment, not all workers. In
+particular, these estimates exclude the self-employed and the military.
+The results below are conditional on the complete cells, not estimates
+of activity use across the entire workforce.
+
+For a binary activity link, employment-weighted prevalence and the share
+of allocated employment attached to a linked description are the same
+calculation. If $E_{s}$ is a cell’s employment, $a_{os}$ its assumed
+within-cell allocation, and $z_{od}$ a description’s activity link:
+
+$$P_{d} = \frac{\sum\limits_{s}E_{s}\sum\limits_{o}a_{os}z_{od}}{\sum\limits_{s}E_{s}}.$$
+
+The table compares this with equal-description prevalence on the same
+765-description support. Official SOC minor groups receive equal weight
+in another sensitivity. The older five-character-prefix grouping is kept
+separately.
+
+![Paired points compare equal-description prevalence with
+employment-allocated prevalence for eight activities. The connecting
+lines show how the choice of weights changes prevalence; the table below
+supplies both values and the allocation
+bounds.](occupational-distinctiveness_files/figure-html/employment-prevalence-1.png)
+
+The eight activities with the largest employment-allocated prevalence in
+the complete-cell comparison. Both series use the same SOC-description
+support.
+
+| Activity                                                                     | Equal descriptions (%) | Employment allocation (%) | Allocation lower (%) | Allocation upper (%) |
+|:-----------------------------------------------------------------------------|-----------------------:|--------------------------:|---------------------:|---------------------:|
+| Order materials, supplies, or equipment.                                     |                   8.76 |                     17.90 |                17.90 |                17.90 |
+| Calculate costs of goods or services.                                        |                   3.27 |                     13.26 |                13.26 |                13.26 |
+| Answer telephones to direct calls or provide information.                    |                   3.27 |                     11.09 |                11.09 |                11.09 |
+| Prepare documentation for contracts, transactions, or regulatory compliance. |                   3.40 |                     10.69 |                10.69 |                10.69 |
+| Record operational or production data.                                       |                  10.72 |                     10.48 |                10.39 |                10.56 |
+| Collect deposits, payments or fees.                                          |                   3.40 |                     10.41 |                10.41 |                10.41 |
+| Greet customers, patrons, or visitors.                                       |                   2.75 |                     10.35 |                10.34 |                10.37 |
+| Process customer bills or payments.                                          |                   1.44 |                      9.63 |                 9.63 |                 9.63 |
+
+Across activities, the equal-description and employment-weighted
+prevalence orders have a Spearman correlation of about 0.66. Recomputing
+IDF from the employment prevalence changes the rarity order too. It
+answers how unusual a link is against this allocated employment
+distribution. Averaging the original rarity scores with employment
+weights would be a different operation.
+
+For each complete cell, I also let its employment fall anywhere among
+the constituent SOC descriptions. The smallest and largest possible link
+shares give the allocation bounds above. Among the 2,034 DWAs linked to
+these descriptions, 92.4 percent have zero-width bounds. This says that
+most links are unaffected by the remaining within-cell split. It does
+not settle the missing cells: the wider bounds in the bundled table let
+each incomplete cell’s link be either zero or one, relative to
+returned-panel employment.
+
+These are allocation bounds, not confidence intervals. They do not
+include OEWS sampling error or turn recorded links into worker behavior.
+A separate all-code sensitivity reweights overlapping `.00` and
+specialty descriptions. Its min/max results are labeled a **profile
+envelope**, not a sharp bound over disjoint groups of workers.
+
+The raw-file audit also matters. All twelve published combination codes
+already have detailed rows in this year’s file. Seven appear again as
+broad rows with the same employment. Adding those broad rows would
+double count them; the existing detailed-row filter is appropriate for
+these inputs.
 
 ## Skills, knowledge, experience, and working conditions
 
 Use a separate representation for each domain:
 
-| Domain                          | Useful representation                                    | What not to do                                                          |
-|:--------------------------------|:---------------------------------------------------------|:------------------------------------------------------------------------|
-| Detailed work activities        | Binary presence or an explicit task-link weighting rule  | Count occupation-specific wording as shared activity without checking   |
-| Skills, knowledge, abilities    | One declared Importance or Level scale per element       | Treat every recorded positive rating as a meaningful presence indicator |
-| Related experience and training | Full response distribution within each element and scale | Treat category codes as years or pool unrelated category systems        |
-| Work context                    | Scale-aware ratings or category distributions            | Mix all contexts and scales as interchangeable units                    |
-| Education and Job Zone          | Separate entry-requirement descriptors                   | Interpret a summary category as the full requirement profile            |
+| Domain                          | Useful representation                                                   | What not to do                                                          |
+|:--------------------------------|:------------------------------------------------------------------------|:------------------------------------------------------------------------|
+| Detailed work activities        | Binary presence or an explicit task-link weighting rule                 | Count occupation-specific wording as shared activity without checking   |
+| Software examples               | Deduplicated exact-name links, with separate classification-level views | Treat listed examples or posting flags as worker-use rates              |
+| Skills, knowledge, abilities    | One declared Importance or Level scale per element                      | Treat every recorded positive rating as a meaningful presence indicator |
+| Related experience and training | Full response distribution within each element and scale                | Treat category codes as years or pool unrelated category systems        |
+| Work context                    | Scale-aware ratings or category distributions                           | Mix all contexts and scales as interchangeable units                    |
+| Education and Job Zone          | Separate entry-requirement descriptors                                  | Interpret a summary category as the full requirement profile            |
 
 In release 30.3 the dictionary lists **Essential Skills**,
 **Transferable Skills**, **Education**, and **Training and Experience**
@@ -606,157 +709,195 @@ tenure among workers. Related Work Experience (`RW`), On-Site or
 In-Plant Training (`PT`), and On-The-Job Training (`OJ`) each require
 their own category lookup.
 
-The next example adds invented rating profiles and a three-bin
-experience distribution. The bins and values are **stylized**, not
-official O\*NET categories or observations. They were constructed to
-show how distance can differ from presence-based rarity, and they
-establish nothing about real experience requirements.
-
-``` r
-make_profiles <- function(items, values) {
-  stopifnot(
-    is.matrix(values), nrow(values) == length(universe),
-    ncol(values) == length(items)
-  )
-  tibble::tibble(
-    occupation = rep(universe, each = length(items)),
-    item = rep(items, times = length(universe)),
-    weight = as.vector(t(values))
-  )
-}
-skill_profiles <- make_profiles(
-  c("reading", "reasoning", "manual"),
-  rbind(c(4, 4, 1), c(4, 3, 1), c(3, 4, 3),
-        c(3, 3, 4), c(2, 3, 5), c(5, 4, 2))
-)
-knowledge_profiles <- make_profiles(
-  c("digital", "health", "mechanical", "education"),
-  rbind(c(5, 1, 2, 1), c(4, 1, 2, 1), c(1, 5, 1, 2),
-        c(1, 4, 1, 2), c(1, 1, 5, 1), c(2, 1, 1, 5))
-)
-experience_profiles <- make_profiles(
-  c("short", "medium", "long"),
-  rbind(c(10, 60, 30), c(40, 40, 20), c(10, 30, 60),
-        c(60, 30, 10), c(30, 50, 20), c(20, 50, 30))
-)
-domain_profiles <- list(
-  activities = activity_profiles,
-  skills = skill_profiles,
-  knowledge = knowledge_profiles,
-  experience = experience_profiles
-)
-domain_distances <- bind_rows(lapply(names(domain_profiles), function(domain) {
-  profile_distances(domain_profiles[[domain]], universe) |>
-    mutate(domain = domain)
-}))
-
-profile_tfidf(skill_profiles, universe) |>
-  summarise(max_idf = max(idf), .by = item) |>
-  knitr::kable(digits = 3)
-```
-
-| item      | max_idf |
-|:----------|--------:|
-| reading   |       0 |
-| reasoning |       0 |
-| manual    |       0 |
-
-``` r
-
-domain_distances |>
-  filter(occupation_a == "A", occupation_b == "B") |>
-  knitr::kable(digits = 3)
-```
-
-| occupation_a | occupation_b | distance | domain     |
-|:-------------|:-------------|---------:|:-----------|
-| A            | B            |    0.333 | activities |
-| A            | B            |    0.069 | skills     |
-| A            | B            |    0.056 | knowledge  |
-| A            | B            |    0.300 | experience |
-
-Every skill is recorded as positive for every occupation, so all three
-skill IDFs are zero. Nevertheless A and B differ in skill composition,
-and especially in the constructed experience distributions. In this
-invented example, common descriptors carry differences through levels
-and distributions rather than presence. The example is constructed to
-show that possibility. It does not show that real occupations behave
-this way.
-
 Total variation ignores the ordering of experience bins. If distance in
 required duration matters, use an ordered-distribution distance with
 justified category locations and explicit treatment of open-ended
 categories. Do not assign arbitrary midpoints and call the result
 measured years of experience.
 
-## Which domain accounts for a difference?
+We keep these domains separate rather than average them into one score.
+Giving each block an equal weight would still be a judgment about what
+matters, and putting all the columns in one vector would give longer
+questionnaires more influence. Neither choice follows from the data.
 
-Start with domain-specific distances, not a single black-box vector with
-every column concatenated. A domain with more columns would otherwise
-receive more influence simply because its questionnaire is longer.
+Normalizing ratings can also remove a difference we care about. Two
+profiles with ratings `(2, 2)` and `(4, 4)` have identical shares even
+though every rating differs. The skills extension therefore keeps
+absolute rating gaps. Education, experience, knowledge and work context
+remain separate possible extensions. This article does not combine their
+category systems or treat an education requirement as a measure of the
+work being done.
 
-For a transparent illustrative combined distance, give each of the four
-domains one quarter of the weight. This is a normative choice, not an
-estimate. The additive construction lets us show exactly what each block
-contributes. Use the same complete occupation universe in every block.
+### What the actual skills ratings show
 
-``` r
-combined <- domain_distances |>
-  summarise(
-    combined_distance = mean(distance),
-    .by = c(occupation_a, occupation_b)
-  )
-domain_contributions <- domain_distances |>
-  mutate(contribution = distance / length(domain_profiles)) |>
-  left_join(
-    combined,
-    by = c("occupation_a", "occupation_b"),
-    relationship = "many-to-one"
-  ) |>
-  mutate(
-    without_domain_fixed_weights = combined_distance - contribution,
-    without_domain_renormalized =
-      without_domain_fixed_weights * length(domain_profiles) /
-      (length(domain_profiles) - 1)
-  )
-domain_contributions |>
-  filter(occupation_a == "A", occupation_b == "B") |>
-  select(domain, distance, contribution, combined_distance,
-         without_domain_fixed_weights, without_domain_renormalized) |>
-  knitr::kable(digits = 3)
-```
+The 30.3 files contain ten Essential Skills and 25 Transferable Skills,
+each on Importance and Level scales. I analyze those four blocks
+separately. Importance runs from 1 to 5; Level runs from 0 to 7 and has
+element-specific anchors. The numerical ranges do not make a one-point
+change in Science the same substantive change as a one-point change in
+Speaking.
 
-| domain     | distance | contribution | combined_distance | without_domain_fixed_weights | without_domain_renormalized |
-|:-----------|---------:|-------------:|------------------:|-----------------------------:|----------------------------:|
-| activities |    0.333 |        0.083 |              0.19 |                        0.106 |                       0.142 |
-| skills     |    0.069 |        0.017 |              0.19 |                        0.172 |                       0.230 |
-| knowledge  |    0.056 |        0.014 |              0.19 |                        0.176 |                       0.234 |
-| experience |    0.300 |        0.075 |              0.19 |                        0.115 |                       0.153 |
+Of the 923 activity codes, 894 have complete skill profiles. Removing
+the 71 with at least one Recommend Suppress flag leaves 823 for the
+primary comparison. This is a meaningful restriction: Accountants and
+Auditors and Software Developers are among the excluded codes. The
+software article’s 923-code results are therefore not this
+common-support comparison.
 
-``` r
+Not Relevant is handled separately. I retain the recorded values rather
+than turn the flag into a zero. The sensitivity tables show what changes
+when flagged Level values are placed at the scale floor, and when all
+894 complete profiles are retained.
 
-stopifnot(
-  all(abs(
-    domain_contributions |>
-      summarise(total = sum(contribution),
-                .by = c(occupation_a, occupation_b)) |>
-      pull(total) - combined$combined_distance
-  ) < 1e-12)
-)
-```
+![Each of ten Essential Skills has a median point and a line from the
+10th to 90th percentile of Importance ratings across 823 occupations.
+The table below gives those values on the 1-to-5
+scale.](occupational-distinctiveness_files/figure-html/skill-distributions-1.png)
 
-Removing experience answers how much of this *constructed distance*
-comes from experience. This subtraction cannot establish a causal effect
-of experience on occupational separation. The fixed-weight subtraction
-is an exact contribution. The renormalized alternative changes the
-estimand by giving the remaining domains larger weights. Repeat the
-comparison across occupation pairs and report how nearest neighbors and
-rankings change.
+Essential Skills Importance distributions across the 823 primary
+occupation profiles. The lines describe the spread across occupations,
+not uncertainty in an estimated mean.
 
-Also retain absolute rating-level gaps. Two occupations with ratings
-`(2, 2)` and `(4, 4)` have identical normalized profiles even though
-every requirement level differs. A zero compositional distance is not
-equivalence in all respects.
+| Essential skill       | 10th percentile | Median | 90th percentile |
+|:----------------------|----------------:|-------:|----------------:|
+| Reading Comprehension |            2.75 |   3.62 |            4.12 |
+| Active Listening      |            3.00 |   3.75 |            4.00 |
+| Writing               |            2.25 |   3.12 |            4.00 |
+| Speaking              |            2.88 |   3.62 |            4.12 |
+| Mathematics           |            2.00 |   2.50 |            3.25 |
+| Science               |            1.00 |   1.75 |            3.35 |
+| Critical Thinking     |            2.88 |   3.62 |            4.00 |
+| Active Learning       |            2.38 |   3.12 |            3.88 |
+| Learning Strategies   |            2.00 |   2.75 |            3.62 |
+| Monitoring            |            2.88 |   3.12 |            3.88 |
+
+Every retained rating is an eight-analyst mean in these files. A
+threshold on that mean is not a count of analysts choosing a response
+category. For Reading Comprehension, changing the threshold from 2 to 4
+changes how widespread the stated requirement looks:
+
+| Importance mean at least | Scale label at threshold | Share of primary codes (%) |
+|-------------------------:|:-------------------------|---------------------------:|
+|                        2 | Somewhat Important       |                       99.9 |
+|                        3 | Important                |                       80.8 |
+|                        4 | Very Important           |                       30.0 |
+
+For profile comparisons, the primary distance is the mean absolute
+element-level rating gap, divided by four for Importance or seven for
+Level. Unlike row-normalized shares, this preserves overall rating
+differences. It assumes comparable numerical gaps across elements within
+a block.
+
+The largest Essential-Level pair gap in this primary universe is between
+Physicists and Slaughterers and Meat Packers. The three largest element
+gaps make the comparison less abstract:
+
+| Essential skill       | Physicists: Level | Slaughterers: Level |  Gap |
+|:----------------------|------------------:|--------------------:|-----:|
+| Science               |              5.75 |                0.00 | 5.75 |
+| Mathematics           |              5.50 |                0.75 | 4.75 |
+| Reading Comprehension |              5.88 |                1.75 | 4.13 |
+
+For context, the Reading Comprehension Level anchors run from reading
+step-by-step form instructions at 2 to reading a scientific journal
+article about surgical procedures at 6. Those examples help interpret a
+rating; they do not make every element’s scale interchangeable.
+
+I also rank occupations within each skill element and compare percentile
+profiles. That drops the equal-interval assumption about the original
+ratings, although averaging percentile gaps still imposes a geometry.
+The single nearest neighbor often changes:
+
+| Skill block              | One-neighbor overlap | Five-neighbor overlap | Ten-neighbor overlap |
+|:-------------------------|---------------------:|----------------------:|---------------------:|
+| Essential: Importance    |                 0.49 |                  0.46 |                 0.50 |
+| Essential: Level         |                 0.47 |                  0.45 |                 0.48 |
+| Transferable: Importance |                 0.45 |                  0.44 |                 0.48 |
+| Transferable: Level      |                 0.50 |                  0.48 |                 0.51 |
+
+About 48 to 55 percent of occupations have disjoint single-neighbor sets
+under the absolute-gap and percentile comparisons. At five neighbors,
+fewer than one percent do. The broad distance ordering is much more
+stable than the identity of one nearest occupation. That is a reason to
+show neighborhoods and element gaps rather than present one match as
+definitive. These are descriptive comparisons, without significance
+claims or joint confidence intervals assembled from marginal standard
+errors.
+
+## Do activities, skills and software point to the same neighbors?
+
+On the same 823 codes, I recompute activity and exact-name software
+distances and compare them with each skill block. All six use the same
+candidate occupations. Boundary ties are retained, after rounding
+distances to eight decimal places. A five-neighbor set can therefore
+contain more than five codes.
+
+For software, 515 of the 823 codes have more than five neighbors at this
+cutoff. These larger tied sets also affect the overlap comparison.
+
+Agreement is low. At five neighbors, 55.8 percent of activity/software
+comparisons share no neighbor at all. The median neighbor-set overlap is
+zero. It is also zero between software and each skill block. This does
+not establish that one domain is better. They record different aspects
+of occupations, and the result also depends on each domain’s distance
+rule.
+
+![A six-by-six matrix compares activities, software, and four skill
+blocks. Median five-neighbor overlap is zero for activities versus
+software and for software versus every skill block. Essential Importance
+versus Level is 0.11; Transferable Importance versus Level is 0.25. The
+following table gives all block pairs at one, five, and ten
+neighbors.](occupational-distinctiveness_files/figure-html/cross-domain-agreement-1.png)
+
+Median neighbor-set Jaccard overlap on the common 823-code universe,
+with five nearest neighbors and boundary ties. Diagonal entries compare
+a block with itself.
+
+| Block A                  | Block B                  | One neighbor | Five neighbors | Ten neighbors |
+|:-------------------------|:-------------------------|-------------:|---------------:|--------------:|
+| Activities               | Software                 |            0 |           0.00 |          0.04 |
+| Activities               | Essential: Importance    |            0 |           0.00 |          0.05 |
+| Activities               | Essential: Level         |            0 |           0.00 |          0.05 |
+| Activities               | Transferable: Importance |            0 |           0.00 |          0.05 |
+| Activities               | Transferable: Level      |            0 |           0.00 |          0.05 |
+| Software                 | Essential: Importance    |            0 |           0.00 |          0.02 |
+| Software                 | Essential: Level         |            0 |           0.00 |          0.02 |
+| Software                 | Transferable: Importance |            0 |           0.00 |          0.03 |
+| Software                 | Transferable: Level      |            0 |           0.00 |          0.03 |
+| Essential: Importance    | Essential: Level         |            0 |           0.11 |          0.18 |
+| Essential: Importance    | Transferable: Importance |            0 |           0.00 |          0.05 |
+| Essential: Importance    | Transferable: Level      |            0 |           0.00 |          0.05 |
+| Essential: Level         | Transferable: Importance |            0 |           0.00 |          0.05 |
+| Essential: Level         | Transferable: Level      |            0 |           0.00 |          0.05 |
+| Transferable: Importance | Transferable: Level      |            0 |           0.25 |          0.33 |
+
+For Commercial and Industrial Designers, activities point to Fashion
+Designers while software points to Graphic Designers. Essential-Level
+ratings instead point to Landscape Architects. The nursing example also
+changes with the domain:
+
+| Occupation                          | Block                    | Nearest descriptions, including ties                    |
+|:------------------------------------|:-------------------------|:--------------------------------------------------------|
+| Commercial and Industrial Designers | Activities               | Fashion Designers                                       |
+| Registered Nurses                   | Activities               | Acute Care Nurses; General Internal Medicine Physicians |
+| Commercial and Industrial Designers | Essential: Importance    | Cytotechnologists                                       |
+| Registered Nurses                   | Essential: Importance    | Exercise Physiologists                                  |
+| Commercial and Industrial Designers | Essential: Level         | Landscape Architects                                    |
+| Registered Nurses                   | Essential: Level         | Critical Care Nurses                                    |
+| Commercial and Industrial Designers | Software                 | Graphic Designers                                       |
+| Registered Nurses                   | Software                 | Patient Representatives                                 |
+| Commercial and Industrial Designers | Transferable: Importance | Human Factors Engineers and Ergonomists                 |
+| Registered Nurses                   | Transferable: Importance | Nurse Midwives                                          |
+| Commercial and Industrial Designers | Transferable: Level      | Human Factors Engineers and Ergonomists                 |
+| Registered Nurses                   | Transferable: Level      | Acute Care Nurses                                       |
+
+These are neighbors among published descriptions on a restricted
+support. The absence of Accountants or Software Developers from this
+table follows the suppression rule, not a claim that their skills or
+software cannot be studied. The 894-code skill sensitivity is kept
+separately. No raw activity, software or rating distance is treated as a
+common unit, and none of these neighbors establishes an easy worker
+transition.
 
 ## When do differences disappear?
 
@@ -1148,9 +1289,9 @@ cross-domain comparisons. In rating tables, absence means missing unless
 you have evidence it means zero.
 
 The full-archive ranking above is conditional on its vocabulary,
-comparison universe, and weighting decisions. The multidomain examples
-are still stylized and do not establish a national ranking for
-experience or knowledge.
+comparison universe, and weighting decisions. Skills and software have
+separate empirical results; education, experience and knowledge do not
+acquire a national ranking from these comparisons.
 
 ### Reproduce the bundled snapshot
 
@@ -1175,6 +1316,28 @@ carries task-vintage and inventory metadata. The raw archive is not
 bundled. Source date and identifier changes across releases still
 require separate review.
 
+For the employment, skills and common-support extensions, run:
+
+    Rscript data-raw\occupational-skills.R path\to\db_30_3_text.zip
+    Rscript data-raw\occupational-employment.R path\to\db_30_3_text.zip path\to\oesm25nat.zip path\to\occupation_definitions_m2025.xlsx
+    Rscript data-raw\occupational-cross-domain.R path\to\db_30_3_text.zip
+
+The employment script checks all three input digests. The national ZIP
+comes from the [BLS OEWS tables
+page](https://www.bls.gov/oes/tables.htm); the [May 2025 definitions
+workbook](https://www.bls.gov/oes/occupation_definitions_m2025.xlsx)
+provides the combined-cell constituents. BLS may reject scripted
+downloads. The input receipts record how the pinned bytes were
+retrieved. The extension README and decision ledger retain source gaps,
+including the unverified ownership-code interpretation and unread Survey
+Methods PDF. Neither an ownership comparison nor propagation of OEWS
+sampling error is claimed.
+
+The largest derived tables use lossless gzip compression (`.csv.gz`).
+Base R reads them with
+[`read.csv()`](https://rdrr.io/r/utils/read.table.html); compression
+changes storage, not the rows or the analysis.
+
 ## Sources and scope
 
 This article includes information derived from the [O\*NET 30.3
@@ -1194,6 +1357,8 @@ dictionary](https://www.onetcenter.org/dictionary/30.3/excel/tasks_to_dwas.html)
 hierarchy](https://www.onetcenter.org/dictionary/30.3/excel/gwas_to_iwas_to_dwas.html),
 [Essential Skills
 dictionary](https://www.onetcenter.org/dictionary/30.3/excel/essential_skills.html),
+[Transferable Skills
+dictionary](https://www.onetcenter.org/dictionary/30.3/excel/transferable_skills.html),
 [scale
 definitions](https://www.onetcenter.org/dictionary/30.3/excel/scales_reference.html),
 [Training and Experience
@@ -1207,7 +1372,7 @@ distinction between term frequency and document frequency, see Manning,
 Raghavan, and Schuetze, *Introduction to Information Retrieval*, section
 6.2, [Term frequency and
 weighting](https://nlp.stanford.edu/IR-book/html/htmledition/term-frequency-and-weighting-1.html).
-The occupation-level summary, distance, and domain weights here are
+The occupation-level summary, distances, and weighting rules here are
 explicit analytical choices, not measures validated by that reference.
 
 The information-loss budget borrows the relevance-target idea from

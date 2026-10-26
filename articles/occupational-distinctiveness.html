@@ -50,6 +50,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
     <li><a class="dropdown-item" href="../articles/occupational-distinctiveness.html">What Makes Occupations Different?</a></li>
+    <li><a class="dropdown-item" href="../articles/software-distinctiveness.html">What Software Lists Tell Us</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
     <li><a class="dropdown-item" href="../articles/importing-exposure-scores.html">Importing Published Exposure Scores</a></li>
     <li><a class="dropdown-item" href="../articles/stress-testing-exposure-measure.html">Stress-Testing an Exposure Measure</a></li>
@@ -87,38 +88,30 @@
     
     
 <p>Two occupations can share reading, communication, and problem solving
-yet differ sharply in what they produce, the knowledge they use, or the
-experience needed to enter them. This article asks three different
-questions:</p>
-<ol style="list-style-type: decimal">
-<li>Which activities are common or uncommon across occupations?</li>
-<li>Which requirements distinguish a particular occupation, and which
-occupations have the most unusual profiles?</li>
-<li>Which differences remain when we change the representation of
-work?</li>
-</ol>
-<p><strong>TF-IDF answers the first question and part of the second, but
-it is not enough for the third.</strong> It measures how rare an
-activity is relative to a declared comparison set. It does not say what
-separates one occupation from its neighbors. Economic value, difficulty,
-worker scarcity, time spent, and exposure to AI require separate
-measures. A common skill can still distinguish occupations through its
-required level. A rare activity need not make its occupation unlike its
-closest neighbor.</p>
-<p>With binary activity profiles, the occupation-level TF-IDF summary is
-just the mean of log inverse prevalence over the occupation’s
-activities. We keep it as a transparent descriptive baseline. The third
-question gets a different tool: an <strong>information-loss
-budget</strong> that counts how many bits of occupation identity survive
-when activity labels are grouped. It is an accounting device, not a new
-uniqueness score.</p>
-<p>The article combines a <strong>derived snapshot of the full public
-O*NET 30.3 archive</strong> with clearly labeled <strong>stylized
-examples</strong> for the multidomain methods. Article builds use
-bundled tables and do not access the network. The helpers are article
-code, not exported package functions or an endorsed substantive score.
-Rankings describe the covered O*NET occupations under the specified
-choices, not all jobs or workers in the United States.</p>
+yet differ in what they produce or the knowledge they need. I want to
+understand those differences without making every shared requirement
+disappear into a broad label.</p>
+<p>I start with a simpler question. Which recorded activities appear in
+many occupations, and which appear in only a few? TF-IDF gives uncommon
+links more weight. For a binary activity list, an occupation’s summary
+is the mean log inverse prevalence of its activities.</p>
+<p>Rarity alone leaves a lot unanswered. Two occupations might share the
+same unusual activities and be each other’s closest neighbor. A common
+skill could distinguish them through its required level. I therefore
+compare profiles as well as rarity, and check what changes when labels,
+occupation weights or distance rules change.</p>
+<p>The information-loss budget asks how much a listed activity tells us
+about which occupation it came from, and how much of that information
+remains after grouping the labels. It is a calculation about
+descriptions. Economic value, worker time and effects of AI need
+evidence these records do not contain.</p>
+<p>The article uses a <strong>derived snapshot of the full public O*NET
+30.3 archive</strong> and clearly labeled <strong>stylized
+examples</strong> to explain the formulas. Article builds use bundled
+tables and do not access the network. The helpers are article code, not
+exported package functions or an endorsed substantive score. Rankings
+describe the covered O*NET occupations under the specified choices, not
+all jobs or workers in the United States.</p>
 <div class="section level2">
 <h2 id="first-choose-a-shared-unit-of-work">First choose a shared unit of work<a class="anchor" aria-label="anchor" href="#first-choose-a-shared-unit-of-work"></a>
 </h2>
@@ -280,8 +273,7 @@ is why shared activities are a more useful baseline vocabulary.</p>
 counts each occupation-DWA link once, and gives each occupation equal
 weight. Task ratings, employment weights, and AI-exposure measures are
 excluded.</p>
-<p>Three properties of this archive limit what the rankings can
-mean.</p>
+<p>Four properties of this archive limit what the rankings can mean.</p>
 <ul>
 <li>
 <strong>Presence is cheap.</strong> One linked task, even a
@@ -303,7 +295,7 @@ quantity, so they come with no confidence intervals and no sampling
 interpretation.</li>
 <li>
 <strong>Code granularity matters.</strong> The baseline gives every
-O*NET-SOC code equal weight. A minor group with more detailed codes
+O*NET-SOC code equal weight. A code group with more detailed codes
 therefore contributes more total weight to activity prevalence than a
 group with fewer codes. The results are code-weighted comparisons, not
 equally weighted comparisons of occupational families.</li>
@@ -556,24 +548,25 @@ does not break ties.</p>
 </h3>
 <p>The baseline gives each of the 923 detailed O*NET-SOC codes equal
 weight. As a sensitivity, this calculation first finds each DWA’s
-prevalence within each five-character SOC minor-group prefix, then
-averages those prevalences with each represented minor group receiving
-equal weight:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>p</mi><mo accent="true">‾</mo></mover><mi>d</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>G</mi></mfrac><munderover><mo>∑</mo><mrow><mi>g</mi><mo>=</mo><mn>1</mn></mrow><mi>G</mi></munderover><mfrac><mrow><mrow><mtext mathvariant="normal">occupations in group </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> linked to </mtext><mspace width="0.333em"></mspace></mrow><mi>d</mi></mrow><mrow><mrow><mtext mathvariant="normal">covered occupations in </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi></mrow></mfrac><mo>,</mo><mspace width="2.0em"></mspace><msubsup><mrow><mi mathvariant="normal">I</mi><mi mathvariant="normal">D</mi><mi mathvariant="normal">F</mi></mrow><mi>d</mi><mo>*</mo></msubsup><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mi>/</mi><msub><mover><mi>p</mi><mo accent="true">‾</mo></mover><mi>d</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+prevalence within each five-character code-prefix group, then averages
+those prevalences with each represented prefix group receiving equal
+weight:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>p</mi><mo accent="true">‾</mo></mover><mi>d</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>G</mi></mfrac><munderover><mo>∑</mo><mrow><mi>g</mi><mo>=</mo><mn>1</mn></mrow><mi>G</mi></munderover><mfrac><mrow><mrow><mtext mathvariant="normal">codes in </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> linked to </mtext><mspace width="0.333em"></mspace></mrow><mi>d</mi></mrow><mrow><mrow><mtext mathvariant="normal">covered codes in </mtext><mspace width="0.333em"></mspace></mrow><mi>g</mi></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
 \bar p_d = \frac{1}{G}\sum_{g=1}^{G}
-\frac{\text{occupations in group }g\text{ linked to }d}
-{\text{covered occupations in }g},
-\qquad \mathrm{IDF}^{*}_d = \log(1/\bar p_d).
+\frac{\text{codes in }g\text{ linked to }d}
+{\text{covered codes in }g}.
+</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mrow><mi mathvariant="normal">I</mi><mi mathvariant="normal">D</mi><mi mathvariant="normal">F</mi></mrow><mi>d</mi><mo>*</mo></msubsup><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mi>/</mi><msub><mover><mi>p</mi><mo accent="true">‾</mo></mover><mi>d</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathrm{IDF}^{*}_d = \log(1/\bar p_d).
 </annotation></semantics></math></p>
 <p>The within-occupation TF remains normalized as before. This changes
 the reference prevalence, not the occupational activity profiles. The
 two rankings have a Spearman correlation of 0.59, and 2 occupations
 ranked in the top ten (including ties) overlap.</p>
 <div class="figure">
-<img src="occupational-distinctiveness_files/figure-html/figure-group-weighting-1.png" class="r-plt" alt="Scatter plot comparing each of 923 occupations' rarity rank under equal code weights with its rank when O*NET-SOC minor groups receive equal weight. The diagonal indicates unchanged rank; a table below lists occupations with the largest shifts." width="100%"><p class="caption">
+<img src="occupational-distinctiveness_files/figure-html/figure-group-weighting-1.png" class="r-plt" alt="Scatter plot comparing each of 923 occupations' rarity rank under equal code weights with its rank when five-character code-prefix groups receive equal weight. The diagonal indicates unchanged rank; a table below lists occupations with the largest shifts." width="100%"><p class="caption">
 Occupation rarity ranks under equal detailed-code weights versus equal
-SOC minor-group weights. Points away from the diagonal change rank when
-the prevalence denominator changes.
+five-character code-group weights. Points away from the diagonal change
+rank when the prevalence denominator changes.
 </p>
 </div>
 <table class="table">
@@ -584,7 +577,7 @@ the prevalence denominator changes.
 <col width="8%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">Occupation (minor group)</th>
+<th align="left">Occupation (code prefix)</th>
 <th align="right">Code-weighted rank</th>
 <th align="right">Group-weighted rank</th>
 <th align="right">Rank change</th>
@@ -646,7 +639,10 @@ Shop (35-90)</td>
 </tr>
 </tbody>
 </table>
-<p>This sensitivity gives each represented minor group equal influence
+<p>These prefix groups are not the official SOC minor groups. The
+employment extension below also uses the actual minor-group definition
+and reports the two grouping choices separately.</p>
+<p>This sensitivity gives each represented prefix group equal influence
 on DWA prevalence; it does not make the group definitions substantively
 neutral. Different taxonomies or broader grouping levels could produce
 different rankings. The baseline remains the primary result because it
@@ -1172,20 +1168,20 @@ distances between published activity profiles, not probabilities of
 successful job transitions.</p>
 <p>The snapshot also contains 5 pairs with exactly the same detailed
 activity set. All five share O*NET-SOC major-group prefix 25, but 3
-pairs cross minor- group prefixes. Detailed codes can therefore
-distinguish labels even when their linked DWA inventories are identical;
-this small cluster does not show that all occupations within a major
-group share the same work.</p>
+pairs cross five-character code-group prefixes. Detailed codes can
+therefore distinguish labels even when their linked DWA inventories are
+identical; this small cluster does not show that all occupations within
+a major group share the same work.</p>
 <table class="table">
 <colgroup>
 <col width="35%">
-<col width="48%">
-<col width="16%">
+<col width="47%">
+<col width="17%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">Occupation A</th>
 <th align="left">Occupation B</th>
-<th align="left">Minor-group prefixes (A / B)</th>
+<th align="left">Five-character prefixes (A / B)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -1221,6 +1217,211 @@ Postsecondary</td>
 </table>
 </div>
 <div class="section level2">
+<h2 id="what-changes-when-larger-occupations-count-more">What changes when larger occupations count more?<a class="anchor" aria-label="anchor" href="#what-changes-when-larger-occupations-count-more"></a>
+</h2>
+<p>An activity can appear in few occupation codes but still be attached
+to a large amount of employment. To examine that, I pair the 30.3
+descriptions with the May 2025 national OEWS estimates. This changes the
+reference population. It does not tell us how often workers perform the
+activity.</p>
+<p>The mapping needs more care than matching the first six digits. OEWS
+publishes some occupations as combined cells. O*NET also has broad
+<code>.00</code> descriptions alongside narrower specialties. Those
+descriptions cannot all be treated as separate groups of workers.</p>
+<p>The primary comparison therefore uses one <code>.00</code>
+description per constituent SOC occupation. A cell enters the point
+estimate only if every expected description is available. I do not fill
+a missing broad description with a specialty profile. For a combined
+cell, the point estimate divides its employment equally among its
+constituent SOC descriptions. That split is an assumption, not a
+published employment breakdown.</p>
+<table class="table">
+<colgroup>
+<col width="30%">
+<col width="21%">
+<col width="15%">
+<col width="32%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Scope</th>
+<th align="right">Published cells</th>
+<th align="right">Employment</th>
+<th align="right">Share of official total</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">official_total</td>
+<td align="right">NA</td>
+<td align="right">155495730</td>
+<td align="right">1.0000</td>
+</tr>
+<tr class="even">
+<td align="left">returned_panel</td>
+<td align="right">830</td>
+<td align="right">155481840</td>
+<td align="right">0.9999</td>
+</tr>
+<tr class="odd">
+<td align="left">official_not_returned</td>
+<td align="right">NA</td>
+<td align="right">13890</td>
+<td align="right">0.0001</td>
+</tr>
+<tr class="even">
+<td align="left">complete</td>
+<td align="right">756</td>
+<td align="right">146251550</td>
+<td align="right">0.9406</td>
+</tr>
+<tr class="odd">
+<td align="left">partial</td>
+<td align="right">4</td>
+<td align="right">3477400</td>
+<td align="right">0.0224</td>
+</tr>
+<tr class="even">
+<td align="left">no_profile</td>
+<td align="right">70</td>
+<td align="right">5752890</td>
+<td align="right">0.0370</td>
+</tr>
+</tbody>
+</table>
+<p>The complete cells cover 146.25 million jobs, or 94.1 percent of the
+release’s official total. Another 9.23 million are in cells with
+incomplete descriptions. Separately, the sum of the 830 returned
+detailed cells falls 13,890 below the official total. I leave that
+difference unexplained rather than allocate it to an activity.</p>
+<p>OEWS covers nonfarm wage-and-salary employment, not all workers. In
+particular, these estimates exclude the self-employed and the military.
+The results below are conditional on the complete cells, not estimates
+of activity use across the entire workforce.</p>
+<p>For a binary activity link, employment-weighted prevalence and the
+share of allocated employment attached to a linked description are the
+same calculation. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>E</mi><mi>s</mi></msub><annotation encoding="application/x-tex">E_s</annotation></semantics></math>
+is a cell’s employment,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>o</mi><mi>s</mi></mrow></msub><annotation encoding="application/x-tex">a_{os}</annotation></semantics></math>
+its assumed within-cell allocation, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mrow><mi>o</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">z_{od}</annotation></semantics></math>
+a description’s activity link:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>d</mi></msub><mo>=</mo><mfrac><mrow><munder><mo>∑</mo><mi>s</mi></munder><msub><mi>E</mi><mi>s</mi></msub><munder><mo>∑</mo><mi>o</mi></munder><msub><mi>a</mi><mrow><mi>o</mi><mi>s</mi></mrow></msub><msub><mi>z</mi><mrow><mi>o</mi><mi>d</mi></mrow></msub></mrow><mrow><munder><mo>∑</mo><mi>s</mi></munder><msub><mi>E</mi><mi>s</mi></msub></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P_d = \frac{\sum_s E_s\sum_o a_{os}z_{od}}{\sum_s E_s}.
+</annotation></semantics></math></p>
+<p>The table compares this with equal-description prevalence on the same
+765-description support. Official SOC minor groups receive equal weight
+in another sensitivity. The older five-character-prefix grouping is kept
+separately.</p>
+<div class="figure">
+<img src="occupational-distinctiveness_files/figure-html/employment-prevalence-1.png" class="r-plt" alt="Paired points compare equal-description prevalence with employment-allocated prevalence for eight activities. The connecting lines show how the choice of weights changes prevalence; the table below supplies both values and the allocation bounds." width="100%"><p class="caption">
+The eight activities with the largest employment-allocated prevalence in
+the complete-cell comparison. Both series use the same SOC-description
+support.
+</p>
+</div>
+<table class="table">
+<colgroup>
+<col width="45%">
+<col width="13%">
+<col width="15%">
+<col width="12%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Activity</th>
+<th align="right">Equal descriptions (%)</th>
+<th align="right">Employment allocation (%)</th>
+<th align="right">Allocation lower (%)</th>
+<th align="right">Allocation upper (%)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Order materials, supplies, or equipment.</td>
+<td align="right">8.76</td>
+<td align="right">17.90</td>
+<td align="right">17.90</td>
+<td align="right">17.90</td>
+</tr>
+<tr class="even">
+<td align="left">Calculate costs of goods or services.</td>
+<td align="right">3.27</td>
+<td align="right">13.26</td>
+<td align="right">13.26</td>
+<td align="right">13.26</td>
+</tr>
+<tr class="odd">
+<td align="left">Answer telephones to direct calls or provide
+information.</td>
+<td align="right">3.27</td>
+<td align="right">11.09</td>
+<td align="right">11.09</td>
+<td align="right">11.09</td>
+</tr>
+<tr class="even">
+<td align="left">Prepare documentation for contracts, transactions, or
+regulatory compliance.</td>
+<td align="right">3.40</td>
+<td align="right">10.69</td>
+<td align="right">10.69</td>
+<td align="right">10.69</td>
+</tr>
+<tr class="odd">
+<td align="left">Record operational or production data.</td>
+<td align="right">10.72</td>
+<td align="right">10.48</td>
+<td align="right">10.39</td>
+<td align="right">10.56</td>
+</tr>
+<tr class="even">
+<td align="left">Collect deposits, payments or fees.</td>
+<td align="right">3.40</td>
+<td align="right">10.41</td>
+<td align="right">10.41</td>
+<td align="right">10.41</td>
+</tr>
+<tr class="odd">
+<td align="left">Greet customers, patrons, or visitors.</td>
+<td align="right">2.75</td>
+<td align="right">10.35</td>
+<td align="right">10.34</td>
+<td align="right">10.37</td>
+</tr>
+<tr class="even">
+<td align="left">Process customer bills or payments.</td>
+<td align="right">1.44</td>
+<td align="right">9.63</td>
+<td align="right">9.63</td>
+<td align="right">9.63</td>
+</tr>
+</tbody>
+</table>
+<p>Across activities, the equal-description and employment-weighted
+prevalence orders have a Spearman correlation of about 0.66. Recomputing
+IDF from the employment prevalence changes the rarity order too. It
+answers how unusual a link is against this allocated employment
+distribution. Averaging the original rarity scores with employment
+weights would be a different operation.</p>
+<p>For each complete cell, I also let its employment fall anywhere among
+the constituent SOC descriptions. The smallest and largest possible link
+shares give the allocation bounds above. Among the 2,034 DWAs linked to
+these descriptions, 92.4 percent have zero-width bounds. This says that
+most links are unaffected by the remaining within-cell split. It does
+not settle the missing cells: the wider bounds in the bundled table let
+each incomplete cell’s link be either zero or one, relative to
+returned-panel employment.</p>
+<p>These are allocation bounds, not confidence intervals. They do not
+include OEWS sampling error or turn recorded links into worker behavior.
+A separate all-code sensitivity reweights overlapping <code>.00</code>
+and specialty descriptions. Its min/max results are labeled a
+<strong>profile envelope</strong>, not a sharp bound over disjoint
+groups of workers.</p>
+<p>The raw-file audit also matters. All twelve published combination
+codes already have detailed rows in this year’s file. Seven appear again
+as broad rows with the same employment. Adding those broad rows would
+double count them; the existing detailed-row filter is appropriate for
+these inputs.</p>
+</div>
+<div class="section level2">
 <h2 id="skills-knowledge-experience-and-working-conditions">Skills, knowledge, experience, and working conditions<a class="anchor" aria-label="anchor" href="#skills-knowledge-experience-and-working-conditions"></a>
 </h2>
 <p>Use a separate representation for each domain:</p>
@@ -1244,25 +1445,32 @@ rule</td>
 without checking</td>
 </tr>
 <tr class="even">
+<td align="left">Software examples</td>
+<td align="left">Deduplicated exact-name links, with separate
+classification-level views</td>
+<td align="left">Treat listed examples or posting flags as worker-use
+rates</td>
+</tr>
+<tr class="odd">
 <td align="left">Skills, knowledge, abilities</td>
 <td align="left">One declared Importance or Level scale per element</td>
 <td align="left">Treat every recorded positive rating as a meaningful
 presence indicator</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Related experience and training</td>
 <td align="left">Full response distribution within each element and
 scale</td>
 <td align="left">Treat category codes as years or pool unrelated
 category systems</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">Work context</td>
 <td align="left">Scale-aware ratings or category distributions</td>
 <td align="left">Mix all contexts and scales as interchangeable
 units</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Education and Job Zone</td>
 <td align="left">Separate entry-requirement descriptors</td>
 <td align="left">Interpret a summary category as the full requirement
@@ -1290,234 +1498,479 @@ distribution of actual tenure among workers. Related Work Experience
 (<code>RW</code>), On-Site or In-Plant Training (<code>PT</code>), and
 On-The-Job Training (<code>OJ</code>) each require their own category
 lookup.</p>
-<p>The next example adds invented rating profiles and a three-bin
-experience distribution. The bins and values are
-<strong>stylized</strong>, not official O*NET categories or
-observations. They were constructed to show how distance can differ from
-presence-based rarity, and they establish nothing about real experience
-requirements.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">make_profiles</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">items</span>, <span class="va">values</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">is.matrix</a></span><span class="op">(</span><span class="va">values</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">values</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">values</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">items</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>    occupation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">universe</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">items</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    item <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">items</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>    weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">values</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="va">skill_profiles</span> <span class="op">&lt;-</span> <span class="fu">make_profiles</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reading"</span>, <span class="st">"reasoning"</span>, <span class="st">"manual"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">knowledge_profiles</span> <span class="op">&lt;-</span> <span class="fu">make_profiles</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"digital"</span>, <span class="st">"health"</span>, <span class="st">"mechanical"</span>, <span class="st">"education"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">experience_profiles</span> <span class="op">&lt;-</span> <span class="fu">make_profiles</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"short"</span>, <span class="st">"medium"</span>, <span class="st">"long"</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">60</span>, <span class="fl">30</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">40</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span>, <span class="fl">60</span><span class="op">)</span>,</span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">60</span>, <span class="fl">30</span>, <span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">50</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">domain_profiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  activities <span class="op">=</span> <span class="va">activity_profiles</span>,</span>
-<span>  skills <span class="op">=</span> <span class="va">skill_profiles</span>,</span>
-<span>  knowledge <span class="op">=</span> <span class="va">knowledge_profiles</span>,</span>
-<span>  experience <span class="op">=</span> <span class="va">experience_profiles</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">domain_distances</span> <span class="op">&lt;-</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">domain_profiles</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">domain</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">profile_distances</span><span class="op">(</span><span class="va">domain_profiles</span><span class="op">[[</span><span class="va">domain</span><span class="op">]</span><span class="op">]</span>, <span class="va">universe</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">mutate</span><span class="op">(</span>domain <span class="op">=</span> <span class="va">domain</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">profile_tfidf</span><span class="op">(</span><span class="va">skill_profiles</span>, <span class="va">universe</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">summarise</span><span class="op">(</span>max_idf <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">idf</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">item</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left">item</th>
-<th align="right">max_idf</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">reading</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">reasoning</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">manual</td>
-<td align="right">0</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">domain_distances</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">occupation_a</span> <span class="op">==</span> <span class="st">"A"</span>, <span class="va">occupation_b</span> <span class="op">==</span> <span class="st">"B"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left">occupation_a</th>
-<th align="left">occupation_b</th>
-<th align="right">distance</th>
-<th align="left">domain</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">A</td>
-<td align="left">B</td>
-<td align="right">0.333</td>
-<td align="left">activities</td>
-</tr>
-<tr class="even">
-<td align="left">A</td>
-<td align="left">B</td>
-<td align="right">0.069</td>
-<td align="left">skills</td>
-</tr>
-<tr class="odd">
-<td align="left">A</td>
-<td align="left">B</td>
-<td align="right">0.056</td>
-<td align="left">knowledge</td>
-</tr>
-<tr class="even">
-<td align="left">A</td>
-<td align="left">B</td>
-<td align="right">0.300</td>
-<td align="left">experience</td>
-</tr>
-</tbody>
-</table>
-<p>Every skill is recorded as positive for every occupation, so all
-three skill IDFs are zero. Nevertheless A and B differ in skill
-composition, and especially in the constructed experience distributions.
-In this invented example, common descriptors carry differences through
-levels and distributions rather than presence. The example is
-constructed to show that possibility. It does not show that real
-occupations behave this way.</p>
 <p>Total variation ignores the ordering of experience bins. If distance
 in required duration matters, use an ordered-distribution distance with
 justified category locations and explicit treatment of open-ended
 categories. Do not assign arbitrary midpoints and call the result
 measured years of experience.</p>
+<p>We keep these domains separate rather than average them into one
+score. Giving each block an equal weight would still be a judgment about
+what matters, and putting all the columns in one vector would give
+longer questionnaires more influence. Neither choice follows from the
+data.</p>
+<p>Normalizing ratings can also remove a difference we care about. Two
+profiles with ratings <code>(2, 2)</code> and <code>(4, 4)</code> have
+identical shares even though every rating differs. The skills extension
+therefore keeps absolute rating gaps. Education, experience, knowledge
+and work context remain separate possible extensions. This article does
+not combine their category systems or treat an education requirement as
+a measure of the work being done.</p>
+<div class="section level3">
+<h3 id="what-the-actual-skills-ratings-show">What the actual skills ratings show<a class="anchor" aria-label="anchor" href="#what-the-actual-skills-ratings-show"></a>
+</h3>
+<p>The 30.3 files contain ten Essential Skills and 25 Transferable
+Skills, each on Importance and Level scales. I analyze those four blocks
+separately. Importance runs from 1 to 5; Level runs from 0 to 7 and has
+element-specific anchors. The numerical ranges do not make a one-point
+change in Science the same substantive change as a one-point change in
+Speaking.</p>
+<p>Of the 923 activity codes, 894 have complete skill profiles. Removing
+the 71 with at least one Recommend Suppress flag leaves 823 for the
+primary comparison. This is a meaningful restriction: Accountants and
+Auditors and Software Developers are among the excluded codes. The
+software article’s 923-code results are therefore not this
+common-support comparison.</p>
+<p>Not Relevant is handled separately. I retain the recorded values
+rather than turn the flag into a zero. The sensitivity tables show what
+changes when flagged Level values are placed at the scale floor, and
+when all 894 complete profiles are retained.</p>
+<div class="figure">
+<img src="occupational-distinctiveness_files/figure-html/skill-distributions-1.png" class="r-plt" alt="Each of ten Essential Skills has a median point and a line from the 10th to 90th percentile of Importance ratings across 823 occupations. The table below gives those values on the 1-to-5 scale." width="100%"><p class="caption">
+Essential Skills Importance distributions across the 823 primary
+occupation profiles. The lines describe the spread across occupations,
+not uncertainty in an estimated mean.
+</p>
 </div>
-<div class="section level2">
-<h2 id="which-domain-accounts-for-a-difference">Which domain accounts for a difference?<a class="anchor" aria-label="anchor" href="#which-domain-accounts-for-a-difference"></a>
-</h2>
-<p>Start with domain-specific distances, not a single black-box vector
-with every column concatenated. A domain with more columns would
-otherwise receive more influence simply because its questionnaire is
-longer.</p>
-<p>For a transparent illustrative combined distance, give each of the
-four domains one quarter of the weight. This is a normative choice, not
-an estimate. The additive construction lets us show exactly what each
-block contributes. Use the same complete occupation universe in every
-block.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="va">domain_distances</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">summarise</span><span class="op">(</span></span>
-<span>    combined_distance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">distance</span><span class="op">)</span>,</span>
-<span>    .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">occupation_a</span>, <span class="va">occupation_b</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="va">domain_contributions</span> <span class="op">&lt;-</span> <span class="va">domain_distances</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>contribution <span class="op">=</span> <span class="va">distance</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">domain_profiles</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">left_join</span><span class="op">(</span></span>
-<span>    <span class="va">combined</span>,</span>
-<span>    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"occupation_a"</span>, <span class="st">"occupation_b"</span><span class="op">)</span>,</span>
-<span>    relationship <span class="op">=</span> <span class="st">"many-to-one"</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span></span>
-<span>    without_domain_fixed_weights <span class="op">=</span> <span class="va">combined_distance</span> <span class="op">-</span> <span class="va">contribution</span>,</span>
-<span>    without_domain_renormalized <span class="op">=</span></span>
-<span>      <span class="va">without_domain_fixed_weights</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">domain_profiles</span><span class="op">)</span> <span class="op">/</span></span>
-<span>      <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">domain_profiles</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="va">domain_contributions</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">occupation_a</span> <span class="op">==</span> <span class="st">"A"</span>, <span class="va">occupation_b</span> <span class="op">==</span> <span class="st">"B"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">domain</span>, <span class="va">distance</span>, <span class="va">contribution</span>, <span class="va">combined_distance</span>,</span>
-<span>         <span class="va">without_domain_fixed_weights</span>, <span class="va">without_domain_renormalized</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
-<colgroup>
-<col width="10%">
-<col width="8%">
-<col width="12%">
-<col width="16%">
-<col width="26%">
-<col width="25%">
-</colgroup>
 <thead><tr class="header">
-<th align="left">domain</th>
-<th align="right">distance</th>
-<th align="right">contribution</th>
-<th align="right">combined_distance</th>
-<th align="right">without_domain_fixed_weights</th>
-<th align="right">without_domain_renormalized</th>
+<th align="left">Essential skill</th>
+<th align="right">10th percentile</th>
+<th align="right">Median</th>
+<th align="right">90th percentile</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">activities</td>
-<td align="right">0.333</td>
-<td align="right">0.083</td>
-<td align="right">0.19</td>
-<td align="right">0.106</td>
-<td align="right">0.142</td>
+<td align="left">Reading Comprehension</td>
+<td align="right">2.75</td>
+<td align="right">3.62</td>
+<td align="right">4.12</td>
 </tr>
 <tr class="even">
-<td align="left">skills</td>
-<td align="right">0.069</td>
-<td align="right">0.017</td>
-<td align="right">0.19</td>
-<td align="right">0.172</td>
-<td align="right">0.230</td>
+<td align="left">Active Listening</td>
+<td align="right">3.00</td>
+<td align="right">3.75</td>
+<td align="right">4.00</td>
 </tr>
 <tr class="odd">
-<td align="left">knowledge</td>
-<td align="right">0.056</td>
-<td align="right">0.014</td>
-<td align="right">0.19</td>
-<td align="right">0.176</td>
-<td align="right">0.234</td>
+<td align="left">Writing</td>
+<td align="right">2.25</td>
+<td align="right">3.12</td>
+<td align="right">4.00</td>
 </tr>
 <tr class="even">
-<td align="left">experience</td>
-<td align="right">0.300</td>
-<td align="right">0.075</td>
-<td align="right">0.19</td>
-<td align="right">0.115</td>
-<td align="right">0.153</td>
+<td align="left">Speaking</td>
+<td align="right">2.88</td>
+<td align="right">3.62</td>
+<td align="right">4.12</td>
+</tr>
+<tr class="odd">
+<td align="left">Mathematics</td>
+<td align="right">2.00</td>
+<td align="right">2.50</td>
+<td align="right">3.25</td>
+</tr>
+<tr class="even">
+<td align="left">Science</td>
+<td align="right">1.00</td>
+<td align="right">1.75</td>
+<td align="right">3.35</td>
+</tr>
+<tr class="odd">
+<td align="left">Critical Thinking</td>
+<td align="right">2.88</td>
+<td align="right">3.62</td>
+<td align="right">4.00</td>
+</tr>
+<tr class="even">
+<td align="left">Active Learning</td>
+<td align="right">2.38</td>
+<td align="right">3.12</td>
+<td align="right">3.88</td>
+</tr>
+<tr class="odd">
+<td align="left">Learning Strategies</td>
+<td align="right">2.00</td>
+<td align="right">2.75</td>
+<td align="right">3.62</td>
+</tr>
+<tr class="even">
+<td align="left">Monitoring</td>
+<td align="right">2.88</td>
+<td align="right">3.12</td>
+<td align="right">3.88</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span></span>
-<span>    <span class="va">domain_contributions</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu">summarise</span><span class="op">(</span>total <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">contribution</span><span class="op">)</span>,</span>
-<span>                .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">occupation_a</span>, <span class="va">occupation_b</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu">pull</span><span class="op">(</span><span class="va">total</span><span class="op">)</span> <span class="op">-</span> <span class="va">combined</span><span class="op">$</span><span class="va">combined_distance</span></span>
-<span>  <span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1e-12</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Removing experience answers how much of this <em>constructed
-distance</em> comes from experience. This subtraction cannot establish a
-causal effect of experience on occupational separation. The fixed-weight
-subtraction is an exact contribution. The renormalized alternative
-changes the estimand by giving the remaining domains larger weights.
-Repeat the comparison across occupation pairs and report how nearest
-neighbors and rankings change.</p>
-<p>Also retain absolute rating-level gaps. Two occupations with ratings
-<code>(2, 2)</code> and <code>(4, 4)</code> have identical normalized
-profiles even though every requirement level differs. A zero
-compositional distance is not equivalence in all respects.</p>
+<p>Every retained rating is an eight-analyst mean in these files. A
+threshold on that mean is not a count of analysts choosing a response
+category. For Reading Comprehension, changing the threshold from 2 to 4
+changes how widespread the stated requirement looks:</p>
+<table class="table">
+<colgroup>
+<col width="32%">
+<col width="32%">
+<col width="35%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">Importance mean at least</th>
+<th align="left">Scale label at threshold</th>
+<th align="right">Share of primary codes (%)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">2</td>
+<td align="left">Somewhat Important</td>
+<td align="right">99.9</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">Important</td>
+<td align="right">80.8</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="left">Very Important</td>
+<td align="right">30.0</td>
+</tr>
+</tbody>
+</table>
+<p>For profile comparisons, the primary distance is the mean absolute
+element-level rating gap, divided by four for Importance or seven for
+Level. Unlike row-normalized shares, this preserves overall rating
+differences. It assumes comparable numerical gaps across elements within
+a block.</p>
+<p>The largest Essential-Level pair gap in this primary universe is
+between Physicists and Slaughterers and Meat Packers. The three largest
+element gaps make the comparison less abstract:</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Essential skill</th>
+<th align="right">Physicists: Level</th>
+<th align="right">Slaughterers: Level</th>
+<th align="right">Gap</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Science</td>
+<td align="right">5.75</td>
+<td align="right">0.00</td>
+<td align="right">5.75</td>
+</tr>
+<tr class="even">
+<td align="left">Mathematics</td>
+<td align="right">5.50</td>
+<td align="right">0.75</td>
+<td align="right">4.75</td>
+</tr>
+<tr class="odd">
+<td align="left">Reading Comprehension</td>
+<td align="right">5.88</td>
+<td align="right">1.75</td>
+<td align="right">4.13</td>
+</tr>
+</tbody>
+</table>
+<p>For context, the Reading Comprehension Level anchors run from reading
+step-by-step form instructions at 2 to reading a scientific journal
+article about surgical procedures at 6. Those examples help interpret a
+rating; they do not make every element’s scale interchangeable.</p>
+<p>I also rank occupations within each skill element and compare
+percentile profiles. That drops the equal-interval assumption about the
+original ratings, although averaging percentile gaps still imposes a
+geometry. The single nearest neighbor often changes:</p>
+<table class="table">
+<colgroup>
+<col width="28%">
+<col width="23%">
+<col width="24%">
+<col width="23%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Skill block</th>
+<th align="right">One-neighbor overlap</th>
+<th align="right">Five-neighbor overlap</th>
+<th align="right">Ten-neighbor overlap</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Essential: Importance</td>
+<td align="right">0.49</td>
+<td align="right">0.46</td>
+<td align="right">0.50</td>
+</tr>
+<tr class="even">
+<td align="left">Essential: Level</td>
+<td align="right">0.47</td>
+<td align="right">0.45</td>
+<td align="right">0.48</td>
+</tr>
+<tr class="odd">
+<td align="left">Transferable: Importance</td>
+<td align="right">0.45</td>
+<td align="right">0.44</td>
+<td align="right">0.48</td>
+</tr>
+<tr class="even">
+<td align="left">Transferable: Level</td>
+<td align="right">0.50</td>
+<td align="right">0.48</td>
+<td align="right">0.51</td>
+</tr>
+</tbody>
+</table>
+<p>About 48 to 55 percent of occupations have disjoint single-neighbor
+sets under the absolute-gap and percentile comparisons. At five
+neighbors, fewer than one percent do. The broad distance ordering is
+much more stable than the identity of one nearest occupation. That is a
+reason to show neighborhoods and element gaps rather than present one
+match as definitive. These are descriptive comparisons, without
+significance claims or joint confidence intervals assembled from
+marginal standard errors.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="do-activities-skills-and-software-point-to-the-same-neighbors">Do activities, skills and software point to the same neighbors?<a class="anchor" aria-label="anchor" href="#do-activities-skills-and-software-point-to-the-same-neighbors"></a>
+</h2>
+<p>On the same 823 codes, I recompute activity and exact-name software
+distances and compare them with each skill block. All six use the same
+candidate occupations. Boundary ties are retained, after rounding
+distances to eight decimal places. A five-neighbor set can therefore
+contain more than five codes.</p>
+<p>For software, 515 of the 823 codes have more than five neighbors at
+this cutoff. These larger tied sets also affect the overlap
+comparison.</p>
+<p>Agreement is low. At five neighbors, 55.8 percent of
+activity/software comparisons share no neighbor at all. The median
+neighbor-set overlap is zero. It is also zero between software and each
+skill block. This does not establish that one domain is better. They
+record different aspects of occupations, and the result also depends on
+each domain’s distance rule.</p>
+<div class="figure">
+<img src="occupational-distinctiveness_files/figure-html/cross-domain-agreement-1.png" class="r-plt" alt="A six-by-six matrix compares activities, software, and four skill blocks. Median five-neighbor overlap is zero for activities versus software and for software versus every skill block. Essential Importance versus Level is 0.11; Transferable Importance versus Level is 0.25. The following table gives all block pairs at one, five, and ten neighbors." width="100%"><p class="caption">
+Median neighbor-set Jaccard overlap on the common 823-code universe,
+with five nearest neighbors and boundary ties. Diagonal entries compare
+a block with itself.
+</p>
+</div>
+<table class="table">
+<colgroup>
+<col width="27%">
+<col width="27%">
+<col width="14%">
+<col width="16%">
+<col width="15%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Block A</th>
+<th align="left">Block B</th>
+<th align="right">One neighbor</th>
+<th align="right">Five neighbors</th>
+<th align="right">Ten neighbors</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Activities</td>
+<td align="left">Software</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.04</td>
+</tr>
+<tr class="even">
+<td align="left">Activities</td>
+<td align="left">Essential: Importance</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">Activities</td>
+<td align="left">Essential: Level</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="even">
+<td align="left">Activities</td>
+<td align="left">Transferable: Importance</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">Activities</td>
+<td align="left">Transferable: Level</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="even">
+<td align="left">Software</td>
+<td align="left">Essential: Importance</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+</tr>
+<tr class="odd">
+<td align="left">Software</td>
+<td align="left">Essential: Level</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+</tr>
+<tr class="even">
+<td align="left">Software</td>
+<td align="left">Transferable: Importance</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="odd">
+<td align="left">Software</td>
+<td align="left">Transferable: Level</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="even">
+<td align="left">Essential: Importance</td>
+<td align="left">Essential: Level</td>
+<td align="right">0</td>
+<td align="right">0.11</td>
+<td align="right">0.18</td>
+</tr>
+<tr class="odd">
+<td align="left">Essential: Importance</td>
+<td align="left">Transferable: Importance</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="even">
+<td align="left">Essential: Importance</td>
+<td align="left">Transferable: Level</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">Essential: Level</td>
+<td align="left">Transferable: Importance</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="even">
+<td align="left">Essential: Level</td>
+<td align="left">Transferable: Level</td>
+<td align="right">0</td>
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+</tr>
+<tr class="odd">
+<td align="left">Transferable: Importance</td>
+<td align="left">Transferable: Level</td>
+<td align="right">0</td>
+<td align="right">0.25</td>
+<td align="right">0.33</td>
+</tr>
+</tbody>
+</table>
+<p>For Commercial and Industrial Designers, activities point to Fashion
+Designers while software points to Graphic Designers. Essential-Level
+ratings instead point to Landscape Architects. The nursing example also
+changes with the domain:</p>
+<table class="table">
+<colgroup>
+<col width="30%">
+<col width="21%">
+<col width="47%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Occupation</th>
+<th align="left">Block</th>
+<th align="left">Nearest descriptions, including ties</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Commercial and Industrial Designers</td>
+<td align="left">Activities</td>
+<td align="left">Fashion Designers</td>
+</tr>
+<tr class="even">
+<td align="left">Registered Nurses</td>
+<td align="left">Activities</td>
+<td align="left">Acute Care Nurses; General Internal Medicine
+Physicians</td>
+</tr>
+<tr class="odd">
+<td align="left">Commercial and Industrial Designers</td>
+<td align="left">Essential: Importance</td>
+<td align="left">Cytotechnologists</td>
+</tr>
+<tr class="even">
+<td align="left">Registered Nurses</td>
+<td align="left">Essential: Importance</td>
+<td align="left">Exercise Physiologists</td>
+</tr>
+<tr class="odd">
+<td align="left">Commercial and Industrial Designers</td>
+<td align="left">Essential: Level</td>
+<td align="left">Landscape Architects</td>
+</tr>
+<tr class="even">
+<td align="left">Registered Nurses</td>
+<td align="left">Essential: Level</td>
+<td align="left">Critical Care Nurses</td>
+</tr>
+<tr class="odd">
+<td align="left">Commercial and Industrial Designers</td>
+<td align="left">Software</td>
+<td align="left">Graphic Designers</td>
+</tr>
+<tr class="even">
+<td align="left">Registered Nurses</td>
+<td align="left">Software</td>
+<td align="left">Patient Representatives</td>
+</tr>
+<tr class="odd">
+<td align="left">Commercial and Industrial Designers</td>
+<td align="left">Transferable: Importance</td>
+<td align="left">Human Factors Engineers and Ergonomists</td>
+</tr>
+<tr class="even">
+<td align="left">Registered Nurses</td>
+<td align="left">Transferable: Importance</td>
+<td align="left">Nurse Midwives</td>
+</tr>
+<tr class="odd">
+<td align="left">Commercial and Industrial Designers</td>
+<td align="left">Transferable: Level</td>
+<td align="left">Human Factors Engineers and Ergonomists</td>
+</tr>
+<tr class="even">
+<td align="left">Registered Nurses</td>
+<td align="left">Transferable: Level</td>
+<td align="left">Acute Care Nurses</td>
+</tr>
+</tbody>
+</table>
+<p>These are neighbors among published descriptions on a restricted
+support. The absence of Accountants or Software Developers from this
+table follows the suppression rule, not a claim that their skills or
+software cannot be studied. The 894-code skill sensitivity is kept
+separately. No raw activity, software or rating distance is treated as a
+common unit, and none of these neighbors establishes an easy worker
+transition.</p>
 </div>
 <div class="section level2">
 <h2 id="when-do-differences-disappear">When do differences disappear?<a class="anchor" aria-label="anchor" href="#when-do-differences-disappear"></a>
@@ -1529,7 +1982,7 @@ compositional distance is not equivalence in all respects.</p>
 holding the universe and activity mass fixed. In a real archive, use the
 published DWA-to-IWA-to-GWA hierarchy instead of these demonstration
 labels.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">broad_profiles</span> <span class="op">&lt;-</span> <span class="va">activity_profiles</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">left_join</span><span class="op">(</span><span class="va">activity_labels</span>, by <span class="op">=</span> <span class="st">"item"</span>, relationship <span class="op">=</span> <span class="st">"many-to-one"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">summarise</span><span class="op">(</span>weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">weight</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">occupation</span>, <span class="va">broad_group</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1621,7 +2074,7 @@ labels.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pair_ab</span> <span class="op">&lt;-</span> <span class="va">resolution_comparison</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">occupation_a</span> <span class="op">==</span> <span class="st">"A"</span>, <span class="va">occupation_b</span> <span class="op">==</span> <span class="st">"B"</span><span class="op">)</span></span>
@@ -1647,7 +2100,7 @@ pairs (87.3 percent) share no DWA, and the mean pairwise distance is
 0.987. A statistic that starts this close to its ceiling has little room
 to move, and by itself it does not show how distinctive occupations are.
 The null reference below makes that concrete.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">observed_resolution</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>grain <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Detailed activities"</span>, <span class="st">"Intermediate activities"</span>,</span>
 <span>                   <span class="st">"Generalized activities"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -2120,7 +2573,7 @@ point <code>archive_path</code> at the ZIP or its extracted directory.
 No API key is required. Keep the source receipt and digest with the
 analysis. The tables used here are not the entire published occupation
 taxonomy, so define the analytic universe from documented coverage.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">archive_path</span> <span class="op">&lt;-</span> <span class="st">"path/to/db_30_3_text.zip"</span></span>
 <span><span class="va">full_tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/onet_archive_read.html">onet_archive_read</a></span><span class="op">(</span></span>
 <span>  <span class="st">"30.3"</span>, <span class="st">"Task Statements"</span>, path <span class="op">=</span> <span class="va">archive_path</span></span>
@@ -2212,9 +2665,9 @@ coverage separately for each domain, then use common support for
 cross-domain comparisons. In rating tables, absence means missing unless
 you have evidence it means zero.</p>
 <p>The full-archive ranking above is conditional on its vocabulary,
-comparison universe, and weighting decisions. The multidomain examples
-are still stylized and do not establish a national ranking for
-experience or knowledge.</p>
+comparison universe, and weighting decisions. Skills and software have
+separate empirical results; education, experience and knowledge do not
+acquire a national ranking from these comparisons.</p>
 <div class="section level3">
 <h3 id="reproduce-the-bundled-snapshot">Reproduce the bundled snapshot<a class="anchor" aria-label="anchor" href="#reproduce-the-bundled-snapshot"></a>
 </h3>
@@ -2233,6 +2686,22 @@ mass-preserving coarsening, and check the archive digest. The
 <code>task-inventory.csv</code> file carries task-vintage and inventory
 metadata. The raw archive is not bundled. Source date and identifier
 changes across releases still require separate review.</p>
+<p>For the employment, skills and common-support extensions, run:</p>
+<pre><code>Rscript data-raw\occupational-skills.R path\to\db_30_3_text.zip
+Rscript data-raw\occupational-employment.R path\to\db_30_3_text.zip path\to\oesm25nat.zip path\to\occupation_definitions_m2025.xlsx
+Rscript data-raw\occupational-cross-domain.R path\to\db_30_3_text.zip</code></pre>
+<p>The employment script checks all three input digests. The national
+ZIP comes from the <a href="https://www.bls.gov/oes/tables.htm" class="external-link">BLS OEWS
+tables page</a>; the <a href="https://www.bls.gov/oes/occupation_definitions_m2025.xlsx" class="external-link">May
+2025 definitions workbook</a> provides the combined-cell constituents.
+BLS may reject scripted downloads. The input receipts record how the
+pinned bytes were retrieved. The extension README and decision ledger
+retain source gaps, including the unverified ownership-code
+interpretation and unread Survey Methods PDF. Neither an ownership
+comparison nor propagation of OEWS sampling error is claimed.</p>
+<p>The largest derived tables use lossless gzip compression
+(<code>.csv.gz</code>). Base R reads them with <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code>;
+compression changes storage, not the rows or the analysis.</p>
 </div>
 </div>
 <div class="section level2">
@@ -2249,6 +2718,7 @@ modifications.</p>
 <p>The data representations above follow the O*NET Resource Center’s <a href="https://www.onetcenter.org/dictionary/30.3/excel/tasks_to_dwas.html" class="external-link">Tasks
 to DWAs dictionary</a>, <a href="https://www.onetcenter.org/dictionary/30.3/excel/gwas_to_iwas_to_dwas.html" class="external-link">activity
 hierarchy</a>, <a href="https://www.onetcenter.org/dictionary/30.3/excel/essential_skills.html" class="external-link">Essential
+Skills dictionary</a>, <a href="https://www.onetcenter.org/dictionary/30.3/excel/transferable_skills.html" class="external-link">Transferable
 Skills dictionary</a>, <a href="https://www.onetcenter.org/dictionary/30.3/excel/scales_reference.html" class="external-link">scale
 definitions</a>, <a href="https://www.onetcenter.org/dictionary/30.3/excel/training_and_experience.html" class="external-link">Training
 and Experience dictionary</a>, and <a href="https://www.onetcenter.org/dictionary/30.3/excel/training_and_experience_categories.html" class="external-link">experience
@@ -2258,8 +2728,8 @@ category definitions</a>. Verified schema facts are recorded in
 distinction between term frequency and document frequency, see Manning,
 Raghavan, and Schuetze, <em>Introduction to Information Retrieval</em>,
 section 6.2, <a href="https://nlp.stanford.edu/IR-book/html/htmledition/term-frequency-and-weighting-1.html" class="external-link">Term
-frequency and weighting</a>. The occupation-level summary, distance, and
-domain weights here are explicit analytical choices, not measures
+frequency and weighting</a>. The occupation-level summary, distances,
+and weighting rules here are explicit analytical choices, not measures
 validated by that reference.</p>
 <p>The information-loss budget borrows the relevance-target idea from
 Tishby, Pereira, and Bialek, <a href="https://arxiv.org/html/physics/0004057v1" class="external-link">The information

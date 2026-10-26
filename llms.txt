@@ -11,14 +11,20 @@ plumbing visible: archive versions, taxonomy seams, source dates,
 employment weights, coverage, and provenance.
 
 For a worked analysis of common activities, TF-IDF-style rarity,
-experience requirements, and the differences lost through aggregation,
-see [What Makes Occupations
+employment weighting, skills, and the differences lost through
+aggregation, see [What Makes Occupations
 Different?](https://farach.github.io/onet2r/articles/occupational-distinctiveness.html).
 It combines a reproducible public-archive activity snapshot, an
-information-loss audit of broader labels, equal-minor-group weighting
-sensitivity, a size-preserving randomized partition reference, and
-explicitly stylized multidomain examples. Figures show the findings and
+information-loss audit of broader labels, equal-code-prefix-group
+weighting sensitivity, a size-preserving randomized partition reference,
+and clearly labeled formula examples. Figures show the findings and
 their measurement limits.
+
+The companion [What Software Lists Tell Us About
+Occupations](https://farach.github.io/onet2r/articles/software-distinctiveness.html)
+examines listed software examples, their occupational neighbors, and the
+detail lost when examples are grouped. It keeps documented links
+separate from claims about workers’ actual software use.
 
 ## Installation
 
@@ -607,6 +613,8 @@ onet_measure objects.
   Occupations](https://farach.github.io/onet2r/articles/from-tasks-to-occupations.md):
 - [What Makes Occupations
   Different?](https://farach.github.io/onet2r/articles/occupational-distinctiveness.md):
+- [What Software Lists Tell Us About
+  Occupations](https://farach.github.io/onet2r/articles/software-distinctiveness.md):
 - [Reproducible User
   Measures](https://farach.github.io/onet2r/articles/measure-reproducibility.md):
 - [Importing Published Exposure
