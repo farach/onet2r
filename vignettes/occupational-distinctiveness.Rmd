@@ -887,8 +887,11 @@ The single nearest neighbor often changes:
 skill_sensitivity |>
   filter(alternative == "ordinal_percentile",
          metric == "mean_jaccard", k %in% c(1, 5, 10)) |>
-  transmute(Block = unname(block_labels[block]), k, overlap = value) |>
-  tidyr::pivot_wider(names_from = k, values_from = overlap, names_prefix = "k") |>
+  summarise(
+    k1 = value[k == 1L], k5 = value[k == 5L], k10 = value[k == 10L],
+    .by = block
+  ) |>
+  transmute(Block = unname(block_labels[block]), k1, k5, k10) |>
   knitr::kable(digits = 2, col.names = c(
     "Skill block", "One-neighbor overlap", "Five-neighbor overlap",
     "Ten-neighbor overlap"
@@ -927,11 +930,14 @@ cross_domain_figure(cross_summary)
 
 ```{r cross-domain-agreement-table, echo = FALSE}
 cross_summary |>
+  summarise(
+    k1 = median_overlap[k == 1L], k5 = median_overlap[k == 5L],
+    k10 = median_overlap[k == 10L], .by = c(block_a, block_b)
+  ) |>
   transmute(
     `Block A` = unname(block_labels[block_a]),
-    `Block B` = unname(block_labels[block_b]), k, overlap = median_overlap
+    `Block B` = unname(block_labels[block_b]), k1, k5, k10
   ) |>
-  tidyr::pivot_wider(names_from = k, values_from = overlap, names_prefix = "k") |>
   knitr::kable(digits = 2, col.names = c(
     "Block A", "Block B", "One neighbor", "Five neighbors", "Ten neighbors"
   ))

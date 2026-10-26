@@ -49,14 +49,29 @@ test_that("article figures preserve the published data and denominators", {
   }
 })
 
-test_that("extension figure helpers use declared dependencies", {
+test_that("extension figures and vignettes use declared dependencies", {
+  skip_if_not_installed("knitr")
   description <- utils::packageDescription("onet2r")
   declared <- paste(description[c("Depends", "Imports", "Suggests")],
                     collapse = ",")
   declared <- gsub("\\([^)]*\\)", "", declared)
   declared <- strsplit(declared, "[[:space:],]+")[[1]]
-  for (file in c("extension-figures.R", "software-figures.R")) {
-    path <- system.file("article-helpers", file, package = "onet2r")
+  paths <- vapply(c("extension-figures.R", "software-figures.R"), function(file) {
+    system.file("article-helpers", file, package = "onet2r")
+  }, character(1))
+  directory <- withr::local_tempdir()
+  for (name in c("occupational-distinctiveness", "software-distinctiveness")) {
+    file <- paste0(name, ".Rmd")
+    path <- system.file("doc", file, package = "onet2r")
+    if (!nzchar(path)) {
+      path <- testthat::test_path("..", "..", "vignettes", file)
+    }
+    skip_if_not(file.exists(path), "Vignette source is not installed.")
+    output <- file.path(directory, paste0(name, ".R"))
+    knitr::purl(path, output = output, documentation = 0L, quiet = TRUE)
+    paths <- c(paths, output)
+  }
+  for (path in paths) {
     tokens <- utils::getParseData(parse(file = path, keep.source = TRUE))
     namespaces <- unique(tokens$text[tokens$token == "SYMBOL_PACKAGE"])
     expect_setequal(setdiff(namespaces, c("base", declared)), character())
