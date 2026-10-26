@@ -48,3 +48,102 @@ test_that("article figures preserve the published data and denominators", {
     expect_error(ggplot2::ggplotGrob(plot), NA)
   }
 })
+
+test_that("extension figures and vignettes use declared dependencies", {
+  skip_if_not_installed("knitr")
+  description <- utils::packageDescription("onet2r")
+  declared <- paste(description[c("Depends", "Imports", "Suggests")],
+                    collapse = ",")
+  declared <- gsub("\\([^)]*\\)", "", declared)
+  declared <- strsplit(declared, "[[:space:],]+")[[1]]
+  paths <- vapply(c("extension-figures.R", "software-figures.R"), function(file) {
+    system.file("article-helpers", file, package = "onet2r")
+  }, character(1))
+  directory <- withr::local_tempdir()
+  for (name in c("occupational-distinctiveness", "software-distinctiveness")) {
+    file <- paste0(name, ".Rmd")
+    path <- system.file("doc", file, package = "onet2r")
+    if (!nzchar(path)) {
+      path <- testthat::test_path("..", "..", "vignettes", file)
+    }
+    skip_if_not(file.exists(path), "Vignette source is not installed.")
+    output <- file.path(directory, paste0(name, ".R"))
+    knitr::purl(path, output = output, documentation = 0L, quiet = TRUE)
+    paths <- c(paths, output)
+  }
+  for (path in paths) {
+    tokens <- utils::getParseData(parse(file = path, keep.source = TRUE))
+    namespaces <- unique(tokens$text[tokens$token == "SYMBOL_PACKAGE"])
+    expect_setequal(setdiff(namespaces, c("base", declared)), character())
+  }
+})
+
+test_that("employment and software figure layers preserve snapshot values", {
+  skip_if_not_installed("ggplot2")
+  grDevices::pdf(NULL)
+  withr::defer(grDevices::dev.off())
+  env <- new.env(parent = globalenv())
+  sys.source(system.file("vignette-helpers.R", package = "onet2r"), env)
+  for (file in c("occupational-distinctiveness.R", "extension-figures.R",
+                 "software-figures.R")) {
+    sys.source(system.file("article-helpers", file, package = "onet2r"), env)
+  }
+  read_snapshot <- function(directory, name) {
+    utils::read.csv(env$snapshot_csv_path(file.path(
+      system.file("extdata", directory, package = "onet2r"),
+      paste0(name, ".csv")
+    )))
+  }
+  employment <- read_snapshot(
+    "occupational-extensions", "activity-employment-prevalence"
+  ) |>
+    dplyr::filter(.data$unit_rule == "soc") |>
+    dplyr::left_join(
+      read_snapshot("occupational-distinctiveness", "activity-prevalence") |>
+        dplyr::select("item", "dwa_element_name"),
+      by = c("dwa_element_id" = "item"), relationship = "one-to-one"
+    ) |>
+    dplyr::arrange(dplyr::desc(.data$prevalence_employment), .data$dwa_element_id) |>
+    dplyr::slice_head(n = 8L)
+  plot <- env$employment_prevalence_figure(employment)
+  points <- plot$layers[[2]]$data
+  expect_equal(nrow(points), 2L * nrow(employment))
+  expect_setequal(points$weighting,
+                  c("prevalence_equal_unit", "prevalence_employment"))
+  expect_equal(
+    sort(points$prevalence[points$weighting == "prevalence_equal_unit"]),
+    sort(employment$prevalence_equal_unit)
+  )
+  expect_equal(
+    sort(points$prevalence[points$weighting == "prevalence_employment"]),
+    sort(employment$prevalence_employment)
+  )
+  expect_equal(nrow(ggplot2::ggplot_build(plot)$data[[2]]), nrow(points))
+  expect_error(ggplot2::ggplotGrob(plot), NA)
+
+  directory <- "occupational-software"
+  pairs <- read_snapshot(directory, "selected-pairs")
+  plots <- env$software_figures(
+    read_snapshot(directory, "prevalence"),
+    read_snapshot(directory, "occupations"),
+    read_snapshot(directory, "resolution"), pairs
+  )
+  components <- plots$components$data
+  expect_equal(nrow(components), 2L * nrow(pairs))
+  expect_equal(
+    sort(components$value[components$component == "Replacement"]),
+    sort(pairs$replacement_component)
+  )
+  expect_equal(
+    sort(components$value[components$component == "Nestedness-resultant"]),
+    sort(pairs$nestedness_resultant_component)
+  )
+  expect_equal(
+    sort(as.vector(tapply(components$value, components$label, sum))),
+    sort(pairs$sorensen_total)
+  )
+  for (plot in plots) {
+    expect_gt(nrow(ggplot2::ggplot_build(plot)$data[[1]]), 0L)
+    expect_error(ggplot2::ggplotGrob(plot), NA)
+  }
+})

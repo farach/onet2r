@@ -111,17 +111,17 @@ test_that("bundled information and null results reconcile to the snapshot", {
   expect_true(all(is.finite(random_hierarchy$information_bits)))
   expect_equal(nrow(group_weighting), 923L)
   expect_equal(group_weighting$occupation, sort(group_weighting$occupation))
-  expect_equal(group_weighting$minor_group_prefix,
+  expect_equal(group_weighting$soc_prefix5,
                substr(group_weighting$occupation, 1, 5))
   expect_equal(group_weighting$rarity_rank,
                rank(-group_weighting$mean_idf, ties.method = "min"))
   expect_equal(
-    group_weighting$minor_group_weighted_rank,
-    rank(-group_weighting$mean_idf_minor_group_weighted, ties.method = "min")
+    group_weighting$prefix5_weighted_rank,
+    rank(-group_weighting$mean_idf_prefix5_weighted, ties.method = "min")
   )
   expect_equal(
     group_weighting$rank_change,
-    group_weighting$rarity_rank - group_weighting$minor_group_weighted_rank
+    group_weighting$rarity_rank - group_weighting$prefix5_weighted_rank
   )
   expect_equal(sum(loss$mixture_mass), 1)
   expect_equal(sum(loss$lost_bits), information$lost_from_dwa_bits[[3]])

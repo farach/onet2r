@@ -110,12 +110,12 @@ rarity <- scores |>
   arrange(rarity_rank, occupation)
 stopifnot(!anyNA(rarity))
 
-equal_minor_group_scores <- profile_tfidf_equal_group_weights(
+equal_prefix5_scores <- profile_tfidf_equal_group_weights(
   profiles, universe, substr(universe, 1, 5)
 )
-group_weighting <- equal_minor_group_scores |>
+group_weighting <- equal_prefix5_scores |>
   summarise(
-    mean_idf_minor_group_weighted = round(sum(tf_idf), 12),
+    mean_idf_prefix5_weighted = round(sum(tf_idf), 12),
     .by = occupation
   ) |>
   left_join(
@@ -124,15 +124,15 @@ group_weighting <- equal_minor_group_scores |>
     by = "occupation", relationship = "one-to-one"
   ) |>
   mutate(
-    minor_group_prefix = substr(occupation, 1, 5),
-    minor_group_weighted_rank = min_rank(desc(mean_idf_minor_group_weighted)),
-    rank_change = rarity_rank - minor_group_weighted_rank
+    soc_prefix5 = substr(occupation, 1, 5),
+    prefix5_weighted_rank = min_rank(desc(mean_idf_prefix5_weighted)),
+    rank_change = rarity_rank - prefix5_weighted_rank
   ) |>
   arrange(occupation)
 stopifnot(
   nrow(group_weighting) == length(universe),
   !anyNA(group_weighting),
-  n_distinct(group_weighting$minor_group_prefix) > 1L
+  n_distinct(group_weighting$soc_prefix5) > 1L
 )
 
 coverage <- tasks |>

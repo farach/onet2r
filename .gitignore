@@ -28,6 +28,8 @@ Thumbs.db
 # Local agent/session notes
 /sessions/
 /.copilot/
+/.serena/
+/.playwright-mcp/
 /.history/
 /.memory/
 /.pinboard/

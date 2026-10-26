@@ -29,7 +29,7 @@ absolute rating levels.
 The bundled public-archive snapshot has a source digest and a deterministic
 local-input regeneration script in `data-raw/`. Article builds and tests
 remain offline. Full-archive activity rankings are labeled separately from
-stylized multidomain examples. Coarsening preserves activity mass and the
+stylized formula examples. Coarsening preserves activity mass and the
 occupation universe so loss of distinctions is not confused with real
 convergence or with refitted IDF weights.
 
@@ -41,11 +41,53 @@ parents, and non-nested routes fail explicitly. The finite-run Curveball
 reference preserves row and column totals and supplies no p-values or
 confidence intervals. Rankings disclose Supplemental-task dependence,
 inventory-size dependence, and the different support of Core-only analyses.
-An equal-minor-group TF-IDF sensitivity changes the reference prevalence but
-not the occupation-DWA profiles. A separate 200-draw partition reference
+An equal-five-character-prefix TF-IDF sensitivity changes the reference
+prevalence but not the occupation-DWA profiles. These prefix groups are not
+official SOC minor groups. A separate 200-draw partition reference
 preserves each generalized group's DWA count while randomizing DWA assignments;
 it breaks IWA nesting and semantic groupings and is descriptive, not inferential.
 Static figures have text alternatives and offline table counterparts.
+
+The software companion uses exact workplace-example strings for binary
+prevalence and profile comparison. Classification accounting uses a separate,
+explicitly labeled example-category-pair vocabulary, because one string can
+have different published classifications across occupations. In release 30.3
+there are no within-occupation multi-route examples. Pair-to-category-to-family
+aggregation conserves original occurrence mass. Exact-name information and
+the extra category-annotation information are reported separately.
+Alternative Jaccard distances and binary category presence are separate
+specifications. Neighbor sets retain ties at the requested rank boundary.
+Missing occupational profiles are excluded and counted, not filled with zero.
+Neither the software nor the activity workflow estimates actual worker use.
+
+Employment comparisons keep the OEWS estimate year, raw input receipts and
+published cell inventory. The primary representation uses a SOC-level `.00`
+profile rather than counting nested specialties as disjoint worker groups.
+Complete, partial, absent-profile and unmatched cells are counted separately.
+The primary point estimate uses complete cells. Its disjoint-unit bounds use
+`bound_type = "disjoint_allocation_bound"`. The overlapping all-code sensitivity
+uses `bound_type = "profile_envelope"`, not a sharp worker-allocation bound.
+Unknown omitted employment is separate from within-cell allocation, and
+neither is a sampling confidence interval.
+Equal-code, equal-minor-group and employment-weighted comparisons use the
+same support. Reweighting all available O&#42;NET codes is labeled a synthetic
+profile sensitivity, not an observed employment split.
+
+Essential and Transferable Skills retain separate Importance and Level
+blocks. Primary cross-domain comparisons require complete ratings with no
+Recommend Suppress flag. Recorded Not Relevant values remain visible; they
+are not silently converted into observed zeros. Absolute rating gaps are
+primary, with their interval/comparability assumptions disclosed and
+element-wise percentile-rank and other sensitivities reported separately.
+All domain neighbors are recomputed on the same eligible occupation universe,
+with boundary ties retained. Neither native distances nor education and
+experience categories are pooled into a composite score.
+
+Large derived tables are losslessly compressed as `.csv.gz`; no raw inputs
+are bundled. Article-only `snapshot_csv_path()` requires exactly one plain or
+gzipped CSV at the requested path, rejecting ambiguous duplicate snapshots.
+Generators use the shared writer and reproduce the compressed files
+deterministically.
 
 ## Longitudinal panel contract
 

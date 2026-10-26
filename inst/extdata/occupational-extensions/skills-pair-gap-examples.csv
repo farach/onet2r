@@ -1,0 +1,211 @@
+"block","pair_kind","occupation_a","title_a","occupation_b","title_b","block_distance","element_id","element_name","value_a","value_b","gap","gap_normalized"
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.1.a","Reading Comprehension",2.88,2.88,0,0
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.1.b","Active Listening",3,3,0,0
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.1.c","Writing",2,2,0,0
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.1.d","Speaking",3,3,0,0
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.1.e","Mathematics",2,2,0,0
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.1.f","Science",1,1,0,0
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.2.a","Critical Thinking",2.88,3,0.12,0.03
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.2.b","Active Learning",2,2,0,0
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.2.c","Learning Strategies",2,2.12,0.12,0.03
+"es_im","nearest_pair","35-3041.00","Food Servers, Nonrestaurant","47-2151.00","Pipelayers",0.00925,"2.A.2.d","Monitoring",2.75,2.62,0.13,0.0325
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.1.a","Reading Comprehension",3.88,3.12,0.76,0.19
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.1.b","Active Listening",4,3.38,0.62,0.155
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.1.c","Writing",3.75,2.88,0.87,0.2175
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.1.d","Speaking",3.88,3.5,0.38,0.095
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.1.e","Mathematics",2.75,2.38,0.37,0.0925
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.1.f","Science",2.75,1.5,1.25,0.3125
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.2.a","Critical Thinking",3.88,3.25,0.63,0.1575
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.2.b","Active Learning",3.12,3,0.12,0.03
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.2.c","Learning Strategies",3,2.75,0.25,0.0625
+"es_im","median_pair","19-5012.00","Occupational Health and Safety Technicians","53-4013.00","Rail Yard Engineers, Dinkey Operators, and Hostlers",0.1405,"2.A.2.d","Monitoring",3.25,3.62,0.37,0.0925
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.1.a","Reading Comprehension",4.38,2,2.38,0.595
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.1.b","Active Listening",4.12,2,2.12,0.53
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.1.c","Writing",4.25,1.75,2.5,0.625
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.1.d","Speaking",4.12,2.12,2,0.5
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.1.e","Mathematics",3.88,1.62,2.26,0.565
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.1.f","Science",4.75,1,3.75,0.9375
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.2.a","Critical Thinking",4.25,2.5,1.75,0.4375
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.2.b","Active Learning",4.12,2.12,2,0.5
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.2.c","Learning Strategies",4,1.75,2.25,0.5625
+"es_im","farthest_pair","19-1021.00","Biochemists and Biophysicists","51-6021.00","Pressers, Textile, Garment, and Related Materials",0.56275,"2.A.2.d","Monitoring",3.88,2.38,1.5,0.375
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.1.a","Reading Comprehension",4.12,4,0.12,0.01714286
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.1.b","Active Listening",4,4,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.1.c","Writing",4,4,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.1.d","Speaking",4,4,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.1.e","Mathematics",2,2,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.1.f","Science",2.75,2.75,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.2.a","Critical Thinking",4,4,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.2.b","Active Learning",3.88,3.88,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.2.c","Learning Strategies",3.88,3.88,0,0
+"es_lv","nearest_pair","21-1023.00","Mental Health and Substance Abuse Social Workers","29-1122.00","Occupational Therapists",0.00171429,"2.A.2.d","Monitoring",4,4,0,0
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.1.a","Reading Comprehension",4.38,3.88,0.5,0.07142857
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.1.b","Active Listening",4.12,3.75,0.37,0.05285714
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.1.c","Writing",4,3.5,0.5,0.07142857
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.1.d","Speaking",4.12,3.62,0.5,0.07142857
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.1.e","Mathematics",2.62,1.62,1,0.14285714
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.1.f","Science",2.75,0,2.75,0.39285714
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.2.a","Critical Thinking",3.88,3.62,0.26,0.03714286
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.2.b","Active Learning",3.25,3,0.25,0.03571429
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.2.c","Learning Strategies",3.12,1.88,1.24,0.17714286
+"es_lv","median_pair","29-1123.00","Physical Therapists","43-6014.00","Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",0.11428571,"2.A.2.d","Monitoring",3.88,3.25,0.63,0.09
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.1.a","Reading Comprehension",5.88,1.75,4.13,0.59
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.1.b","Active Listening",4.75,2.25,2.5,0.35714286
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.1.c","Writing",5,1,4,0.57142857
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.1.d","Speaking",4.75,1.88,2.87,0.41
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.1.e","Mathematics",5.5,0.75,4.75,0.67857143
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.1.f","Science",5.75,0,5.75,0.82142857
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.2.a","Critical Thinking",4.88,1.88,3,0.42857143
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.2.b","Active Learning",5.5,1.5,4,0.57142857
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.2.c","Learning Strategies",5,1.25,3.75,0.53571429
+"es_lv","farthest_pair","19-2012.00","Physicists","51-3023.00","Slaughterers and Meat Packers",0.52671429,"2.A.2.d","Monitoring",4,1.88,2.12,0.30285714
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.1.a","Social Perceptiveness",3.12,3.12,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.1.b","Coordination",3,3,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.1.c","Persuasion",3.12,2.88,0.24,0.06
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.1.d","Negotiation",2.62,2.5,0.12,0.03
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.1.e","Instructing",2.75,3,0.25,0.0625
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.1.f","Service Orientation",2.88,2.88,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.2.i","Complex Problem Solving",3.88,3.88,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.a","Operations Analysis",2.88,2.62,0.26,0.065
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.b","Technology Design",1.62,1.75,0.13,0.0325
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.c","Equipment Selection",1,1,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.d","Installation",1,1,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.e","Programming",2.12,2,0.12,0.03
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.g","Operations Monitoring",1.88,2,0.12,0.03
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.h","Operation and Control",1,1.12,0.12,0.03
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.j","Equipment Maintenance",1,1,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.k","Troubleshooting",1,1,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.l","Repairing",1,1,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.3.m","Quality Control Analysis",1.62,1.62,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.4.e","Judgment and Decision Making",3.62,3.75,0.13,0.0325
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.4.g","Systems Analysis",3.12,3.12,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.4.h","Systems Evaluation",3.12,2.88,0.24,0.06
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.5.a","Time Management",3,3,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.5.b","Management of Financial Resources",1.75,1.75,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.5.c","Management of Material Resources",1.75,1.75,0,0
+"ts_im","nearest_pair","13-1161.00","Market Research Analysts and Marketing Specialists","19-2021.00","Atmospheric and Space Scientists",0.0186,"2.B.5.d","Management of Personnel Resources",2.75,2.88,0.13,0.0325
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.1.a","Social Perceptiveness",3.38,2.88,0.5,0.125
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.1.b","Coordination",3,3,0,0
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.1.c","Persuasion",2.88,2.88,0,0
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.1.d","Negotiation",2.88,2.62,0.26,0.065
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.1.e","Instructing",1.62,2.75,1.13,0.2825
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.1.f","Service Orientation",3.25,2.62,0.63,0.1575
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.2.i","Complex Problem Solving",2.5,3,0.5,0.125
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.a","Operations Analysis",1.25,2,0.75,0.1875
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.b","Technology Design",1,1.75,0.75,0.1875
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.c","Equipment Selection",1,2.12,1.12,0.28
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.d","Installation",1,1,0,0
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.e","Programming",1.38,1.75,0.37,0.0925
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.g","Operations Monitoring",2,3,1,0.25
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.h","Operation and Control",1.62,2.62,1,0.25
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.j","Equipment Maintenance",1,2.38,1.38,0.345
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.k","Troubleshooting",1.88,2.12,0.24,0.06
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.l","Repairing",1,2.12,1.12,0.28
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.3.m","Quality Control Analysis",2,2.75,0.75,0.1875
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.4.e","Judgment and Decision Making",2.38,3,0.62,0.155
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.4.g","Systems Analysis",2,2.38,0.38,0.095
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.4.h","Systems Evaluation",2,2.38,0.38,0.095
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.5.a","Time Management",2.5,3.12,0.62,0.155
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.5.b","Management of Financial Resources",1,1.5,0.5,0.125
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.5.c","Management of Material Resources",1,1.75,0.75,0.1875
+"ts_im","median_pair","39-3031.00","Ushers, Lobby Attendants, and Ticket Takers","51-5111.00","Prepress Technicians and Workers",0.1488,"2.B.5.d","Management of Personnel Resources",2.38,2.25,0.13,0.0325
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.1.a","Social Perceptiveness",4.12,2.75,1.37,0.3425
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.1.b","Coordination",4.25,2.75,1.5,0.375
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.1.c","Persuasion",4,2.12,1.88,0.47
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.1.d","Negotiation",4.12,2.25,1.87,0.4675
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.1.e","Instructing",3.38,2.62,0.76,0.19
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.1.f","Service Orientation",3.12,2.12,1,0.25
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.2.i","Complex Problem Solving",4.38,3.38,1,0.25
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.a","Operations Analysis",3.12,1.12,2,0.5
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.b","Technology Design",1.75,1.5,0.25,0.0625
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.c","Equipment Selection",1.12,3.62,2.5,0.625
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.d","Installation",1,2.88,1.88,0.47
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.e","Programming",1.75,2,0.25,0.0625
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.g","Operations Monitoring",2,3.75,1.75,0.4375
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.h","Operation and Control",1.88,3.12,1.24,0.31
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.j","Equipment Maintenance",1,4,3,0.75
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.k","Troubleshooting",1.5,4.12,2.62,0.655
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.l","Repairing",1,4,3,0.75
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.3.m","Quality Control Analysis",1.88,3.88,2,0.5
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.4.e","Judgment and Decision Making",4.75,3,1.75,0.4375
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.4.g","Systems Analysis",4.12,2.38,1.74,0.435
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.4.h","Systems Evaluation",4.25,2.38,1.87,0.4675
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.5.a","Time Management",4,3,1,0.25
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.5.b","Management of Financial Resources",4.25,1.62,2.63,0.6575
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.5.c","Management of Material Resources",4,1.75,2.25,0.5625
+"ts_im","farthest_pair","11-1011.00","Chief Executives","49-9097.00","Signal and Track Switch Repairers",0.4336,"2.B.5.d","Management of Personnel Resources",4.25,2,2.25,0.5625
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.1.a","Social Perceptiveness",3.38,3.88,0.5,0.07142857
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.1.b","Coordination",3,2.88,0.12,0.01714286
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.1.c","Persuasion",2.88,2.88,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.1.d","Negotiation",2.75,2.75,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.1.e","Instructing",4.62,4.62,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.1.f","Service Orientation",3,3,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.2.i","Complex Problem Solving",3.75,3.75,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.a","Operations Analysis",2.12,2.5,0.38,0.05428571
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.b","Technology Design",0.62,0.38,0.24,0.03428571
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.c","Equipment Selection",0,0,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.d","Installation",0,0,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.e","Programming",1.25,0.5,0.75,0.10714286
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.g","Operations Monitoring",0.5,0.38,0.12,0.01714286
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.h","Operation and Control",0.12,0,0.12,0.01714286
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.j","Equipment Maintenance",0,0,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.k","Troubleshooting",0,0,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.l","Repairing",0,0,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.3.m","Quality Control Analysis",0.62,0.5,0.12,0.01714286
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.4.e","Judgment and Decision Making",4,4,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.4.g","Systems Analysis",3.25,3.25,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.4.h","Systems Evaluation",3.25,3.25,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.5.a","Time Management",3.5,3.62,0.12,0.01714286
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.5.b","Management of Financial Resources",0.75,0.75,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.5.c","Management of Material Resources",0.88,0.88,0,0
+"ts_lv","nearest_pair","25-1011.00","Business Teachers, Postsecondary","25-1067.00","Sociology Teachers, Postsecondary",0.0148,"2.B.5.d","Management of Personnel Resources",2.5,2.62,0.12,0.01714286
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.1.a","Social Perceptiveness",2.75,2.25,0.5,0.07142857
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.1.b","Coordination",3.12,2.62,0.5,0.07142857
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.1.c","Persuasion",2.5,2.12,0.38,0.05428571
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.1.d","Negotiation",2.12,2.12,0,0
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.1.e","Instructing",3,2.38,0.62,0.08857143
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.1.f","Service Orientation",2.62,2.12,0.5,0.07142857
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.2.i","Complex Problem Solving",3.25,2.25,1,0.14285714
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.a","Operations Analysis",1.38,1.62,0.24,0.03428571
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.b","Technology Design",1.62,0.5,1.12,0.16
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.c","Equipment Selection",3.25,2,1.25,0.17857143
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.d","Installation",2.75,0.25,2.5,0.35714286
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.e","Programming",0.62,0,0.62,0.08857143
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.g","Operations Monitoring",3.5,3.12,0.38,0.05428571
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.h","Operation and Control",3.38,3,0.38,0.05428571
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.j","Equipment Maintenance",3.88,2.38,1.5,0.21428571
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.k","Troubleshooting",4,2.25,1.75,0.25
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.l","Repairing",4,2.12,1.88,0.26857143
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.3.m","Quality Control Analysis",3.75,2.75,1,0.14285714
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.4.e","Judgment and Decision Making",3.12,2.12,1,0.14285714
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.4.g","Systems Analysis",2.75,1.62,1.13,0.16142857
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.4.h","Systems Evaluation",2.38,1.62,0.76,0.10857143
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.5.a","Time Management",3,2.75,0.25,0.03571429
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.5.b","Management of Financial Resources",1.5,0.5,1,0.14285714
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.5.c","Management of Material Resources",2.25,0.88,1.37,0.19571429
+"ts_lv","median_pair","49-3042.00","Mobile Heavy Equipment Mechanics, Except Engines","51-4193.00","Plating Machine Setters, Operators, and Tenders, Metal and Plastic",0.1272,"2.B.5.d","Management of Personnel Resources",2.88,2.25,0.63,0.09
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.1.a","Social Perceptiveness",3.5,2.62,0.88,0.12571429
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.1.b","Coordination",3.62,2,1.62,0.23142857
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.1.c","Persuasion",3.62,1.75,1.87,0.26714286
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.1.d","Negotiation",3.12,1.75,1.37,0.19571429
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.1.e","Instructing",3.75,0.38,3.37,0.48142857
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.1.f","Service Orientation",2.88,1.62,1.26,0.18
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.2.i","Complex Problem Solving",4.25,1.75,2.5,0.35714286
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.a","Operations Analysis",3.88,0.38,3.5,0.5
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.b","Technology Design",4,0.5,3.5,0.5
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.c","Equipment Selection",3.62,0,3.62,0.51714286
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.d","Installation",3,0,3,0.42857143
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.e","Programming",2.5,0,2.5,0.35714286
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.g","Operations Monitoring",3.88,0,3.88,0.55428571
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.h","Operation and Control",3.25,0,3.25,0.46428571
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.j","Equipment Maintenance",3.12,0,3.12,0.44571429
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.k","Troubleshooting",3.62,0,3.62,0.51714286
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.l","Repairing",3,0,3,0.42857143
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.3.m","Quality Control Analysis",3.88,0.12,3.76,0.53714286
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.4.e","Judgment and Decision Making",4.62,1.88,2.74,0.39142857
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.4.g","Systems Analysis",4.62,0.75,3.87,0.55285714
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.4.h","Systems Evaluation",4.5,0.12,4.38,0.62571429
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.5.a","Time Management",3.88,2,1.88,0.26857143
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.5.b","Management of Financial Resources",3.62,0,3.62,0.51714286
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.5.c","Management of Material Resources",3.5,0,3.5,0.5
+"ts_lv","farthest_pair","17-2112.03","Manufacturing Engineers","41-9012.00","Models",0.41565714,"2.B.5.d","Management of Personnel Resources",3.88,0.75,3.13,0.44714286

@@ -1,0 +1,4 @@
+# Preserve deterministic article snapshots on Windows checkouts.
+inst/extdata/occupational-distinctiveness/*.csv text eol=lf
+inst/extdata/occupational-extensions/*.csv text eol=lf
+inst/extdata/occupational-software/*.csv text eol=lf

@@ -20,7 +20,10 @@
 ^\.RData$
 ^\.Rhistory$
 ^\.gitignore$
+^\.gitattributes$
 ^\.copilot(/|$)
+^\.serena(/|$)
+^\.playwright-mcp(/|$)
 ^\.history(/|$)
 ^\.memory(/|$)
 ^\.pinboard(/|$)

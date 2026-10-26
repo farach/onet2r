@@ -1,0 +1,5 @@
+"block","domain","scale","n_rows","n_occupations","n_elements","n_missing_value","value_min","value_max","n_outside_scale","n_not_two_decimals","n_at_scale_minimum","n_raters_min","n_raters_max","se_min","se_max","n_recommend_suppress","n_recommend_suppress_missing","se_min_recommend_suppress","se_max_not_suppressed","n_not_relevant","n_not_relevant_missing","n_level_zero","n_level_zero_importance_at_floor","n_importance_at_floor_level_positive","importance_max_when_not_relevant","level_max_when_not_relevant"
+"es_im","essential","IM",8940,894,10,0,1,5,0,0,147,8,8,0,0.4795,0,0,,0.4795,0,8940,,,,,
+"es_lv","essential","LV",8940,894,10,0,0,6,0,0,147,8,8,0,0.6814,16,0,0.5154,0.5,285,0,147,147,0,1.38,0.62
+"ts_im","transferable","IM",22350,894,25,0,1,5,0,0,2192,8,8,0,0.5,0,0,,0.5,0,22350,,,,,
+"ts_lv","transferable","LV",22350,894,25,0,0,5.75,0,0,2192,8,8,0,0.7559,131,0,0.5154,0.5,3098,0,2192,2192,0,1.5,1

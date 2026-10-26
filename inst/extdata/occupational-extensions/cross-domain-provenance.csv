@@ -1,0 +1,2 @@
+"release","source_sha256","n_occupations","eligibility","binary_distance","skill_distance","distance_digits","comparison"
+"30.3","7758ec966fd91895b3d290b83c9f1f1d46730d37fdda4faac67104d1c0d2a780",823,"Complete four skill blocks with no recommended-suppressed rating","Total variation on exact-name or DWA presence","Mean absolute rating gap divided by scale range",8,"Neighbor-set Jaccard at k = 1, 5, 10; cutoff ties retained"

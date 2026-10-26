@@ -1,4 +1,4 @@
-"occupation","mean_idf_minor_group_weighted","title","n_activities","mean_idf","rarity_rank","minor_group_prefix","minor_group_weighted_rank","rank_change"
+"occupation","mean_idf_prefix5_weighted","title","n_activities","mean_idf","rarity_rank","soc_prefix5","prefix5_weighted_rank","rank_change"
 "11-1011.00",4.195967886179,"Chief Executives",35,4.266528165836,604,"11-10",668,-64
 "11-1011.03",4.693200596264,"Chief Sustainability Officers",23,4.713348001805,187,"11-10",357,-170
 "11-1021.00",4.179127455205,"General and Operations Managers",20,4.254330784759,612,"11-10",678,-66

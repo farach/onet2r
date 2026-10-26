@@ -1,0 +1,71 @@
+"block","domain","scale","element_id","element_name","n_occupations","mean","sd","min","p10","p25","median","p75","p90","max","share_at_scale_minimum","n_not_relevant"
+"es_im","essential","IM","2.A.1.a","Reading Comprehension",823,3.46976914,0.56059498,1.88,2.75,3,3.62,4,4.12,4.88,0,
+"es_im","essential","IM","2.A.1.b","Active Listening",823,3.59166464,0.46457685,2,3,3.12,3.75,4,4,5,0,
+"es_im","essential","IM","2.A.1.c","Writing",823,3.17931956,0.64793028,1.75,2.25,2.75,3.12,3.75,4,4.88,0,
+"es_im","essential","IM","2.A.1.d","Speaking",823,3.54040097,0.49836639,2.12,2.88,3,3.62,4,4.12,4.88,0,
+"es_im","essential","IM","2.A.1.e","Mathematics",823,2.53850547,0.59167795,1,2,2,2.5,3,3.25,5,0.00243013,
+"es_im","essential","IM","2.A.1.f","Science",823,1.928226,0.88970785,1,1,1.25,1.75,2.5,3.354,4.75,0.17010936,
+"es_im","essential","IM","2.A.2.a","Critical Thinking",823,3.50053463,0.46199262,2.25,2.88,3.12,3.62,3.88,4,4.88,0,
+"es_im","essential","IM","2.A.2.b","Active Learning",823,3.1072175,0.53728402,1.88,2.38,2.75,3.12,3.5,3.88,4.25,0,
+"es_im","essential","IM","2.A.2.c","Learning Strategies",823,2.78698663,0.58454874,1.12,2,2.25,2.75,3.12,3.62,4.62,0,
+"es_im","essential","IM","2.A.2.d","Monitoring",823,3.29746051,0.38967357,1.88,2.88,3,3.12,3.62,3.88,4.25,0,
+"es_lv","essential","LV","2.A.1.a","Reading Comprehension",823,3.62933171,0.84851347,1.62,2.5,3,3.75,4.12,4.88,5.88,0,0
+"es_lv","essential","LV","2.A.1.b","Active Listening",823,3.54437424,0.64888999,2,2.75,3,3.75,4,4.25,5.88,0,0
+"es_lv","essential","LV","2.A.1.c","Writing",823,3.29394897,0.86509234,1,2.12,2.75,3.12,4,4.38,5.75,0,0
+"es_lv","essential","LV","2.A.1.d","Speaking",823,3.45856622,0.72701763,1.88,2.5,2.88,3.5,4,4.25,5,0,0
+"es_lv","essential","LV","2.A.1.e","Mathematics",823,2.51895504,0.89560355,0,1.5,2,2.5,3,3.75,6,0.00243013,5
+"es_lv","essential","LV","2.A.1.f","Science",823,1.40791009,1.39159408,0,0,0.25,0.88,2.38,3.75,5.75,0.17010936,262
+"es_lv","essential","LV","2.A.2.a","Critical Thinking",823,3.55696233,0.64879188,1.88,2.75,3,3.62,4,4.25,5.75,0,0
+"es_lv","essential","LV","2.A.2.b","Active Learning",823,3.17696233,0.79117241,1,2.12,2.62,3.12,3.88,4.12,5.5,0,0
+"es_lv","essential","LV","2.A.2.c","Learning Strategies",823,2.84160389,0.78956722,0.12,2,2.12,2.88,3.25,3.88,5.25,0,1
+"es_lv","essential","LV","2.A.2.d","Monitoring",823,3.35889429,0.57396993,1.75,2.62,3,3.25,3.88,4,5.25,0,0
+"ts_im","transferable","IM","2.B.1.a","Social Perceptiveness",823,3.16907655,0.47309395,2,2.62,2.88,3,3.5,3.88,5,0,
+"ts_im","transferable","IM","2.B.1.b","Coordination",823,3.12017011,0.38827333,2,2.75,2.88,3,3.25,3.75,4.25,0,
+"ts_im","transferable","IM","2.B.1.c","Persuasion",823,2.7353949,0.50606498,1.62,2,2.38,2.75,3,3.38,4.25,0,
+"ts_im","transferable","IM","2.B.1.d","Negotiation",823,2.59833536,0.504383,1.62,2,2.12,2.62,3,3.12,4.25,0,
+"ts_im","transferable","IM","2.B.1.e","Instructing",823,2.83224787,0.59259311,1.12,2.12,2.38,2.88,3.12,3.62,4.75,0,
+"ts_im","transferable","IM","2.B.1.f","Service Orientation",823,2.94413123,0.53188065,1.5,2.25,2.62,3,3.25,3.75,4.25,0,
+"ts_im","transferable","IM","2.B.2.i","Complex Problem Solving",823,3.19479951,0.50784591,1.88,2.62,2.88,3.12,3.62,3.88,4.38,0,
+"ts_im","transferable","IM","2.B.3.a","Operations Analysis",823,2.00951397,0.63198641,1,1.25,1.62,1.88,2.5,2.88,4,0.02794654,
+"ts_im","transferable","IM","2.B.3.b","Technology Design",823,1.69976914,0.39092637,1,1.25,1.5,1.75,1.88,2,3.62,0.05346294,
+"ts_im","transferable","IM","2.B.3.c","Equipment Selection",823,1.70524909,0.68359747,1,1,1,1.62,2.25,2.75,3.75,0.29647631,
+"ts_im","transferable","IM","2.B.3.d","Installation",823,1.23705954,0.50831036,1,1,1,1,1.12,1.976,3.75,0.69137303,
+"ts_im","transferable","IM","2.B.3.e","Programming",823,1.57517618,0.48826515,1,1,1.25,1.5,1.75,2,4.75,0.15674362,
+"ts_im","transferable","IM","2.B.3.g","Operations Monitoring",823,2.54473876,0.74402185,1,1.62,2,2.5,3.12,3.62,4.62,0.0072904,
+"ts_im","transferable","IM","2.B.3.h","Operation and Control",823,2.18692588,0.88396277,1,1,1.38,2.12,2.88,3.38,4.88,0.14580802,
+"ts_im","transferable","IM","2.B.3.j","Equipment Maintenance",823,1.71154313,0.84323712,1,1,1,1.38,2.25,3,4.88,0.44714459,
+"ts_im","transferable","IM","2.B.3.k","Troubleshooting",823,2.03017011,0.77254956,1,1,1.5,2,2.62,3,4.5,0.17618469,
+"ts_im","transferable","IM","2.B.3.l","Repairing",823,1.67704739,0.84799974,1,1,1,1.25,2.25,3,4.88,0.4653706,
+"ts_im","transferable","IM","2.B.3.m","Quality Control Analysis",823,2.39277035,0.66248049,1,1.5,2,2.38,3,3.12,4.12,0.01215067,
+"ts_im","transferable","IM","2.B.4.e","Judgment and Decision Making",823,3.23855407,0.45693251,2,2.75,2.94,3.12,3.62,3.88,4.75,0,
+"ts_im","transferable","IM","2.B.4.g","Systems Analysis",823,2.68165249,0.56675535,1,2,2.12,2.75,3.12,3.38,4.62,0.00121507,
+"ts_im","transferable","IM","2.B.4.h","Systems Evaluation",823,2.62407047,0.56584999,1.12,2,2.12,2.75,3,3.25,4.25,0,
+"ts_im","transferable","IM","2.B.5.a","Time Management",823,3.08894289,0.33045346,2,2.75,2.88,3,3.25,3.62,4,0,
+"ts_im","transferable","IM","2.B.5.b","Management of Financial Resources",823,1.86715674,0.48280475,1,1.38,1.62,1.75,2,2.5,4.25,0.03402187,
+"ts_im","transferable","IM","2.B.5.c","Management of Material Resources",823,1.95933171,0.43794856,1,1.5,1.75,1.88,2.12,2.62,4,0.018226,
+"ts_im","transferable","IM","2.B.5.d","Management of Personnel Resources",823,2.5808627,0.50369666,1,2,2.12,2.62,2.88,3.12,4.25,0.00121507,
+"ts_lv","transferable","LV","2.B.1.a","Social Perceptiveness",823,3.10577157,0.67722912,1.75,2.25,2.62,3,3.62,4,5.75,0,0
+"ts_lv","transferable","LV","2.B.1.b","Coordination",823,3.12671932,0.50594849,1.75,2.5,2.88,3,3.5,3.88,5,0,0
+"ts_lv","transferable","LV","2.B.1.c","Persuasion",823,2.73498177,0.69280028,0.62,1.75,2.12,2.88,3.12,3.62,5,0,0
+"ts_lv","transferable","LV","2.B.1.d","Negotiation",823,2.53399757,0.66374312,0.62,1.62,2,2.62,3,3.354,4.75,0,0
+"ts_lv","transferable","LV","2.B.1.e","Instructing",823,2.88660996,0.75756994,0.12,2,2.25,3,3.25,3.88,5,0,3
+"ts_lv","transferable","LV","2.B.1.f","Service Orientation",823,2.85560146,0.63331004,0.62,2,2.38,2.88,3.12,3.75,5.25,0,0
+"ts_lv","transferable","LV","2.B.2.i","Complex Problem Solving",823,3.13196841,0.6788279,1.62,2.25,2.685,3,3.62,4.12,5.38,0,0
+"ts_lv","transferable","LV","2.B.3.a","Operations Analysis",823,1.62939247,1.09219766,0,0.25,0.75,1.5,2.5,3.12,4.62,0.02794654,122
+"ts_lv","transferable","LV","2.B.3.b","Technology Design",823,0.94720535,0.70183455,0,0.25,0.5,0.75,1.12,1.75,4.12,0.05346294,104
+"ts_lv","transferable","LV","2.B.3.c","Equipment Selection",823,1.05128797,1.02929832,0,0,0,0.75,2,2.5,4.12,0.29647631,348
+"ts_lv","transferable","LV","2.B.3.d","Installation",823,0.34693803,0.76467038,0,0,0,0,0.25,1.38,3.88,0.69137303,665
+"ts_lv","transferable","LV","2.B.3.e","Programming",823,0.78136087,0.78853716,0,0,0.25,0.62,1,1.75,4.88,0.15674362,246
+"ts_lv","transferable","LV","2.B.3.g","Operations Monitoring",823,2.23426488,1.01405112,0,0.75,1.5,2.25,3,3.5,4.88,0.0072904,20
+"ts_lv","transferable","LV","2.B.3.h","Operation and Control",823,1.73939247,1.24758896,0,0,0.5,2,2.88,3.25,5.62,0.14580802,189
+"ts_lv","transferable","LV","2.B.3.j","Equipment Maintenance",823,1.05150668,1.2387186,0,0,0,0.38,2.12,3,5.38,0.44714459,406
+"ts_lv","transferable","LV","2.B.3.k","Troubleshooting",823,1.527339,1.15424735,0,0,0.5,1.5,2.5,3,4.38,0.17618469,176
+"ts_lv","transferable","LV","2.B.3.l","Repairing",823,1.01454435,1.24160872,0,0,0,0.25,2,3,4.38,0.4653706,428
+"ts_lv","transferable","LV","2.B.3.m","Quality Control Analysis",823,2.13234508,1.00352055,0,0.62,1.38,2.25,3,3.25,4.25,0.01215067,62
+"ts_lv","transferable","LV","2.B.4.e","Judgment and Decision Making",823,3.17832321,0.67970285,1.62,2.25,2.75,3,3.75,4.096,5.38,0,0
+"ts_lv","transferable","LV","2.B.4.g","Systems Analysis",823,2.61145808,0.81896027,0,1.5,2,2.75,3.12,3.75,5.12,0.00121507,1
+"ts_lv","transferable","LV","2.B.4.h","Systems Evaluation",823,2.59863913,0.86597474,0.12,1.38,2,2.75,3.25,3.75,5,0,1
+"ts_lv","transferable","LV","2.B.5.a","Time Management",823,3.02986634,0.49680106,1.62,2.38,2.75,3,3.38,3.75,4.75,0,0
+"ts_lv","transferable","LV","2.B.5.b","Management of Financial Resources",823,1.30272175,0.90032834,0,0.38,0.62,1.12,1.75,2.724,5.25,0.03402187,71
+"ts_lv","transferable","LV","2.B.5.c","Management of Material Resources",823,1.44872418,0.80405448,0,0.5,0.88,1.38,2,2.62,4.75,0.018226,45
+"ts_lv","transferable","LV","2.B.5.d","Management of Personnel Resources",823,2.55888214,0.68718631,0,1.75,2,2.5,3,3.5,5.25,0.00121507,1

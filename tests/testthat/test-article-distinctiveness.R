@@ -12,6 +12,29 @@ sys.source(
   envir = distinctiveness_helpers
 )
 
+test_that("article CSV storage is lossless and rejects ambiguous snapshots", {
+  directory <- withr::local_tempdir()
+  path <- file.path(directory, "snapshot.csv")
+  data <- data.frame(code = c("01", "02"), value = c(1, NA_real_))
+  distinctiveness_helpers$write_snapshot_csv(data, path)
+  expected <- readBin(path, "raw", n = file.size(path))
+  expect_identical(distinctiveness_helpers$snapshot_csv_path(path), path)
+  compressed <- paste0(path, ".gz")
+  distinctiveness_helpers$write_snapshot_csv(data, compressed)
+  expect_identical(
+    memDecompress(readBin(compressed, "raw", n = file.size(compressed)), "gzip"),
+    expected
+  )
+  expect_equal(utils::read.csv(compressed), utils::read.csv(path))
+  expect_error(distinctiveness_helpers$snapshot_csv_path(path), "exactly one")
+  unlink(path)
+  expect_identical(distinctiveness_helpers$snapshot_csv_path(path), compressed)
+  expect_error(
+    distinctiveness_helpers$snapshot_csv_path(file.path(directory, "missing.csv")),
+    "exactly one"
+  )
+})
+
 test_that("article TF-IDF uses occupations, not task-link counts", {
   data <- tibble::tribble(
     ~occupation, ~item, ~weight,
@@ -123,6 +146,18 @@ test_that("bundled distinctiveness snapshot has coherent coverage and formulas",
   expect_true(all(diff(resolution$mean_distance) <= 0))
   expect_equal(resolution$mean_distance_lost,
                resolution$mean_distance[1] - resolution$mean_distance)
+})
+
+test_that("legacy weighting sensitivity labels its actual code-prefix groups", {
+  data <- utils::read.csv(system.file(
+    "extdata", "occupational-distinctiveness", "group-weighting-sensitivity.csv",
+    package = "onet2r"
+  ))
+  expect_equal(data$soc_prefix5, substr(data$occupation, 1, 5))
+  expect_equal(data$prefix5_weighted_rank,
+               rank(-data$mean_idf_prefix5_weighted, ties.method = "min"))
+  expect_equal(data$rank_change, data$rarity_rank - data$prefix5_weighted_rank)
+  expect_false(any(grepl("minor_group", names(data), fixed = TRUE)))
 })
 
 test_that("snapshot CSV writer emits portable LF line endings", {
