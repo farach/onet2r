@@ -24,10 +24,11 @@ ext <- load_extension_helpers(c(
 ))
 
 extension_path <- function(name, dir = "occupational-extensions") {
-  path <- system.file("extdata", dir, name, package = "onet2r")
-  if (!nzchar(path)) {
-    path <- testthat::test_path("..", "..", "inst", "extdata", dir, name)
+  directory <- system.file("extdata", dir, package = "onet2r")
+  if (!nzchar(directory)) {
+    directory <- testthat::test_path("..", "..", "inst", "extdata", dir)
   }
+  path <- file.path(directory, name)
   if (endsWith(name, ".csv")) ext$snapshot_csv_path(path) else path
 }
 
