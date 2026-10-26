@@ -167,6 +167,17 @@
 
 ### Improvements
 
+- A new article, “What Makes Occupations Different?”, examines common
+  and uncommon detailed work activities using a reproducible public
+  O\*NET 30.3 archive snapshot. It separates TF-IDF rarity from profile
+  isolation, adds an equal-minor-group weighting sensitivity, a
+  hierarchy information-loss budget, a size-preserving randomized
+  partition reference, and a finite-run fixed-margin reference. Static
+  figures have accessible table counterparts. The article discloses
+  inventory-size and Supplemental-task dependence and keeps experience
+  and other multidomain examples explicitly stylized. Article builds
+  remain offline, and no substantive measure is added to the exported
+  API.
 - The pkgdown site is again published at
   <https://farach.github.io/onet2r/> in pkgdown’s `unreleased` mode,
   which marks the package as not yet on CRAN. Since July 2026 the site
