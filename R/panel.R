@@ -365,13 +365,13 @@ onet_archive_reference <- function(version, table, path = NULL, release_date = N
     validate_existing_path(path)
   }
 
-  data <- read_archive_table_file(version, table, path, col_classes = "character")
+  data <- read_archive_table_file(version, table, path, as_text = TRUE)
   release_date <- resolve_archive_release_date(version, path, release_date)
 
   standardize_archive_reference(data, version, release_date)
 }
 
-read_archive_table_file <- function(version, table, path, col_classes = NA) {
+read_archive_table_file <- function(version, table, path, as_text = FALSE) {
   archive <- if (is.null(path)) {
     snapshot <- onet_archive_acquire(
       version = version,
@@ -392,21 +392,49 @@ read_archive_table_file <- function(version, table, path, col_classes = NA) {
     utils::unzip(archive, files = member, exdir = tmpdir)
     file.path(tmpdir, member)
   }
-  utils::read.delim(
-    member_path,
-    check.names = FALSE,
-    stringsAsFactors = FALSE,
+  read_archive_text(member_path, as_text = as_text)
+}
+
+# O*NET text archives are tab-delimited UTF-8 files without quoting, parsed
+# here with data.table::fread(). Every option that can change the result is
+# set explicitly, including those that default to global options, so neither
+# a data.table release nor a user's data.table options can change what onet2r
+# returns. With `as_text`, every column is read as text and the caller
+# converts types.
+read_archive_text <- function(path, as_text = FALSE) {
+  data.table::fread(
+    file = path,
+    sep = "\t",
+    dec = ".",
     quote = "",
-    fileEncoding = archive_file_encoding(),
+    header = TRUE,
+    skip = 0,
     na.strings = c("NA", "n/a", "N/A"),
-    colClasses = col_classes
+    colClasses = if (as_text) "character" else NULL,
+    stringsAsFactors = FALSE,
+    integer64 = "double",
+    logical01 = FALSE,
+    logicalYN = FALSE,
+    keepLeadingZeros = FALSE,
+    tz = "",
+    strip.white = FALSE,
+    fill = TRUE,
+    blank.lines.skip = TRUE,
+    comment.char = "",
+    check.names = FALSE,
+    encoding = archive_text_encoding(),
+    yaml = FALSE,
+    data.table = FALSE,
+    showProgress = FALSE,
+    verbose = FALSE
   )
 }
 
-# O*NET text archives are UTF-8. In a UTF-8 session, re-encoding them is a
-# no-op that costs about a third of the read time, so it is skipped there.
-archive_file_encoding <- function() {
-  if (isTRUE(l10n_info()[["UTF-8"]])) "" else "UTF-8"
+# fread() marks text without re-encoding it. In a UTF-8 session the archive
+# bytes are already native text. Elsewhere they are marked as UTF-8 so R can
+# translate them.
+archive_text_encoding <- function() {
+  if (isTRUE(l10n_info()[["UTF-8"]])) "unknown" else "UTF-8"
 }
 
 standardize_archive_reference <- function(data, version, release_date) {

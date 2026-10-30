@@ -19,6 +19,7 @@ Depends:
     R (>= 4.1.0)
 Imports:
     cli,
+    data.table (>= 1.17.0),
     digest,
     dplyr (>= 1.1.0),
     httr2 (>= 1.0.0),

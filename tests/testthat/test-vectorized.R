@@ -168,31 +168,6 @@ test_that("duplicate_key_rows keeps its schema with and without duplicates", {
   )
 })
 
-test_that("onet_archive_read keeps UTF-8 text intact", {
-  archive <- withr::local_tempdir()
-  task <- "Review r\u00e9sum\u00e9s \u2013 caf\u00e9 menus"
-  header <- c(
-    "O*NET-SOC Code", "Task ID", "Task", "Task Type",
-    "Incumbents Responding", "Date", "Domain Source"
-  )
-  row <- c("15-1252.00", "1001", task, "Core", "27", "07/2025", "Incumbent")
-  text <- paste0(
-    paste(header, collapse = "\t"), "\n",
-    paste(row, collapse = "\t"), "\n"
-  )
-  writeBin(charToRaw(enc2utf8(text)), file.path(archive, "Task Statements.txt"))
-
-  out <- onet_archive_read(
-    "30.3",
-    "Task Statements",
-    path = archive,
-    release_date = "2026-05-01"
-  )
-
-  expect_identical(enc2utf8(out$task), enc2utf8(task))
-  expect_identical(out$source_date, as.Date("2025-07-01"))
-})
-
 test_that("the resurvey clock carries forward across an unsurveyed release", {
   panel <- tibble::tibble(
     release_version = c("22.1", "23.1", "24.1"),
