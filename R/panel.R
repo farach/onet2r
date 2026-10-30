@@ -402,6 +402,20 @@ read_archive_table_file <- function(version, table, path, as_text = FALSE) {
 # returns. With `as_text`, every column is read as text and the caller
 # converts types.
 read_archive_text <- function(path, as_text = FALSE) {
+  data <- fread_archive_text(path, if (as_text) "character" else NULL)
+  # fread() types ISO dates and date-times as Date and POSIXct, which
+  # read.delim() kept as text. Read those columns again as text. The
+  # positions are unnamed because fread() reads a named `select` as types.
+  dated <- unname(which(
+    vapply(data, inherits, logical(1), what = c("Date", "POSIXt"))
+  ))
+  if (length(dated) > 0) {
+    data[dated] <- fread_archive_text(path, "character", select = dated)
+  }
+  data
+}
+
+fread_archive_text <- function(path, col_classes, select = NULL) {
   data.table::fread(
     file = path,
     sep = "\t",
@@ -409,14 +423,15 @@ read_archive_text <- function(path, as_text = FALSE) {
     quote = "",
     header = TRUE,
     skip = 0,
+    select = select,
     na.strings = c("NA", "n/a", "N/A"),
-    colClasses = if (as_text) "character" else NULL,
+    colClasses = col_classes,
     stringsAsFactors = FALSE,
     integer64 = "double",
     logical01 = FALSE,
     logicalYN = FALSE,
     keepLeadingZeros = FALSE,
-    tz = "",
+    tz = "UTC",
     strip.white = FALSE,
     fill = TRUE,
     blank.lines.skip = TRUE,

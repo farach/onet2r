@@ -25,24 +25,26 @@ tricky_archive_lines <- function() {
   c(
     paste(
       "O*NET-SOC Code", "Task ID", "Task", "Data Value", "N",
-      "Recommend Suppress", "Date", "Note", "Empty", "Updated", "2025",
+      "Recommend Suppress", "Date", "Note", "Empty", "Updated", "Released",
+      "2025",
       sep = "\t"
     ),
     paste(
       "15-1252.00", "01001", "Say \"hi\" to users.", "4.50", "27", "N",
-      "07/2025", "2025-07-01 10:00:00", "NA", "2025-07-01 10:00:00", "1",
+      "07/2025", "2025-07-01 10:00:00", "NA", "2025-07-01 10:00:00",
+      "2025-07-01", "1",
       sep = "\t"
     ),
     paste(
       " 29-1141.00 ", "1002", "\"unbalanced quote", "", "n/a", "Y",
-      "", "1,5", "N/A", "2024-08-01 11:30:00", "2",
+      "", "1,5", "N/A", "2024-08-01 11:30:00", "2024-08-01", "2",
       sep = "\t"
     ),
     "",
     paste(
       "11-1011.00", "1003", "Big and special numbers", "1e5",
       "12345678901", "N", "2025-07-01", "Inf", "NA",
-      "2023-01-15 09:00:00", "3",
+      "2023-01-15 09:00:00", "2023-01-15", "3",
       sep = "\t"
     ),
     "11-1011.00\t1004\tShort row"
@@ -93,6 +95,19 @@ test_that("the archive reader ignores data.table options", {
   expect_silent(result <- onet2r:::read_archive_text(path))
   expect_identical(result, expected)
   expect_identical(result$Flag, c("Y", "N"))
+})
+
+test_that("the archive reader does not depend on the session time zone", {
+  path <- write_archive_file(tricky_archive_lines())
+  read_in <- function(tz) {
+    withr::local_timezone(tz)
+    onet2r:::read_archive_text(path)
+  }
+
+  utc <- read_in("UTC")
+  expect_identical(read_in("America/New_York"), utc)
+  expect_identical(utc$Updated, read_delim_reference(path)$Updated)
+  expect_type(utc$Released, "character")
 })
 
 test_that("onet_archive_read keeps UTF-8 text intact", {
