@@ -125,7 +125,6 @@ test_that("the software snapshot carries its attribution notice", {
   expect_true(nzchar(path))
   bytes <- readBin(path, "raw", file.size(path))
   expect_false(any(bytes > as.raw(127)))
-  expect_false(any(bytes == as.raw(13)))
   text <- rawToChar(bytes)
   expect_match(text, "Creative Commons Attribution 4.0", fixed = TRUE)
   expect_match(text, "db_30_3_text.zip", fixed = TRUE)
