@@ -365,13 +365,13 @@ onet_archive_reference <- function(version, table, path = NULL, release_date = N
     validate_existing_path(path)
   }
 
-  data <- read_archive_table_file(version, table, path, col_classes = "character")
+  data <- read_archive_table_file(version, table, path, as_text = TRUE)
   release_date <- resolve_archive_release_date(version, path, release_date)
 
   standardize_archive_reference(data, version, release_date)
 }
 
-read_archive_table_file <- function(version, table, path, col_classes = NA) {
+read_archive_table_file <- function(version, table, path, as_text = FALSE) {
   archive <- if (is.null(path)) {
     snapshot <- onet_archive_acquire(
       version = version,
@@ -392,15 +392,64 @@ read_archive_table_file <- function(version, table, path, col_classes = NA) {
     utils::unzip(archive, files = member, exdir = tmpdir)
     file.path(tmpdir, member)
   }
-  utils::read.delim(
-    member_path,
-    check.names = FALSE,
-    stringsAsFactors = FALSE,
+  read_archive_text(member_path, as_text = as_text)
+}
+
+# O*NET text archives are tab-delimited UTF-8 files without quoting, parsed
+# here with data.table::fread(). Every option that can change the result is
+# set explicitly, including those that default to global options, so neither
+# a data.table release nor a user's data.table options can change what onet2r
+# returns. With `as_text`, every column is read as text and the caller
+# converts types.
+read_archive_text <- function(path, as_text = FALSE) {
+  data <- fread_archive_text(path, if (as_text) "character" else NULL)
+  # fread() types ISO dates and date-times as Date and POSIXct, which
+  # read.delim() kept as text. Read those columns again as text. The
+  # positions are unnamed because fread() reads a named `select` as types.
+  dated <- unname(which(
+    vapply(data, inherits, logical(1), what = c("Date", "POSIXt"))
+  ))
+  if (length(dated) > 0) {
+    data[dated] <- fread_archive_text(path, "character", select = dated)
+  }
+  data
+}
+
+fread_archive_text <- function(path, col_classes, select = NULL) {
+  data.table::fread(
+    file = path,
+    sep = "\t",
+    dec = ".",
     quote = "",
-    fileEncoding = "UTF-8",
+    header = TRUE,
+    skip = 0,
+    select = select,
     na.strings = c("NA", "n/a", "N/A"),
-    colClasses = col_classes
+    colClasses = col_classes,
+    stringsAsFactors = FALSE,
+    integer64 = "double",
+    logical01 = FALSE,
+    logicalYN = FALSE,
+    keepLeadingZeros = FALSE,
+    tz = "UTC",
+    strip.white = FALSE,
+    fill = TRUE,
+    blank.lines.skip = TRUE,
+    comment.char = "",
+    check.names = FALSE,
+    encoding = archive_text_encoding(),
+    yaml = FALSE,
+    data.table = FALSE,
+    showProgress = FALSE,
+    verbose = FALSE
   )
+}
+
+# fread() marks text without re-encoding it. In a UTF-8 session the archive
+# bytes are already native text. Elsewhere they are marked as UTF-8 so R can
+# translate them.
+archive_text_encoding <- function() {
+  if (isTRUE(l10n_info()[["UTF-8"]])) "unknown" else "UTF-8"
 }
 
 standardize_archive_reference <- function(data, version, release_date) {
@@ -640,12 +689,22 @@ onet_panel_reconcile <- function(panel, bridge, weight = "equal") {
     return(empty_reconciled_panel())
   }
 
+  release_rows <- split(
+    seq_len(nrow(panel)),
+    as.character(panel$release_version)
+  )
+  release_panel <- function(release) {
+    vctrs::vec_slice(panel, release_rows[[as.character(release)]])
+  }
   comparisons <- purrr::map(seq_len(nrow(releases) - 1), \(i) {
+    from_release <- releases$release_version[[i]]
+    to_release <- releases$release_version[[i + 1]]
     reconcile_release_pair(
-      panel = panel,
+      from_panel = release_panel(from_release),
+      to_panel = release_panel(to_release),
       bridge = bridge,
-      from_release = releases$release_version[[i]],
-      to_release = releases$release_version[[i + 1]]
+      from_release = from_release,
+      to_release = to_release
     )
   })
 
@@ -710,18 +769,54 @@ onet_change_summary <- function(reconciled, by = c("overall", "job_family")) {
     return(overall)
   }
 
-  by_family <- data |>
-    dplyr::filter(!is.na(.data$job_family), nzchar(.data$job_family)) |>
-    dplyr::group_split(.data$job_family) |>
-    purrr::map(\(x) {
-      summarize_change_group(
-        data = x,
-        summary_level = "job_family",
-        job_family = x$job_family[[1]],
-        total_pairs = total_pairs
-      )
-    }) |>
-    purrr::list_rbind()
+  families <- data[c(
+    "job_family", "value_change", "safely_comparable", "method_break",
+    "crosswalk_uncertain", "crosswalk_weight", "change_type"
+  )] |>
+    dplyr::filter(!is.na(.data$job_family), nzchar(.data$job_family))
+  if (nrow(families) == 0) {
+    return(overall)
+  }
+  # Two grouped summaries replace one summarize_change_group() call per job
+  # family. They evaluate the same expressions per group, and arranging by
+  # job family and change type reproduces the per-family row order.
+  family_stats <- families |>
+    dplyr::summarise(
+      n_group = dplyr::n(),
+      mean_value_change = safe_mean(.data$value_change),
+      median_abs_value_change = safe_median(abs(.data$value_change)),
+      share_safely_comparable = safe_mean(.data$safely_comparable),
+      share_method_break = safe_mean(.data$method_break),
+      share_crosswalk_uncertain = safe_mean(.data$crosswalk_uncertain),
+      .total_weight = sum(.data$crosswalk_weight),
+      .by = "job_family"
+    )
+  by_family <- families |>
+    dplyr::summarise(
+      n = dplyr::n(),
+      n_weighted = sum(.data$crosswalk_weight),
+      .by = c("job_family", "change_type")
+    ) |>
+    dplyr::left_join(
+      family_stats,
+      by = "job_family",
+      relationship = "many-to-one"
+    ) |>
+    dplyr::mutate(
+      summary_level = "job_family",
+      share_group = .data$n_group / total_pairs,
+      change_type = as.character(.data$change_type),
+      share = .data$n / .data$n_group,
+      share_weighted = .data$n_weighted / .data$.total_weight
+    ) |>
+    dplyr::arrange(.data$job_family, .data$change_type) |>
+    dplyr::select(
+      "summary_level", "job_family", "n_group", "share_group",
+      "mean_value_change", "median_abs_value_change",
+      "share_safely_comparable", "share_method_break",
+      "share_crosswalk_uncertain", "change_type", "n", "n_weighted",
+      "share", "share_weighted"
+    )
 
   dplyr::bind_rows(overall, by_family)
 }
@@ -1064,7 +1159,12 @@ col_or_na <- function(data, column, n, default = NA_character_) {
   rep(default, n)
 }
 
+# Numeric input is returned as double without a round trip through character,
+# which was slow and rounded doubles to 15 significant digits.
 parse_onet_number <- function(x) {
+  if (is.numeric(x)) {
+    return(as.double(x))
+  }
   suppressWarnings(as.numeric(gsub(",", "", as.character(x), fixed = TRUE)))
 }
 
@@ -1073,7 +1173,10 @@ parse_onet_integer <- function(x) {
 }
 
 parse_onet_month <- function(x) {
-  x <- as.character(x)
+  map_unique(as.character(x), parse_onet_month_values)
+}
+
+parse_onet_month_values <- function(x) {
   out <- as.Date(rep(NA_character_, length(x)))
   keep <- !is.na(x) & nzchar(x)
   out[keep] <- as.Date(paste0("01/", x[keep]), format = "%d/%m/%Y")
@@ -1423,18 +1526,9 @@ reconcile_coverage_rows <- function(
     from_panel,
     to_panel,
     pair_bridge,
+    mapped_from,
     from_release,
     to_release) {
-  mapped_from <- from_panel |>
-    dplyr::inner_join(
-      pair_bridge,
-      by = dplyr::join_by(
-        onet_soc_code == from_onet_soc_code,
-        soc_vintage == from_vintage
-      ),
-      relationship = "many-to-many"
-    )
-
   mapped_targets <- mapped_from |>
     dplyr::distinct(
       .data$to_onet_soc_code,
@@ -1633,13 +1727,21 @@ new_coverage_rows <- function(new, from_release, to_release, from_panel, pair_br
 }
 
 is_transition_source <- function(x) {
-  out <- grepl("transition", as.character(x), ignore.case = TRUE)
+  map_unique(as.character(x), is_transition_source_values)
+}
+
+is_transition_source_values <- function(x) {
+  out <- grepl("transition", x, ignore.case = TRUE)
   out[is.na(out)] <- FALSE
   out
 }
 
 is_suppressed_estimate <- function(x) {
-  out <- toupper(trimws(as.character(x))) == "Y"
+  map_unique(as.character(x), is_suppressed_estimate_values)
+}
+
+is_suppressed_estimate_values <- function(x) {
+  out <- toupper(trimws(x)) == "Y"
   out[is.na(out)] <- FALSE
   out
 }
@@ -1710,12 +1812,12 @@ empty_reconciled_panel <- function() {
   )
 }
 
-reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
-  from_panel <- panel |>
-    dplyr::filter(.data$release_version == from_release)
-  to_panel <- panel |>
-    dplyr::filter(.data$release_version == to_release)
-
+reconcile_release_pair <- function(
+    from_panel,
+    to_panel,
+    bridge,
+    from_release,
+    to_release) {
   pair_bridge <- bridge |>
     dplyr::filter(
       .data$from_vintage %in% unique(from_panel$soc_vintage),
@@ -1744,7 +1846,7 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
   }
   pair_bridge <- normalize_bridge(pair_bridge)
 
-  joined <- from_panel |>
+  mapped_from <- from_panel |>
     dplyr::inner_join(
       pair_bridge,
       by = dplyr::join_by(
@@ -1752,7 +1854,8 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
         soc_vintage == from_vintage
       ),
       relationship = "many-to-many"
-    ) |>
+    )
+  joined <- mapped_from |>
     dplyr::inner_join(
       to_panel,
       by = dplyr::join_by(
@@ -1770,6 +1873,7 @@ reconcile_release_pair <- function(panel, bridge, from_release, to_release) {
     from_panel = from_panel,
     to_panel = to_panel,
     pair_bridge = pair_bridge,
+    mapped_from = mapped_from,
     from_release = from_release,
     to_release = to_release
   )

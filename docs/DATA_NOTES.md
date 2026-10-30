@@ -74,9 +74,19 @@ The tab-delimited text archives use a different layout. Checked directly in
   `Title` and `Task` in the task fixtures and GWA and IWA names in
   `gwas_to_iwas_to_dwas.txt`. They are readable test data, not an exact copy of
   the text layout.
+- onet2r parses the text files with `data.table::fread()`, tab-delimited with
+  quoting disabled. Checked on 2026-10-30: every one of the 163 tables in
+  `db_20_1_text.zip`, `db_25_1_text.zip`, `db_30_3_text.zip`, and
+  `db_31_0_text.zip` gives the same values as `utils::read.delim()`, the reader
+  used before, through both `onet_archive_read()` and
+  `onet_archive_reference()`. Numbers in these tables have at most four
+  decimals and eight significant digits, which both readers convert to the
+  same double.
 
 Sources:
 
+- https://www.onetcenter.org/dl_files/database/db_20_1_text.zip
+- https://www.onetcenter.org/dl_files/database/db_25_1_text.zip
 - https://www.onetcenter.org/dl_files/database/db_30_2_text.zip
 - https://www.onetcenter.org/dl_files/database/db_30_3_text.zip
 - https://www.onetcenter.org/dl_files/database/db_31_0_text.zip

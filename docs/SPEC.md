@@ -237,7 +237,9 @@ A bring-your-own measure object is created from a user table and records:
 
 The constructor validates keys against the requested O&#42;NET release universe.
 It does not transform a user's substantive score except for type checks and the
-requested aggregation.
+requested aggregation. Numeric scores, task weights, and crosswalk weights keep
+full double precision. Only character values are parsed, after thousands
+separators are removed.
 
 ## Aggregation contract
 

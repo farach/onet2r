@@ -127,6 +127,88 @@ weighted_mean_na <- function(x, w) {
   stats::weighted.mean(x[keep], w[keep])
 }
 
+# Vectorized helpers -----------------------------------------------------------
+#
+# A dplyr summarise() or grouped mutate() evaluates each expression once per
+# group through the data mask, which costs tens of microseconds per group and
+# dominates when hundreds of thousands of rows fall into thousands of groups.
+# These helpers compute the same per-group results in a few vectorized passes.
+# Group ids come from vctrs::vec_group_id(), the grouping behind dplyr's `.by`,
+# so groups keep dplyr's first-appearance order and equality rules.
+
+# Apply an elementwise function once per distinct value of `x` and map the
+# results back. Archive and panel columns repeat a few hundred codes, dates,
+# and labels across many rows, so per-row regex or date parsing becomes
+# per-value work plus one hashed match().
+map_unique <- function(x, f, ...) {
+  values <- unique(x)
+  if (length(values) == length(x)) {
+    return(f(x, ...))
+  }
+  f(values, ...)[match(x, values)]
+}
+
+group_index <- function(keys) {
+  id <- vctrs::vec_group_id(keys)
+  n <- attr(id, "n")
+  id <- as.integer(id)
+  list(id = id, n = n, first = match(seq_len(n), id))
+}
+
+# Sum `x` within groups with the same result as base sum() on each group's
+# values in row order. sum() accumulates doubles in long double, so a double
+# accumulator such as rowsum() can differ in the last bit. rowsum() is used
+# only when that cannot happen: integer input, or whole-number doubles whose
+# absolute total is below 2^53. Other input calls sum() once per group.
+group_sum <- function(x, group, na.rm = FALSE) {
+  if (is.logical(x)) {
+    storage.mode(x) <- "integer"
+  }
+  if (group$n == 0L) {
+    return(if (is.integer(x)) integer() else double())
+  }
+  if (is.integer(x) || ((na.rm || !anyNA(x)) && double_sum_is_exact(x))) {
+    return(as.vector(rowsum(x, group$id, reorder = TRUE, na.rm = na.rm)))
+  }
+  groups <- split(x, factor(group$id, levels = seq_len(group$n)))
+  unname(vapply(groups, sum, numeric(1), na.rm = na.rm))
+}
+
+double_sum_is_exact <- function(x) {
+  x <- x[is.finite(x)]
+  all(x == trunc(x)) && sum(abs(x)) < 2^53
+}
+
+# Per-group weighted_mean_na(). Rows that weighted_mean_na() drops contribute
+# exact zeros, which leave each group's long double sums unchanged.
+group_weighted_mean <- function(x, w, group) {
+  keep <- !is.na(x) & !is.na(w) & w > 0
+  numerator <- x * w
+  numerator[!keep] <- 0
+  w[!keep] <- 0
+  out <- group_sum(numerator, group) / group_sum(w, group)
+  out[group_sum(keep, group) == 0L] <- NA_real_
+  out
+}
+
+# Per-group dplyr::n_distinct(), counting a missing value as one value.
+group_n_distinct <- function(x, group) {
+  pairs <- vctrs::vec_unique_loc(vctrs::data_frame(id = group$id, value = x))
+  tabulate(group$id[pairs], nbins = group$n)
+}
+
+# Per-group dplyr::first(x[!is.na(x)]).
+group_first_present <- function(x, group) {
+  present <- which(!is.na(x))
+  x[present][match(seq_len(group$n), group$id[present])]
+}
+
+# Per-group collapse_unique().
+group_collapse_unique <- function(x, group) {
+  groups <- split(as.character(x), factor(group$id, levels = seq_len(group$n)))
+  unname(vapply(groups, collapse_unique, character(1)))
+}
+
 validate_single_column <- function(data, column, arg) {
   validate_single_string(column, arg)
   if (!column %in% names(data)) {
@@ -150,6 +232,9 @@ validate_character_columns <- function(data, columns, arg) {
 }
 
 duplicate_key_rows <- function(data, columns) {
+  if (!vctrs::vec_duplicate_any(data[columns])) {
+    data <- data[0, , drop = FALSE]
+  }
   data |>
     dplyr::summarise(.rows = dplyr::n(), .by = dplyr::all_of(columns)) |>
     dplyr::filter(.data$.rows > 1)
