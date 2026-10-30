@@ -164,9 +164,63 @@
 - SHA-256 verification now uses a supported cryptographic file
   implementation on every declared R version, including R 4.1 through R
   4.4.
+- Numeric measure scores, task weights, crosswalk weights, and scenario
+  aggregates are no longer rounded to 15 significant digits. They were
+  converted to text and back during parsing, which changed computed
+  values such as `1/3`. Values read from O\*NET files, which have at
+  most four decimals, are unaffected. Results computed from
+  full-precision inputs can change in about the 16th significant digit.
 
 ### Improvements
 
+- Archive reading and longitudinal analysis are several times faster.
+  Results are unchanged apart from the 15-digit rounding fix above. With
+  12 synthetic releases shaped like O\*NET 30.x (880 occupations, 1.7
+  million Task Ratings rows):
+  - [`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md)
+    and
+    [`onet_panel()`](https://farach.github.io/onet2r/reference/onet_panel.md)
+    are about 15 times faster (62 seconds to 4 seconds for the 12 Task
+    Ratings releases). Archive files are parsed with
+    [`data.table::fread()`](https://rdrr.io/pkg/data.table/man/fread.html),
+    numeric columns are no longer converted to text and back, and SOC
+    codes and survey dates are parsed once per distinct value instead of
+    once per row.
+  - [`onet_content_change()`](https://farach.github.io/onet2r/reference/onet_content_change.md)
+    is about 12 times faster,
+    [`onet_resurvey_panel()`](https://farach.github.io/onet2r/reference/onet_resurvey_panel.md)
+    about 7 times,
+    [`onet_change_summary()`](https://farach.github.io/onet2r/reference/onet_change_summary.md)
+    about 3 times, and
+    [`onet_panel_reconcile()`](https://farach.github.io/onet2r/reference/onet_panel_reconcile.md)
+    about 2 times. Per-occupation summaries that dplyr evaluated once
+    per group are now computed in vectorized passes, and each release is
+    split from the panel once instead of being filtered again for every
+    release pair.
+  - [`onet_weight_panel_pums()`](https://farach.github.io/onet2r/reference/onet_weight_panel_pums.md)
+    with 80 replicate weights on 1.5 million person records is about 4
+    times faster nationally and about 40 times faster by state (147
+    seconds to 4 seconds). Cells are grouped once, the replicate columns
+    are no longer copied, and whole-number weights are summed in one
+    pass per block of columns.
+  - [`onet_task_to_occupation()`](https://farach.github.io/onet2r/reference/onet_task_to_occupation.md),
+    [`onet_measure_aggregate()`](https://farach.github.io/onet2r/reference/onet_measure_aggregate.md),
+    and
+    [`onet_measure_sensitivity()`](https://farach.github.io/onet2r/reference/onet_measure_sensitivity.md)
+    are 5 to 9 times faster.
+- onet2r now imports vctrs, which dplyr already requires, for these
+  grouping operations.
+- onet2r now imports data.table (1.17.0 or later) to parse archive text
+  files. On all 163 tables of the O\*NET 20.1, 25.1, 30.3, and 31.0 text
+  archives, the results are identical to those of the previous
+  [`utils::read.delim()`](https://rdrr.io/r/utils/read.table.html)
+  reader, and parsing is about 9 times faster. Every `fread()` option
+  that can change results is set explicitly, so `datatable.*` options do
+  not affect onet2r. Two cases outside the O\*NET formats differ. In
+  [`onet_archive_read()`](https://farach.github.io/onet2r/reference/onet_archive_read.md)
+  output, a text column that holds only `T` and `F` keeps that text
+  instead of becoming `TRUE` and `FALSE`. Numbers with more than 15
+  significant digits or extreme exponents can differ in the last digit.
 - The activity article now adds May 2025 OEWS employment prevalence with
   complete-cell coverage and allocation sensitivity, real Essential and
   Transferable Skills profiles on separate scales, and
