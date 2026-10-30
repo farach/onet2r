@@ -811,7 +811,10 @@ oews_numeric_columns <- function() {
 }
 
 standardize_soc_code <- function(code) {
-  code <- as.character(code)
+  map_unique(as.character(code), standardize_soc_code_values)
+}
+
+standardize_soc_code_values <- function(code) {
   code <- trimws(code)
   code <- sub("\\.\\d{2}$", "", code)
 
@@ -827,7 +830,10 @@ standardize_soc_code <- function(code) {
 }
 
 standardize_onet_soc_code <- function(code) {
-  code <- as.character(code)
+  map_unique(as.character(code), standardize_onet_soc_code_values)
+}
+
+standardize_onet_soc_code_values <- function(code) {
   code <- trimws(code)
 
   clean <- gsub("[^0-9A-Za-z]", "", code)

@@ -28,7 +28,8 @@ Imports:
     stats,
     tibble,
     tools,
-    utils
+    utils,
+    vctrs
 Suggests:
     callr,
     curl,

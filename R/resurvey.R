@@ -61,7 +61,14 @@ resolve_seams <- function(seams) {
 # never advance the survey clock.
 classify_survey_source <- function(domain_source,
                                    survey_sources = c("Incumbent", "Occupational Expert")) {
-  ds <- as.character(domain_source)
+  map_unique(
+    as.character(domain_source),
+    classify_survey_source_values,
+    survey_sources = survey_sources
+  )
+}
+
+classify_survey_source_values <- function(ds, survey_sources) {
   survey_pattern <- paste(survey_sources, collapse = "|")
   is_survey <- grepl(survey_pattern, ds, ignore.case = TRUE)
   is_survey[is.na(is_survey)] <- FALSE
@@ -75,28 +82,61 @@ classify_survey_source <- function(domain_source,
   out
 }
 
-max_date_or_na <- function(x) {
-  x <- x[!is.na(x)]
-  if (length(x) == 0) {
-    return(as.Date(NA))
-  }
-  max(x)
+# The occupation survey clock: the latest survey `source_date` for each
+# occupation and release, missing when every survey date is missing.
+resurvey_occupation_clock <- function(data) {
+  survey <- data[data$survey_source == "survey", , drop = FALSE]
+  group <- group_index(survey[c("onet_soc_code", "release_version")])
+  date <- as.double(survey$source_date)
+  date[is.na(date)] <- -Inf
+  latest <- order(group$id, date, decreasing = c(FALSE, TRUE), method = "radix")
+  latest <- latest[!duplicated(group$id[latest])]
+  occ_survey_date <- date[latest]
+  occ_survey_date[occ_survey_date == -Inf] <- NA_real_
+  tibble::tibble(
+    onet_soc_code = survey$onet_soc_code[group$first],
+    release_version = survey$release_version[group$first],
+    occ_survey_date = .Date(occ_survey_date)
+  )
 }
 
-# For each position, the maximum of all strictly-prior non-missing dates (NA
-# when none). Used to carry an occupation's survey clock forward across releases
-# that were not re-surveyed, so a gap year does not reset the clock.
-running_prev_max_date <- function(x) {
-  n <- length(x)
-  out <- rep(as.Date(NA), n)
-  best <- as.Date(NA)
-  for (i in seq_len(n)) {
-    out[i] <- best
-    if (!is.na(x[i])) {
-      best <- if (is.na(best)) x[i] else max(best, x[i])
-    }
-  }
-  out
+# Resurvey fields for occupation-release rows sorted by occupation and then
+# release. `prev_survey_date` carries the latest earlier survey date forward
+# across releases that were not re-surveyed, so a gap year does not reset the
+# clock.
+add_resurvey_clock <- function(occ_rel) {
+  group <- group_index(occ_rel["onet_soc_code"])
+  has_prior <- seq_along(group$id) != group$first[group$id]
+  previous <- seq_along(group$id) - 1L
+  previous[!has_prior] <- NA_integer_
+
+  survey_date <- as.double(occ_rel$occ_survey_date)
+  survey_date[is.na(survey_date)] <- -Inf
+  latest <- survey_date
+  split(latest, group$id) <- lapply(split(survey_date, group$id), cummax)
+  prev_survey_date <- latest[previous]
+  prev_survey_date[which(prev_survey_date == -Inf)] <- NA_real_
+  prev_survey_date <- .Date(prev_survey_date)
+
+  occ_survey_date <- occ_rel$occ_survey_date
+  advanced <- !is.na(occ_survey_date) &
+    !is.na(prev_survey_date) &
+    occ_survey_date > prev_survey_date
+  resurvey_event <- dplyr::if_else(has_prior, advanced & !occ_rel$seam_in, NA)
+  resurveyed <- dplyr::coalesce(resurvey_event, FALSE)
+  cycle_index <- integer(length(resurveyed))
+  split(cycle_index, group$id) <- lapply(split(resurveyed, group$id), cumsum)
+
+  occ_rel$prev_survey_date <- prev_survey_date
+  occ_rel$prev_release_version <- occ_rel$release_version[previous]
+  occ_rel$resurvey_event <- resurvey_event
+  occ_rel$cycle_index <- cycle_index
+  occ_rel$age_resolved <- dplyr::if_else(
+    resurveyed,
+    as.numeric(occ_survey_date - prev_survey_date) / 365.25,
+    NA_real_
+  )
+  occ_rel
 }
 
 # Per-release incoming-transition seam flags. A release inherits a seam when the
@@ -311,12 +351,7 @@ onet_resurvey_panel <- function(
 
   seams <- resurvey_release_seams(rel_meta, seam_table)
 
-  occ_clock <- data |>
-    dplyr::filter(.data$survey_source == "survey") |>
-    dplyr::summarise(
-      occ_survey_date = max_date_or_na(.data$source_date),
-      .by = c("onet_soc_code", "release_version")
-    )
+  occ_clock <- resurvey_occupation_clock(data)
 
   occ_rel <- data |>
     dplyr::distinct(
@@ -326,27 +361,7 @@ onet_resurvey_panel <- function(
     dplyr::left_join(seams, by = "release_version") |>
     dplyr::mutate(seam_in = dplyr::coalesce(.data$seam_in, FALSE)) |>
     dplyr::arrange(.data$onet_soc_code, .data$release_date, .data$release_version) |>
-    dplyr::group_by(.data$onet_soc_code) |>
-    dplyr::mutate(
-      prev_survey_date = running_prev_max_date(.data$occ_survey_date),
-      prev_release_version = dplyr::lag(.data$release_version),
-      .has_prior = dplyr::row_number() > 1,
-      .advanced = !is.na(.data$occ_survey_date) &
-        !is.na(.data$prev_survey_date) &
-        .data$occ_survey_date > .data$prev_survey_date,
-      resurvey_event = dplyr::if_else(
-        .data$.has_prior,
-        .data$.advanced & !.data$seam_in,
-        NA
-      ),
-      cycle_index = cumsum(dplyr::coalesce(.data$resurvey_event, FALSE)),
-      age_resolved = dplyr::if_else(
-        dplyr::coalesce(.data$resurvey_event, FALSE),
-        as.numeric(.data$occ_survey_date - .data$prev_survey_date) / 365.25,
-        NA_real_
-      )
-    ) |>
-    dplyr::ungroup() |>
+    add_resurvey_clock() |>
     dplyr::select(
       "onet_soc_code", "release_version", "occ_survey_date",
       "prev_survey_date", "prev_release_version", "resurvey_event",

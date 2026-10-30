@@ -443,7 +443,11 @@ onet_weight_panel_pums <- function(
     source_year = year,
     crosswalk = crosswalk
   )
-  data <- tibble::as_tibble(pums)
+  # Only the columns the panel needs are filtered and joined. Replicate weights
+  # are read from `pums` by row when standard errors are computed, so the wide
+  # replicate columns are never copied.
+  data <- tibble::as_tibble(pums)[unique(c(socp, weight, group))]
+  data$.pums_row <- seq_len(nrow(data))
   data$source_code <- as.character(data[[socp]])
   warn_missing_employment(data[[weight]], "PUMS")
   data$.employment <- parse_oews_number(data[[weight]])
@@ -458,7 +462,7 @@ onet_weight_panel_pums <- function(
   joined <- drop_invalid_reference_soc(joined, source = "PUMS")
   out <- weight_panel_summarise(joined, year, "PUMS", group = group)
   if (!is.null(replicate_weights)) {
-    out <- add_pums_replicate_se(out, joined, replicate_weights, group)
+    out <- add_pums_replicate_se(out, joined, pums, replicate_weights, group)
   }
   out
 }
@@ -473,22 +477,18 @@ validate_weight_panel <- function(weight_panel) {
 
 weight_panel_summarise <- function(data, year, source, group = NULL) {
   group_cols <- c("reference_soc_code", group)
-  out <- data |>
-    dplyr::summarise(
-      employment = sum(.data$employment, na.rm = TRUE),
-      source_taxonomy = dplyr::first(.data$source_taxonomy),
-      reference_taxonomy = dplyr::first(.data$reference_taxonomy),
-      .by = dplyr::all_of(group_cols)
-    )
+  cells <- group_index(data[group_cols])
+  out <- vctrs::vec_slice(data[group_cols], cells$first)
+  out$employment <- group_sum(data$employment, cells, na.rm = TRUE)
+  out$source_taxonomy <- data$source_taxonomy[cells$first]
+  out$reference_taxonomy <- data$reference_taxonomy[cells$first]
   total_cols <- group
   if (length(total_cols) == 0) {
     out$.total_employment <- sum(out$employment, na.rm = TRUE)
   } else {
-    out <- out |>
-    dplyr::mutate(
-      .total_employment = sum(.data$employment, na.rm = TRUE),
-      .by = dplyr::all_of(total_cols)
-    )
+    totals <- group_index(out[total_cols])
+    total_employment <- group_sum(out$employment, totals, na.rm = TRUE)
+    out$.total_employment <- total_employment[totals$id]
   }
   out$year <- as.integer(year)
   out$source <- source
@@ -555,7 +555,7 @@ pums_soc_vintage <- function(year) {
   }
 }
 
-add_pums_replicate_se <- function(out, joined, replicate_weights, group) {
+add_pums_replicate_se <- function(out, joined, pums, replicate_weights, group) {
   if (!(length(replicate_weights) %in% c(80L, 160L))) {
     cli::cli_warn(
       "Replicate-weight standard errors are designed for the full replicate set, usually 80 ACS columns or 160 CPS ASEC columns."
@@ -563,27 +563,82 @@ add_pums_replicate_se <- function(out, joined, replicate_weights, group) {
   }
   key_cols <- c("reference_soc_code", group)
   scale <- 4 / length(replicate_weights)
-  rep_totals <- purrr::map(replicate_weights, function(rep_col) {
-    data <- joined
-    data$employment <- parse_oews_number(data[[rep_col]]) * data$crosswalk_weight
-    data |>
-      dplyr::summarise(
-        replicate_employment = sum(.data$employment, na.rm = TRUE),
-        .by = dplyr::all_of(key_cols)
-      )
-  })
-  rep_data <- purrr::list_rbind(rep_totals, names_to = "replicate")
-  se <- dplyr::left_join(
-    rep_data,
+  cells <- group_index(joined[key_cols])
+  replicate_totals <- replicate_cell_totals(
+    joined,
+    pums,
+    replicate_weights,
+    cells
+  )
+  se <- vctrs::vec_slice(joined[key_cols], cells$first)
+  employment <- dplyr::left_join(
+    se,
     out[c(key_cols, "employment")],
     by = key_cols,
-    relationship = "many-to-one"
-  ) |>
-    dplyr::summarise(
-      employment_se = sqrt(scale * sum((.data$replicate_employment - .data$employment)^2)),
-      .by = dplyr::all_of(key_cols)
-    )
+    relationship = "one-to-one"
+  )$employment
+  # rowSums() accumulates each row in long double in replicate order, the
+  # same arithmetic as sum() over one cell's replicates.
+  se$employment_se <- sqrt(scale * rowSums((replicate_totals - employment)^2))
   dplyr::left_join(out, se, by = key_cols, relationship = "one-to-one")
+}
+
+# Replicate employment totals per cell: a cells-by-replicates matrix. Each
+# replicate column is read from `pums` at the joined rows, in row order.
+# Whole-number weights, such as ACS replicate weights, sum exactly in double
+# precision while every total stays below 2^53, so each block of columns then
+# takes one rowsum() pass. Other weights fall back to group_sum() column by
+# column.
+replicate_cell_totals <- function(
+    joined,
+    pums,
+    replicate_weights,
+    cells,
+    block_size = 16L) {
+  totals <- matrix(NA_real_, cells$n, length(replicate_weights))
+  if (cells$n == 0L) {
+    return(totals)
+  }
+  rows <- joined$.pums_row
+  crosswalk_weight <- joined$crosswalk_weight
+  whole_crosswalk <- is_whole_number(crosswalk_weight)
+  bound <- length(rows) * max_abs(crosswalk_weight)
+  blocks <- split(
+    seq_along(replicate_weights),
+    (seq_along(replicate_weights) - 1L) %/% block_size
+  )
+  for (block in blocks) {
+    employment <- matrix(NA_real_, length(rows), length(block))
+    exact <- whole_crosswalk
+    for (j in seq_along(block)) {
+      values <- parse_oews_number(pums[[replicate_weights[[block[[j]]]]]][rows])
+      exact <- exact && is_whole_number(values) &&
+        isTRUE(max_abs(values) * bound < 2^53)
+      employment[, j] <- values * crosswalk_weight
+    }
+    if (exact) {
+      totals[, block] <- rowsum(
+        employment,
+        cells$id,
+        reorder = TRUE,
+        na.rm = TRUE
+      )
+    } else {
+      for (j in seq_along(block)) {
+        totals[, block[[j]]] <- group_sum(employment[, j], cells, na.rm = TRUE)
+      }
+    }
+  }
+  totals
+}
+
+is_whole_number <- function(x) {
+  is.integer(x) || isTRUE(all(x == trunc(x), na.rm = TRUE))
+}
+
+# Largest absolute value without copying `x`. It is Inf when `x` has no values.
+max_abs <- function(x) {
+  suppressWarnings(max(abs(c(min(x, na.rm = TRUE), max(x, na.rm = TRUE)))))
 }
 
 filter_oews_detailed_rows <- function(data, code, o_group) {
@@ -621,7 +676,10 @@ warn_missing_employment <- function(x, source) {
 }
 
 drop_invalid_reference_soc <- function(data, source) {
-  valid <- grepl("^\\d{2}-\\d{4}$", data$reference_soc_code)
+  valid <- map_unique(
+    as.character(data$reference_soc_code),
+    \(code) grepl("^\\d{2}-\\d{4}$", code)
+  )
   valid[is.na(valid)] <- FALSE
   if (all(valid)) {
     return(data)

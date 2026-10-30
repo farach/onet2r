@@ -42,17 +42,19 @@ pair_seam <- function(from_date, to_date, from_vintage, to_vintage,
   NA_character_
 }
 
-content_change_pair <- function(tasks, item, from_meta, to_meta,
+content_change_pair <- function(from_tasks, to_tasks, item, from_meta, to_meta,
                                 seams = onet_known_seams()) {
-  join_keys <- c("onet_soc_code", item, intersect("scale_id", names(tasks)))
-  a <- tasks |>
-    dplyr::filter(.data$release_version == from_meta$release_version) |>
+  join_keys <- c(
+    "onet_soc_code",
+    item,
+    intersect("scale_id", names(from_tasks))
+  )
+  a <- from_tasks |>
     dplyr::select(
       dplyr::all_of(join_keys),
       from_value = "data_value"
     )
-  b <- tasks |>
-    dplyr::filter(.data$release_version == to_meta$release_version) |>
+  b <- to_tasks |>
     dplyr::select(
       dplyr::all_of(join_keys), to_value = "data_value",
       to_title = "title"
@@ -64,44 +66,26 @@ content_change_pair <- function(tasks, item, from_meta, to_meta,
   }
 
   joined <- dplyr::full_join(a, b, by = join_keys) |>
-    dplyr::filter(.data$onet_soc_code %in% both) |>
-    dplyr::mutate(
-      in_a = !is.na(.data$from_value),
-      in_b = !is.na(.data$to_value),
-      from_fill = dplyr::coalesce(.data$from_value, 0),
-      to_fill = dplyr::coalesce(.data$to_value, 0),
-      retained_delta = dplyr::if_else(
-        .data$in_a & .data$in_b, .data$to_value - .data$from_value, NA_real_
-      )
-    )
+    dplyr::filter(.data$onet_soc_code %in% both)
+  in_a <- !is.na(joined$from_value)
+  in_b <- !is.na(joined$to_value)
+  from_fill <- dplyr::coalesce(joined$from_value, 0)
+  to_fill <- dplyr::coalesce(joined$to_value, 0)
+  retained_delta <- dplyr::if_else(
+    in_a & in_b, joined$to_value - joined$from_value, NA_real_
+  )
 
-  metrics <- joined |>
-    dplyr::summarise(
-      title = dplyr::first(.data$to_title[!is.na(.data$to_title)]),
-      n_from = sum(.data$in_a),
-      n_to = sum(.data$in_b),
-      n_retained = sum(.data$in_a & .data$in_b),
-      n_dropped = sum(.data$in_a & !.data$in_b),
-      n_added = sum(!.data$in_a & .data$in_b),
-      .l2 = sqrt(sum(.data$retained_delta^2, na.rm = TRUE)),
-      .dot = sum(.data$from_fill * .data$to_fill),
-      .norm_from = sqrt(sum(.data$from_fill^2)),
-      .norm_to = sqrt(sum(.data$to_fill^2)),
-      .by = "onet_soc_code"
-    ) |>
-    dplyr::mutate(
-      n_union = .data$n_retained + .data$n_dropped + .data$n_added,
-      jaccard = dplyr::if_else(.data$n_union > 0, .data$n_retained / .data$n_union, NA_real_),
-      churn_rate = dplyr::if_else(
-        .data$n_union > 0, (.data$n_dropped + .data$n_added) / .data$n_union, NA_real_
-      ),
-      rating_delta_l2 = .data$.l2,
-      cosine = dplyr::if_else(
-        .data$.norm_from > 0 & .data$.norm_to > 0,
-        .data$.dot / (.data$.norm_from * .data$.norm_to),
-        NA_real_
-      )
-    )
+  occupation <- group_index(joined["onet_soc_code"])
+  n_from <- group_sum(in_a, occupation)
+  n_to <- group_sum(in_b, occupation)
+  n_retained <- group_sum(in_a & in_b, occupation)
+  n_dropped <- group_sum(in_a & !in_b, occupation)
+  n_added <- group_sum(!in_a & in_b, occupation)
+  n_union <- n_retained + n_dropped + n_added
+  dot <- group_sum(from_fill * to_fill, occupation)
+  norm_from <- sqrt(group_sum(from_fill^2, occupation))
+  norm_to <- sqrt(group_sum(to_fill^2, occupation))
+  onet_soc_code <- joined$onet_soc_code[occupation$first]
 
   seam_type <- pair_seam(
     from_meta$release_date, to_meta$release_date,
@@ -110,24 +94,32 @@ content_change_pair <- function(tasks, item, from_meta, to_meta,
   )
 
   tibble::tibble(
-    onet_soc_code = metrics$onet_soc_code,
-    soc_code = standardize_soc_code(metrics$onet_soc_code),
-    title = metrics$title,
+    onet_soc_code = onet_soc_code,
+    soc_code = standardize_soc_code(onet_soc_code),
+    title = group_first_present(joined$to_title, occupation),
     from_release = from_meta$release_version,
     to_release = to_meta$release_version,
     from_release_date = from_meta$release_date,
     to_release_date = to_meta$release_date,
     soc_vintage_from = factor(as.character(from_meta$soc_vintage), levels = onet_vintage_levels),
     soc_vintage_to = factor(as.character(to_meta$soc_vintage), levels = onet_vintage_levels),
-    n_from = as.integer(metrics$n_from),
-    n_to = as.integer(metrics$n_to),
-    n_added = as.integer(metrics$n_added),
-    n_dropped = as.integer(metrics$n_dropped),
-    n_retained = as.integer(metrics$n_retained),
-    jaccard = metrics$jaccard,
-    churn_rate = metrics$churn_rate,
-    rating_delta_l2 = metrics$rating_delta_l2,
-    cosine = metrics$cosine,
+    n_from = as.integer(n_from),
+    n_to = as.integer(n_to),
+    n_added = as.integer(n_added),
+    n_dropped = as.integer(n_dropped),
+    n_retained = as.integer(n_retained),
+    jaccard = dplyr::if_else(n_union > 0, n_retained / n_union, NA_real_),
+    churn_rate = dplyr::if_else(
+      n_union > 0, (n_dropped + n_added) / n_union, NA_real_
+    ),
+    rating_delta_l2 = sqrt(
+      group_sum(retained_delta^2, occupation, na.rm = TRUE)
+    ),
+    cosine = dplyr::if_else(
+      norm_from > 0 & norm_to > 0,
+      dot / (norm_from * norm_to),
+      NA_real_
+    ),
     seam = !is.na(seam_type),
     seam_type = seam_type,
     safely_comparable = is.na(seam_type)
@@ -287,9 +279,18 @@ onet_content_change <- function(
     return(empty_content_change())
   }
 
+  release_rows <- split(
+    seq_len(nrow(tasks)),
+    as.character(tasks$release_version)
+  )
+  release_tasks <- function(release) {
+    vctrs::vec_slice(tasks, release_rows[[as.character(release)]])
+  }
+
   purrr::map(seq_len(nrow(pairs)), \(i) {
     content_change_pair(
-      tasks = tasks,
+      from_tasks = release_tasks(pairs$from[[i]]),
+      to_tasks = release_tasks(pairs$to[[i]]),
       item = item,
       from_meta = rel_meta[rel_meta$release_version == pairs$from[[i]], ][1, ],
       to_meta = rel_meta[rel_meta$release_version == pairs$to[[i]], ][1, ],

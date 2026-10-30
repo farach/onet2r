@@ -447,7 +447,10 @@ onet_task_to_occupation <- function(
       relationship = "many-to-one"
     )
   }
-  task_type_values <- tolower(trimws(as.character(ratings[[task_type]])))
+  task_type_values <- map_unique(
+    as.character(ratings[[task_type]]),
+    \(x) tolower(trimws(x))
+  )
   missing_task_type <- is.na(task_type_values) | task_type_values %in% c("", "n/a")
   if (any(missing_task_type)) {
     cli::cli_inform(
@@ -468,8 +471,8 @@ onet_task_to_occupation <- function(
     }
   }
   if (!include_supplemental) {
-    ratings <- ratings |>
-      dplyr::filter(tolower(as.character(.data[[task_type]])) == "core")
+    is_core <- map_unique(as.character(ratings[[task_type]]), tolower) == "core"
+    ratings <- ratings[is_core %in% TRUE, , drop = FALSE]
   }
 
   validate_task_rating_grain(ratings, occupation_code, task_id)
@@ -482,15 +485,29 @@ onet_task_to_occupation <- function(
   )
   scored$.task_weight <- parse_onet_number(scored[[value]])
 
-  scored |>
-    dplyr::summarise(
-      measure_id = measure$metadata$measure_id,
-      measure_release = measure$metadata$release_version,
-      n_tasks = dplyr::n_distinct(.data[[task_id]]),
-      total_task_weight = sum(.data$.task_weight, na.rm = TRUE),
-      measure_score = weighted_mean_na(.data$measure_score, .data$.task_weight),
-      .by = dplyr::all_of(occupation_code)
-    ) |>
+  # Values are computed before tibble() and spliced in, so a user column name
+  # cannot mask a local variable.
+  occupation <- group_index(scored[occupation_code])
+  occupation_key <- stats::setNames(
+    list(scored[[occupation_code]][occupation$first]),
+    occupation_code
+  )
+  summary <- list(
+    measure_id = measure$metadata$measure_id,
+    measure_release = measure$metadata$release_version,
+    n_tasks = group_n_distinct(scored[[task_id]], occupation),
+    total_task_weight = group_sum(
+      scored$.task_weight,
+      occupation,
+      na.rm = TRUE
+    ),
+    measure_score = group_weighted_mean(
+      scored$measure_score,
+      scored$.task_weight,
+      occupation
+    )
+  )
+  tibble::tibble(!!!occupation_key, !!!summary) |>
     dplyr::mutate(soc_code = standardize_soc_code(.data[[occupation_code]])) |>
     dplyr::arrange(.data[[occupation_code]])
 }
@@ -1071,15 +1088,22 @@ map_occupation_scores <- function(scores, bridge) {
 }
 
 collapse_mapped_scores <- function(mapped) {
-  mapped |>
-    dplyr::summarise(
-      measure_id = dplyr::first(.data$measure_id),
-      measure_score = weighted_mean_na(.data$measure_score, .data$crosswalk_weight),
-      measure_release = collapse_unique(.data$measure_release),
-      n_measure_keys = dplyr::n_distinct(.data$measure_key),
-      coverage_weight = min(sum(.data$crosswalk_weight, na.rm = TRUE), 1),
-      .by = "reference_soc_code"
+  soc <- group_index(mapped["reference_soc_code"])
+  tibble::tibble(
+    reference_soc_code = mapped$reference_soc_code[soc$first],
+    measure_id = mapped$measure_id[soc$first],
+    measure_score = group_weighted_mean(
+      mapped$measure_score,
+      mapped$crosswalk_weight,
+      soc
+    ),
+    measure_release = group_collapse_unique(mapped$measure_release, soc),
+    n_measure_keys = group_n_distinct(mapped$measure_key, soc),
+    coverage_weight = pmin(
+      group_sum(mapped$crosswalk_weight, soc, na.rm = TRUE),
+      1
     )
+  )
 }
 
 # Accept minimal measure bridges (`from_onet_soc_code`, `reference_soc_code`,
@@ -1205,10 +1229,7 @@ filter_aggregate_weight_panel <- function(weight_panel, year = NULL, cell = NULL
     }
   }
 
-  duplicates <- weights |>
-    dplyr::summarise(n = dplyr::n(), .by = "reference_soc_code") |>
-    dplyr::filter(.data$n > 1)
-  if (nrow(duplicates) > 0) {
+  if (vctrs::vec_duplicate_any(weights$reference_soc_code)) {
     cli::cli_abort(
       "{.arg weight_panel} must have at most one row per {.var reference_soc_code} after filtering."
     )
