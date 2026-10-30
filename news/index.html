@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,9 +53,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="onet2r-development-version">onet2r (development version)<a class="anchor" aria-label="anchor" href="#onet2r-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.6.0" id="onet2r-060">onet2r 0.6.0<a class="anchor" aria-label="anchor" href="#onet2r-060"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-6-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-6-0"></a></h3>
 <ul><li>
 <code><a href="../reference/onet_oews_bridge.html">onet_oews_bridge()</a></code> maps O*NET-SOC codes into the 12 combined codes OEWS has published since May 2021 in place of some detailed occupations, such as <code>31-1120</code> Home Health and Personal Care Aides and <code>25-9045</code> Teaching Assistants, Except Postsecondary. Pass it as <code>bridge</code> to <code><a href="../reference/onet_measure_aggregate.html">onet_measure_aggregate()</a></code> or <code><a href="../reference/onet_measure_sensitivity.html">onet_measure_sensitivity()</a></code>. The mapping comes from the BLS occupation definitions, so it is the same for national, state, metropolitan, and industry panels, and panels from before May 2021 are rejected. With O*NET 31.0 task ratings and May 2025 national OEWS weights, it raises covered employment from about 92 percent to about 98 percent, and Healthcare Support from about 46 percent to 100 percent (reported in the task-time EDA review).</li>
 <li>
@@ -76,7 +76,7 @@
 <code><a href="../reference/onet_resurvey_panel.html">onet_resurvey_panel()</a></code> and <code><a href="../reference/onet_content_change.html">onet_content_change()</a></code> gain an optional <code>seams =</code> argument to override the default seam table, which contains only the verified v25.1 SOC-2010 to SOC-2018 taxonomy seam. The default (<code>NULL</code>) reproduces existing output exactly; supplying a table lets callers add channel-specific or source-specific seam dates, such as a v21.0 row, when they have external evidence a comparison spanning that date needs seam treatment. Cross-vintage SOC seams are still detected from <code>soc_vintage</code> regardless.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-6-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-6-0"></a></h3>
 <ul><li>
 <code><a href="../reference/onet_oews.html">onet_oews()</a></code> now finds a browser-downloaded OEWS ZIP by checking its exact file name and numbered copies, such as <code>oesm25nat (1).zip</code>, before listing the folder. On Windows, <code><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files()</a></code> can stop early without an error when the R session cannot represent another file name in the folder, so the Downloads fallback could miss ZIPs that were there (reported in the task-time EDA review).</li>
 <li>
@@ -101,7 +101,7 @@
 <li>Numeric measure scores, task weights, crosswalk weights, and scenario aggregates are no longer rounded to 15 significant digits. They were converted to text and back during parsing, which changed computed values such as <code>1/3</code>. Values read from O*NET files, which have at most four decimals, are unaffected. Results computed from full-precision inputs can change in about the 16th significant digit.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-development-version">Improvements<a class="anchor" aria-label="anchor" href="#improvements-development-version"></a></h3>
+<h3 id="improvements-0-6-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-6-0"></a></h3>
 <ul><li>Archive reading and longitudinal analysis are several times faster. Results are unchanged apart from the 15-digit rounding fix above. With 12 synthetic releases shaped like O*NET 30.x (880 occupations, 1.7 million Task Ratings rows):
 <ul><li>
 <code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code> and <code><a href="../reference/onet_panel.html">onet_panel()</a></code> are about 15 times faster (62 seconds to 4 seconds for the 12 Task Ratings releases). Archive files are parsed with <code><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">data.table::fread()</a></code>, numeric columns are no longer converted to text and back, and SOC codes and survey dates are parsed once per distinct value instead of once per row.</li>
@@ -115,7 +115,7 @@
 <li>onet2r now imports vctrs, which dplyr already requires, for these grouping operations.</li>
 <li>onet2r now imports data.table (1.17.0 or later) to parse archive text files. On all 163 tables of the O*NET 20.1, 25.1, 30.3, and 31.0 text archives, the results are identical to those of the previous <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">utils::read.delim()</a></code> reader, and parsing is about 9 times faster. Every <code>fread()</code> option that can change results is set explicitly, so <code>datatable.*</code> options do not affect onet2r. Two cases outside the O*NET formats differ. In <code><a href="../reference/onet_archive_read.html">onet_archive_read()</a></code> output, a text column that holds only <code>T</code> and <code>F</code> keeps that text instead of becoming <code>TRUE</code> and <code>FALSE</code>. Numbers with more than 15 significant digits or extreme exponents can differ in the last digit.</li>
 <li>The activity article now adds May 2025 OEWS employment prevalence with complete-cell coverage and allocation sensitivity, real Essential and Transferable Skills profiles on separate scales, and activity/skill/software neighbor comparisons on 823 common eligible codes. Suppression exclusions, ordinal sensitivity, overlapping taxonomy profiles and missing employment are disclosed. The prior invented multidomain composite is removed; education and experience remain separate future extensions.</li>
-<li>The occupational-distinctiveness analysis gains a companion article on listed software examples, with reproducible O*NET 30.3 prevalence, inventory diagnostics, neighbor sensitivity, a mass-preserving classification information budget, and an ecology-inspired overlap decomposition for selected pairs. Exact example names and example-category pairs are kept distinct. The original five-character code-group sensitivity is no longer mislabeled as official SOC minor-group weighting. All results describe published occupational records, not worker software-use rates.</li>
+<li>The occupational-distinctiveness analysis gains a companion article on listed software examples, with reproducible O*NET 30.3 prevalence, inventory diagnostics, neighbor sensitivity, a mass-preserving classification information budget, and an ecology-inspired overlap decomposition for selected pairs. Exact example names and example-category pairs are kept distinct. The original five-character code-group sensitivity is no longer mislabeled as official SOC minor-group weighting. All results describe published occupational records, not worker software-use rates. Like the other article snapshots, its tables ship with the O*NET CC BY 4.0 attribution and modification notice.</li>
 <li>Large derived article tables use lossless gzip compression, preserving offline reproduction while keeping the installed data footprint small.</li>
 <li>A new article, “What Makes Occupations Different?”, examines common and uncommon detailed work activities using a reproducible public O*NET 30.3 archive snapshot. It separates TF-IDF rarity from profile isolation, adds an equal-code-prefix-group weighting sensitivity, a hierarchy information-loss budget, a size-preserving randomized partition reference, and a finite-run fixed-margin reference. Static figures have accessible table counterparts. The article discloses inventory-size and Supplemental-task dependence and keeps invented examples explicitly stylized. Article builds remain offline, and no substantive measure is added to the exported API.</li>
 <li>The pkgdown site is again published at <a href="https://farach.github.io/onet2r/" class="uri">https://farach.github.io/onet2r/</a> in pkgdown’s <code>unreleased</code> mode, which marks the package as not yet on CRAN. Since July 2026 the site had been built only into <code>/dev/</code>, which is not indexed by search engines, leaving the canonical URL on a stale build. The leftover <code>/dev/</code> copy is removed.</li>

@@ -1,6 +1,6 @@
 # Changelog
 
-## onet2r (development version)
+## onet2r 0.6.0
 
 ### New features
 
@@ -237,7 +237,9 @@
   example-category pairs are kept distinct. The original five-character
   code-group sensitivity is no longer mislabeled as official SOC
   minor-group weighting. All results describe published occupational
-  records, not worker software-use rates.
+  records, not worker software-use rates. Like the other article
+  snapshots, its tables ship with the O\*NET CC BY 4.0 attribution and
+  modification notice.
 - Large derived article tables use lossless gzip compression, preserving
   offline reproduction while keeping the installed data footprint small.
 - A new article, “What Makes Occupations Different?”, examines common

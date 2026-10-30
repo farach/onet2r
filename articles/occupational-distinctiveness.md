@@ -1370,10 +1370,10 @@ Verified schema facts are recorded in `docs/DATA_NOTES.md`.
 TF-IDF is adapted from information retrieval. For the underlying
 distinction between term frequency and document frequency, see Manning,
 Raghavan, and Schuetze, *Introduction to Information Retrieval*, section
-6.2, [Term frequency and
-weighting](https://nlp.stanford.edu/IR-book/html/htmledition/term-frequency-and-weighting-1.html).
-The occupation-level summary, distances, and weighting rules here are
-explicit analytical choices, not measures validated by that reference.
+6.2, Term frequency and weighting (Cambridge University Press, 2008,
+<https://doi.org/10.1017/CBO9780511809071>). The occupation-level
+summary, distances, and weighting rules here are explicit analytical
+choices, not measures validated by that reference.
 
 The information-loss budget borrows the relevance-target idea from
 Tishby, Pereira, and Bialek, [The information bottleneck
