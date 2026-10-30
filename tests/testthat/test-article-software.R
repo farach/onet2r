@@ -117,3 +117,17 @@ test_that("route information can exceed exact-name information", {
   expect_equal(name_bits, 0)
   expect_equal(pair_bits, 1)
 })
+
+test_that("the software snapshot carries its attribution notice", {
+  path <- system.file(
+    "extdata", "occupational-software", "README.txt", package = "onet2r"
+  )
+  expect_true(nzchar(path))
+  bytes <- readBin(path, "raw", file.size(path))
+  expect_false(any(bytes > as.raw(127)))
+  expect_false(any(bytes == as.raw(13)))
+  text <- rawToChar(bytes)
+  expect_match(text, "Creative Commons Attribution 4.0", fixed = TRUE)
+  expect_match(text, "db_30_3_text.zip", fixed = TRUE)
+  expect_match(text, "has not approved, endorsed, or tested", fixed = TRUE)
+})
