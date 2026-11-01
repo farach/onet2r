@@ -39,6 +39,19 @@ The [TaskNet comparison article](https://farach.github.io/onet2r/articles/taskne
 runs offline on an entirely synthetic fixture, with explicit expected counts
 and ratings. Real TaskNet data are not bundled.
 
+## Read Published AI Usage Research
+
+`onet_openai_iwa_read()` reads the extracted OpenAI Signals country-quarter
+IWA CSV. It keeps the published share of work-related ChatGPT messages and
+source provenance, without turning usage into an occupational exposure score.
+`Other IWA` stays separate from named O&#42;NET activities. Missing rows are
+not zeros, and rounded shares are not renormalized.
+
+The [OpenAI Signals article](https://farach.github.io/onet2r/articles/openai-work-activities.html)
+uses invented offline values and explains the source population and
+denominator. TaskNet and Signals support are development features intended
+for a future CRAN update.
+
 ## Installation
 
 You can install `onet2r` from CRAN after release:

@@ -91,6 +91,16 @@ deterministically.
 
 ## External TaskNet inventory contract
 
+Public APIs retain the package's `onet_` prefix, snake_case arguments, and
+source families such as `onet_archive_read()` and `onet_tasknet_read()`.
+New readers name the source and action rather than an implementation detail.
+The naming review follows the
+[tidyverse function naming guidance](https://style.tidyverse.org/functions.html)
+to prefer verbs while preserving established resource-oriented families.
+`onet_tasknet_relations()` names its returned relationship table, consistently
+with the package's existing noun-based retrieval APIs. No existing public
+functions are renamed for this addition.
+
 `onet_tasknet_read()` reads a user-supplied local CSV only. There is no
 download, cache, source matching, or exposure estimation. The reader parses a
 private snapshot and records its SHA-256, original local path, read time, and
@@ -126,6 +136,34 @@ Only invented statements and ratings are bundled in
 expected inventory counts, edges, and stylized rating summaries. Neither
 inventory labels nor `new`/`missing` study labels enter official longitudinal
 reconciliation as observed time change.
+
+## OpenAI Signals IWA reader contract
+
+`onet_openai_iwa_read()` reads only the local extracted country-quarter
+work-related-message IWA CSV, not an arbitrary Signals file or ZIP. It uses
+the same verified private-snapshot and source-receipt mechanism as TaskNet.
+The expected digest is for the CSV bytes, not the enclosing ZIP.
+
+The exclusive input columns are `quarter`, `country`, `iwa_cleaned`, and
+`share_of_messages`, in any order. The output preserves the ISO quarter-start
+date as character, renames `country` to `country_code`, and retains the
+published category in `iwa_category`. `iwa_id` is missing for `Other IWA`,
+with an explicit `is_other_iwa` flag. Shares are finite numbers in [0, 1],
+not percentages. Duplicate country-quarter-category keys, invalid code
+syntax, blank shares, and malformed four-field CSV records are errors.
+
+These identifier and numeric fields cannot contain embedded line breaks.
+The format-specific parser validates quoted single-line records in a
+vectorized pass. No statement text, researcher score, or arbitrary additional
+column is silently imported from another Signals dataset.
+
+The reader does not require a fixed number of categories or a complete
+country-quarter panel, fill omitted rows, normalize sums, or aggregate
+countries. Published zeros and fractional shares are retained. Incomplete
+groups must not be treated as complete distributions. These are shares of
+classified work-related consumer messages, not occupational usage rates.
+No occupation allocation, employment weighting, or exposure score is
+inferred. The offline fixture and article use invented values only.
 
 ## Longitudinal panel contract
 

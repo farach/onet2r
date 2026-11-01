@@ -1,6 +1,6 @@
 Package: onet2r
 Title: Work with 'O*NET' Web Services, Archives, and Weights
-Version: 0.6.0
+Version: 0.6.0.9000
 Authors@R:
     person("Alex", "Farach", email = "alexfarach@microsoft.com", role = c("aut", "cre", "cph"))
 Description: Access the Occupational Information Network ('O*NET') Web
@@ -11,8 +11,9 @@ Description: Access the Occupational Information Network ('O*NET') Web
     and employment context, assemble longitudinal archive panels, and validate
     user-supplied occupational measures. Use archived releases, source dates,
     and taxonomy bridges to make longitudinal comparisons easier to audit.
-    Results are returned as 'tibble' data frames for use with 'tidyverse'
-    workflows.
+    Read local research task inventories and published AI usage shares while
+    retaining source provenance. Results are returned as 'tibble' data frames
+    for use with 'tidyverse' workflows.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

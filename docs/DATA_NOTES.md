@@ -67,6 +67,53 @@ Sources:
 - https://github.com/jennjwang/tasknet-system/blob/1cfbe23ed3fed0217c6228e50eb7471c28ed33aa/validation/ui/lib/scales.json
 - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7670419
 
+## OpenAI Signals country-quarter work activities
+
+Verified on 2026-11-01 against the user-supplied OpenAI Signals download,
+its accompanying `README.pdf` version 3.0, and the primary announcement:
+
+- The IWA CSV has 93,555 rows with columns `quarter`, `country`,
+  `iwa_cleaned`, and `share_of_messages`. It covers 94 countries, seven
+  quarters from 2025-01-01 through 2026-07-01, and 567 observed
+  country-quarter groups. Every observed group has 165 categories:
+  164 named IWA identifiers and `Other IWA`. Not every country is present
+  in every quarter. There are 74 countries present in all seven quarters.
+- The CSV SHA-256 is
+  `7db205e3d151f9b5a740ddf355a6123fb918fc1764901028065fb19196a69f84`.
+  This identifies the extracted CSV, not the enclosing ZIP or future releases.
+  The inspected file is
+  `share_of_work_related_messages_by_onet_iwa_country_quarter.csv`.
+- README pages 4 and 7 define the metric as
+  `P(iwa_cleaned | country, quarter, work_related = 1)`. It is conditional
+  on work-related messages, not a share of all messages, employment,
+  workers, or work time. Named IWA codes are activity identifiers, not
+  occupation codes. `Other IWA` is not an O&#42;NET identifier.
+- README page 1 specifies five-decimal IWA rounding after
+  differential-privacy noise and normalization. Observed group sums range
+  from 0.99986 to 1.00010. There are 14,680 reported zero shares. Rounding
+  can produce zero, so a published zero does not establish no underlying use.
+- README page 2 describes one million sampled consumer messages per month,
+  from accounts with a declared age of at least 18. Enterprise messages,
+  Codex, deleted accounts, and users opting out of training are excluded.
+  The overall sampling window is July 2024 through September 2026; the IWA
+  file starts later. Classification does not establish occupation,
+  task completion, job displacement, or causal AI effects.
+- README page 1 specifies Creative Commons Attribution 4.0 International.
+  Real rows are not bundled even though the license allows attributed use.
+  The package bundles only a clearly labeled invented teaching fixture.
+- The announcement reports approximately 43 percent of the mapped,
+  employment-weighted U.S. task mix under other IWAs. This is a separate
+  economic comparison, not the `Other IWA` share in the usage CSV.
+  The reader does not reproduce or infer that employment calculation.
+
+Primary sources:
+
+- https://openai.com/index/chatgpt-expanding-world-of-work/
+- https://openai.com/signals/data/
+- The download's `public_release_csv/README.pdf`, version 3.0, pages 1, 2,
+  4, and 7. The public download page returned HTTP 403 to automated retrieval;
+  the user supplied the archive directly.
+
 ## O&#42;NET archive files
 
 Verified from O&#42;NET Resource Center Data Dictionary pages for release 30.3:

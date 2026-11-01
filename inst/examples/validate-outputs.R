@@ -51,6 +51,22 @@ if (sample_archive == "") {
 sample_archive_base <- dirname(sample_archive)
 
 tasknet_path <- system.file("extdata", "tasknet-synthetic.csv", package = "onet2r")
+openai_iwa_path <- system.file("extdata", "openai-iwa-synthetic.csv", package = "onet2r")
+openai_iwa <- onet_openai_iwa_read(openai_iwa_path, as_of = "invented validation fixture")
+stopifnot(
+  nrow(openai_iwa) == 9L,
+  length(unique(openai_iwa$country_code)) == 2L,
+  sum(openai_iwa$is_other_iwa) == 3L,
+  sum(openai_iwa$share_of_messages == 0) == 1L,
+  isTRUE(all.equal(
+    sum(openai_iwa$share_of_messages[
+      openai_iwa$country_code == "US" & openai_iwa$quarter == "2025-04-01"
+    ]), 0.99999
+  ))
+)
+inspect_tbl(openai_iwa, c("quarter", "country_code", "iwa_category", "share_of_messages"))
+mark_validated("onet_openai_iwa_read")
+
 tasknet <- onet_tasknet_read(tasknet_path, as_of = "synthetic validation fixture")
 tasknet_links <- onet_tasknet_relations(tasknet)
 stopifnot(
