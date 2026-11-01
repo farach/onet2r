@@ -55,7 +55,7 @@ separate from official O&#42;NET archive data. `onet_tasknet_relations()` expand
 explicit refinement and overlap links without inventing allocation weights.
 Neither function downloads data or estimates exposure.
 
-The [TaskNet comparison article](https://farach.github.io/onet2r/articles/tasknet-comparison.html)
+The [TaskNet comparison article](https://farach.github.io/onet2r/dev/articles/tasknet-comparison.html)
 runs offline on an entirely synthetic fixture, with explicit expected counts
 and ratings. Real TaskNet data are not bundled.
 
@@ -67,25 +67,32 @@ source provenance, without turning usage into an occupational exposure score.
 `Other IWA` stays separate from named O&#42;NET activities. Missing rows are
 not zeros, and rounded shares are not renormalized.
 
-The [OpenAI Signals article](https://farach.github.io/onet2r/articles/openai-work-activities.html)
+The [OpenAI Signals article](https://farach.github.io/onet2r/dev/articles/openai-work-activities.html)
 uses invented offline values and explains the source population and
 denominator. TaskNet and Signals support are development features intended
 for a future CRAN update.
 
 ## Installation
 
-You can install `onet2r` from CRAN after release:
+The stable release is version 0.6.0, which has been submitted to CRAN. Once
+CRAN accepts it, install it with:
 
 ```r
 install.packages("onet2r")
 ```
 
-You can install the development version from GitHub:
+Its documentation is at <https://farach.github.io/onet2r/>.
+
+The development version on GitHub adds experimental features that are not yet
+on CRAN, including the TaskNet and OpenAI Signals readers. Install it with:
 
 ```r
 # install.packages("pak")
 pak::pak("farach/onet2r")
 ```
+
+Its documentation is at <https://farach.github.io/onet2r/dev/>. Experimental
+functions may change before they reach CRAN.
 
 ## Authentication
 
