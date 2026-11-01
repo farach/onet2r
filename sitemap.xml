@@ -12,12 +12,10 @@
 <url><loc>https://farach.github.io/onet2r/articles/measure-reproducibility.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/occupational-distinctiveness.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/oews-wage-context.html</loc></url>
-<url><loc>https://farach.github.io/onet2r/articles/openai-work-activities.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/output-validation.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/resurvey-and-content-change.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/software-distinctiveness.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/stress-testing-exposure-measure.html</loc></url>
-<url><loc>https://farach.github.io/onet2r/articles/tasknet-comparison.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/articles/within-between-decomposition.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/authors.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/index.html</loc></url>
@@ -64,7 +62,6 @@
 <url><loc>https://farach.github.io/onet2r/reference/onet_oews_metro.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_oews_national.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_oews_state.html</loc></url>
-<url><loc>https://farach.github.io/onet2r/reference/onet_openai_iwa_read.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_panel.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_panel_reconcile.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_professional_associations.html</loc></url>
@@ -83,8 +80,6 @@
 <url><loc>https://farach.github.io/onet2r/reference/onet_table_info.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_tables.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_task_to_occupation.html</loc></url>
-<url><loc>https://farach.github.io/onet2r/reference/onet_tasknet_read.html</loc></url>
-<url><loc>https://farach.github.io/onet2r/reference/onet_tasknet_relations.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_tasks.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_taxonomy_map.html</loc></url>
 <url><loc>https://farach.github.io/onet2r/reference/onet_technology_skills.html</loc></url>

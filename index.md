@@ -26,37 +26,6 @@ examines listed software examples, their occupational neighbors, and the
 detail lost when examples are grouped. It keeps documented links
 separate from claims about workers’ actual software use.
 
-## Compare an External Task Inventory
-
-[`onet_tasknet_read()`](https://farach.github.io/onet2r/reference/onet_tasknet_read.md)
-reads a manually acquired Stanford TaskNet CSV and keeps study task IDs,
-inventory labels, published ratings, and source provenance separate from
-official O\*NET archive data.
-[`onet_tasknet_relations()`](https://farach.github.io/onet2r/reference/onet_tasknet_relations.md)
-expands explicit refinement and overlap links without inventing
-allocation weights. Neither function downloads data or estimates
-exposure.
-
-The [TaskNet comparison
-article](https://farach.github.io/onet2r/articles/tasknet-comparison.html)
-runs offline on an entirely synthetic fixture, with explicit expected
-counts and ratings. Real TaskNet data are not bundled.
-
-## Read Published AI Usage Research
-
-[`onet_openai_iwa_read()`](https://farach.github.io/onet2r/reference/onet_openai_iwa_read.md)
-reads the extracted OpenAI Signals country-quarter IWA CSV. It keeps the
-published share of work-related ChatGPT messages and source provenance,
-without turning usage into an occupational exposure score. `Other IWA`
-stays separate from named O\*NET activities. Missing rows are not zeros,
-and rounded shares are not renormalized.
-
-The [OpenAI Signals
-article](https://farach.github.io/onet2r/articles/openai-work-activities.html)
-uses invented offline values and explains the source population and
-denominator. TaskNet and Signals support are development features
-intended for a future CRAN update.
-
 ## Installation
 
 You can install `onet2r` from CRAN after release:

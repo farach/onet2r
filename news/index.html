@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">onet2r</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,8 +27,6 @@
     <li><a class="dropdown-item" href="../articles/resurvey-and-content-change.html">Resurvey Cycles and Content Change</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Measures and Weights</h6></li>
     <li><a class="dropdown-item" href="../articles/from-tasks-to-occupations.html">From Tasks to Occupations</a></li>
-    <li><a class="dropdown-item" href="../articles/tasknet-comparison.html">Comparing TaskNet Task Inventories</a></li>
-    <li><a class="dropdown-item" href="../articles/openai-work-activities.html">Reading OpenAI Work-Activity Shares</a></li>
     <li><a class="dropdown-item" href="../articles/occupational-distinctiveness.html">What Makes Occupations Different?</a></li>
     <li><a class="dropdown-item" href="../articles/software-distinctiveness.html">What Software Lists Tell Us</a></li>
     <li><a class="dropdown-item" href="../articles/measure-reproducibility.html">Reproducible Measures</a></li>
@@ -54,16 +52,6 @@
       <small>Source: <a href="https://github.com/farach/onet2r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="onet2r-development-version">onet2r (development version)<a class="anchor" aria-label="anchor" href="#onet2r-development-version"></a></h2>
-<div class="section level3">
-<h3 id="research-using-onet-and-ai-development-version">Research using O*NET and AI<a class="anchor" aria-label="anchor" href="#research-using-onet-and-ai-development-version"></a></h3>
-<ul><li>
-<code><a href="../reference/onet_tasknet_read.html">onet_tasknet_read()</a></code> reads a local Stanford TaskNet CSV with explicit study IDs, inventory labels, strictly validated ratings, and row-level source provenance. <code><a href="../reference/onet_tasknet_relations.html">onet_tasknet_relations()</a></code> expands refinement and overlap links into a canonical TaskNet-to-comparison relationship table, preserving many-to-many links without double-counting reciprocal declarations. Neither function downloads data, assigns official Task IDs or Core status, or supplies an exposure measure. The new comparison article uses only synthetic offline data and checks explicit expected results.</li>
-<li>
-<code><a href="../reference/onet_openai_iwa_read.html">onet_openai_iwa_read()</a></code> reads the local country-quarter IWA file from OpenAI Signals. It preserves published work-message shares, reported zeros, the separate <code>Other IWA</code> category, and row-level provenance. It does not renormalize rounded shares, fill absent rows, or infer occupational adoption or exposure. The new article uses invented offline data with exact expected counts and sums. These integrations are intended for the next CRAN update, not part of the released 0.6.0 package.</li>
-</ul></div>
-</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="onet2r-060">onet2r 0.6.0<a class="anchor" aria-label="anchor" href="#onet2r-060"></a></h2>
 <div class="section level3">
