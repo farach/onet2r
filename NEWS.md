@@ -18,6 +18,14 @@
   counts and sums. These integrations are intended for the next CRAN update,
   not part of the released 0.6.0 package.
 
+## Documentation
+
+* The pkgdown site now keeps the stable release and the development version
+  apart. <https://farach.github.io/onet2r/> is built only from release tags,
+  starting with `v0.6.0`, and <https://farach.github.io/onet2r/dev/> is rebuilt
+  from `main` on every push. The README links experimental articles to the
+  development site.
+
 # onet2r 0.6.0
 
 ## New features
