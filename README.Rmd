@@ -47,6 +47,18 @@ sensitivity, a size-preserving randomized partition reference, and explicitly
 stylized multidomain examples. Figures show the findings and their measurement
 limits.
 
+## Compare an External Task Inventory
+
+`onet_tasknet_read()` reads a manually acquired Stanford TaskNet CSV and keeps
+study task IDs, inventory labels, published ratings, and source provenance
+separate from official O&#42;NET archive data. `onet_tasknet_relations()` expands
+explicit refinement and overlap links without inventing allocation weights.
+Neither function downloads data or estimates exposure.
+
+The [TaskNet comparison article](https://farach.github.io/onet2r/articles/tasknet-comparison.html)
+runs offline on an entirely synthetic fixture, with explicit expected counts
+and ratings. Real TaskNet data are not bundled.
+
 ## Installation
 
 You can install `onet2r` from CRAN after release:

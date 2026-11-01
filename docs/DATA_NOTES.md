@@ -4,6 +4,69 @@ These notes record facts checked for the 0.4.1 contracts. Facts that could not
 be verified are treated as assumptions and guarded in tests or left out of
 automated behavior.
 
+## Stanford TaskNet pilot
+
+Verified on 2026-10-27 against Stanford's project page, publication abstract,
+public CSV, and the authors' system repository:
+
+- The public CSV contains 320 rows: 202 TaskNet statements and 118
+  O&#42;NET comparison statements. Stanford identifies the comparison as
+  O&#42;NET 31.0. These are two inventories, not 320 TaskNet tasks.
+- Both inventories cover six occupations: Software Developers
+  (`15-1252.00`), Lawyers (`23-1011.00`), Elementary School Teachers
+  (`25-2021.00`), Emergency Medicine Physicians (`29-1214.00`), Personal Care
+  Aides (`31-1122.00`), and Dishwashers (`35-9021.00`). The CSV's `soc`
+  field holds native O&#42;NET-SOC detail codes, not six-digit SOC codes.
+- CSV identifiers such as `S-SWD-01` and `O-SWD-01` are study identifiers.
+  The file has no official O&#42;NET Task ID column. Its O&#42;NET comparison
+  rows must not be joined to archive task IDs by treating `id` as `task_id`.
+- The CSV includes `refines`, `refined_by`, and `overlaps` links between
+  study identifiers. Some cells have multiple semicolon-separated targets.
+  All targets resolve within the inspected CSV. Relations are not necessarily
+  one-to-one and do not supply allocation weights.
+- Independent CSV and Stanford visualization checks found 70 refinement
+  edges and 119 overlap edges, all oriented TaskNet-to-comparison. All
+  declarations are reciprocal: the 378 raw declarations encode 189 canonical
+  edges. Some tasks refine one statement while overlapping a different one.
+- Frequency uses seven categories; duration and training each use nine.
+  Published fractional summaries must not be rounded or treated as hours or
+  years. The five TaskNet-only ratings have 118 structural blanks each on
+  comparison rows. The comparison ratings are not established as estimates
+  from the same respondent sample as the TaskNet ratings.
+- There are 79 TaskNet rows labeled `region = "new"` and 58 TaskNet rows
+  with nonempty `refines`. The O&#42;NET comparison inventory has 88 rows
+  labeled `overlap` and 30 labeled `missing`. These labels describe this
+  study comparison, not observed additions or deletions between official
+  O&#42;NET releases.
+- Stanford describes relevance as the share of raters saying a task belongs
+  to the occupation. Other ratings are conditional on relevance. Tasks with
+  relevance below 25% were dropped. The CSV also contains importance,
+  frequency, duration, training, articulability, verifiability, and
+  top-worker-gap fields. Do not interpret relevance as time share or assume
+  these ratings are official O&#42;NET estimates.
+- The download also includes research measures such as `eloundou_beta` and
+  `rl_feasibility`. Their presence does not make them package defaults or
+  endorsed exposure measures.
+- The system repository is distinct from the public inventory CSV. Its
+  validation input inventories are synthetic examples, and interview data
+  and survey responses are access-restricted. The repository states CC0
+  licensing with CC BY 4.0 exceptions for specified O&#42;NET-derived files.
+  This does not establish the separate Stanford CSV's redistribution terms.
+  Confirm those terms before bundling real rows in the package.
+- The full SSRN paper could not be retrieved in this review (HTTP 403).
+  Sampling, uncertainty, rating comparability, and exposure-estimation
+  details beyond the accessible primary sources remain unverified.
+
+Sources:
+
+- https://digitaleconomy.stanford.edu/project/tasknet/
+- https://digitaleconomy.stanford.edu/publication/tasknet-building-occupational-task-inventories-from-worker-interviews-at-scale/
+- https://digitaleconomy.stanford.edu/app/uploads/2026/10/tasknet-data.csv
+- https://github.com/jennjwang/tasknet-system
+- https://digitaleconomy.stanford.edu/app/uploads/2026/10/TaskNetTbO.html
+- https://github.com/jennjwang/tasknet-system/blob/1cfbe23ed3fed0217c6228e50eb7471c28ed33aa/validation/ui/lib/scales.json
+- https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7670419
+
 ## O&#42;NET archive files
 
 Verified from O&#42;NET Resource Center Data Dictionary pages for release 30.3:

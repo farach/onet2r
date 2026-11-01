@@ -2,6 +2,14 @@
 
 ## New features
 
+* `onet_tasknet_read()` reads a local Stanford TaskNet CSV with explicit study
+  IDs, inventory labels, strictly validated ratings, and row-level source
+  provenance. `onet_tasknet_relations()` expands refinement and overlap links
+  into a canonical TaskNet-to-comparison relationship table, preserving
+  many-to-many links without double-counting reciprocal declarations.
+  Neither function downloads data, assigns official Task IDs or Core status,
+  or supplies an exposure measure. The new comparison article uses only
+  synthetic offline data and checks explicit expected results.
 * `onet_oews_bridge()` maps O&#42;NET-SOC codes into the 12 combined codes OEWS has published since May 2021 in place of some detailed occupations, such as `31-1120` Home Health and Personal Care Aides and `25-9045` Teaching Assistants, Except Postsecondary. Pass it as `bridge` to `onet_measure_aggregate()` or `onet_measure_sensitivity()`. The mapping comes from the BLS occupation definitions, so it is the same for national, state, metropolitan, and industry panels, and panels from before May 2021 are rejected. With O&#42;NET 31.0 task ratings and May 2025 national OEWS weights, it raises covered employment from about 92 percent to about 98 percent, and Healthcare Support from about 46 percent to 100 percent (reported in the task-time EDA review).
 * `onet_archive_reference()` reads O&#42;NET archive reference tables such as `GWAs to IWAs to DWAs`, `Scales Reference`, and `Task Categories`, which have no O&#42;NET-SOC column and cannot be read by `onet_archive_read()`. In the text archives, DWA titles and scale names appear only in those tables (reported in the task-time EDA review).
 * `onet_resurvey_panel()` restructures a Task Ratings panel into a task by resurvey-cycle frame keyed on the incumbent-survey `source_date`, exposing the occupation survey clock, resurvey events, cycle index, and seam flags.

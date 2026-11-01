@@ -69,6 +69,8 @@ navbar:
         - text: Measures and Weights
         - text: From Tasks to Occupations
           href: articles/from-tasks-to-occupations.html
+        - text: Comparing TaskNet Task Inventories
+          href: articles/tasknet-comparison.html
         - text: What Makes Occupations Different?
           href: articles/occupational-distinctiveness.html
         - text: What Software Lists Tell Us
@@ -194,6 +196,13 @@ reference:
       - onet_measure_sensitivity
       - onet_robustness_diagnostic
       - onet_decompose_change
+  - title: External task inventories
+    desc: >
+      Local-only TaskNet inventory and relationship readers. Study identifiers
+      and ratings remain separate from official O*NET archives.
+    contents:
+      - onet_tasknet_read
+      - onet_tasknet_relations
   - title: External AI-exposure adapters
     desc: >
       Download-only adapters that ingest published occupation-level AI-exposure
@@ -218,6 +227,7 @@ articles:
     navbar: ~
     contents:
       - from-tasks-to-occupations
+      - tasknet-comparison
       - occupational-distinctiveness
       - software-distinctiveness
       - measure-reproducibility

@@ -50,6 +50,32 @@ if (sample_archive == "") {
 }
 sample_archive_base <- dirname(sample_archive)
 
+tasknet_path <- system.file("extdata", "tasknet-synthetic.csv", package = "onet2r")
+tasknet <- onet_tasknet_read(tasknet_path, as_of = "synthetic validation fixture")
+tasknet_links <- onet_tasknet_relations(tasknet)
+stopifnot(
+  nrow(tasknet) == 9L,
+  sum(tasknet$inventory == "TaskNet") == 5L,
+  sum(tasknet$inventory == "O*NET") == 4L,
+  nrow(tasknet_links) == 5L,
+  sum(tasknet_links$relation_type == "refines") == 3L,
+  sum(tasknet_links$relation_type == "overlaps") == 2L,
+  identical(tasknet$study_task_id[1], "S-FIX-01"),
+  identical(tasknet$onet_soc_code[1], "15-1252.00"),
+  isTRUE(all.equal(mean(tasknet$importance[tasknet$inventory == "TaskNet"]), 3.6)),
+  isTRUE(all.equal(mean(tasknet$importance[tasknet$inventory == "O*NET"]), 3.25))
+)
+message("TaskNet synthetic expectations matched: 9 rows, 5/4 inventories, 3/2 relation types.")
+inspect_tbl(
+  tasknet[c("study_task_id", "inventory", "importance")],
+  c("study_task_id", "inventory", "importance")
+)
+inspect_tbl(
+  tasknet_links[c("from_study_task_id", "to_study_task_id", "relation_type")],
+  c("from_study_task_id", "to_study_task_id", "relation_type")
+)
+mark_validated("onet_tasknet_read", "onet_tasknet_relations")
+
 old_key <- Sys.getenv("ONET_API_KEY", unset = NA_character_)
 Sys.setenv(ONET_API_KEY = "validation-placeholder-key")
 stopifnot(identical(onet_api_key(), "validation-placeholder-key"))
