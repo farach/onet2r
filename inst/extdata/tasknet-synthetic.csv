@@ -1,0 +1,10 @@
+id,inventory,region,occupation,soc,statement,refines,refined_by,overlaps,relevance,importance,frequency,duration,training_svp,articulability,verifiability,top_worker_gap,eloundou_beta,rl_feasibility,chat_use_quartile,postings_quartile,themes
+S-FIX-01,TaskNet,overlap,Fixture Analysts,15-1252.00,Stylized: prepare a fixture plan.,O-FIX-01,,,0.8,4,3,,,,,,,,,,planning
+S-FIX-02,TaskNet,overlap,Fixture Analysts,15-1252.00,Stylized: check a fixture plan.,O-FIX-01; O-FIX-02,,,1,5,4,,,,,,,,,,checking
+S-FIX-03,TaskNet,overlap,Fixture Analysts,15-1252.00,Stylized: discuss a fixture result.,,,O-FIX-02,0.5,3,2,,,,,,,,,,discussion
+S-FIX-04,TaskNet,new,Fixture Analysts,15-1252.00,Stylized: document a fixture exception.,,,,0.25,2,1,,,,,,,,,,documentation
+O-FIX-01,O*NET,overlap,Fixture Analysts,15-1252.00,Stylized: manage fixture planning.,,S-FIX-01; S-FIX-02,,0.9,4,3,,,,,,,,,,planning
+O-FIX-02,O*NET,overlap,Fixture Analysts,15-1252.00,Stylized: manage fixture results.,,S-FIX-02,S-FIX-03,0.6,3,2,,,,,,,,,,checking
+O-FIX-03,O*NET,missing,Fixture Analysts,15-1252.00,Stylized: archive a fixture record.,,,,0.4,2,1,,,,,,,,,,archiving
+S-AUX-01,TaskNet,overlap,Fixture Assistants,31-1122.00,Stylized: arrange fixture materials.,,,O-AUX-01,0.75,4,5,,,,,,,,,,arranging
+O-AUX-01,O*NET,overlap,Fixture Assistants,31-1122.00,Stylized: organize fixture materials.,,,S-AUX-01,0.8,4,5,,,,,,,,,,arranging

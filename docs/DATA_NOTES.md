@@ -4,6 +4,116 @@ These notes record facts checked for the 0.4.1 contracts. Facts that could not
 be verified are treated as assumptions and guarded in tests or left out of
 automated behavior.
 
+## Stanford TaskNet pilot
+
+Verified on 2026-10-27 against Stanford's project page, publication abstract,
+public CSV, and the authors' system repository:
+
+- The public CSV contains 320 rows: 202 TaskNet statements and 118
+  O&#42;NET comparison statements. Stanford identifies the comparison as
+  O&#42;NET 31.0. These are two inventories, not 320 TaskNet tasks.
+- Both inventories cover six occupations: Software Developers
+  (`15-1252.00`), Lawyers (`23-1011.00`), Elementary School Teachers
+  (`25-2021.00`), Emergency Medicine Physicians (`29-1214.00`), Personal Care
+  Aides (`31-1122.00`), and Dishwashers (`35-9021.00`). The CSV's `soc`
+  field holds native O&#42;NET-SOC detail codes, not six-digit SOC codes.
+- CSV identifiers such as `S-SWD-01` and `O-SWD-01` are study identifiers.
+  The file has no official O&#42;NET Task ID column. Its O&#42;NET comparison
+  rows must not be joined to archive task IDs by treating `id` as `task_id`.
+- The CSV includes `refines`, `refined_by`, and `overlaps` links between
+  study identifiers. Some cells have multiple semicolon-separated targets.
+  All targets resolve within the inspected CSV. Relations are not necessarily
+  one-to-one and do not supply allocation weights.
+- Independent CSV and Stanford visualization checks found 70 refinement
+  edges and 119 overlap edges, all oriented TaskNet-to-comparison. All
+  declarations are reciprocal: the 378 raw declarations encode 189 canonical
+  edges. Some tasks refine one statement while overlapping a different one.
+- Frequency uses seven categories; duration and training each use nine.
+  Published fractional summaries must not be rounded or treated as hours or
+  years. The five TaskNet-only ratings have 118 structural blanks each on
+  comparison rows. The comparison ratings are not established as estimates
+  from the same respondent sample as the TaskNet ratings.
+- There are 79 TaskNet rows labeled `region = "new"` and 58 TaskNet rows
+  with nonempty `refines`. The O&#42;NET comparison inventory has 88 rows
+  labeled `overlap` and 30 labeled `missing`. These labels describe this
+  study comparison, not observed additions or deletions between official
+  O&#42;NET releases.
+- Stanford describes relevance as the share of raters saying a task belongs
+  to the occupation. Other ratings are conditional on relevance. Tasks with
+  relevance below 25% were dropped. The CSV also contains importance,
+  frequency, duration, training, articulability, verifiability, and
+  top-worker-gap fields. Do not interpret relevance as time share or assume
+  these ratings are official O&#42;NET estimates.
+- The download also includes research measures such as `eloundou_beta` and
+  `rl_feasibility`. Their presence does not make them package defaults or
+  endorsed exposure measures.
+- The system repository is distinct from the public inventory CSV. Its
+  validation input inventories are synthetic examples, and interview data
+  and survey responses are access-restricted. The repository states CC0
+  licensing with CC BY 4.0 exceptions for specified O&#42;NET-derived files.
+  This does not establish the separate Stanford CSV's redistribution terms.
+  Confirm those terms before bundling real rows in the package.
+- The full SSRN paper could not be retrieved in this review (HTTP 403).
+  Sampling, uncertainty, rating comparability, and exposure-estimation
+  details beyond the accessible primary sources remain unverified.
+
+Sources:
+
+- https://digitaleconomy.stanford.edu/project/tasknet/
+- https://digitaleconomy.stanford.edu/publication/tasknet-building-occupational-task-inventories-from-worker-interviews-at-scale/
+- https://digitaleconomy.stanford.edu/app/uploads/2026/10/tasknet-data.csv
+- https://github.com/jennjwang/tasknet-system
+- https://digitaleconomy.stanford.edu/app/uploads/2026/10/TaskNetTbO.html
+- https://github.com/jennjwang/tasknet-system/blob/1cfbe23ed3fed0217c6228e50eb7471c28ed33aa/validation/ui/lib/scales.json
+- https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7670419
+
+## OpenAI Signals country-quarter work activities
+
+Verified on 2026-11-01 against the user-supplied OpenAI Signals download,
+its accompanying `README.pdf` version 3.0, and the primary announcement:
+
+- The IWA CSV has 93,555 rows with columns `quarter`, `country`,
+  `iwa_cleaned`, and `share_of_messages`. It covers 94 countries, seven
+  quarters from 2025-01-01 through 2026-07-01, and 567 observed
+  country-quarter groups. Every observed group has 165 categories:
+  164 named IWA identifiers and `Other IWA`. Not every country is present
+  in every quarter. There are 74 countries present in all seven quarters.
+- The CSV SHA-256 is
+  `7db205e3d151f9b5a740ddf355a6123fb918fc1764901028065fb19196a69f84`.
+  This identifies the extracted CSV, not the enclosing ZIP or future releases.
+  The inspected file is
+  `share_of_work_related_messages_by_onet_iwa_country_quarter.csv`.
+- README pages 4 and 7 define the metric as
+  `P(iwa_cleaned | country, quarter, work_related = 1)`. It is conditional
+  on work-related messages, not a share of all messages, employment,
+  workers, or work time. Named IWA codes are activity identifiers, not
+  occupation codes. `Other IWA` is not an O&#42;NET identifier.
+- README page 1 specifies five-decimal IWA rounding after
+  differential-privacy noise and normalization. Observed group sums range
+  from 0.99986 to 1.00010. There are 14,680 reported zero shares. Rounding
+  can produce zero, so a published zero does not establish no underlying use.
+- README page 2 describes one million sampled consumer messages per month,
+  from accounts with a declared age of at least 18. Enterprise messages,
+  Codex, deleted accounts, and users opting out of training are excluded.
+  The overall sampling window is July 2024 through September 2026; the IWA
+  file starts later. Classification does not establish occupation,
+  task completion, job displacement, or causal AI effects.
+- README page 1 specifies Creative Commons Attribution 4.0 International.
+  Real rows are not bundled even though the license allows attributed use.
+  The package bundles only a clearly labeled invented teaching fixture.
+- The announcement reports approximately 43 percent of the mapped,
+  employment-weighted U.S. task mix under other IWAs. This is a separate
+  economic comparison, not the `Other IWA` share in the usage CSV.
+  The reader does not reproduce or infer that employment calculation.
+
+Primary sources:
+
+- https://openai.com/index/chatgpt-expanding-world-of-work/
+- https://openai.com/signals/data/
+- The download's `public_release_csv/README.pdf`, version 3.0, pages 1, 2,
+  4, and 7. The public download page returned HTTP 403 to automated retrieval;
+  the user supplied the archive directly.
+
 ## O&#42;NET archive files
 
 Verified from O&#42;NET Resource Center Data Dictionary pages for release 30.3:

@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Access the Occupational Information Network ('O*NET') Web Services Application Programming Interface (API) version 2.0 \url{https://services.onetcenter.org/}. Search occupations, retrieve occupation details such as skills, knowledge, abilities, tasks, and work activities, access database tables, perform taxonomy crosswalks, join wage and employment context, assemble longitudinal archive panels, and validate user-supplied occupational measures. Use archived releases, source dates, and taxonomy bridges to make longitudinal comparisons easier to audit. Results are returned as 'tibble' data frames for use with 'tidyverse' workflows.
+Access the Occupational Information Network ('O*NET') Web Services Application Programming Interface (API) version 2.0 \url{https://services.onetcenter.org/}. Search occupations, retrieve occupation details such as skills, knowledge, abilities, tasks, and work activities, access database tables, perform taxonomy crosswalks, join wage and employment context, assemble longitudinal archive panels, and validate user-supplied occupational measures. Use archived releases, source dates, and taxonomy bridges to make longitudinal comparisons easier to audit. Read local research task inventories and published AI usage shares while retaining source provenance. Results are returned as 'tibble' data frames for use with 'tidyverse' workflows.
 }
 \seealso{
 Useful links:

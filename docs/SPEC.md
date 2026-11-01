@@ -89,6 +89,82 @@ gzipped CSV at the requested path, rejecting ambiguous duplicate snapshots.
 Generators use the shared writer and reproduce the compressed files
 deterministically.
 
+## External TaskNet inventory contract
+
+Public APIs retain the package's `onet_` prefix, snake_case arguments, and
+source families such as `onet_archive_read()` and `onet_tasknet_read()`.
+New readers name the source and action rather than an implementation detail.
+The naming review follows the
+[tidyverse function naming guidance](https://style.tidyverse.org/functions.html)
+to prefer verbs while preserving established resource-oriented families.
+`onet_tasknet_relations()` names its returned relationship table, consistently
+with the package's existing noun-based retrieval APIs. No existing public
+functions are renamed for this addition.
+
+`onet_tasknet_read()` reads a user-supplied local CSV only. There is no
+download, cache, source matching, or exposure estimation. The reader parses a
+private snapshot and records its SHA-256, original local path, read time, and
+optional caller-supplied source URL and snapshot label in ordinary columns.
+Reading a local file does not establish its download time. Provenance describes
+the input bytes, not any later in-memory edits. Source record numbers are
+integer data-record positions, not physical line numbers.
+
+The source `id`, `soc`, `occupation`, and `statement` columns become
+`study_task_id`, `onet_soc_code`, `title`, and `task`. Inventory labels remain
+`TaskNet` and `O*NET`. No official `task_id`, release, Core/Supplemental status,
+or employment allocation is inferred. Known rating columns are numeric with
+explicit missingness and validated bounds; research-score and unrecognized
+source columns remain character data, not package defaults. Known optional
+columns are present even when absent from the source. Header-only files return
+typed empty tibbles.
+
+The reader and `onet_tasknet_relations()` reject invalid schema, duplicate or
+blank study IDs, malformed occupational detail codes, invalid ratings, and
+malformed or unresolved relationship targets. Relation endpoints must be in
+the same occupation and opposite inventories. Refinement direction is
+TaskNet-to-comparison. Reciprocal `refines`/`refined_by` and overlap declarations
+are collapsed into unique `(from_study_task_id, to_study_task_id, relation_type)`
+edges. Many-to-many relationships remain explicit and have no allocation
+weights. Reciprocal declarations and agreement between region labels and
+link presence are required. The relation helper verifies the reader's content
+signature and rejects edited or subset input. Build the relationship table
+before filtering either table, including otherwise closed occupation subsets.
+This intentionally strict local-file contract does not repair partial graphs.
+
+Only invented statements and ratings are bundled in
+`inst/extdata/tasknet-synthetic.csv`. The comparison vignette asserts exact
+expected inventory counts, edges, and stylized rating summaries. Neither
+inventory labels nor `new`/`missing` study labels enter official longitudinal
+reconciliation as observed time change.
+
+## OpenAI Signals IWA reader contract
+
+`onet_openai_iwa_read()` reads only the local extracted country-quarter
+work-related-message IWA CSV, not an arbitrary Signals file or ZIP. It uses
+the same verified private-snapshot and source-receipt mechanism as TaskNet.
+The expected digest is for the CSV bytes, not the enclosing ZIP.
+
+The exclusive input columns are `quarter`, `country`, `iwa_cleaned`, and
+`share_of_messages`, in any order. The output preserves the ISO quarter-start
+date as character, renames `country` to `country_code`, and retains the
+published category in `iwa_category`. `iwa_id` is missing for `Other IWA`,
+with an explicit `is_other_iwa` flag. Shares are finite numbers in [0, 1],
+not percentages. Duplicate country-quarter-category keys, invalid code
+syntax, blank shares, and malformed four-field CSV records are errors.
+
+These identifier and numeric fields cannot contain embedded line breaks.
+The format-specific parser validates quoted single-line records in a
+vectorized pass. No statement text, researcher score, or arbitrary additional
+column is silently imported from another Signals dataset.
+
+The reader does not require a fixed number of categories or a complete
+country-quarter panel, fill omitted rows, normalize sums, or aggregate
+countries. Published zeros and fractional shares are retained. Incomplete
+groups must not be treated as complete distributions. These are shares of
+classified work-related consumer messages, not occupational usage rates.
+No occupation allocation, employment weighting, or exposure score is
+inferred. The offline fixture and article use invented values only.
+
 ## Longitudinal panel contract
 
 `onet_archive_read()` returns one row per archive observation with:
