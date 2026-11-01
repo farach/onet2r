@@ -8,8 +8,9 @@ activities, access database tables, perform taxonomy crosswalks, join
 wage and employment context, assemble longitudinal archive panels, and
 validate user-supplied occupational measures. Use archived releases,
 source dates, and taxonomy bridges to make longitudinal comparisons
-easier to audit. Results are returned as 'tibble' data frames for use
-with 'tidyverse' workflows.
+easier to audit. Read local research task inventories and published AI
+usage shares while retaining source provenance. Results are returned as
+'tibble' data frames for use with 'tidyverse' workflows.
 
 ## See also
 

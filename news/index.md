@@ -1,5 +1,28 @@
 # Changelog
 
+## onet2r (development version)
+
+### Research using O\*NET and AI
+
+- [`onet_tasknet_read()`](https://farach.github.io/onet2r/reference/onet_tasknet_read.md)
+  reads a local Stanford TaskNet CSV with explicit study IDs, inventory
+  labels, strictly validated ratings, and row-level source provenance.
+  [`onet_tasknet_relations()`](https://farach.github.io/onet2r/reference/onet_tasknet_relations.md)
+  expands refinement and overlap links into a canonical
+  TaskNet-to-comparison relationship table, preserving many-to-many
+  links without double-counting reciprocal declarations. Neither
+  function downloads data, assigns official Task IDs or Core status, or
+  supplies an exposure measure. The new comparison article uses only
+  synthetic offline data and checks explicit expected results.
+- [`onet_openai_iwa_read()`](https://farach.github.io/onet2r/reference/onet_openai_iwa_read.md)
+  reads the local country-quarter IWA file from OpenAI Signals. It
+  preserves published work-message shares, reported zeros, the separate
+  `Other IWA` category, and row-level provenance. It does not
+  renormalize rounded shares, fill absent rows, or infer occupational
+  adoption or exposure. The new article uses invented offline data with
+  exact expected counts and sums. These integrations are intended for
+  the next CRAN update, not part of the released 0.6.0 package.
+
 ## onet2r 0.6.0
 
 ### New features

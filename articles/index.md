@@ -20,6 +20,10 @@
 
 - [From Tasks to
   Occupations](https://farach.github.io/onet2r/articles/from-tasks-to-occupations.md):
+- [Comparing TaskNet and O\*NET Task
+  Inventories](https://farach.github.io/onet2r/articles/tasknet-comparison.md):
+- [Reading OpenAI Signals Work-Activity
+  Shares](https://farach.github.io/onet2r/articles/openai-work-activities.md):
 - [What Makes Occupations
   Different?](https://farach.github.io/onet2r/articles/occupational-distinctiveness.md):
 - [What Software Lists Tell Us About

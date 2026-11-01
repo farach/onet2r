@@ -173,6 +173,24 @@ Soft-deprecated helpers retained for compatibility.
 - [`onet_decompose_change()`](https://farach.github.io/onet2r/reference/onet_decompose_change.md)
   : Decompose Aggregate Change into Within and Between Components
 
+## External task inventories
+
+Local-only TaskNet inventory and relationship readers. Study identifiers
+and ratings remain separate from official O\*NET archives.
+
+- [`onet_tasknet_read()`](https://farach.github.io/onet2r/reference/onet_tasknet_read.md)
+  : Read a Local Stanford TaskNet Inventory
+- [`onet_tasknet_relations()`](https://farach.github.io/onet2r/reference/onet_tasknet_relations.md)
+  : Expand Explicit TaskNet Inventory Relationships
+
+## Published AI usage research
+
+Local-only OpenAI Signals IWA shares. Message usage is not an
+occupational adoption rate or an exposure measure.
+
+- [`onet_openai_iwa_read()`](https://farach.github.io/onet2r/reference/onet_openai_iwa_read.md)
+  : Read Local OpenAI Signals Work-Activity Shares
+
 ## External AI-exposure adapters
 
 Download-only adapters that ingest published occupation-level
